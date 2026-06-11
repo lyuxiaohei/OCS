@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build output
+dist/
+build/
+.output/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temp files
+*.tmp
+*.temp
+.cache/
+
+# Go
+go-chat-service/temp/
+go-chat-service/manifest/
+
+# Frontend
+service-frontend/.umi/
+service-frontend/.umi-production/
+service-frontend/dist/
+
+# Taro
+service-user/dist/
+
+# Project planning (tracked selectively)
+.planning/**/node_modules/
+
+# Skills lock
+skills-lock.json
