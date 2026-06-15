@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ 常见问题 — 用户端原型</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== user-faq.html 专属样式 ===== */
+
+    body {
+      background: #ededed;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* 顶部说明条（页面级，非手机内部） */
+    .page-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .page-title {
+      text-align: center;
+      color: #1f1f1f;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .page-subtitle {
+      text-align: center;
+      color: #8c8c8c;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* 搜索框（手机内顶部） */
+    .faq-search {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 18px;
+      padding: 0 12px;
+      height: 36px;
+      flex: 1;
+      border: 1px solid #eee;
+    }
+    .faq-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      background: transparent;
+      color: #1f1f1f;
+    }
+    .faq-search input::placeholder { color: #bfbfbf; }
+    .faq-search .search-icon { font-size: 16px; color: #8c8c8c; margin-right: 6px; }
+
+    /* 分类标签栏 */
+    .faq-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #f7f7f7;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .faq-tabs::-webkit-scrollbar { display: none; }
+    .faq-tab {
+      flex-shrink: 0;
+      padding: 5px 12px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      font-size: 12px;
+      color: #595959;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .faq-tab:hover { border-color: #1677ff; color: #1677ff; }
+    .faq-tab.active {
+      background: #1677ff;
+      border-color: #1677ff;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* FAQ 列表 */
+    .faq-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #ededed;
+    }
+    .faq-item {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .faq-item:hover { border-color: #d6e4ff; }
+    .faq-item.expanded {
+      border-color: #1677ff;
+      box-shadow: 0 2px 8px rgba(22,119,255,0.08);
+    }
+    .faq-item-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .faq-question {
+      flex: 1;
+      font-size: 14px;
+      color: #1f1f1f;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .faq-hit {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      color: #fa8c16;
+      background: #fff7e6;
+      padding: 2px 7px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .faq-hit .fire { font-size: 10px; }
+
+    /* 答案气泡（展开时显示） */
+    .faq-answer {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #f0f0f0;
+    }
+    .faq-item.expanded .faq-answer { display: block; }
+    .faq-answer-bubble {
+      background: #f6ffed;
+      border: 1px solid #d9f7be;
+      border-radius: 8px;
+      border-top-left-radius: 2px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #1f1f1f;
+      line-height: 1.6;
+    }
+    .faq-answer-bubble .label {
+      display: inline-block;
+      font-size: 11px;
+      color: #52c41a;
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .faq-answer-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .faq-answer-actions button {
+      flex: 1;
+      padding: 6px 0;
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: #595959;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .faq-answer-actions button:hover { border-color: #1677ff; color: #1677ff; }
+    .faq-answer-actions .useful {
+      background: #1677ff;
+      border-color: #1677ff;
+      color: #fff;
+    }
+    .faq-answer-actions .useful:hover { background: #4096ff; }
+
+    /* 热门标签 */
+    .faq-hot-tag {
+      display: inline-block;
+      font-size: 10px;
+      color: #fff;
+      background: linear-gradient(135deg, #f5222d, #ff7875);
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: 6px;
+      vertical-align: middle;
+      font-weight: 500;
+    }
+
+    /* 底部提示 */
+    .faq-footer-tip {
+      text-align: center;
+      padding: 16px 12px 12px;
+      font-size: 12px;
+      color: #8c8c8c;
+      flex-shrink: 0;
+      background: #f7f7f7;
+      border-top: 1px solid #f0f0f0;
+    }
+    .faq-footer-tip a { color: #1677ff; cursor: pointer; }
+
+    /* 排版小标题 */
+    .faq-section-label {
+      font-size: 11px;
+      color: #8c8c8c;
+      padding: 8px 4px 4px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrap">
+    <h1 class="page-title">FAQ 常见问题</h1>
+    <p class="page-subtitle">用户端 · 移动端原型 · 演示 US-MVP-24 FAQ快捷问题</p>
+
+    <!-- ===== Mobile Container (375px) ===== -->
+    <div class="chat-mobile-container">
+
+      <!-- Header -->
+      <div class="chat-header">
+        <span class="back-arrow" title="返回">‹</span>
+        <span class="title">常见问题</span>
+        <span class="action-icon" title="联系客服">👤</span>
+      </div>
+
+      <!-- Search Bar -->
+      <div style="display:flex; gap:8px; padding:10px 12px; background:#f7f7f7; border-bottom:1px solid #f0f0f0; flex-shrink:0;">
+        <div class="faq-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="搜索常见问题，如“退款进度”" />
+        </div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="faq-tabs">
+        <span class="faq-tab active" data-cat="all">全部</span>
+        <span class="faq-tab" data-cat="order">订单问题</span>
+        <span class="faq-tab" data-cat="refund">退换货</span>
+        <span class="faq-tab" data-cat="pay">支付</span>
+        <span class="faq-tab" data-cat="logistics">物流</span>
+        <span class="faq-tab" data-cat="account">账户</span>
+      </div>
+
+      <!-- FAQ List -->
+      <div class="faq-list" id="faqList">
+
+        <div class="faq-section-label">热门问题</div>
+
+        <!-- FAQ Item 1 -->
+        <div class="faq-item" data-cat="refund">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">如何申请七天无理由退货？<span class="faq-hot-tag">HOT</span></div>
+            <span class="faq-hit"><span class="fire">🔥</span>2.3w</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              在「我的订单」中找到对应订单，点击「申请售后」→ 选择「退货退款」→ 填写退货原因并提交。商品需保持全新未使用状态，附带完整配件与包装。审核通过后将自动生成退货物流单。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="faq-item" data-cat="order">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">订单显示“已发货”但查不到物流信息？<span class="faq-hot-tag">HOT</span></div>
+            <span class="faq-hit"><span class="fire">🔥</span>1.8w</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              物流单号一般在商家发货后 2-4 小时内更新。若超过 24 小时仍无更新，可能是物流公司系统延迟，建议您耐心等待；如急需处理可点击下方「联系客服」转人工咨询。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="faq-item" data-cat="refund">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">退款多久能到账？</div>
+            <span class="faq-hit"><span class="fire">🔥</span>1.5w</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              退款审核通过后：支付宝/微信原路退回 1-3 个工作日；银行卡 3-7 个工作日；余额即时到账。节假日可能顺延，请以银行实际入账时间为准。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-section-label">全部问题</div>
+
+        <!-- FAQ Item 4 -->
+        <div class="faq-item" data-cat="pay">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">支持哪些支付方式？</div>
+            <span class="faq-hit"><span class="fire">🔥</span>9821</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              目前支持微信支付、支付宝、银联云闪付、信用卡分期及商城余额支付。部分商品支持花呗与白条，具体以结算页可选方式为准。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Item 5 -->
+        <div class="faq-item" data-cat="pay">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">支付时提示“交易关闭”怎么办？</div>
+            <span class="faq-hit"><span class="fire">🔥</span>6430</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              订单超过支付时效（通常 30 分钟）会自动关闭。请在「我的订单」中找到该订单重新发起支付，或重新下单。如金额已扣款但订单关闭，系统将在 1 个工作日内原路退回。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Item 6 -->
+        <div class="faq-item" data-cat="order">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">可以修改或取消已下的订单吗？</div>
+            <span class="faq-hit"><span class="fire">🔥</span>7210</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              订单在「待付款」状态可直接取消；已付款未发货的订单，请在订单详情页点击「申请取消」，商家审核通过后自动退款。已发货订单无法取消，需在收货后申请退货。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Item 7 -->
+        <div class="faq-item" data-cat="logistics">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">可以修改收货地址吗？</div>
+            <span class="faq-hit"><span class="fire">🔥</span>5380</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              订单未发货前，可在订单详情页点击「修改地址」更新收货信息。已发货订单无法修改，建议联系收件人或快递员沟通改派。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Item 8 -->
+        <div class="faq-item" data-cat="account">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">忘记登录密码怎么找回？</div>
+            <span class="faq-hit"><span class="fire">🔥</span>4120</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              在登录页点击「忘记密码」，输入注册手机号获取验证码，验证通过后即可设置新密码。建议使用 8-20 位含字母与数字的组合密码。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Item 9 -->
+        <div class="faq-item" data-cat="refund">
+          <div class="faq-item-row" onclick="toggleFaq(this)">
+            <div class="faq-question">收到的商品有质量问题如何处理？</div>
+            <span class="faq-hit"><span class="fire">🔥</span>3290</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-bubble">
+              <span class="label">A</span>
+              请在签收后 7 天内通过「申请售后」提交，并上传商品问题的照片/视频凭证。客服将在 24 小时内审核，质量问题产生的退换货运费由商家承担。
+            </div>
+            <div class="faq-answer-actions">
+              <button>没用</button>
+              <button class="useful">有用</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Tip -->
+      <div class="faq-footer-tip">
+        没找到答案？<a onclick="alert('原型演示：点击后将跳转人工客服会话')">转人工客服 ›</a>
+      </div>
+
+    </div>
+
+    <!-- Prototype Note -->
+    <div class="prototype-note" style="max-width:375px; margin:16px auto 0;">
+      点击任意 FAQ 问题展开答案气泡；切换顶部分类标签可筛选对应类别问题；
+      「有用/没用」反馈按钮记录 FAQ 命中频次用于排序优化；
+      底部「转人工客服」在 FAQ 无法解决时引导进入会话。
+      对应功能项：<strong>US-MVP-24 FAQ快捷问题</strong>（2期）。
+    </div>
+
+  </div>
+
+  <script>
+    // 展开/收起 FAQ 答案
+    function toggleFaq(rowEl) {
+      var item = rowEl.closest('.faq-item');
+      // 单展开模式：收起其他
+      var all = document.querySelectorAll('.faq-item.expanded');
+      all.forEach(function(el) { if (el !== item) el.classList.remove('expanded'); });
+      item.classList.toggle('expanded');
+    }
+
+    // 分类筛选
+    document.querySelectorAll('.faq-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.faq-tab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        var cat = tab.getAttribute('data-cat');
+        document.querySelectorAll('.faq-item').forEach(function(item) {
+          var itemCat = item.getAttribute('data-cat');
+          var show = (cat === 'all') || (itemCat === cat);
+          item.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

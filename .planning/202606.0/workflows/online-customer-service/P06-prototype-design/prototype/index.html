@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS 商城客服系统 — 交互原型</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== index.html 专属样式 ===== */
+    :root {
+      --cs-primary: #1677ff;
+      --cs-primary-dark: #0958d9;
+      --cs-success: #52c41a;
+      --cs-warning: #faad14;
+      --cs-purple: #722ed1;
+      --cs-text: #1f1f1f;
+      --cs-text-secondary: #595959;
+      --cs-text-tertiary: #8c8c8c;
+      --cs-border: #f0f0f0;
+      --cs-bg-page: #f5f7fa;
+      --cs-bg-card: #ffffff;
+      --cs-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
+      --cs-shadow-hover: 0 2px 8px rgba(22,119,255,.10), 0 8px 24px rgba(0,0,0,.10);
+      --cs-radius: 10px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    /* ===== Hero Header ===== */
+    .hero {
+      background: linear-gradient(135deg, #1677ff 0%, #0958d9 60%, #722ed1 100%);
+      color: #fff;
+      padding: 56px 24px 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,.12) 0, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(255,255,255,.08) 0, transparent 35%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .hero .subtitle {
+      margin: 0;
+      font-size: 16px;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+    .hero .meta {
+      margin-top: 18px;
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero .badge {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ===== Main Container ===== */
+    .container {
+      max-width: 1080px;
+      margin: -48px auto 0;
+      padding: 0 24px 80px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== Section ===== */
+    .section {
+      margin-bottom: 40px;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .section-head .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--cs-text);
+    }
+    .section-head .count {
+      font-size: 13px;
+      color: var(--cs-text-tertiary);
+      font-weight: 400;
+    }
+    .section-head .desc {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--cs-text-tertiary);
+    }
+
+    /* Section color variants */
+    .sec-user .icon    { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .sec-admin .icon   { background: linear-gradient(135deg, #0958d9, #1668dc); }
+    .sec-ai .icon      { background: linear-gradient(135deg, #722ed1, #9254de); }
+
+    /* ===== Card Grid ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .grid-user  { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+
+    /* ===== Card ===== */
+    .card {
+      display: block;
+      background: var(--cs-bg-card);
+      border: 1px solid var(--cs-border);
+      border-radius: var(--cs-radius);
+      padding: 18px 18px 16px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--cs-shadow);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--cs-primary);
+      opacity: 0;
+      transition: opacity .18s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--cs-shadow-hover);
+      border-color: #d6e4ff;
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .card-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--cs-text);
+      margin: 0;
+    }
+    .card-file {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      margin-top: 2px;
+      word-break: break-all;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      margin: 6px 0 0;
+      line-height: 1.5;
+    }
+    .card-foot {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Phase tag */
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .tag-p1 { background: #e6f4ff; color: #1677ff; }
+    .tag-p2 { background: #f6ffed; color: #389e0d; }
+    .tag-p3 { background: #f9f0ff; color: #722ed1; }
+    .tag-core {
+      background: #fff7e6;
+      color: #d46b08;
+    }
+
+    .core-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cs-warning);
+      display: inline-block;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      text-align: center;
+      padding: 32px 24px 48px;
+      color: var(--cs-text-tertiary);
+      font-size: 12px;
+    }
+    .footer a { color: var(--cs-primary); text-decoration: none; }
+    .footer .sep { margin: 0 8px; opacity: 0.5; }
+
+    /* mobile */
+    @media (max-width: 600px) {
+      .hero { padding: 40px 16px 60px; }
+      .hero h1 { font-size: 24px; }
+      .container { padding: 0 16px 48px; margin-top: -40px; }
+      .grid, .grid-user { grid-template-columns: 1fr; }
+      .section-head .desc { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Hero Header ===== -->
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>CS 商城客服系统 — 交互原型</h1>
+      <p class="subtitle">多租户在线客服系统 · 三端交互原型预览（覆盖 1 / 2 / 3 期全部页面）</p>
+      <div class="meta">
+        <span class="badge">HTML 可预览</span>
+        <span class="badge">20 页面</span>
+        <span class="badge">用户端 · 管理端 · AI</span>
+        <span class="badge">更新于 2026-06-11</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ===== 1. 用户端原型 ===== -->
+    <section class="section sec-user">
+      <div class="section-head">
+        <div class="icon">📱</div>
+        <h2>用户端原型</h2>
+        <span class="count">5 页</span>
+        <span class="desc">Taro 移动端 · 小程序 + H5</span>
+      </div>
+      <div class="grid grid-user">
+
+        <a class="card" href="user-chat.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">聊天主界面</h3>
+              <div class="card-file">user-chat.html</div>
+            </div>
+          </div>
+          <p class="card-desc">文字 / 图片 / 语音 / 视频消息收发，订单/商品卡片，富媒体消息</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="user-entry.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">场景咨询入口</h3>
+              <div class="card-file">user-entry.html</div>
+            </div>
+          </div>
+          <p class="card-desc">首页/订单/商品/支付/售后/个人中心 6 大场景咨询入口嵌入</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="user-offline.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">离线留言</h3>
+              <div class="card-file">user-offline.html</div>
+            </div>
+          </div>
+          <p class="card-desc">客服离线时留言提交表单，含联系方式与问题分类</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="user-rating.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">服务评价</h3>
+              <div class="card-file">user-rating.html</div>
+            </div>
+          </div>
+          <p class="card-desc">会话结束后的星级评价、标签反馈与文字评价提交</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="user-faq.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">FAQ 列表</h3>
+              <div class="card-file">user-faq.html</div>
+            </div>
+          </div>
+          <p class="card-desc">常见问题快捷入口、分类浏览与搜索，自助解决</p>
+          <div class="card-foot"><span class="tag tag-p2">2期</span></div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ===== 2. 管理端原型 ===== -->
+    <section class="section sec-admin">
+      <div class="section-head">
+        <div class="icon">🖥️</div>
+        <h2>管理端原型</h2>
+        <span class="count">12 页</span>
+        <span class="desc">Umi Max · Ant Design 风格 · 客服工作台</span>
+      </div>
+      <div class="grid">
+
+        <a class="card" href="admin-login.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">管理员登录</h3>
+              <div class="card-file">admin-login.html</div>
+            </div>
+          </div>
+          <p class="card-desc">多租户客服人员登录，JWT 鉴权与 Cookie 存储</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-dashboard.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">数据仪表盘</h3>
+              <div class="card-file">admin-dashboard.html</div>
+            </div>
+          </div>
+          <p class="card-desc">会话量、满意度、响应时长等核心指标可视化看板</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-workbench.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name"><span class="core-dot"></span>客服工作台</h3>
+              <div class="card-file">admin-workbench.html</div>
+            </div>
+          </div>
+          <p class="card-desc">全屏客服面板：会话列表 + 聊天窗口 + 客户信息侧栏（核心页）</p>
+          <div class="card-foot">
+            <span class="tag tag-p1">1期</span>
+            <span class="tag tag-core">核心</span>
+          </div>
+        </a>
+
+        <a class="card" href="admin-todo.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">待办事项面板</h3>
+              <div class="card-file">admin-todo.html</div>
+            </div>
+          </div>
+          <p class="card-desc">未读会话、超时预警、转接待处理等任务集中处理</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-session-list.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">会话列表</h3>
+              <div class="card-file">admin-session-list.html</div>
+            </div>
+          </div>
+          <p class="card-desc">历史服务记录查询，按状态/客服/时间筛选与详情查看</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-customer-info.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">客户信息</h3>
+              <div class="card-file">admin-customer-info.html</div>
+            </div>
+          </div>
+          <p class="card-desc">客户基础信息、会员等级、行为/交易/服务数据聚合视图</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-knowledge.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">知识库管理</h3>
+              <div class="card-file">admin-knowledge.html</div>
+            </div>
+          </div>
+          <p class="card-desc">FAQ / 知识条目 CRUD，分类管理与版本发布</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-scripts.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">话术库</h3>
+              <div class="card-file">admin-scripts.html</div>
+            </div>
+          </div>
+          <p class="card-desc">快捷回复模板 + 场景标签分类，支持搜索调用</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-rating-mgmt.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">评价管理</h3>
+              <div class="card-file">admin-rating-mgmt.html</div>
+            </div>
+          </div>
+          <p class="card-desc">客服服务评价汇总、差评追踪与申诉处理</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-leave-mgmt.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">留言管理</h3>
+              <div class="card-file">admin-leave-mgmt.html</div>
+            </div>
+          </div>
+          <p class="card-desc">离线留言接收、分配跟进与处理状态流转</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-transfer.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">会话转接</h3>
+              <div class="card-file">admin-transfer.html</div>
+            </div>
+          </div>
+          <p class="card-desc">跨客服 / 技能组转接，转接记录与备注</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+        <a class="card" href="admin-settings.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">系统设置</h3>
+              <div class="card-file">admin-settings.html</div>
+            </div>
+          </div>
+          <p class="card-desc">欢迎语、排队提示、自动回复规则与权限配置</p>
+          <div class="card-foot"><span class="tag tag-p1">1期</span></div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ===== 3. 3期 AI 原型 ===== -->
+    <section class="section sec-ai">
+      <div class="section-head">
+        <div class="icon">🤖</div>
+        <h2>3期 AI 原型</h2>
+        <span class="count">3 页</span>
+        <span class="desc">AI 智能化能力 · 大模型客服</span>
+      </div>
+      <div class="grid">
+
+        <a class="card" href="ai-bot-config.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">机器人配置</h3>
+              <div class="card-file">ai-bot-config.html</div>
+            </div>
+          </div>
+          <p class="card-desc">AI 客服机器人参数、人设、知识库挂载与转人工策略配置</p>
+          <div class="card-foot"><span class="tag tag-p3">3期</span></div>
+        </a>
+
+        <a class="card" href="ai-quality.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">智能质检</h3>
+              <div class="card-file">ai-quality.html</div>
+            </div>
+          </div>
+          <p class="card-desc">大模型自动质检会话，违规识别、合规评分与抽检规则</p>
+          <div class="card-foot"><span class="tag tag-p3">3期</span></div>
+        </a>
+
+        <a class="card" href="ai-report.html">
+          <div class="card-top">
+            <div>
+              <h3 class="card-name">报表看板</h3>
+              <div class="card-file">ai-report.html</div>
+            </div>
+          </div>
+          <p class="card-desc">渠道统计、客服绩效、会话量趋势等多维报表可视化</p>
+          <div class="card-foot"><span class="tag tag-p3">3期</span></div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div>
+      CS 商城客服系统 · 交互原型
+      <span class="sep">|</span>
+      覆盖 <strong>20</strong> 个页面 · 1/2/3 期全覆盖
+      <span class="sep">|</span>
+      基于 P05 功能清单生成
+    </div>
+    <div style="margin-top: 6px;">
+      技术栈：Go / React (Umi) / Taro · Powered by 202606.0 workflow
+    </div>
+  </footer>
+
+</body>
+</html>

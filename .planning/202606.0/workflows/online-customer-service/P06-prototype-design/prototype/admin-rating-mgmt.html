@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>评价管理 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-rating-mgmt.html 专属样式 ===== */
+
+    /* ---------- 顶部指标卡（沿用仪表盘 metric 风格） ---------- */
+    .metric-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 20px 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .metric-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .metric-icon {
+      width: 48px; height: 48px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: #fff;
+      flex-shrink: 0;
+    }
+    .metric-icon.blue   { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .metric-icon.green  { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .metric-icon.orange { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .metric-icon.red    { background: linear-gradient(135deg, #f5222d, #ff7875); }
+
+    .metric-body { flex: 1; min-width: 0; }
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f1f1f;
+      line-height: 1.2;
+    }
+    .metric-value .unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: #8c8c8c;
+      margin-left: 4px;
+    }
+    .metric-value .stars-inline {
+      color: #faad14;
+      letter-spacing: 1px;
+      font-size: 24px;
+    }
+    .metric-label { font-size: 13px; color: #8c8c8c; margin-top: 4px; }
+    .metric-trend {
+      font-size: 12px;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .metric-trend.up   { color: #52c41a; }
+    .metric-trend.down { color: #f5222d; }
+
+    /* ---------- 评分分布条 ---------- */
+    .dist-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .dist-row:last-child { margin-bottom: 0; }
+    .dist-row .dist-label {
+      width: 44px;
+      font-size: 13px;
+      color: #595959;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .dist-row .dist-label .star-ico { color: #faad14; }
+    .dist-track {
+      flex: 1;
+      height: 12px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .dist-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #4096ff, #1677ff);
+      transition: width 0.4s ease;
+    }
+    .dist-fill.low { background: linear-gradient(90deg, #ff7875, #f5222d); }
+    .dist-row .dist-count {
+      width: 56px;
+      text-align: right;
+      font-size: 13px;
+      color: #595959;
+    }
+    .dist-row .dist-pct {
+      width: 44px;
+      text-align: right;
+      font-size: 12px;
+      color: #bfbfbf;
+    }
+
+    /* ---------- 顶部筛选区 ---------- */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .filter-bar .field {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-bar .field-label {
+      font-size: 13px;
+      color: #595959;
+      white-space: nowrap;
+    }
+    .ipt,
+    .select {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 11px;
+      font-size: 13px;
+      background: #fff;
+      color: #1f1f1f;
+      display: inline-flex;
+      align-items: center;
+      min-width: 120px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .ipt:hover,
+    .select:hover { border-color: #1677ff; }
+    .ipt.input-search {
+      min-width: 220px;
+      cursor: text;
+    }
+    .select::after {
+      content: "▾";
+      margin-left: 6px;
+      color: #bfbfbf;
+      font-size: 10px;
+    }
+
+    /* ---------- 评分范围筛选（星点） ---------- */
+    .rating-range {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .star-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 5px 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 16px;
+      font-size: 12px;
+      color: #595959;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+    }
+    .star-pill:hover { border-color: #1677ff; color: #1677ff; }
+    .star-pill.active {
+      background: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+      font-weight: 500;
+    }
+    .star-pill .pill-star { color: #faad14; font-size: 13px; }
+
+    /* ---------- 状态 Tab 切换 ---------- */
+    .status-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .status-tab {
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #595959;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+      top: 1px;
+    }
+    .status-tab:hover { color: #1677ff; }
+    .status-tab.active {
+      color: #1677ff;
+      border-bottom-color: #1677ff;
+      font-weight: 500;
+    }
+    .status-tab .tab-count {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 0 7px;
+      min-width: 22px;
+      height: 18px;
+      line-height: 18px;
+      text-align: center;
+      background: #f0f0f0;
+      color: #8c8c8c;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .status-tab.active .tab-count {
+      background: #e6f4ff;
+      color: #1677ff;
+    }
+
+    /* ---------- 数据表格 ---------- */
+    .table-wrap { width: 100%; overflow-x: auto; }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      color: #595959;
+      font-weight: 500;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #1f1f1f;
+      vertical-align: middle;
+    }
+    .data-table tbody tr { transition: background 0.15s; }
+    .data-table tbody tr:hover { background: #fafafa; }
+    .data-table tbody tr.bad-rating { background: #fffbe6; }
+    .data-table tbody tr.bad-rating:hover { background: #fff7d6; }
+    .data-table .col-id { font-family: "SFMono-Regular", Consolas, monospace; color: #595959; font-size: 12px; }
+    .data-table .col-user { display: flex; align-items: center; gap: 8px; }
+    .data-table .mini-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .data-table .mini-avatar.orange { background: #fa8c16; }
+    .data-table .mini-avatar.purple { background: #722ed1; }
+    .data-table .mini-avatar.green  { background: #52c41a; }
+
+    /* 评分星标 */
+    .stars { color: #faad14; letter-spacing: 1px; font-size: 14px; white-space: nowrap; }
+    .stars .empty { color: #e8e8e8; }
+    .score-num {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-left: 4px;
+    }
+    .score-num.low { color: #f5222d; font-weight: 500; }
+
+    /* 评价标签 */
+    .rtag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+    .rtag.positive { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .rtag.neutral  { background: #e6f4ff; color: #1677ff; border: 1px solid #91caff; }
+    .rtag.negative { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+
+    /* 评论文本 */
+    .comment-text {
+      max-width: 260px;
+      font-size: 13px;
+      color: #595959;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* 操作列 */
+    .row-actions { display: flex; gap: 8px; }
+    .row-actions a {
+      font-size: 13px;
+      color: #1677ff;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .row-actions a:hover { color: #4096ff; }
+    .row-actions a.warn { color: #fa8c16; }
+    .row-actions .divider { color: #d9d9d9; }
+
+    /* ---------- 分页 ---------- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 20px;
+    }
+    .pagination .pg-info { font-size: 13px; color: #8c8c8c; margin-right: 12px; }
+    .pagination .pg-btn,
+    .pagination .pg-num {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      color: #1f1f1f;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pagination .pg-btn:hover,
+    .pagination .pg-num:hover { border-color: #1677ff; color: #1677ff; }
+    .pagination .pg-num.active {
+      background: #1677ff;
+      border-color: #1677ff;
+      color: #fff;
+    }
+    .pagination .pg-btn.disabled {
+      color: #d9d9d9;
+      cursor: not-allowed;
+      background: #fafafa;
+    }
+
+    .sidebar-menu-group-title {
+      padding: 8px 24px 4px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 客服管理后台</div>
+    <div class="sidebar-menu-group-title">工作台</div>
+    <div class="menu-item">📊 数据仪表盘</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">📋 待办事项</div>
+    <div class="sidebar-menu-group-title">服务管理</div>
+    <div class="menu-item">📁 历史会话</div>
+    <div class="menu-item">🔄 会话转接</div>
+    <div class="menu-item active">⭐ 评价管理</div>
+    <div class="menu-item">📝 留言管理</div>
+    <div class="sidebar-menu-group-title">配置</div>
+    <div class="menu-item">📚 知识库</div>
+    <div class="menu-item">💬 话术库</div>
+    <div class="menu-item">🤖 自动回复</div>
+    <div class="menu-item">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">服务管理 / 评价管理</div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:13px;color:#595959;">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <h2 style="font-size:20px; font-weight:600; margin-bottom:4px;">评价管理</h2>
+          <p style="font-size:13px; color:#8c8c8c;">统一查看用户对客服的服务评价，监控满意度趋势并追踪差评（对应功能 US-MVP-13 / F-MVP-22）</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-default">导出评价</button>
+          <button class="btn-primary">刷新数据</button>
+        </div>
+      </div>
+
+      <!-- 原型交互说明 -->
+      <div class="prototype-note">本页演示 1期-MVP 功能 <strong>US-MVP-13 客服评价管理</strong>：顶部呈现平均满意度、评价总数与差评数三项核心指标；列表展示用户对客服的评分、评价标签、评论与时间，支持按评分区间（1-5 星）、客服、时间筛选，差评记录以高亮行突出显示并可发起追踪。</div>
+
+      <!-- 顶部指标 -->
+      <div class="grid grid-3 mb-16">
+        <div class="metric-card">
+          <div class="metric-icon green">⭐</div>
+          <div class="metric-body">
+            <div class="metric-value"><span class="stars-inline">4.6</span></div>
+            <div class="metric-label">平均满意度</div>
+            <div class="metric-trend up">▲ 0.2 较上周</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon blue">💬</div>
+          <div class="metric-body">
+            <div class="metric-value">1,083</div>
+            <div class="metric-label">累计评价数</div>
+            <div class="metric-trend up">▲ 87 新增本周</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon red">⚠</div>
+          <div class="metric-body">
+            <div class="metric-value">42<span class="unit">条</span></div>
+            <div class="metric-label">差评数（≤ 2 星）</div>
+            <div class="metric-trend down">▼ 5 较上周</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 评分分布 + 客服满意度榜 -->
+      <div class="grid grid-2 mb-16">
+        <!-- 评分分布 -->
+        <div class="card">
+          <div class="card-title">评分分布</div>
+          <div class="dist-row">
+            <span class="dist-label">5<span class="star-ico">★</span></span>
+            <span class="dist-track"><span class="dist-fill" style="width:62%;"></span></span>
+            <span class="dist-count">671</span>
+            <span class="dist-pct">62.0%</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">4<span class="star-ico">★</span></span>
+            <span class="dist-track"><span class="dist-fill" style="width:24%;"></span></span>
+            <span class="dist-count">260</span>
+            <span class="dist-pct">24.0%</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">3<span class="star-ico">★</span></span>
+            <span class="dist-track"><span class="dist-fill" style="width:10%;"></span></span>
+            <span class="dist-count">110</span>
+            <span class="dist-pct">10.2%</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">2<span class="star-ico">★</span></span>
+            <span class="dist-track"><span class="dist-fill low" style="width:3%;"></span></span>
+            <span class="dist-count">28</span>
+            <span class="dist-pct">2.6%</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">1<span class="star-ico">★</span></span>
+            <span class="dist-track"><span class="dist-fill low" style="width:1.3%;"></span></span>
+            <span class="dist-count">14</span>
+            <span class="dist-pct">1.3%</span>
+          </div>
+        </div>
+
+        <!-- 客服满意度排名 -->
+        <div class="card">
+          <div class="card-title">客服满意度排名（本月）</div>
+          <table class="data-table" style="font-size:13px;">
+            <thead>
+              <tr><th>客服</th><th>评价数</th><th>平均分</th><th>差评数</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar green">李</div><div>李静</div></div></td>
+                <td>286</td>
+                <td><span class="stars">★★★★★</span></td>
+                <td><span style="color:#8c8c8c;">3</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar">张</div><div>张小明</div></div></td>
+                <td>342</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.7</span></td>
+                <td><span style="color:#faad14;">9</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar orange">王</div><div>王磊</div></div></td>
+                <td>198</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.4</span></td>
+                <td><span style="color:#f5222d;">12</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar purple">赵</div><div>赵丽</div></div></td>
+                <td>151</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.2</span></td>
+                <td><span style="color:#f5222d;">10</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar green">陈</div><div>陈昊</div></div></td>
+                <td>106</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.0</span></td>
+                <td><span style="color:#f5222d;">8</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="card" style="padding:16px;">
+        <div class="filter-bar">
+          <div class="field">
+            <span class="field-label">日期范围</span>
+            <span class="ipt">2026-06-01</span>
+            <span style="color:#bfbfbf;">~</span>
+            <span class="ipt">2026-06-11</span>
+          </div>
+          <div class="field">
+            <span class="field-label">客服</span>
+            <span class="select">全部客服</span>
+          </div>
+          <div class="field">
+            <span class="field-label">评分范围</span>
+            <div class="rating-range">
+              <span class="star-pill active">全部</span>
+              <span class="star-pill"><span class="pill-star">★★★★★</span> 5星</span>
+              <span class="star-pill"><span class="pill-star">★★★★</span> 4星</span>
+              <span class="star-pill"><span class="pill-star">★★★</span> 3星</span>
+              <span class="star-pill">差评 ≤2星</span>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">关键词</span>
+            <span class="ipt input-search">🔍 搜索用户昵称 / 评价内容 / 会话ID</span>
+          </div>
+          <div style="margin-left:auto;" class="flex gap-8">
+            <button class="btn-default">重置</button>
+            <button class="btn-primary">查询</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表卡片 -->
+      <div class="card mt-16" style="padding:0;">
+
+        <!-- 状态 Tab -->
+        <div class="status-tabs" style="padding: 0 16px;">
+          <div class="status-tab active">全部评价 <span class="tab-count">1083</span></div>
+          <div class="status-tab">好评（≥4星） <span class="tab-count">931</span></div>
+          <div class="status-tab">中评（3星） <span class="tab-count">110</span></div>
+          <div class="status-tab">差评（≤2星） <span class="tab-count">42</span></div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>评价ID</th>
+                <th>用户</th>
+                <th>客服</th>
+                <th>评分</th>
+                <th>评价标签</th>
+                <th>评论内容</th>
+                <th>评价时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-id">#RT20260611042</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">李</div>
+                    <div>
+                      <div>李小红</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP3 · 138****2891</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明</td>
+                <td>
+                  <span class="stars">★★★★★</span>
+                  <span class="score-num">5.0</span>
+                </td>
+                <td>
+                  <span class="rtag positive">态度好</span>
+                  <span class="rtag positive">回复快</span>
+                </td>
+                <td><div class="comment-text">客服非常专业，问题一下就解决了，体验很棒！</div></td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:37:02</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#RT20260611039</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">王</div>
+                    <div>
+                      <div>王志强</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 159****6601</div>
+                    </div>
+                  </div>
+                </td>
+                <td>李静</td>
+                <td>
+                  <span class="stars">★★★★<span class="empty">★</span></span>
+                  <span class="score-num">4.0</span>
+                </td>
+                <td>
+                  <span class="rtag positive">态度好</span>
+                  <span class="rtag neutral">基本解决</span>
+                </td>
+                <td><div class="comment-text">服务态度不错，退款流程讲得清楚，就是稍慢了点。</div></td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:58:14</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#RT20260611035</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar purple">陈</div>
+                    <div>
+                      <div>陈思雨</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP2 · 186****0452</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明</td>
+                <td>
+                  <span class="stars">★★★★★</span>
+                  <span class="score-num">5.0</span>
+                </td>
+                <td>
+                  <span class="rtag positive">专业</span>
+                  <span class="rtag positive">有耐心</span>
+                </td>
+                <td><div class="comment-text">转接后很快处理完，非常满意，给五星好评！</div></td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:42:55</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a>
+                </td>
+              </tr>
+
+              <!-- 差评：高亮行 -->
+              <tr class="bad-rating">
+                <td class="col-id">#RT20260610031</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar green">刘</div>
+                    <div>
+                      <div>刘大伟</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 137****8839</div>
+                    </div>
+                  </div>
+                </td>
+                <td>王磊</td>
+                <td>
+                  <span class="stars">★★<span class="empty">★★★</span></span>
+                  <span class="score-num low">2.0</span>
+                </td>
+                <td>
+                  <span class="rtag negative">回复慢</span>
+                  <span class="rtag negative">未解决</span>
+                </td>
+                <td><div class="comment-text">等了快十分钟才有人理，问题最后也没给解决，太差了。</div></td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">18:41:09</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a class="warn">差评追踪</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#RT20260610028</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">赵</div>
+                    <div>
+                      <div>赵丽丽</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP4 · 133****1278</div>
+                    </div>
+                  </div>
+                </td>
+                <td>李静</td>
+                <td>
+                  <span class="stars">★★★★★</span>
+                  <span class="score-num">5.0</span>
+                </td>
+                <td>
+                  <span class="rtag positive">态度好</span>
+                  <span class="rtag positive">专业</span>
+                </td>
+                <td><div class="comment-text">很专业，把订单异常的原因解释得很清楚，赞。</div></td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">15:14:33</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#RT20260610022</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">孙</div>
+                    <div>
+                      <div>孙建国</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 188****6612</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明</td>
+                <td>
+                  <span class="stars">★★★<span class="empty">★★</span></span>
+                  <span class="score-num">3.0</span>
+                </td>
+                <td>
+                  <span class="rtag neutral">一般</span>
+                </td>
+                <td><div class="comment-text">问题解决了一半，让我自己去找商家，体验一般。</div></td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:48:51</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a>
+                </td>
+              </tr>
+
+              <!-- 差评：高亮行 -->
+              <tr class="bad-rating">
+                <td class="col-id">#RT20260609097</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar purple">周</div>
+                    <div>
+                      <div>周晓彤</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP1 · 150****3344</div>
+                    </div>
+                  </div>
+                </td>
+                <td>王磊</td>
+                <td>
+                  <span class="stars">★<span class="empty">★★★★</span></span>
+                  <span class="score-num low">1.0</span>
+                </td>
+                <td>
+                  <span class="rtag negative">态度差</span>
+                  <span class="rtag negative">未解决</span>
+                </td>
+                <td><div class="comment-text">客服语气很敷衍，直接让我看帮助文档，完全没有在解决问题。</div></td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">20:03:17</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a class="warn">差评追踪</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#RT20260609088</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar green">吴</div>
+                    <div>
+                      <div>吴婷婷</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP3 · 199****0098</div>
+                    </div>
+                  </div>
+                </td>
+                <td>李静</td>
+                <td>
+                  <span class="stars">★★★★★</span>
+                  <span class="score-num">5.0</span>
+                </td>
+                <td>
+                  <span class="rtag positive">回复快</span>
+                  <span class="rtag positive">有耐心</span>
+                </td>
+                <td><div class="comment-text">响应速度很快，物流异常很快就帮我联系核实了。</div></td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">14:30:42</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#RT20260609074</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">郑</div>
+                    <div>
+                      <div>郑国华</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 131****5577</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明</td>
+                <td>
+                  <span class="stars">★★★★<span class="empty">★</span></span>
+                  <span class="score-num">4.0</span>
+                </td>
+                <td>
+                  <span class="rtag positive">态度好</span>
+                </td>
+                <td><div class="comment-text">客服态度挺好的，给了优惠券补偿，基本满意。</div></td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">10:24:08</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a>
+                </td>
+              </tr>
+
+              <!-- 差评：高亮行 -->
+              <tr class="bad-rating">
+                <td class="col-id">#RT20260608065</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">马</div>
+                    <div>
+                      <div>马晓军</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP2 · 176****2299</div>
+                    </div>
+                  </div>
+                </td>
+                <td>赵丽</td>
+                <td>
+                  <span class="stars">★★<span class="empty">★★★</span></span>
+                  <span class="score-num low">2.0</span>
+                </td>
+                <td>
+                  <span class="rtag negative">未解决</span>
+                  <span class="rtag negative">转接混乱</span>
+                </td>
+                <td><div class="comment-text">转了两次客服，每个人都要重新描述问题，最后还是没解决。</div></td>
+                <td>2026-06-08<br/><span style="font-size:12px;color:#8c8c8c;">16:54:47</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a class="warn">差评追踪</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" style="padding: 16px;">
+          <span class="pg-info">共 1,083 条</span>
+          <span class="pg-btn disabled">‹</span>
+          <span class="pg-num active">1</span>
+          <span class="pg-num">2</span>
+          <span class="pg-num">3</span>
+          <span class="pg-num">4</span>
+          <span class="pg-num">5</span>
+          <span style="color:#bfbfbf;">...</span>
+          <span class="pg-num">109</span>
+          <span class="pg-btn">›</span>
+        </div>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:16px; font-size:12px; color:#bfbfbf;">
+        数据来源：customer_chat_messages（type=rate）· 评分字段 rate（1-5）· 标签与评论由用户端评价弹层提交（见 user-rating.html）· 差评判定：rate ≤ 2
+      </p>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

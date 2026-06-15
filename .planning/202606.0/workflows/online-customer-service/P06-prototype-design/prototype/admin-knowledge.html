@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>知识库管理 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-knowledge.html 专属样式 ===== */
+
+    /* 两栏布局：左侧分类树 + 右侧文章列表 */
+    .kb-layout {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .kb-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+    }
+    .kb-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ---------- 分类树 ---------- */
+    .category-tree {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 12px 0;
+    }
+    .category-tree .tree-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 16px 12px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .category-tree .tree-header .tree-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f1f1f;
+    }
+    .category-tree .tree-header .tree-add {
+      font-size: 16px;
+      color: #1677ff;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .category-tree .tree-header .tree-add:hover { color: #4096ff; }
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: #1f1f1f;
+      cursor: pointer;
+      transition: all 0.15s;
+      gap: 6px;
+      position: relative;
+    }
+    .tree-node:hover { background: #f5f5f5; }
+    .tree-node.active {
+      background: #e6f4ff;
+      color: #1677ff;
+      font-weight: 500;
+    }
+    .tree-node.active::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: #1677ff;
+    }
+    .tree-node .tree-icon {
+      width: 16px;
+      text-align: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count {
+      font-size: 11px;
+      color: #8c8c8c;
+      background: #f0f0f0;
+      border-radius: 10px;
+      padding: 0 7px;
+      line-height: 16px;
+    }
+    .tree-node.active .tree-count {
+      color: #1677ff;
+      background: #fff;
+    }
+    .tree-node .tree-actions {
+      display: none;
+      gap: 4px;
+    }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a {
+      font-size: 12px;
+      color: #8c8c8c;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .tree-node .tree-actions a:hover { color: #1677ff; }
+
+    .tree-group-title {
+      padding: 12px 16px 6px;
+      font-size: 11px;
+      color: #8c8c8c;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- 搜索 & 工具条 ---------- */
+    .kb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .kb-toolbar .ipt,
+    .kb-toolbar .select {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 11px;
+      font-size: 13px;
+      background: #fff;
+      color: #1f1f1f;
+      display: inline-flex;
+      align-items: center;
+      min-width: 120px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .kb-toolbar .ipt:hover,
+    .kb-toolbar .select:hover { border-color: #1677ff; }
+    .kb-toolbar .ipt.input-search {
+      min-width: 260px;
+      cursor: text;
+      color: #bfbfbf;
+    }
+    .kb-toolbar .select::after {
+      content: "▾";
+      margin-left: 6px;
+      color: #bfbfbf;
+      font-size: 10px;
+    }
+
+    /* ---------- 数据表格（复用 session-list 风格） ---------- */
+    .table-wrap { width: 100%; overflow-x: auto; }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      color: #595959;
+      font-weight: 500;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #1f1f1f;
+      vertical-align: middle;
+    }
+    .data-table tbody tr { transition: background 0.15s; }
+    .data-table tbody tr:hover { background: #fafafa; }
+    .data-table .col-title {
+      font-weight: 500;
+      color: #1f1f1f;
+    }
+    .data-table .col-title .title-sub {
+      display: block;
+      font-size: 12px;
+      color: #8c8c8c;
+      font-weight: 400;
+      margin-top: 2px;
+      max-width: 380px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 分类行内标签 */
+    .cat-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .cat-tag.order    { background: #fff7e6; color: #fa8c16; }
+    .cat-tag.return   { background: #fff1f0; color: #f5222d; }
+    .cat-tag.pay      { background: #e6f4ff; color: #1677ff; }
+    .cat-tag.logistic { background: #f6ffed; color: #52c41a; }
+    .cat-tag.account  { background: #f9f0ff; color: #722ed1; }
+
+    /* 状态标签 */
+    .s-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .s-tag::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .s-tag.published { background: #f6ffed; color: #52c41a; }
+    .s-tag.published::before { background: #52c41a; }
+    .s-tag.draft     { background: #f5f5f5; color: #8c8c8c; }
+    .s-tag.draft::before { background: #bfbfbf; }
+    .s-tag.review    { background: #fff7e6; color: #faad14; }
+    .s-tag.review::before { background: #faad14; }
+    .s-tag.offline   { background: #fff1f0; color: #f5222d; }
+    .s-tag.offline::before { background: #f5222d; }
+
+    /* 操作列 */
+    .row-actions { display: flex; gap: 4px; align-items: center; }
+    .row-actions a {
+      font-size: 13px;
+      color: #1677ff;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .row-actions a:hover { color: #4096ff; }
+    .row-actions .divider { color: #d9d9d9; }
+    .row-actions a.danger { color: #f5222d; }
+    .row-actions a.danger:hover { color: #ff7875; }
+
+    /* ---------- 分页 ---------- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 20px;
+    }
+    .pagination .pg-info { font-size: 13px; color: #8c8c8c; margin-right: 12px; }
+    .pagination .pg-btn,
+    .pagination .pg-num {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      color: #1f1f1f;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pagination .pg-btn:hover,
+    .pagination .pg-num:hover { border-color: #1677ff; color: #1677ff; }
+    .pagination .pg-num.active {
+      background: #1677ff;
+      border-color: #1677ff;
+      color: #fff;
+    }
+    .pagination .pg-btn.disabled {
+      color: #d9d9d9;
+      cursor: not-allowed;
+      background: #fafafa;
+    }
+
+    /* 统计摘要条 */
+    .stat-summary {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #595959;
+    }
+    .stat-summary .stat-item .num {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-right: 4px;
+    }
+    .stat-summary .stat-item.accent .num { color: #1677ff; }
+
+    .sidebar-menu-group-title {
+      padding: 8px 24px 4px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 客服管理后台</div>
+    <div class="sidebar-menu-group-title">工作台</div>
+    <div class="menu-item">📊 数据看板</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">✅ 待办事项</div>
+    <div class="sidebar-menu-group-title">服务管理</div>
+    <div class="menu-item">📋 历史会话</div>
+    <div class="menu-item">🔀 会话转接</div>
+    <div class="menu-item">⭐ 评价管理</div>
+    <div class="menu-item">📨 留言管理</div>
+    <div class="sidebar-menu-group-title">配置</div>
+    <div class="menu-item active">📚 知识库</div>
+    <div class="menu-item">📝 话术库</div>
+    <div class="menu-item">🤖 自动回复</div>
+    <div class="menu-item">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">配置 / 知识库</div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:13px;color:#595959;">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <h2 style="font-size:20px; font-weight:600; margin-bottom:4px;">知识库管理</h2>
+          <p style="font-size:13px; color:#8c8c8c;">维护 FAQ / 帮助文档，按分类组织，供客服查阅与用户端自助查询（对应功能 US-MVP-11）</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-default">导入文档</button>
+          <button class="btn-default">分类管理</button>
+          <button class="btn-primary">+ 新建文章</button>
+        </div>
+      </div>
+
+      <!-- 原型交互说明 -->
+      <div class="prototype-note">本页演示 <strong>US-MVP-11 知识库管理</strong>：左侧分类树组织内容（订单 / 退换货 / 支付 / 物流 / 账户），右侧文章列表支持标题搜索、分类筛选、状态切换与编辑，新增/编辑文章支持富文本与发布状态控制。</div>
+
+      <!-- 统计摘要 -->
+      <div class="stat-summary">
+        <div class="stat-item accent"><span class="num">128</span>文章总数</div>
+        <div class="stat-item"><span class="num">112</span>已发布</div>
+        <div class="stat-item"><span class="num">9</span>草稿</div>
+        <div class="stat-item"><span class="num">7</span>待审核</div>
+        <div class="stat-item"><span class="num">5</span>分类</div>
+        <div class="stat-item" style="margin-left:auto;"><span class="num" style="color:#52c41a;">1,847</span>本月浏览</div>
+      </div>
+
+      <!-- 两栏：分类树 + 文章列表 -->
+      <div class="kb-layout">
+
+        <!-- ===== 左侧：分类树 ===== -->
+        <div class="kb-sidebar">
+          <div class="category-tree">
+            <div class="tree-header">
+              <span class="tree-title">📂 内容分类</span>
+              <span class="tree-add" title="新增分类">+</span>
+            </div>
+
+            <div class="tree-node active">
+              <span class="tree-icon">📚</span>
+              <span class="tree-label">全部文章</span>
+              <span class="tree-count">128</span>
+            </div>
+
+            <div class="tree-group-title">业务分类</div>
+
+            <div class="tree-node" data-cat="order">
+              <span class="tree-icon">📦</span>
+              <span class="tree-label">订单</span>
+              <span class="tree-count">32</span>
+              <span class="tree-actions">
+                <a title="编辑">✎</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+            <div class="tree-node" style="padding-left:38px;">
+              <span class="tree-icon">↳</span>
+              <span class="tree-label">订单查询</span>
+              <span class="tree-count">18</span>
+            </div>
+            <div class="tree-node" style="padding-left:38px;">
+              <span class="tree-icon">↳</span>
+              <span class="tree-label">订单修改</span>
+              <span class="tree-count">14</span>
+            </div>
+
+            <div class="tree-node" data-cat="return">
+              <span class="tree-icon">🔄</span>
+              <span class="tree-label">退换货</span>
+              <span class="tree-count">28</span>
+              <span class="tree-actions">
+                <a title="编辑">✎</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-node" data-cat="pay">
+              <span class="tree-icon">💳</span>
+              <span class="tree-label">支付</span>
+              <span class="tree-count">25</span>
+              <span class="tree-actions">
+                <a title="编辑">✎</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-node" data-cat="logistic">
+              <span class="tree-icon">🚚</span>
+              <span class="tree-label">物流</span>
+              <span class="tree-count">24</span>
+              <span class="tree-actions">
+                <a title="编辑">✎</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-node" data-cat="account">
+              <span class="tree-icon">👤</span>
+              <span class="tree-label">账户</span>
+              <span class="tree-count">19</span>
+              <span class="tree-actions">
+                <a title="编辑">✎</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-group-title">其他</div>
+            <div class="tree-node">
+              <span class="tree-icon">🗑️</span>
+              <span class="tree-label">回收站</span>
+              <span class="tree-count">6</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 右侧：文章列表 ===== -->
+        <div class="kb-main">
+          <div class="card" style="padding:16px;">
+            <!-- 工具条：搜索 + 筛选 -->
+            <div class="kb-toolbar">
+              <span class="ipt input-search">🔍 搜索文章标题 / 关键词</span>
+              <span class="select">全部分类</span>
+              <span class="select">全部状态</span>
+              <span class="select">更新时间</span>
+              <div style="margin-left:auto;" class="flex gap-8">
+                <button class="btn-default">重置</button>
+                <button class="btn-primary">查询</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 文章表格 -->
+          <div class="card mt-16" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width:42%;">文章标题</th>
+                    <th>分类</th>
+                    <th>状态</th>
+                    <th>浏览量</th>
+                    <th>更新时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        如何查询我的订单状态？
+                        <span class="title-sub">用户可在「我的-订单」中查看订单详情与实时物流状态，支持按状态筛选…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag order">📦 订单</span></td>
+                    <td><span class="s-tag published">已发布</span></td>
+                    <td>1,284</td>
+                    <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:42</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>下线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        7天无理由退货流程详解
+                        <span class="title-sub">签收后7天内可申请无理由退货，商品需保持原包装完好，部分品类不支持退换…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag return">🔄 退换货</span></td>
+                    <td><span class="s-tag published">已发布</span></td>
+                    <td>986</td>
+                    <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">16:18</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>下线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        支付失败常见原因与解决方案
+                        <span class="title-sub">支付失败可能由余额不足、网络超时、银行卡限额等引起，建议按步骤排查…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag pay">💳 支付</span></td>
+                    <td><span class="s-tag published">已发布</span></td>
+                    <td>742</td>
+                    <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:05</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>下线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        物流多久可以到货？运费怎么算？
+                        <span class="title-sub">默认顺丰/中通发货，大城市1-3天可达，偏远地区3-7天；满99元包邮…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag logistic">🚚 物流</span></td>
+                    <td><span class="s-tag published">已发布</span></td>
+                    <td>1,103</td>
+                    <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">14:36</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>下线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        如何修改账户绑定手机号？
+                        <span class="title-sub">前往「设置-账户安全」通过原手机号验证码校验后即可更换绑定手机号…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag account">👤 账户</span></td>
+                    <td><span class="s-tag published">已发布</span></td>
+                    <td>658</td>
+                    <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">10:22</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>下线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        仅退款与退货退款有什么区别？
+                        <span class="title-sub">仅退款适用于未发货或协商不退货场景；退货退款需寄回商品经仓库验收…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag return">🔄 退换货</span></td>
+                    <td><span class="s-tag review">待审核</span></td>
+                    <td>0</td>
+                    <td>2026-06-08<br/><span style="font-size:12px;color:#8c8c8c;">17:51</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>审核</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        支持哪些支付方式？能否分期？
+                        <span class="title-sub">支持微信、支付宝、银行卡、花呗分期，部分商品支持白条与信用卡分期…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag pay">💳 支付</span></td>
+                    <td><span class="s-tag draft">草稿</span></td>
+                    <td>0</td>
+                    <td>2026-06-08<br/><span style="font-size:12px;color:#8c8c8c;">09:14</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>发布</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        如何取消未发货的订单？
+                        <span class="title-sub">未发货订单可在订单详情页点击「取消订单」，款项原路退回，预计1-3工作日…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag order">📦 订单</span></td>
+                    <td><span class="s-tag published">已发布</span></td>
+                    <td>879</td>
+                    <td>2026-06-07<br/><span style="font-size:12px;color:#8c8c8c;">15:43</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>下线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        快递显示已签收但我没收到怎么办？
+                        <span class="title-sub">请先联系快递员核实，若仍未解决可在订单页申请售后或联系客服介入…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag logistic">🚚 物流</span></td>
+                    <td><span class="s-tag offline">已下线</span></td>
+                    <td>412</td>
+                    <td>2026-06-06<br/><span style="font-size:12px;color:#8c8c8c;">13:28</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>上线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="col-title">
+                        忘记密码如何找回？
+                        <span class="title-sub">登录页点击「忘记密码」，通过绑定手机号或邮箱验证后重置登录密码…</span>
+                      </div>
+                    </td>
+                    <td><span class="cat-tag account">👤 账户</span></td>
+                    <td><span class="s-tag published">已发布</span></td>
+                    <td>534</td>
+                    <td>2026-06-05<br/><span style="font-size:12px;color:#8c8c8c;">10:09</span></td>
+                    <td class="row-actions">
+                      <a>预览</a><span class="divider">|</span>
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>下线</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 分页 -->
+            <div class="pagination" style="padding: 16px;">
+              <span class="pg-info">共 128 条</span>
+              <span class="pg-btn disabled">‹</span>
+              <span class="pg-num active">1</span>
+              <span class="pg-num">2</span>
+              <span class="pg-num">3</span>
+              <span class="pg-num">4</span>
+              <span style="color:#bfbfbf;">...</span>
+              <span class="pg-num">13</span>
+              <span class="pg-btn">›</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:16px; font-size:12px; color:#bfbfbf;">
+        数据模型：customer_chat_knowledge_base（文章）+ customer_chat_kb_categories（分类树）· 状态：published / draft / review / offline · 用户端 FAQ 入口见 user-faq.html
+      </p>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

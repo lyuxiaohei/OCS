@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 智能质检 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== ai-quality.html 专属样式 ===== */
+
+    /* ---------- 期次角标 ---------- */
+    .phase-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      background: rgba(114, 46, 209, 0.12);
+      color: #722ed1;
+      border: 1px solid rgba(114, 46, 209, 0.35);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .phase-tag::before {
+      content: '◆';
+      font-size: 10px;
+    }
+
+    /* ---------- 顶部指标卡 ---------- */
+    .metric-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 20px 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .metric-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .metric-icon {
+      width: 48px; height: 48px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: #fff;
+      flex-shrink: 0;
+    }
+    .metric-icon.purple { background: linear-gradient(135deg, #722ed1, #9254de); }
+    .metric-icon.blue   { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .metric-icon.green  { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .metric-icon.orange { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+
+    .metric-body { flex: 1; min-width: 0; }
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f1f1f;
+      line-height: 1.2;
+    }
+    .metric-value .unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: #8c8c8c;
+      margin-left: 4px;
+    }
+    .metric-value .score-pct {
+      font-size: 28px;
+      background: linear-gradient(90deg, #722ed1, #1677ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .metric-label { font-size: 13px; color: #8c8c8c; margin-top: 4px; }
+    .metric-trend {
+      font-size: 12px;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .metric-trend.up   { color: #52c41a; }
+    .metric-trend.down { color: #f5222d; }
+
+    /* ---------- 环形质量分 ---------- */
+    .score-ring-wrap {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .score-ring {
+      width: 130px; height: 130px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring .ring-bg {
+      fill: none;
+      stroke: #f0f0f0;
+      stroke-width: 10;
+    }
+    .score-ring .ring-fg {
+      fill: none;
+      stroke: url(#ringGrad);
+      stroke-width: 10;
+      stroke-linecap: round;
+    }
+    .score-ring .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .score-ring .ring-num {
+      font-size: 34px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #722ed1, #1677ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .score-ring .ring-text {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-top: 4px;
+    }
+    .score-breakdown { flex: 1; }
+    .score-breakdown .sub-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .score-breakdown .sub-row:last-child { margin-bottom: 0; }
+    .score-breakdown .sub-label {
+      width: 80px;
+      font-size: 13px;
+      color: #595959;
+    }
+    .score-breakdown .sub-track {
+      flex: 1;
+      height: 8px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .score-breakdown .sub-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #9254de, #722ed1);
+    }
+    .score-breakdown .sub-fill.blue  { background: linear-gradient(90deg, #4096ff, #1677ff); }
+    .score-breakdown .sub-fill.green { background: linear-gradient(90deg, #73d13d, #52c41a); }
+    .score-breakdown .sub-fill.orange{ background: linear-gradient(90deg, #ffa940, #fa8c16); }
+    .score-breakdown .sub-num {
+      width: 36px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1f1f1f;
+    }
+
+    /* ---------- 质检规则配置 ---------- */
+    .rule-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .rule-row:last-child { border-bottom: none; }
+    .rule-row .rule-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: #f5f0ff;
+      color: #722ed1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .rule-row .rule-body { flex: 1; min-width: 0; }
+    .rule-row .rule-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1f1f1f;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rule-row .rule-desc {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-top: 3px;
+    }
+    .rule-row .rule-weight {
+      width: 70px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .rule-row .rule-weight .w-val {
+      font-size: 16px;
+      font-weight: 600;
+      color: #722ed1;
+    }
+    .rule-row .rule-weight .w-label {
+      font-size: 11px;
+      color: #bfbfbf;
+      display: block;
+    }
+
+    /* 开关 */
+    .switch {
+      width: 36px;
+      height: 20px;
+      background: #d9d9d9;
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .switch.on { background: #722ed1; }
+    .switch.on::after { left: 18px; }
+
+    /* ---------- 问题类型分布条 ---------- */
+    .ptype-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .ptype-row:last-child { margin-bottom: 0; }
+    .ptype-row .ptype-label {
+      width: 90px;
+      font-size: 13px;
+      color: #595959;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ptype-row .ptype-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ptype-track {
+      flex: 1;
+      height: 14px;
+      background: #f5f5f5;
+      border-radius: 7px;
+      overflow: hidden;
+    }
+    .ptype-fill {
+      height: 100%;
+      border-radius: 7px;
+      transition: width 0.4s ease;
+    }
+    .ptype-row .ptype-count {
+      width: 50px;
+      text-align: right;
+      font-size: 13px;
+      color: #595959;
+    }
+    .ptype-row .ptype-pct {
+      width: 44px;
+      text-align: right;
+      font-size: 12px;
+      color: #bfbfbf;
+    }
+
+    /* ---------- 筛选条 ---------- */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .filter-bar .field {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-bar .field-label {
+      font-size: 13px;
+      color: #595959;
+      white-space: nowrap;
+    }
+    .ipt,
+    .select {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 11px;
+      font-size: 13px;
+      background: #fff;
+      color: #1f1f1f;
+      display: inline-flex;
+      align-items: center;
+      min-width: 120px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .ipt:hover,
+    .select:hover { border-color: #722ed1; }
+    .ipt.input-search {
+      min-width: 220px;
+      cursor: text;
+    }
+    .select::after {
+      content: "▾";
+      margin-left: 6px;
+      color: #bfbfbf;
+      font-size: 10px;
+    }
+
+    /* 结果范围筛选（胶囊） */
+    .result-range {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .result-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 16px;
+      font-size: 12px;
+      color: #595959;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+    }
+    .result-pill:hover { border-color: #722ed1; color: #722ed1; }
+    .result-pill.active {
+      background: #f9f0ff;
+      border-color: #722ed1;
+      color: #722ed1;
+      font-weight: 500;
+    }
+
+    /* ---------- 数据表格 ---------- */
+    .table-wrap { width: 100%; overflow-x: auto; }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      color: #595959;
+      font-weight: 500;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #1f1f1f;
+      vertical-align: middle;
+    }
+    .data-table tbody tr { transition: background 0.15s; }
+    .data-table tbody tr:hover { background: #fafafa; }
+    .data-table tbody tr.flagged { background: #fff1f0; }
+    .data-table tbody tr.flagged:hover { background: #ffe7e5; }
+    .data-table .col-id { font-family: "SFMono-Regular", Consolas, monospace; color: #595959; font-size: 12px; }
+    .data-table .col-user { display: flex; align-items: center; gap: 8px; }
+    .data-table .mini-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .data-table .mini-avatar.orange { background: #fa8c16; }
+    .data-table .mini-avatar.purple { background: #722ed1; }
+    .data-table .mini-avatar.green  { background: #52c41a; }
+
+    /* 质检评分徽章 */
+    .qscore {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .qscore.excellent { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .qscore.pass      { background: #e6f4ff; color: #1677ff; border: 1px solid #91caff; }
+    .qscore.warn      { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+    .qscore.fail      { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+
+    /* 问题类型标签 */
+    .qtag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+    .qtag.service    { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+    .qtag.response   { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+    .qtag.profanity  { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+    .qtag.unresolved { background: #fff0f6; color: #c41d7f; border: 1px solid #ffadd2; }
+    .qtag.timeout    { background: #e6fffb; color: #08979c; border: 1px solid #87e8de; }
+    .qtag.norm       { background: #f0f5ff; color: #2f54eb; border: 1px solid #adc6ff; }
+
+    /* AI 建议摘要 */
+    .ai-snippet {
+      max-width: 280px;
+      font-size: 13px;
+      color: #595959;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .ai-snippet .ai-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: linear-gradient(90deg, #722ed1, #1677ff);
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-right: 5px;
+      font-weight: 500;
+    }
+
+    /* 操作列 */
+    .row-actions { display: flex; gap: 8px; }
+    .row-actions a {
+      font-size: 13px;
+      color: #1677ff;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .row-actions a:hover { color: #4096ff; }
+    .row-actions a.purple { color: #722ed1; }
+    .row-actions .divider { color: #d9d9d9; }
+
+    /* ---------- 分页 ---------- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 20px;
+    }
+    .pagination .pg-info { font-size: 13px; color: #8c8c8c; margin-right: 12px; }
+    .pagination .pg-btn,
+    .pagination .pg-num {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      color: #1f1f1f;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pagination .pg-btn:hover,
+    .pagination .pg-num:hover { border-color: #722ed1; color: #722ed1; }
+    .pagination .pg-num.active {
+      background: #722ed1;
+      border-color: #722ed1;
+      color: #fff;
+    }
+    .pagination .pg-btn.disabled {
+      color: #d9d9d9;
+      cursor: not-allowed;
+      background: #fafafa;
+    }
+
+    .sidebar-menu-group-title {
+      padding: 8px 24px 4px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .sidebar-menu-item.ai {
+      position: relative;
+    }
+    .sidebar-menu-item.ai::after {
+      content: '3期';
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px;
+      color: #b37feb;
+      background: rgba(114,46,209,0.18);
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 客服管理后台</div>
+    <div class="sidebar-menu-group-title">工作台</div>
+    <div class="menu-item">📊 数据仪表盘</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">📋 待办事项</div>
+    <div class="sidebar-menu-group-title">服务管理</div>
+    <div class="menu-item">📁 历史会话</div>
+    <div class="menu-item">🔄 会话转接</div>
+    <div class="menu-item">⭐ 评价管理</div>
+    <div class="menu-item">📝 留言管理</div>
+    <div class="sidebar-menu-group-title">配置</div>
+    <div class="menu-item">📚 知识库</div>
+    <div class="menu-item">💬 话术库</div>
+    <div class="menu-item">🤖 自动回复</div>
+    <div class="sidebar-menu-group-title">AI 智能</div>
+    <div class="menu-item sidebar-menu-item ai">🎯 智能质检</div>
+    <div class="menu-item sidebar-menu-item ai">🧠 大模型客服</div>
+    <div class="menu-item sidebar-menu-item ai">📈 人机协同</div>
+    <div class="sidebar-menu-group-title">系统</div>
+    <div class="menu-item">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">AI 智能 / 智能质检</div>
+      <div class="user-info">
+        <span class="status-badge online">系统运行中</span>
+        <span style="font-size:13px;color:#595959;">质检主管 · 周文</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <h2 style="font-size:20px; font-weight:600; margin-bottom:4px;">
+            AI 智能质检<span class="phase-tag">3期</span>
+          </h2>
+          <p style="font-size:13px; color:#8c8c8c;">基于大模型对全量会话进行 7×24 小时自动质检，覆盖服务规范、响应时效、违规话术与问题解决率，替代传统人工抽检</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-default">导出质检报告</button>
+          <button class="btn-primary" style="background:#722ed1;">立即发起质检</button>
+        </div>
+      </div>
+
+      <!-- 原型交互说明 -->
+      <div class="prototype-note">本页演示 <strong>3期 AI 智能化</strong> 功能 <strong>AI 智能质检</strong>：顶部呈现综合质量分与本月质检统计；中部展示质检规则权重配置（可开关/调整权重，实时影响评分）；底部为近期质检结果明细，含会话、评分、命中问题类型与 AI 改进建议，命中红线规则的会话以红色高亮并支持复检。</div>
+
+      <!-- 顶部指标 -->
+      <div class="grid grid-4 mb-16">
+        <div class="metric-card">
+          <div class="metric-icon purple">🎯</div>
+          <div class="metric-body">
+            <div class="metric-value"><span class="score-pct">92.4</span><span class="unit">分</span></div>
+            <div class="metric-label">综合服务质量分</div>
+            <div class="metric-trend up">▲ 1.8 较上周</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon blue">🧾</div>
+          <div class="metric-body">
+            <div class="metric-value">8,642</div>
+            <div class="metric-label">本月已质检会话</div>
+            <div class="metric-trend up">▲ 全量覆盖 100%</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon orange">⚠</div>
+          <div class="metric-body">
+            <div class="metric-value">187<span class="unit">条</span></div>
+            <div class="metric-label">命中问题会话</div>
+            <div class="metric-trend down">▼ 12 较上周</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon green">✅</div>
+          <div class="metric-body">
+            <div class="metric-value">97.8<span class="unit">%</span></div>
+            <div class="metric-label">质检通过率</div>
+            <div class="metric-trend up">▲ 0.6% 较上周</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 质量分概览 + 问题类型分布 -->
+      <div class="grid grid-2 mb-16">
+
+        <!-- 质量分环形 + 维度拆解 -->
+        <div class="card">
+          <div class="card-title">质量分概览（近 30 天）</div>
+          <div class="score-ring-wrap">
+            <div class="score-ring">
+              <svg width="130" height="130">
+                <defs>
+                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#722ed1" />
+                    <stop offset="100%" stop-color="#1677ff" />
+                  </linearGradient>
+                </defs>
+                <circle class="ring-bg" cx="65" cy="65" r="56"></circle>
+                <circle class="ring-fg" cx="65" cy="65" r="56"
+                        stroke-dasharray="351.86"
+                        stroke-dashoffset="26.6"></circle>
+              </svg>
+              <div class="ring-center">
+                <div class="ring-num">92.4</div>
+                <div class="ring-text">综合质量分</div>
+              </div>
+            </div>
+            <div class="score-breakdown">
+              <div class="sub-row">
+                <span class="sub-label">服务态度</span>
+                <span class="sub-track"><span class="sub-fill" style="width:95%;"></span></span>
+                <span class="sub-num">95</span>
+              </div>
+              <div class="sub-row">
+                <span class="sub-label">响应时效</span>
+                <span class="sub-track"><span class="sub-fill blue" style="width:88%;"></span></span>
+                <span class="sub-num">88</span>
+              </div>
+              <div class="sub-row">
+                <span class="sub-label">话术规范</span>
+                <span class="sub-track"><span class="sub-fill green" style="width:96%;"></span></span>
+                <span class="sub-num">96</span>
+              </div>
+              <div class="sub-row">
+                <span class="sub-label">问题解决率</span>
+                <span class="sub-track"><span class="sub-fill orange" style="width:90%;"></span></span>
+                <span class="sub-num">90</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 问题类型分布 -->
+        <div class="card">
+          <div class="card-title">命中问题类型分布（本月）</div>
+          <div class="ptype-row">
+            <span class="ptype-label"><span class="ptype-dot" style="background:#722ed1;"></span>服务态度问题</span>
+            <span class="ptype-track"><span class="ptype-fill" style="width:62%; background:linear-gradient(90deg,#9254de,#722ed1);"></span></span>
+            <span class="ptype-count">58 条</span>
+            <span class="ptype-pct">31.0%</span>
+          </div>
+          <div class="ptype-row">
+            <span class="ptype-label"><span class="ptype-dot" style="background:#fa8c16;"></span>响应超时</span>
+            <span class="ptype-track"><span class="ptype-fill" style="width:48%; background:linear-gradient(90deg,#ffa940,#fa8c16);"></span></span>
+            <span class="ptype-count">45 条</span>
+            <span class="ptype-pct">24.1%</span>
+          </div>
+          <div class="ptype-row">
+            <span class="ptype-label"><span class="ptype-dot" style="background:#f5222d;"></span>违规/敏感词</span>
+            <span class="ptype-track"><span class="ptype-fill" style="width:28%; background:linear-gradient(90deg,#ff7875,#f5222d);"></span></span>
+            <span class="ptype-count">26 条</span>
+            <span class="ptype-pct">13.9%</span>
+          </div>
+          <div class="ptype-row">
+            <span class="ptype-label"><span class="ptype-dot" style="background:#eb2f96;"></span>问题未解决</span>
+            <span class="ptype-track"><span class="ptype-fill" style="width:24%; background:linear-gradient(90deg,#ffadd2,#eb2f96);"></span></span>
+            <span class="ptype-count">23 条</span>
+            <span class="ptype-pct">12.3%</span>
+          </div>
+          <div class="ptype-row">
+            <span class="ptype-label"><span class="ptype-dot" style="background:#13c2c2;"></span>承诺未兑现</span>
+            <span class="ptype-track"><span class="ptype-fill" style="width:19%; background:linear-gradient(90deg,#87e8de,#13c2c2);"></span></span>
+            <span class="ptype-count">18 条</span>
+            <span class="ptype-pct">9.6%</span>
+          </div>
+          <div class="ptype-row">
+            <span class="ptype-label"><span class="ptype-dot" style="background:#2f54eb;"></span>流程违规</span>
+            <span class="ptype-track"><span class="ptype-fill" style="width:18%; background:linear-gradient(90deg,#adc6ff,#2f54eb);"></span></span>
+            <span class="ptype-count">17 条</span>
+            <span class="ptype-pct">9.1%</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 质检规则配置 -->
+      <div class="card mb-16">
+        <div class="card-title">
+          <span>质检规则配置</span>
+          <button class="btn-default" style="font-size:13px;">+ 新增规则</button>
+        </div>
+        <p style="font-size:12px;color:#8c8c8c;margin-bottom:16px;">权重总和 100%，调整后系统将自动重算历史会话评分。关闭规则后该维度不计入综合分。</p>
+
+        <div class="rule-row">
+          <div class="rule-icon">😊</div>
+          <div class="rule-body">
+            <div class="rule-name">服务态度检测 <span class="qtag service">情感分析</span></div>
+            <div class="rule-desc">AI 识别客服语气生硬、不耐烦、敷衍等负面情绪表达</div>
+          </div>
+          <div class="rule-weight"><span class="w-val">30%</span><span class="w-label">权重</span></div>
+          <div class="switch on"></div>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-icon">⏱</div>
+          <div class="rule-body">
+            <div class="rule-name">首响与平均响应时效 <span class="qtag response">SLA</span></div>
+            <div class="rule-desc">首条回复 ≤ 30s，平均响应 ≤ 60s，超时按次数扣分</div>
+          </div>
+          <div class="rule-weight"><span class="w-val">25%</span><span class="w-label">权重</span></div>
+          <div class="switch on"></div>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-icon">🚫</div>
+          <div class="rule-body">
+            <div class="rule-name">违规/敏感词过滤 <span class="qtag profanity">红线</span></div>
+            <div class="rule-desc">辱骂、诱导好评、私下交易、泄露用户隐私等触发即判不合格</div>
+          </div>
+          <div class="rule-weight"><span class="w-val">20%</span><span class="w-label">权重</span></div>
+          <div class="switch on"></div>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-icon">✓</div>
+          <div class="rule-body">
+            <div class="rule-name">问题解决率 <span class="qtag unresolved">语义判定</span></div>
+            <div class="rule-desc">结合用户追问、二次进线、评价语义判断问题是否真正解决</div>
+          </div>
+          <div class="rule-weight"><span class="w-val">15%</span><span class="w-label">权重</span></div>
+          <div class="switch on"></div>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-icon">📝</div>
+          <div class="rule-body">
+            <div class="rule-name">话术规范与开场/结束语 <span class="qtag norm">规范</span></div>
+            <div class="rule-desc">是否使用标准开场白、结束语、敬语及禁用话术</div>
+          </div>
+          <div class="rule-weight"><span class="w-val">10%</span><span class="w-label">权重</span></div>
+          <div class="switch on"></div>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-icon">📞</div>
+          <div class="rule-body">
+            <div class="rule-name">承诺兑现追踪 <span class="qtag timeout">实验中</span></div>
+            <div class="rule-desc">识别客服承诺（如"3分钟内回复""稍后退款"）并追踪是否兑现</div>
+          </div>
+          <div class="rule-weight"><span class="w-val" style="color:#bfbfbf;">0%</span><span class="w-label">权重</span></div>
+          <div class="switch"></div>
+        </div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="card" style="padding:16px;">
+        <div class="filter-bar">
+          <div class="field">
+            <span class="field-label">质检时间</span>
+            <span class="ipt">2026-06-01</span>
+            <span style="color:#bfbfbf;">~</span>
+            <span class="ipt">2026-06-11</span>
+          </div>
+          <div class="field">
+            <span class="field-label">客服</span>
+            <span class="select">全部客服</span>
+          </div>
+          <div class="field">
+            <span class="field-label">问题类型</span>
+            <span class="select">全部类型</span>
+          </div>
+          <div class="field">
+            <span class="field-label">质检结果</span>
+            <div class="result-range">
+              <span class="result-pill active">全部</span>
+              <span class="result-pill">优秀 ≥90</span>
+              <span class="result-pill">合格 80-89</span>
+              <span class="result-pill">预警 60-79</span>
+              <span class="result-pill">不合格 &lt;60</span>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">关键词</span>
+            <span class="ipt input-search">🔍 搜索会话ID / 用户 / 客服</span>
+          </div>
+          <div style="margin-left:auto;" class="flex gap-8">
+            <button class="btn-default">重置</button>
+            <button class="btn-primary" style="background:#722ed1;">查询</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 结果列表卡片 -->
+      <div class="card mt-16" style="padding:0;">
+
+        <!-- 表格 -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>会话</th>
+                <th>客服</th>
+                <th>质检评分</th>
+                <th>问题类型</th>
+                <th>质检结果</th>
+                <th>AI 建议</th>
+                <th>质检时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-id">
+                  <div>#CS20260611072</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 李小红 · VIP3</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar green">李</div>
+                    <div>李静</div>
+                  </div>
+                </td>
+                <td><span class="qscore excellent">96</span></td>
+                <td><span class="qtag service">服务态度-优</span></td>
+                <td><span class="qscore excellent">优秀</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>全程敬语，主动确认订单号，问题闭环，可作为标杆话术归档。
+                  </div>
+                </td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:42 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a>
+                </td>
+              </tr>
+
+              <tr class="flagged">
+                <td class="col-id">
+                  <div>#CS20260611068</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 刘大伟 · 普通会员</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">王</div>
+                    <div>王磊</div>
+                  </div>
+                </td>
+                <td><span class="qscore fail">52</span></td>
+                <td>
+                  <span class="qtag profanity">违规敏感词</span>
+                  <span class="qtag response">响应超时</span>
+                </td>
+                <td><span class="qscore fail">不合格</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>第 4 轮回复出现"自己看帮助文档"，且首响 142s 严重超时，建议约谈并加入话术培训。
+                  </div>
+                </td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:55 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a><span class="divider">|</span>
+                  <a class="purple">发起复检</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">
+                  <div>#CS20260611061</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 陈思雨 · VIP2</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">张</div>
+                    <div>张小明</div>
+                  </div>
+                </td>
+                <td><span class="qscore excellent">91</span></td>
+                <td><span class="qtag norm">规范-达标</span></td>
+                <td><span class="qscore excellent">优秀</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>转接流程规范，结束语完整，仅首响略接近阈值，建议保持。
+                  </div>
+                </td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:48 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a>
+                </td>
+              </tr>
+
+              <tr class="flagged">
+                <td class="col-id">
+                  <div>#CS20260611054</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 周晓彤 · VIP1</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">王</div>
+                    <div>王磊</div>
+                  </div>
+                </td>
+                <td><span class="qscore fail">48</span></td>
+                <td>
+                  <span class="qtag unresolved">问题未解决</span>
+                  <span class="qtag service">态度-负面</span>
+                </td>
+                <td><span class="qscore fail">不合格</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>用户二次进线，问题语义未闭环；客服 3 处回复含敷衍表达，建议跟踪复检。
+                  </div>
+                </td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">20:07 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a><span class="divider">|</span>
+                  <a class="purple">发起复检</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">
+                  <div>#CS20260611048</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 赵丽丽 · VIP4</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar green">李</div>
+                    <div>李静</div>
+                  </div>
+                </td>
+                <td><span class="qscore excellent">98</span></td>
+                <td><span class="qtag service">服务态度-优</span></td>
+                <td><span class="qscore excellent">优秀</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>主动安抚并解释订单异常，情绪价值突出，推荐入库优秀案例。
+                  </div>
+                </td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">15:20 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">
+                  <div>#CS20260611041</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 孙建国 · 普通会员</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">张</div>
+                    <div>张小明</div>
+                  </div>
+                </td>
+                <td><span class="qscore warn">74</span></td>
+                <td>
+                  <span class="qtag timeout">承诺未兑现</span>
+                  <span class="qtag response">响应偏慢</span>
+                </td>
+                <td><span class="qscore warn">预警</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>承诺"3分钟内回电"未兑现，平均响应 78s，建议关注 SLA 达标。
+                  </div>
+                </td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:52 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a><span class="divider">|</span>
+                  <a class="purple">发起复检</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">
+                  <div>#CS20260611033</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 郑国华 · 普通会员</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar purple">赵</div>
+                    <div>赵丽</div>
+                  </div>
+                </td>
+                <td><span class="qscore pass">85</span></td>
+                <td><span class="qtag norm">规范-达标</span></td>
+                <td><span class="qscore pass">合格</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>整体规范，开场白缺少标准问候语，建议补充即可达标优秀。
+                  </div>
+                </td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">18:30 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">
+                  <div>#CS20260611029</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 吴婷婷 · VIP3</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar green">李</div>
+                    <div>李静</div>
+                  </div>
+                </td>
+                <td><span class="qscore excellent">94</span></td>
+                <td><span class="qtag service">服务态度-优</span></td>
+                <td><span class="qscore excellent">优秀</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>主动核实物流异常并同步进度，闭环质量高，无需改进。
+                  </div>
+                </td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">14:35 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a>
+                </td>
+              </tr>
+
+              <tr class="flagged">
+                <td class="col-id">
+                  <div>#CS20260611021</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 马晓军 · VIP2</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar purple">赵</div>
+                    <div>赵丽</div>
+                  </div>
+                </td>
+                <td><span class="qscore fail">55</span></td>
+                <td>
+                  <span class="qtag unresolved">转接混乱</span>
+                  <span class="qtag profanity">违规话术</span>
+                </td>
+                <td><span class="qscore fail">不合格</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>2 次无效转接，期间出现诱导加微信话术，建议立即核查并扣分。
+                  </div>
+                </td>
+                <td>2026-06-08<br/><span style="font-size:12px;color:#8c8c8c;">16:58 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a><span class="divider">|</span>
+                  <a class="purple">发起复检</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">
+                  <div>#CS20260611015</div>
+                  <div style="font-size:11px;color:#bfbfbf;">用户 · 林书涵 · VIP5</div>
+                </td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">张</div>
+                    <div>张小明</div>
+                  </div>
+                </td>
+                <td><span class="qscore pass">88</span></td>
+                <td><span class="qtag response">响应-临界</span></td>
+                <td><span class="qscore pass">合格</span></td>
+                <td>
+                  <div class="ai-snippet">
+                    <span class="ai-tag">AI</span>问题解决完整，平均响应 58s 接近阈值，建议优化并发接待节奏。
+                  </div>
+                </td>
+                <td>2026-06-08<br/><span style="font-size:12px;color:#8c8c8c;">10:12 自动质检</span></td>
+                <td class="row-actions">
+                  <a>查看会话</a><span class="divider">|</span>
+                  <a>质检详情</a>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" style="padding: 16px;">
+          <span class="pg-info">共 8,642 条</span>
+          <span class="pg-btn disabled">‹</span>
+          <span class="pg-num active">1</span>
+          <span class="pg-num">2</span>
+          <span class="pg-num">3</span>
+          <span class="pg-num">4</span>
+          <span class="pg-num">5</span>
+          <span style="color:#bfbfbf;">...</span>
+          <span class="pg-num">865</span>
+          <span class="pg-btn">›</span>
+        </div>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:16px; font-size:12px; color:#bfbfbf;">
+        数据来源：customer_chat_messages + customer_chat_sessions · 由 3期大模型质检引擎自动评分 · 规则权重变更后将异步重算历史评分 · 不合格记录（&lt;60 分）自动同步至客服绩效看板
+      </p>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

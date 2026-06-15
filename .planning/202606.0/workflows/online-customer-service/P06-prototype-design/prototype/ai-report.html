@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>报表看板 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== ai-report.html 专属样式 ===== */
+
+    /* ---------- Phase Tag ---------- */
+    .phase-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(114, 46, 209, 0.12);
+      color: #722ed1;
+      border: 1px solid rgba(114, 46, 209, 0.28);
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .phase-tag::before {
+      content: '🤖';
+      font-size: 11px;
+    }
+
+    /* ---------- 顶部指标卡片 ---------- */
+    .metric-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 20px 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .metric-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .metric-icon.blue   { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .metric-icon.green  { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .metric-icon.orange { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .metric-icon.purple { background: linear-gradient(135deg, #722ed1, #9254de); }
+
+    .metric-body { flex: 1; min-width: 0; }
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f1f1f;
+      line-height: 1.2;
+    }
+    .metric-value .unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: #8c8c8c;
+      margin-left: 4px;
+    }
+    .metric-label {
+      font-size: 13px;
+      color: #8c8c8c;
+      margin-top: 4px;
+    }
+    .metric-trend {
+      font-size: 12px;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .metric-trend.up   { color: #52c41a; }
+    .metric-trend.down { color: #f5222d; }
+
+    /* ---------- Chart Placeholder ---------- */
+    .chart-placeholder {
+      background: #fafafa;
+      border: 1px dashed #d9d9d9;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: #bfbfbf;
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-placeholder .chart-icon { font-size: 36px; opacity: 0.6; }
+    .chart-placeholder .chart-label {
+      font-size: 13px;
+      color: #8c8c8c;
+    }
+
+    /* ---------- 折线图 (会话量趋势) ---------- */
+    .line-chart-wrap {
+      height: 300px;
+      padding: 24px 16px 36px;
+      position: relative;
+      display: flex;
+      align-items: stretch;
+    }
+    .line-y-axis {
+      width: 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-bottom: 22px;
+      font-size: 11px;
+      color: #8c8c8c;
+      text-align: right;
+      padding-right: 6px;
+    }
+    .line-plot {
+      flex: 1;
+      position: relative;
+      border-left: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .line-grid {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .line-grid > div {
+      border-top: 1px dashed #f0f0f0;
+      height: 0;
+    }
+    .line-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .line-dots {
+      position: absolute;
+      inset: 0;
+    }
+    .line-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #1677ff;
+      transform: translate(-50%, 50%);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .line-dot:hover {
+      transform: translate(-50%, 50%) scale(1.4);
+      background: #1677ff;
+    }
+    .line-x-axis {
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 4px;
+      font-size: 11px;
+      color: #8c8c8c;
+    }
+    .legend {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: #595959;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 4px; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .legend-dot.ai { background: #722ed1; }
+    .legend-dot.human { background: #1677ff; }
+
+    /* ---------- 柱状图 (客服绩效排行) ---------- */
+    .bar-chart-wrap {
+      height: 300px;
+      padding: 24px 16px 36px;
+    }
+    .fake-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      height: 100%;
+      padding: 0 8px;
+    }
+    .fake-bars .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      position: relative;
+    }
+    .fake-bars .bar {
+      width: 60%;
+      min-width: 18px;
+      background: linear-gradient(180deg, #4096ff, #1677ff);
+      border-radius: 4px 4px 0 0;
+      position: relative;
+      transition: opacity 0.2s;
+    }
+    .fake-bars .bar:hover { opacity: 0.82; }
+    .fake-bars .bar .bar-val {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #595959;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .fake-bars .bar .bar-label {
+      position: absolute;
+      bottom: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #8c8c8c;
+      white-space: nowrap;
+    }
+
+    /* ---------- 饼图 (满意度分布) ---------- */
+    .pie-wrap {
+      height: 300px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 16px;
+    }
+    .pie-chart {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: conic-gradient(
+        #52c41a 0% 62%,
+        #1677ff 62% 86%,
+        #faad14 86% 95%,
+        #f5222d 95% 100%
+      );
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .pie-chart::after {
+      content: '';
+      width: 100px;
+      height: 100px;
+      background: #fafafa;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .pie-center {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .pie-center .pie-total {
+      font-size: 26px;
+      font-weight: 700;
+      color: #1f1f1f;
+    }
+    .pie-center .pie-label {
+      font-size: 12px;
+      color: #8c8c8c;
+    }
+    .pie-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+    .pie-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pie-legend-item .swatch {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .pie-legend-item .pl-name {
+      font-size: 13px;
+      color: #1f1f1f;
+      flex: 1;
+    }
+    .pie-legend-item .pl-val {
+      font-size: 13px;
+      font-weight: 600;
+      color: #595959;
+    }
+    .pie-legend-item .pl-pct {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-left: 6px;
+    }
+
+    /* ---------- 渠道统计 ---------- */
+    .channel-list { display: flex; flex-direction: column; }
+    .channel-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .channel-item:last-child { border-bottom: none; }
+    .channel-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .channel-info { flex: 1; min-width: 0; }
+    .channel-name {
+      font-size: 14px;
+      color: #1f1f1f;
+      font-weight: 500;
+    }
+    .channel-bar {
+      height: 6px;
+      background: #f0f0f0;
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .channel-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+    .channel-stats {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .channel-num {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f1f1f;
+    }
+    .channel-pct {
+      font-size: 12px;
+      color: #8c8c8c;
+    }
+
+    /* ---------- AI 解决率 ---------- */
+    .ai-resolution {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ai-gauge {
+      text-align: center;
+      padding: 8px 0 4px;
+    }
+    .gauge-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      margin: 0 auto;
+      position: relative;
+      background: conic-gradient(
+        #722ed1 0% 78%,
+        #f0f0f0 78% 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .gauge-circle::after {
+      content: '';
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .gauge-center {
+      position: relative;
+      z-index: 1;
+    }
+    .gauge-value {
+      font-size: 30px;
+      font-weight: 700;
+      color: #722ed1;
+      line-height: 1;
+    }
+    .gauge-label {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-top: 4px;
+    }
+    .ai-breakdown { display: flex; flex-direction: column; }
+    .ai-breakdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .ai-breakdown-item:last-child { border-bottom: none; }
+    .abd-left { display: flex; align-items: center; gap: 8px; }
+    .abd-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .abd-name { font-size: 13px; color: #1f1f1f; }
+    .abd-val { font-size: 14px; font-weight: 600; color: #1f1f1f; }
+
+    /* ---------- 侧栏 ---------- */
+    .menu-group-title {
+      padding: 12px 24px 6px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- 区块标题 ---------- */
+    .section-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-row h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin: 0;
+    }
+
+    .header-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #722ed1;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-bar select {
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 8px;
+      font-size: 13px;
+      background: #fff;
+      color: #1f1f1f;
+      outline: none;
+    }
+
+    @media (max-width: 768px) {
+      .admin-sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="admin-sidebar">
+      <div class="logo">CS 客服系统</div>
+
+      <div class="menu-group-title">工作台</div>
+      <div class="menu-item">📊 首页</div>
+
+      <div class="menu-group-title">运营</div>
+      <div class="menu-item">💬 客服工作台</div>
+      <div class="menu-item">📁 会话记录</div>
+      <div class="menu-item">🔁 会话转接</div>
+
+      <div class="menu-group-title">内容</div>
+      <div class="menu-item">📚 知识库</div>
+      <div class="menu-item">💬 话术库</div>
+
+      <div class="menu-group-title">反馈</div>
+      <div class="menu-item">⭐ 评价管理</div>
+      <div class="menu-item">📩 留言管理</div>
+
+      <div class="menu-group-title">AI 智能</div>
+      <div class="menu-item">🤖 机器人配置</div>
+      <div class="menu-item">🧪 智能质检</div>
+      <div class="menu-item active">📈 报表看板</div>
+
+      <div class="menu-group-title">系统</div>
+      <div class="menu-item">⚙️ 设置</div>
+    </aside>
+
+    <!-- ===== Main ===== -->
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+      <!-- Header -->
+      <header class="admin-header">
+        <div>
+          <div style="font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px;">
+            AI 报表看板
+            <span class="phase-tag">3期</span>
+          </div>
+          <div class="breadcrumb">AI 智能 / 报表看板</div>
+        </div>
+        <div class="user-info">
+          <div class="filter-bar">
+            <select>
+              <option>本月</option>
+              <option>本周</option>
+              <option>今日</option>
+              <option>自定义</option>
+            </select>
+            <button class="btn-default" style="padding:4px 12px; font-size:13px;">⬇ 导出</button>
+          </div>
+          <div class="header-avatar">张</div>
+          <span style="font-size:13px;">张客服主管</span>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="admin-content">
+
+        <!-- ===== 顶部指标卡片 ===== -->
+        <div class="grid grid-4 mb-24">
+
+          <div class="metric-card">
+            <div class="metric-icon blue">💬</div>
+            <div class="metric-body">
+              <div class="metric-value">38,642<span class="unit">次</span></div>
+              <div class="metric-label">会话总量（本月）</div>
+              <div class="metric-trend up">▲ 18.2% 环比上月</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon green">⭐</div>
+            <div class="metric-body">
+              <div class="metric-value">96.3<span class="unit">%</span></div>
+              <div class="metric-label">客户满意度</div>
+              <div class="metric-trend up">▲ 2.1% 提升</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon orange">⏱️</div>
+            <div class="metric-body">
+              <div class="metric-value">38<span class="unit">秒</span></div>
+              <div class="metric-label">平均响应时长</div>
+              <div class="metric-trend down">▼ 12.6% 提速</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon purple">🤖</div>
+            <div class="metric-body">
+              <div class="metric-value">78<span class="unit">%</span></div>
+              <div class="metric-label">AI 解决率</div>
+              <div class="metric-trend up">▲ 6.4% 持续优化</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== 图表区 第1行：折线图 + 柱状图 ===== -->
+        <div class="grid grid-2 mb-24">
+
+          <!-- 会话量趋势 (折线图) -->
+          <div class="card">
+            <div class="section-row">
+              <h3>会话量趋势</h3>
+              <div class="legend">
+                <span class="legend-item"><span class="legend-dot human"></span>人工会话</span>
+                <span class="legend-item"><span class="legend-dot ai"></span>AI会话</span>
+              </div>
+            </div>
+            <div class="chart-placeholder line-chart-wrap">
+              <div class="line-y-axis">
+                <span>200</span>
+                <span>150</span>
+                <span>100</span>
+                <span>50</span>
+                <span>0</span>
+              </div>
+              <div class="line-plot">
+                <div class="line-grid">
+                  <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <svg class="line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <!-- 人工会话折线 (蓝) -->
+                  <polyline
+                    points="0,62 16.6,52 33.3,44 50,36 66.6,30 83.3,26 100,22"
+                    fill="none"
+                    stroke="#1677ff"
+                    stroke-width="1.2"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    vector-effect="non-scaling-stroke" />
+                  <!-- AI会话折线 (紫) -->
+                  <polyline
+                    points="0,78 16.6,72 33.3,64 50,56 66.6,48 83.3,42 100,38"
+                    fill="none"
+                    stroke="#722ed1"
+                    stroke-width="1.2"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    vector-effect="non-scaling-stroke"
+                    stroke-dasharray="3,2" />
+                </svg>
+                <div class="line-dots">
+                  <div class="line-dot" style="left:0%; bottom:38%;"></div>
+                  <div class="line-dot" style="left:16.6%; bottom:48%;"></div>
+                  <div class="line-dot" style="left:33.3%; bottom:56%;"></div>
+                  <div class="line-dot" style="left:50%; bottom:64%;"></div>
+                  <div class="line-dot" style="left:66.6%; bottom:70%;"></div>
+                  <div class="line-dot" style="left:83.3%; bottom:74%;"></div>
+                  <div class="line-dot" style="left:100%; bottom:78%;"></div>
+                </div>
+                <div class="line-x-axis">
+                  <span>06/05</span>
+                  <span>06/07</span>
+                  <span>06/09</span>
+                  <span>06/11</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 客服绩效排行 (柱状图) -->
+          <div class="card">
+            <div class="section-row">
+              <h3>客服绩效排行</h3>
+              <button class="btn-default" style="padding:2px 10px; font-size:12px;">本月</button>
+            </div>
+            <div class="chart-placeholder bar-chart-wrap">
+              <div class="fake-bars">
+
+                <div class="bar-col">
+                  <div class="bar" style="height:96%;">
+                    <span class="bar-val">328</span>
+                    <span class="bar-label">李明</span>
+                  </div>
+                </div>
+
+                <div class="bar-col">
+                  <div class="bar" style="height:88%; background:linear-gradient(180deg,#73d13d,#52c41a);">
+                    <span class="bar-val">301</span>
+                    <span class="bar-label">王芳</span>
+                  </div>
+                </div>
+
+                <div class="bar-col">
+                  <div class="bar" style="height:80%; background:linear-gradient(180deg,#ffa940,#fa8c16);">
+                    <span class="bar-val">276</span>
+                    <span class="bar-label">赵磊</span>
+                  </div>
+                </div>
+
+                <div class="bar-col">
+                  <div class="bar" style="height:72%; background:linear-gradient(180deg,#9254de,#722ed1);">
+                    <span class="bar-val">248</span>
+                    <span class="bar-label">陈静</span>
+                  </div>
+                </div>
+
+                <div class="bar-col">
+                  <div class="bar" style="height:64%; background:linear-gradient(180deg,#5cdbd3,#13c2c2);">
+                    <span class="bar-val">221</span>
+                    <span class="bar-label">刘洋</span>
+                  </div>
+                </div>
+
+                <div class="bar-col">
+                  <div class="bar" style="height:58%; background:linear-gradient(180deg,#ff85c0,#eb2f96);">
+                    <span class="bar-val">198</span>
+                    <span class="bar-label">周婷</span>
+                  </div>
+                </div>
+
+                <div class="bar-col">
+                  <div class="bar" style="height:50%; background:linear-gradient(180deg,#ffc069,#fa8c16);">
+                    <span class="bar-val">172</span>
+                    <span class="bar-label">孙浩</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== 图表区 第2行：满意度分布 + 渠道统计 + AI解决率 ===== -->
+        <div class="grid grid-3 mb-24">
+
+          <!-- 满意度分布 (饼图) -->
+          <div class="card">
+            <div class="section-row">
+              <h3>满意度分布</h3>
+              <span class="text-muted" style="font-size:12px;">共 8,642 条评价</span>
+            </div>
+            <div class="pie-wrap">
+              <div class="pie-chart">
+                <div class="pie-center">
+                  <div class="pie-total">96%</div>
+                  <div class="pie-label">好评率</div>
+                </div>
+              </div>
+              <div class="pie-legend">
+                <div class="pie-legend-item">
+                  <span class="swatch" style="background:#52c41a;"></span>
+                  <span class="pl-name">非常满意</span>
+                  <span class="pl-val">5,358</span>
+                  <span class="pl-pct">62%</span>
+                </div>
+                <div class="pie-legend-item">
+                  <span class="swatch" style="background:#1677ff;"></span>
+                  <span class="pl-name">满意</span>
+                  <span class="pl-val">2,074</span>
+                  <span class="pl-pct">24%</span>
+                </div>
+                <div class="pie-legend-item">
+                  <span class="swatch" style="background:#faad14;"></span>
+                  <span class="pl-name">一般</span>
+                  <span class="pl-val">778</span>
+                  <span class="pl-pct">9%</span>
+                </div>
+                <div class="pie-legend-item">
+                  <span class="swatch" style="background:#f5222d;"></span>
+                  <span class="pl-name">不满意</span>
+                  <span class="pl-val">432</span>
+                  <span class="pl-pct">5%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 渠道统计 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>渠道统计</h3>
+              <span class="text-muted" style="font-size:12px;">按会话来源</span>
+            </div>
+            <div class="channel-list">
+
+              <div class="channel-item">
+                <div class="channel-icon" style="background:linear-gradient(135deg,#07c160,#52c41a);">💬</div>
+                <div class="channel-info">
+                  <div class="channel-name">微信小程序</div>
+                  <div class="channel-bar">
+                    <div class="channel-bar-fill" style="width:86%; background:linear-gradient(90deg,#07c160,#52c41a);"></div>
+                  </div>
+                </div>
+                <div class="channel-stats">
+                  <div class="channel-num">16,420</div>
+                  <div class="channel-pct">42.5%</div>
+                </div>
+              </div>
+
+              <div class="channel-item">
+                <div class="channel-icon" style="background:linear-gradient(135deg,#1677ff,#4096ff);">🌐</div>
+                <div class="channel-info">
+                  <div class="channel-name">H5 网页</div>
+                  <div class="channel-bar">
+                    <div class="channel-bar-fill" style="width:62%; background:linear-gradient(90deg,#1677ff,#4096ff);"></div>
+                  </div>
+                </div>
+                <div class="channel-stats">
+                  <div class="channel-num">11,568</div>
+                  <div class="channel-pct">29.9%</div>
+                </div>
+              </div>
+
+              <div class="channel-item">
+                <div class="channel-icon" style="background:linear-gradient(135deg,#fa8c16,#ffa940);">📱</div>
+                <div class="channel-info">
+                  <div class="channel-name">APP 内嵌</div>
+                  <div class="channel-bar">
+                    <div class="channel-bar-fill" style="width:38%; background:linear-gradient(90deg,#fa8c16,#ffa940);"></div>
+                  </div>
+                </div>
+                <div class="channel-stats">
+                  <div class="channel-num">6,932</div>
+                  <div class="channel-pct">17.9%</div>
+                </div>
+              </div>
+
+              <div class="channel-item">
+                <div class="channel-icon" style="background:linear-gradient(135deg,#722ed1,#9254de);">📧</div>
+                <div class="channel-info">
+                  <div class="channel-name">邮件 / 社交</div>
+                  <div class="channel-bar">
+                    <div class="channel-bar-fill" style="width:14%; background:linear-gradient(90deg,#722ed1,#9254de);"></div>
+                  </div>
+                </div>
+                <div class="channel-stats">
+                  <div class="channel-num">3,722</div>
+                  <div class="channel-pct">9.6%</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- AI 解决率 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>AI 解决率</h3>
+              <span class="phase-tag" style="font-size:11px;">3期</span>
+            </div>
+            <div class="ai-resolution">
+              <div class="ai-gauge">
+                <div class="gauge-circle">
+                  <div class="gauge-center">
+                    <div class="gauge-value">78%</div>
+                    <div class="gauge-label">独立解决</div>
+                  </div>
+                </div>
+              </div>
+              <div class="ai-breakdown">
+                <div class="ai-breakdown-item">
+                  <div class="abd-left">
+                    <span class="abd-dot" style="background:#52c41a;"></span>
+                    <span class="abd-name">AI 独立解决</span>
+                  </div>
+                  <span class="abd-val">30,140 (78%)</span>
+                </div>
+                <div class="ai-breakdown-item">
+                  <div class="abd-left">
+                    <span class="abd-dot" style="background:#faad14;"></span>
+                    <span class="abd-name">AI 转人工</span>
+                  </div>
+                  <span class="abd-val">6,955 (18%)</span>
+                </div>
+                <div class="ai-breakdown-item">
+                  <div class="abd-left">
+                    <span class="abd-dot" style="background:#1677ff;"></span>
+                    <span class="abd-name">直接人工接入</span>
+                  </div>
+                  <span class="abd-val">1,547 (4%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== 图表区 第3行：时段分布热力 + 关键词 ===== -->
+        <div class="grid grid-2 mb-24">
+
+          <!-- 会话时段分布 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>会话时段分布</h3>
+              <span class="text-muted" style="font-size:12px;">近30天热力</span>
+            </div>
+            <div class="chart-placeholder" style="height:240px; padding:20px;">
+              <div style="display:grid; grid-template-columns:auto repeat(12,1fr); gap:4px; width:100%; font-size:10px; color:#8c8c8c;">
+                <span></span>
+                <span style="text-align:center;">9</span>
+                <span style="text-align:center;">10</span>
+                <span style="text-align:center;">11</span>
+                <span style="text-align:center;">12</span>
+                <span style="text-align:center;">13</span>
+                <span style="text-align:center;">14</span>
+                <span style="text-align:center;">15</span>
+                <span style="text-align:center;">16</span>
+                <span style="text-align:center;">17</span>
+                <span style="text-align:center;">18</span>
+                <span style="text-align:center;">19</span>
+                <span style="text-align:center;">20</span>
+                <span>周一</span>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <span>周二</span>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <span>周三</span>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#003eb3; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#f5f5f5; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <span>周四</span>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <span>周五</span>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#003eb3; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#003eb3; height:22px; border-radius:2px;"></div>
+                <div style="background:#0958d9; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#f5f5f5; height:22px; border-radius:2px;"></div>
+                <div style="background:#f0f0f0; height:22px; border-radius:2px;"></div>
+                <span>周六</span>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#1677ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <span>周日</span>
+                <div style="background:#f5f5f5; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#4096ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#bae0ff; height:22px; border-radius:2px;"></div>
+                <div style="background:#91caff; height:22px; border-radius:2px;"></div>
+                <div style="background:#e6f4ff; height:22px; border-radius:2px;"></div>
+              </div>
+              <div style="margin-top:12px; display:flex; align-items:center; gap:6px; font-size:11px; color:#8c8c8c;">
+                <span>少</span>
+                <div style="width:16px;height:10px;background:#f0f0f0;border-radius:2px;"></div>
+                <div style="width:16px;height:10px;background:#bae0ff;border-radius:2px;"></div>
+                <div style="width:16px;height:10px;background:#91caff;border-radius:2px;"></div>
+                <div style="width:16px;height:10px;background:#4096ff;border-radius:2px;"></div>
+                <div style="width:16px;height:10px;background:#1677ff;border-radius:2px;"></div>
+                <div style="width:16px;height:10px;background:#0958d9;border-radius:2px;"></div>
+                <div style="width:16px;height:10px;background:#003eb3;border-radius:2px;"></div>
+                <span>多</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 热门咨询关键词 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>热门咨询关键词</h3>
+              <span class="text-muted" style="font-size:12px;">本月 Top 10</span>
+            </div>
+            <div class="chart-placeholder" style="height:240px; padding:20px; align-items:stretch; flex-direction:row; flex-wrap:wrap; gap:8px; justify-content:flex-start;">
+              <span style="background:#722ed1; color:#fff; padding:8px 16px; border-radius:6px; font-size:18px; font-weight:600;">退换货</span>
+              <span style="background:#1677ff; color:#fff; padding:7px 14px; border-radius:6px; font-size:16px;">物流查询</span>
+              <span style="background:#4096ff; color:#fff; padding:6px 12px; border-radius:6px; font-size:14px;">优惠券</span>
+              <span style="background:#52c41a; color:#fff; padding:7px 14px; border-radius:6px; font-size:15px;">发票问题</span>
+              <span style="background:#73d13d; color:#fff; padding:5px 10px; border-radius:6px; font-size:13px;">商品咨询</span>
+              <span style="background:#fa8c16; color:#fff; padding:6px 12px; border-radius:6px; font-size:14px;">订单修改</span>
+              <span style="background:#ffa940; color:#fff; padding:5px 10px; border-radius:6px; font-size:12px;">支付失败</span>
+              <span style="background:#13c2c2; color:#fff; padding:5px 10px; border-radius:6px; font-size:12px;">会员权益</span>
+              <span style="background:#5cdbd3; color:#fff; padding:4px 8px; border-radius:6px; font-size:11px;">库存查询</span>
+              <span style="background:#eb2f96; color:#fff; padding:4px 8px; border-radius:6px; font-size:11px;">账户安全</span>
+              <span style="background:#91caff; color:#1f1f1f; padding:4px 8px; border-radius:6px; font-size:11px;">签到积分</span>
+              <span style="background:#d3adf7; color:#1f1f1f; padding:4px 8px; border-radius:6px; font-size:11px;">拼团活动</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== 明细表 ===== -->
+        <div class="card">
+          <div class="section-row">
+            <h3>会话明细</h3>
+            <button class="btn-default" style="padding:4px 12px; font-size:13px;">⬇ 导出 CSV</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+              <thead>
+                <tr style="background:#fafafa; border-bottom:1px solid #f0f0f0;">
+                  <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">会话ID</th>
+                  <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">用户</th>
+                  <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">渠道</th>
+                  <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">客服</th>
+                  <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">状态</th>
+                  <th style="text-align:right; padding:12px 8px; color:#8c8c8c; font-weight:500;">满意度</th>
+                  <th style="text-align:right; padding:12px 8px; color:#8c8c8c; font-weight:500;">时长</th>
+                  <th style="text-align:right; padding:12px 8px; color:#8c8c8c; font-weight:500;">时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #f5f5f5;">
+                  <td style="padding:12px 8px;">#S20260611-001</td>
+                  <td style="padding:12px 8px;">用户8732</td>
+                  <td style="padding:12px 8px;">微信小程序</td>
+                  <td style="padding:12px 8px;">李明</td>
+                  <td style="padding:12px 8px;"><span class="status-badge online">已解决</span></td>
+                  <td style="padding:12px 8px; text-align:right;">⭐⭐⭐⭐⭐</td>
+                  <td style="padding:12px 8px; text-align:right;">4分12秒</td>
+                  <td style="padding:12px 8px; text-align:right;">06-11 14:22</td>
+                </tr>
+                <tr style="border-bottom:1px solid #f5f5f5;">
+                  <td style="padding:12px 8px;">#S20260611-002</td>
+                  <td style="padding:12px 8px;">用户5108</td>
+                  <td style="padding:12px 8px;">H5 网页</td>
+                  <td style="padding:12px 8px; color:#722ed1;">AI 机器人</td>
+                  <td style="padding:12px 8px;"><span class="status-badge online">AI解决</span></td>
+                  <td style="padding:12px 8px; text-align:right;">⭐⭐⭐⭐⭐</td>
+                  <td style="padding:12px 8px; text-align:right;">1分38秒</td>
+                  <td style="padding:12px 8px; text-align:right;">06-11 14:18</td>
+                </tr>
+                <tr style="border-bottom:1px solid #f5f5f5;">
+                  <td style="padding:12px 8px;">#S20260611-003</td>
+                  <td style="padding:12px 8px;">用户9921</td>
+                  <td style="padding:12px 8px;">APP 内嵌</td>
+                  <td style="padding:12px 8px;">王芳</td>
+                  <td style="padding:12px 8px;"><span class="status-badge online">已解决</span></td>
+                  <td style="padding:12px 8px; text-align:right;">⭐⭐⭐⭐</td>
+                  <td style="padding:12px 8px; text-align:right;">6分04秒</td>
+                  <td style="padding:12px 8px; text-align:right;">06-11 14:11</td>
+                </tr>
+                <tr style="border-bottom:1px solid #f5f5f5;">
+                  <td style="padding:12px 8px;">#S20260611-004</td>
+                  <td style="padding:12px 8px;">用户2207</td>
+                  <td style="padding:12px 8px;">微信小程序</td>
+                  <td style="padding:12px 8px; color:#722ed1;">AI → 赵磊</td>
+                  <td style="padding:12px 8px;"><span class="status-badge waiting">转人工</span></td>
+                  <td style="padding:12px 8px; text-align:right;">⭐⭐⭐</td>
+                  <td style="padding:12px 8px; text-align:right;">12分47秒</td>
+                  <td style="padding:12px 8px; text-align:right;">06-11 14:05</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 8px;">#S20260611-005</td>
+                  <td style="padding:12px 8px;">用户6654</td>
+                  <td style="padding:12px 8px;">邮件 / 社交</td>
+                  <td style="padding:12px 8px;">陈静</td>
+                  <td style="padding:12px 8px;"><span class="status-badge online">已解决</span></td>
+                  <td style="padding:12px 8px; text-align:right;">⭐⭐⭐⭐⭐</td>
+                  <td style="padding:12px 8px; text-align:right;">3分25秒</td>
+                  <td style="padding:12px 8px; text-align:right;">06-11 13:58</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#8c8c8c;">
+            <span>共 38,642 条记录</span>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="btn-default" style="padding:4px 10px; font-size:12px;">上一页</button>
+              <span style="color:#1677ff; font-weight:600;">1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>...</span>
+              <span>3,864</span>
+              <button class="btn-primary" style="padding:4px 10px; font-size:12px;">下一页</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 交互说明 -->
+        <div class="prototype-note mt-16">
+          本页为 3期 AI 原型：折线图、柱状图、饼图、热力图均为 CSS/SVG 占位示例数据；正式版将接入后端报表接口 <code>/api/backend/report</code>，支持 ECharts 动态渲染与导出 Excel/PDF。AI 解决率统计依赖 3期 大模型客服能力。
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+</body>
+</html>

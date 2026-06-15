@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>用户端 — 离线留言 | CS 商城客服系统原型</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== user-offline.html 专属样式 ===== */
+    body {
+      background: #f0f2f5;
+      padding: 24px 0;
+    }
+
+    /* 页面标题（容器外） */
+    .page-caption {
+      text-align: center;
+      margin: 0 auto 8px;
+      color: #595959;
+      font-size: 13px;
+    }
+    .page-caption strong { color: #1f1f1f; font-size: 15px; }
+
+    /* 离线提示横幅 */
+    .offline-banner {
+      margin: 0;
+      padding: 16px 16px 18px;
+      background: linear-gradient(135deg, #fff7e6 0%, #fff1f0 100%);
+      border-bottom: 1px solid #ffe7d6;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .offline-banner .moon-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      background: #faad14;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 12px rgba(250, 173, 20, 0.35);
+    }
+    .offline-banner .banner-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #874d00;
+      margin-bottom: 4px;
+    }
+    .offline-banner .banner-sub {
+      font-size: 12px;
+      color: #ad6800;
+      line-height: 1.6;
+    }
+    .offline-banner .worktime {
+      margin-top: 8px;
+      display: inline-block;
+      font-size: 11px;
+      color: #8c8c8c;
+      background: #fff;
+      padding: 2px 10px;
+      border-radius: 10px;
+      border: 1px solid #f0f0f0;
+    }
+
+    /* 留言表单区域 */
+    .leave-form-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f5f5f5;
+    }
+    .leave-form-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 16px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+    .leave-form-card .form-heading {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-bottom: 4px;
+    }
+    .leave-form-card .form-desc {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-bottom: 16px;
+    }
+
+    .form-field {
+      margin-bottom: 14px;
+    }
+    .form-field label {
+      display: block;
+      font-size: 13px;
+      color: #595959;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .form-field label .req {
+      color: #f5222d;
+      margin-left: 2px;
+    }
+    .form-field input,
+    .form-field textarea {
+      width: 100%;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #1f1f1f;
+      outline: none;
+      transition: all 0.2s;
+      font-family: inherit;
+      background: #fff;
+      resize: none;
+    }
+    .form-field input::placeholder,
+    .form-field textarea::placeholder {
+      color: #bfbfbf;
+    }
+    .form-field input:focus,
+    .form-field textarea:focus {
+      border-color: #1677ff;
+      box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+    }
+    .form-field textarea {
+      min-height: 96px;
+      line-height: 1.6;
+    }
+    .form-field .field-hint {
+      font-size: 11px;
+      color: #bfbfbf;
+      margin-top: 4px;
+    }
+
+    /* 联系方式类型切换 */
+    .contact-type {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .contact-type .type-chip {
+      flex: 1;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #595959;
+      background: #fff;
+      transition: all 0.2s;
+    }
+    .contact-type .type-chip.active {
+      border-color: #1677ff;
+      color: #1677ff;
+      background: #e6f4ff;
+    }
+
+    /* 提交按钮 */
+    .submit-btn {
+      width: 100%;
+      height: 44px;
+      background: #1677ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+    .submit-btn:hover {
+      background: #4096ff;
+    }
+    .submit-btn:active {
+      transform: scale(0.99);
+    }
+    .submit-btn:disabled {
+      background: #d9d9d9;
+      cursor: not-allowed;
+    }
+
+    .form-footer {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 11px;
+      color: #bfbfbf;
+    }
+
+    /* 成功页 */
+    .success-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      background: #fff;
+      text-align: center;
+    }
+    .success-view .check-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #52c41a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(82, 196, 26, 0.3);
+      animation: pop 0.4s ease;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.6); opacity: 0; }
+      60% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .success-view .success-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-bottom: 8px;
+    }
+    .success-view .success-desc {
+      font-size: 13px;
+      color: #8c8c8c;
+      line-height: 1.7;
+      max-width: 240px;
+      margin-bottom: 24px;
+    }
+    .success-view .success-meta {
+      background: #f6ffed;
+      border: 1px solid #d9f7be;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #389e0d;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 260px;
+    }
+    .success-view .success-meta .meta-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+    }
+    .success-view .back-btn {
+      width: 100%;
+      max-width: 260px;
+      height: 42px;
+      background: #fff;
+      color: #1677ff;
+      border: 1px solid #1677ff;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .success-view .back-btn:hover {
+      background: #e6f4ff;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <p class="page-caption"><strong>用户端 · 离线留言</strong> &nbsp;|&nbsp; US-MVP-20 离线留言提交 · US-MVP-22 离线自动回复</p>
+
+  <!-- ===== 移动端容器 (375px) ===== -->
+  <div class="chat-mobile-container">
+
+    <!-- 顶部导航 -->
+    <div class="chat-header">
+      <span class="back-arrow">‹</span>
+      <span class="title">在线客服</span>
+      <span class="action-icon">⋯</span>
+    </div>
+
+    <!-- ============ 视图 1: 离线 + 留言表单 ============ -->
+    <div id="formView" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+
+      <!-- 离线提示横幅 -->
+      <div class="offline-banner">
+        <div class="moon-icon">🌙</div>
+        <div class="banner-title">客服已离线</div>
+        <div class="banner-sub">当前没有客服在线，您可以先提交留言<br/>我们会在客服上线后第一时间回复您</div>
+        <div class="worktime">🕒 客服工作时间 09:00 - 21:00</div>
+      </div>
+
+      <!-- 留言表单 -->
+      <div class="leave-form-wrap">
+        <div class="leave-form-card">
+          <div class="form-heading">📝 给我们留言</div>
+          <div class="form-desc">填写下方信息，客服上线后将主动与您联系</div>
+
+          <!-- 姓名 -->
+          <div class="form-field">
+            <label>您的称呼<span class="req">*</span></label>
+            <input type="text" id="leaveName" placeholder="请输入您的称呼或昵称" />
+          </div>
+
+          <!-- 联系方式类型 -->
+          <div class="form-field">
+            <label>联系方式<span class="req">*</span></label>
+            <div class="contact-type">
+              <div class="type-chip active" data-type="phone" onclick="switchContactType('phone')">📱 手机</div>
+              <div class="type-chip" data-type="wechat" onclick="switchContactType('wechat')">💬 微信</div>
+              <div class="type-chip" data-type="email" onclick="switchContactType('email')">✉️ 邮箱</div>
+            </div>
+            <input type="text" id="leaveContact" placeholder="请输入手机号码" />
+          </div>
+
+          <!-- 留言内容 -->
+          <div class="form-field">
+            <label>留言内容<span class="req">*</span></label>
+            <textarea id="leaveMessage" placeholder="请描述您遇到的问题或需要咨询的内容…"></textarea>
+            <div class="field-hint">建议附带订单号、商品链接等信息，便于客服快速处理</div>
+          </div>
+
+          <button class="submit-btn" onclick="submitLeaveMessage()">提交留言</button>
+
+          <div class="form-footer">🔒 您的信息将被严格保密，仅用于本次客服沟通</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 视图 2: 提交成功 ============ -->
+    <div id="successView" class="success-view hidden">
+      <div class="check-circle">✓</div>
+      <div class="success-title">留言成功</div>
+      <div class="success-desc">客服上线后将回复您<br/>请保持联系方式畅通，我们会尽快与您联系</div>
+      <div class="success-meta">
+        <div class="meta-row"><span>留言编号</span><span>#LM20260611-0042</span></div>
+        <div class="meta-row"><span>预计回复</span><span>客服上线后 30 分钟内</span></div>
+      </div>
+      <button class="back-btn" onclick="resetForm()">返回</button>
+    </div>
+
+  </div>
+
+  <!-- 交互说明 -->
+  <div style="max-width:560px; margin:16px auto 0; padding:0 16px;">
+    <div class="prototype-note">
+      本页演示离线场景：当所有客服下线时，用户进入客服即看到离线提示与留言表单。提交后切换为成功态，告知用户留言已受理。对应需求：US-MVP-20（离线留言提交）+ US-MVP-22（离线自动回复）。
+    </div>
+  </div>
+
+  <script>
+    // 联系方式类型切换
+    function switchContactType(type) {
+      document.querySelectorAll('.contact-type .type-chip').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.type === type);
+      });
+      var input = document.getElementById('leaveContact');
+      var placeholders = {
+        phone: '请输入手机号码',
+        wechat: '请输入微信号',
+        email: '请输入邮箱地址'
+      };
+      input.value = '';
+      input.placeholder = placeholders[type] || '';
+    }
+
+    // 提交留言
+    function submitLeaveMessage() {
+      var name = document.getElementById('leaveName').value.trim();
+      var contact = document.getElementById('leaveContact').value.trim();
+      var message = document.getElementById('leaveMessage').value.trim();
+
+      if (!name) { alert('请输入您的称呼'); return; }
+      if (!contact) { alert('请输入联系方式'); return; }
+      if (!message) { alert('请输入留言内容'); return; }
+
+      // 模拟提交：切换到成功视图
+      document.getElementById('formView').classList.add('hidden');
+      document.getElementById('successView').classList.remove('hidden');
+    }
+
+    // 重置返回
+    function resetForm() {
+      document.getElementById('leaveName').value = '';
+      document.getElementById('leaveContact').value = '';
+      document.getElementById('leaveMessage').value = '';
+      document.getElementById('formView').classList.remove('hidden');
+      document.getElementById('successView').classList.add('hidden');
+    }
+  </script>
+
+</body>
+</html>

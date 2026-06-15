@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>数据仪表盘 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-dashboard.html 专属样式 ===== */
+
+    /* ---------- Metric Card (顶部指标) ---------- */
+    .metric-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 20px 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .metric-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .metric-icon.blue   { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .metric-icon.green  { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .metric-icon.orange { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .metric-icon.purple { background: linear-gradient(135deg, #722ed1, #9254de); }
+
+    .metric-body { flex: 1; min-width: 0; }
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f1f1f;
+      line-height: 1.2;
+    }
+    .metric-value .unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: #8c8c8c;
+      margin-left: 4px;
+    }
+    .metric-label {
+      font-size: 13px;
+      color: #8c8c8c;
+      margin-top: 4px;
+    }
+    .metric-trend {
+      font-size: 12px;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .metric-trend.up   { color: #52c41a; }
+    .metric-trend.down { color: #f5222d; }
+
+    /* ---------- Chart Placeholder ---------- */
+    .chart-placeholder {
+      height: 280px;
+      background: #fafafa;
+      border: 1px dashed #d9d9d9;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: #bfbfbf;
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-placeholder .chart-icon { font-size: 36px; opacity: 0.6; }
+    .chart-placeholder .chart-label { font-size: 13px; }
+
+    /* Fake bar chart bars (会话量趋势) */
+    .fake-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      height: 180px;
+      padding: 0 12px;
+    }
+    .fake-bars .bar {
+      width: 22px;
+      background: linear-gradient(180deg, #4096ff, #1677ff);
+      border-radius: 4px 4px 0 0;
+      position: relative;
+      transition: opacity 0.2s;
+    }
+    .fake-bars .bar:hover { opacity: 0.8; }
+    .fake-bars .bar .bar-val {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #595959;
+      white-space: nowrap;
+    }
+    .fake-bars .bar .bar-label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #8c8c8c;
+      white-space: nowrap;
+    }
+    .chart-axis-wrap {
+      padding: 24px 24px 32px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ---------- 排行榜 (客服绩效) ---------- */
+    .rank-list { display: flex; flex-direction: column; }
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-no {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+      background: #f0f0f0;
+      color: #8c8c8c;
+    }
+    .rank-no.top1 { background: #fff7e6; color: #fa8c16; }
+    .rank-no.top2 { background: #f0f0f0; color: #595959; }
+    .rank-no.top3 { background: #fff2e8; color: #d4651a; }
+    .rank-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .rank-info { flex: 1; min-width: 0; }
+    .rank-name { font-size: 14px; color: #1f1f1f; font-weight: 500; }
+    .rank-bar {
+      height: 6px;
+      background: #f0f0f0;
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .rank-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1677ff, #4096ff);
+      border-radius: 3px;
+    }
+    .rank-score {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1677ff;
+      flex-shrink: 0;
+    }
+
+    /* ---------- 待处理事项 summary ---------- */
+    .todo-summary-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .todo-summary-item:last-child { border-bottom: none; }
+    .todo-summary-left { display: flex; align-items: center; gap: 10px; }
+    .todo-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .todo-dot.urgent { background: #f5222d; }
+    .todo-dot.warn   { background: #faad14; }
+    .todo-dot.normal { background: #1677ff; }
+    .todo-count {
+      font-size: 13px;
+      color: #1f1f1f;
+    }
+    .todo-num {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f5222d;
+    }
+    .todo-num.warn { color: #faad14; }
+    .todo-num.normal { color: #1677ff; }
+
+    .view-all-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: #1677ff;
+      font-size: 13px;
+    }
+
+    /* ---------- 侧栏子标题 ---------- */
+    .menu-group-title {
+      padding: 12px 24px 6px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- 实时概况小标签 ---------- */
+    .live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #52c41a;
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .live-tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #52c41a;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-row h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin: 0;
+    }
+
+    /* avatar in header */
+    .header-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      .admin-sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="admin-sidebar">
+      <div class="logo">CS 客服系统</div>
+
+      <div class="menu-group-title">工作台</div>
+      <div class="menu-item active">📊 首页</div>
+
+      <div class="menu-group-title">运营</div>
+      <div class="menu-item">💬 客服工作台</div>
+      <div class="menu-item">📁 会话记录</div>
+      <div class="menu-item">🔁 会话转接</div>
+
+      <div class="menu-group-title">内容</div>
+      <div class="menu-item">📚 知识库</div>
+      <div class="menu-item">💬 话术库</div>
+
+      <div class="menu-group-title">反馈</div>
+      <div class="menu-item">⭐ 评价管理</div>
+      <div class="menu-item">📩 留言管理</div>
+
+      <div class="menu-group-title">系统</div>
+      <div class="menu-item">⚙️ 设置</div>
+    </aside>
+
+    <!-- ===== Main ===== -->
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+      <!-- Header -->
+      <header class="admin-header">
+        <div>
+          <div style="font-size:16px; font-weight:600;">数据仪表盘</div>
+          <div class="breadcrumb">首页 / 数据仪表盘</div>
+        </div>
+        <div class="user-info">
+          <span class="live-tag">实时</span>
+          <div class="header-avatar">张</div>
+          <span style="font-size:13px;">张客服主管</span>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="admin-content">
+
+        <!-- ===== 顶部指标卡片 ===== -->
+        <div class="grid grid-4 mb-24">
+
+          <div class="metric-card">
+            <div class="metric-icon blue">💬</div>
+            <div class="metric-body">
+              <div class="metric-value">1,286<span class="unit">次</span></div>
+              <div class="metric-label">今日会话数</div>
+              <div class="metric-trend up">▲ 12.5% 较昨日</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon green">🟢</div>
+            <div class="metric-body">
+              <div class="metric-value">18<span class="unit">/ 24</span></div>
+              <div class="metric-label">在线客服数</div>
+              <div class="metric-trend up">▲ 3 人新上线</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon orange">⏱️</div>
+            <div class="metric-body">
+              <div class="metric-value">42<span class="unit">秒</span></div>
+              <div class="metric-label">平均响应时长</div>
+              <div class="metric-trend down">▼ 8.3% 提速</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon purple">⭐</div>
+            <div class="metric-body">
+              <div class="metric-value">4.82<span class="unit">/ 5.0</span></div>
+              <div class="metric-label">满意度评分</div>
+              <div class="metric-trend up">▲ 0.06 较昨日</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== 图表区 ===== -->
+        <div class="grid grid-2 mb-24">
+
+          <!-- 会话量趋势 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>会话量趋势</h3>
+              <div class="flex gap-8">
+                <button class="btn-default" style="padding:2px 10px; font-size:12px;">近7天</button>
+                <button class="btn-primary" style="padding:2px 10px; font-size:12px;">今天</button>
+              </div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-axis-wrap">
+                <div class="fake-bars">
+                  <div class="bar" style="height:55%;">
+                    <span class="bar-val">98</span>
+                    <span class="bar-label">09:00</span>
+                  </div>
+                  <div class="bar" style="height:72%;">
+                    <span class="bar-val">128</span>
+                    <span class="bar-label">10:00</span>
+                  </div>
+                  <div class="bar" style="height:88%;">
+                    <span class="bar-val">156</span>
+                    <span class="bar-label">11:00</span>
+                  </div>
+                  <div class="bar" style="height:95%;">
+                    <span class="bar-val">168</span>
+                    <span class="bar-label">12:00</span>
+                  </div>
+                  <div class="bar" style="height:78%;">
+                    <span class="bar-val">138</span>
+                    <span class="bar-label">13:00</span>
+                  </div>
+                  <div class="bar" style="height:100%;">
+                    <span class="bar-val">176</span>
+                    <span class="bar-label">14:00</span>
+                  </div>
+                  <div class="bar" style="height:84%;">
+                    <span class="bar-val">149</span>
+                    <span class="bar-label">15:00</span>
+                  </div>
+                  <div class="bar" style="height:66%;">
+                    <span class="bar-val">117</span>
+                    <span class="bar-label">16:00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 客服绩效排行 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>客服绩效排行</h3>
+              <button class="btn-default" style="padding:2px 10px; font-size:12px;">本月</button>
+            </div>
+            <div class="rank-list">
+
+              <div class="rank-item">
+                <div class="rank-no top1">1</div>
+                <div class="rank-avatar">李</div>
+                <div class="rank-info">
+                  <div class="rank-name">李明 · 满意度 99%</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:96%;"></div></div>
+                </div>
+                <div class="rank-score">328</div>
+              </div>
+
+              <div class="rank-item">
+                <div class="rank-no top2">2</div>
+                <div class="rank-avatar" style="background:#52c41a;">王</div>
+                <div class="rank-info">
+                  <div class="rank-name">王芳 · 满意度 97%</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:88%; background:linear-gradient(90deg,#52c41a,#73d13d);"></div></div>
+                </div>
+                <div class="rank-score" style="color:#52c41a;">301</div>
+              </div>
+
+              <div class="rank-item">
+                <div class="rank-no top3">3</div>
+                <div class="rank-avatar" style="background:#fa8c16;">赵</div>
+                <div class="rank-info">
+                  <div class="rank-name">赵磊 · 满意度 95%</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:80%; background:linear-gradient(90deg,#fa8c16,#ffa940);"></div></div>
+                </div>
+                <div class="rank-score" style="color:#fa8c16;">276</div>
+              </div>
+
+              <div class="rank-item">
+                <div class="rank-no">4</div>
+                <div class="rank-avatar" style="background:#722ed1;">陈</div>
+                <div class="rank-info">
+                  <div class="rank-name">陈静 · 满意度 94%</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:72%; background:linear-gradient(90deg,#722ed1,#9254de);"></div></div>
+                </div>
+                <div class="rank-score" style="color:#722ed1;">248</div>
+              </div>
+
+              <div class="rank-item">
+                <div class="rank-no">5</div>
+                <div class="rank-avatar" style="background:#13c2c2;">刘</div>
+                <div class="rank-info">
+                  <div class="rank-name">刘洋 · 满意度 92%</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:64%; background:linear-gradient(90deg,#13c2c2,#5cdbd3);"></div></div>
+                </div>
+                <div class="rank-score" style="color:#13c2c2;">221</div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== 待处理事项 + 概况 ===== -->
+        <div class="grid grid-3">
+
+          <!-- 待处理事项 summary -->
+          <div class="card" style="grid-column: span 2;">
+            <div class="section-row">
+              <h3>待处理事项</h3>
+              <span class="tag-urgent">需关注 5 项</span>
+            </div>
+
+            <div class="todo-panel">
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot urgent"></span>
+                  <span class="todo-count">超时未响应会话</span>
+                </div>
+                <span class="todo-num">3</span>
+              </div>
+
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot warn"></span>
+                  <span class="todo-count">待转接确认</span>
+                </div>
+                <span class="todo-num warn">2</span>
+              </div>
+
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot warn"></span>
+                  <span class="todo-count">差评待跟进</span>
+                </div>
+                <span class="todo-num warn">4</span>
+              </div>
+
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot normal"></span>
+                  <span class="todo-count">未读留言</span>
+                </div>
+                <span class="todo-num normal">7</span>
+              </div>
+
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot normal"></span>
+                  <span class="todo-count">知识库待审核</span>
+                </div>
+                <span class="todo-num normal">5</span>
+              </div>
+
+              <a class="view-all-link" href="admin-todo.html">查看全部待办 →</a>
+            </div>
+          </div>
+
+          <!-- 今日概况 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>今日概况</h3>
+            </div>
+            <div class="customer-info-panel">
+              <div class="info-row">
+                <span class="info-label">当前排队</span>
+                <span style="color:#faad14; font-weight:600;">6 人</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">已接入会话</span>
+                <span>1,280</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">已关闭会话</span>
+                <span>1,124</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">转接次数</span>
+                <span>38</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">AI 托管会话</span>
+                <span style="color:#722ed1;">142 (11%)</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">首次响应率</span>
+                <span style="color:#52c41a;">96.4%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 交互说明 -->
+        <div class="prototype-note mt-16">
+          本页为静态原型：指标数值、图表与排行均为示例数据；正式版接入后端 <code>/api/backend/dashboard</code> 接口与 WebSocket 实时推送。
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+</body>
+</html>

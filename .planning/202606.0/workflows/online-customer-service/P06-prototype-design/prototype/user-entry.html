@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>场景咨询入口 — 6 页面客服入口嵌入 · 用户端原型</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== user-entry.html 专属样式 ===== */
+    :root {
+      --ue-primary: #1677ff;
+      --ue-text: #1f1f1f;
+      --ue-text-secondary: #595959;
+      --ue-text-tertiary: #8c8c8c;
+      --ue-border: #f0f0f0;
+      --ue-bg-page: #f5f7fa;
+      --ue-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
+      --ue-shadow-hover: 0 2px 8px rgba(22,119,255,.10), 0 8px 24px rgba(0,0,0,.12);
+    }
+
+    .page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+    }
+
+    /* ---------- Page Header ---------- */
+    .page-header {
+      background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+      color: #fff;
+      border-radius: 14px;
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 85% 20%, rgba(255,255,255,.12) 0, transparent 40%);
+      pointer-events: none;
+    }
+    .page-header h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 700;
+      position: relative;
+    }
+    .page-header .crumb {
+      font-size: 13px;
+      opacity: 0.85;
+      position: relative;
+    }
+    .page-header .crumb a { color: #fff; opacity: 0.9; }
+    .page-header .crumb a:hover { opacity: 1; }
+    .page-header .meta-row {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .page-header .pill {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: #fff;
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    /* ---------- Overview Bar ---------- */
+    .overview-bar {
+      background: #fff;
+      border: 1px solid var(--ue-border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      box-shadow: var(--ue-shadow);
+    }
+    .overview-bar .ov-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ue-text-secondary);
+    }
+    .overview-bar .ov-num {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ue-primary);
+    }
+    .overview-bar .ov-sep {
+      width: 1px;
+      height: 28px;
+      background: var(--ue-border);
+    }
+
+    /* ---------- Entry Grid ---------- */
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 1100px) { .entry-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 720px)  { .entry-grid { grid-template-columns: 1fr; } }
+
+    /* ---------- Entry Card ---------- */
+    .entry-card {
+      background: #fff;
+      border: 1px solid var(--ue-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--ue-shadow);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .entry-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--ue-shadow-hover);
+      border-color: #d6e4ff;
+    }
+
+    .entry-card-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--ue-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafbfc;
+    }
+    .entry-card-head .scene-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ue-text);
+    }
+    .entry-card-head .scene-emoji {
+      font-size: 18px;
+    }
+    .entry-card-head .entry-tag-chip {
+      background: #f0f5ff;
+      color: var(--ue-primary);
+      border: 1px solid #d6e4ff;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    /* ---------- Mock Mall Page (phone-ish snippet) ---------- */
+    .mock-page {
+      position: relative;
+      height: 280px;
+      background: #f5f7fa;
+      overflow: hidden;
+    }
+
+    /* mock browser/url bar */
+    .mock-urlbar {
+      height: 26px;
+      background: #e8eaed;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+      border-bottom: 1px solid #dfe1e5;
+    }
+    .mock-urlbar .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .mock-urlbar .dot.r { background: #ff5f57; }
+    .mock-urlbar .dot.y { background: #febc2e; }
+    .mock-urlbar .dot.g { background: #28c840; }
+    .mock-urlbar .url {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      height: 16px;
+      font-size: 10px;
+      color: #8c8c8c;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      margin-left: 4px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .mock-body {
+      padding: 10px 12px;
+      height: calc(100% - 26px);
+      position: relative;
+    }
+
+    /* generic mock skeleton lines */
+    .sk { background: #e8ecf1; border-radius: 4px; }
+    .sk-line { height: 8px; margin-bottom: 6px; }
+    .sk-block { height: 40px; margin-bottom: 8px; }
+
+    /* scene-specific mock accents */
+    .mock-banner {
+      height: 56px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .mock-banner.home    { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .mock-banner.product { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .mock-banner.order   { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .mock-banner.cart    { background: linear-gradient(135deg, #722ed1, #9254de); }
+    .mock-banner.help    { background: linear-gradient(135deg, #13c2c2, #36cfc9); }
+    .mock-banner.profile { background: linear-gradient(135deg, #eb2f96, #ff85c0); }
+
+    /* product thumb */
+    .prod-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .prod-thumb {
+      width: 50px; height: 50px;
+      background: #e8ecf1;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .prod-info { flex: 1; }
+    .price-tag {
+      color: #f5222d;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* order card */
+    .order-card {
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+    .order-status {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: #fff7e6;
+      color: #d46b08;
+    }
+
+    /* help list */
+    .help-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      background: #fff;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      border: 1px solid #f0f0f0;
+    }
+
+    /* profile list */
+    .profile-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      background: #fff;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      border: 1px solid #f0f0f0;
+    }
+    .profile-cell .pico {
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      background: #e8ecf1;
+    }
+
+    /* ---------- Floating "联系客服" Button ---------- */
+    .cs-fab {
+      position: absolute;
+      right: 12px;
+      bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(135deg, #1677ff, #4096ff);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(22,119,255,.35);
+      cursor: pointer;
+      z-index: 5;
+      animation: fab-pulse 2.4s ease-in-out infinite;
+    }
+    .cs-fab .cs-fab-icon {
+      width: 14px; height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cs-fab .badge-dot {
+      position: absolute;
+      top: -2px; right: -2px;
+      width: 8px; height: 8px;
+      background: #f5222d;
+      border: 1.5px solid #fff;
+      border-radius: 50%;
+    }
+    @keyframes fab-pulse {
+      0%, 100% { box-shadow: 0 4px 12px rgba(22,119,255,.35); }
+      50%      { box-shadow: 0 4px 18px rgba(22,119,255,.55); }
+    }
+
+    /* alternate fab positions for variety */
+    .cs-fab.pos-tr { right: 12px; bottom: auto; top: 40px; }
+    .cs-fab.pos-br { right: 12px; bottom: 14px; }
+
+    /* ---------- Entry Card Footer ---------- */
+    .entry-card-foot {
+      padding: 12px 16px;
+      border-top: 1px solid var(--ue-border);
+      background: #fafbfc;
+    }
+    .entry-card-foot .entry-detail {
+      font-size: 12px;
+      color: var(--ue-text-secondary);
+      line-height: 1.6;
+    }
+    .entry-card-foot .entry-detail code {
+      background: #f0f5ff;
+      color: var(--ue-primary);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .entry-card-foot .kv {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--ue-text-tertiary);
+    }
+
+    /* ---------- Back link ---------- */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ue-primary);
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrap">
+
+    <!-- ===== Page Header ===== -->
+    <div class="page-header">
+      <div class="crumb">
+        <a href="index.html">原型首页</a> / 用户端 / 场景咨询入口
+      </div>
+      <h1>场景咨询入口 — 6 页面客服入口嵌入</h1>
+      <div class="meta-row">
+        <span class="pill">US-MVP-16</span>
+        <span class="pill">1期 MVP</span>
+        <span class="pill">用户端 · Taro</span>
+        <span class="pill">entry_tag 场景透传</span>
+        <span class="pill">更新于 2026-06-11</span>
+      </div>
+    </div>
+
+    <!-- ===== Overview ===== -->
+    <div class="overview-bar">
+      <div class="ov-item">
+        <span class="ov-num">6</span>
+        <span>商城页面入口</span>
+      </div>
+      <div class="ov-sep"></div>
+      <div class="ov-item">
+        <span class="ov-num">6</span>
+        <span>entry_tag 场景标签</span>
+      </div>
+      <div class="ov-sep"></div>
+      <div class="ov-item">
+        <span class="ov-num">1</span>
+        <span>统一悬浮按钮组件</span>
+      </div>
+      <div class="ov-sep"></div>
+      <div class="ov-item">
+        <span style="font-size:13px;">点击即进入会话，并自动携带页面上下文（商品/订单/分类）</span>
+      </div>
+    </div>
+
+    <span class="back-link" onclick="location.href='index.html'">← 返回原型首页</span>
+
+    <div class="prototype-note">
+      每个入口均携带 <code style="background:#fff8d8;padding:1px 4px;border-radius:3px;">entry_tag</code> 场景标签，
+      用于在进入会话时自动填充咨询上下文（例如商品页 → 自动发送「我想咨询这个商品」并附带商品卡片），
+      客服端可在会话开始时即获知用户来源场景，无需用户重复描述。这是 US-MVP-16（6页面入口嵌入）的核心实现机制。
+    </div>
+
+    <!-- ===== Entry Grid ===== -->
+    <div class="entry-grid">
+
+      <!-- ===== 1. 首页 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji">🏠</span>
+            首页
+          </div>
+          <span class="entry-tag-chip">entry_tag: home</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / 首页</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner home">🏸 春季运动装备节 · 满300减50</div>
+            <div class="sk sk-line" style="width:60%;"></div>
+            <div class="sk sk-block"></div>
+            <div class="prod-row">
+              <div class="prod-thumb"></div>
+              <div class="prod-info">
+                <div class="sk sk-line" style="width:80%;"></div>
+                <div class="sk sk-line" style="width:50%;"></div>
+              </div>
+            </div>
+            <!-- Floating CS button -->
+            <div class="cs-fab pos-br">
+              <span class="cs-fab-icon">💬</span>
+              联系客服
+              <span class="badge-dot"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            首页右下角悬浮「联系客服」按钮，全天候可见。<br>
+            entry_tag: <code>home</code> · 通用咨询入口
+          </div>
+          <div class="kv">
+            <span>入口位置</span>
+            <span>全局悬浮 · 右下角</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 2. 商品详情 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji">🛍️</span>
+            商品详情
+          </div>
+          <span class="entry-tag-chip">entry_tag: product</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / product / 10086</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner product">🏸 YONEX 天斧100ZZ 碳纤维羽毛球拍</div>
+            <div class="prod-row">
+              <div class="prod-thumb" style="background:linear-gradient(135deg,#b7eb8f,#73d13d);"></div>
+              <div class="prod-info">
+                <div class="sk sk-line" style="width:90%; height:10px;"></div>
+                <div class="price-tag">¥ 1,580.00</div>
+                <div class="sk sk-line" style="width:50%;"></div>
+              </div>
+            </div>
+            <div class="sk sk-line" style="width:70%;"></div>
+            <!-- Floating CS button -->
+            <div class="cs-fab pos-br">
+              <span class="cs-fab-icon">💬</span>
+              商品咨询
+              <span class="badge-dot"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            商品详情页右下角「商品咨询」按钮，点击自动发送商品卡片。<br>
+            entry_tag: <code>product</code> + <code>product_id</code> · 带商品咨询
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>商品ID · 名称 · 价格</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 3. 订单详情 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji">📦</span>
+            订单详情
+          </div>
+          <span class="entry-tag-chip">entry_tag: order</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / order / 202606110001</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner order">订单号：202606110001</div>
+            <div class="order-card">
+              <div class="flex-between" style="margin-bottom:4px;">
+                <strong style="font-size:12px;">待发货</strong>
+                <span class="order-status">已付款</span>
+              </div>
+              <div class="sk sk-line" style="width:90%;"></div>
+              <div class="sk sk-line" style="width:60%;"></div>
+            </div>
+            <div class="order-card">
+              <div class="price-tag" style="display:inline;">¥ 1,580.00</div>
+              <span style="color:#8c8c8c; font-size:10px; margin-left:6px;">含运费 ¥12</span>
+            </div>
+            <!-- Floating CS button -->
+            <div class="cs-fab pos-br">
+              <span class="cs-fab-icon">💬</span>
+              订单咨询
+              <span class="badge-dot"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            订单详情页「订单咨询」按钮，点击自动附带订单卡片。<br>
+            entry_tag: <code>order</code> + <code>order_id</code> + <code>order_status</code>
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>订单号 · 状态 · 金额</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 4. 购物车 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji">🛒</span>
+            购物车
+          </div>
+          <span class="entry-tag-chip">entry_tag: cart</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / cart</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner cart">我的购物车 · 3 件商品</div>
+            <div class="prod-row">
+              <div class="prod-thumb" style="background:linear-gradient(135deg,#d3adf7,#9254de);"></div>
+              <div class="prod-info">
+                <div class="sk sk-line" style="width:80%;"></div>
+                <span class="price-tag">¥ 1,580</span>
+              </div>
+            </div>
+            <div class="prod-row">
+              <div class="prod-thumb" style="background:linear-gradient(135deg,#d3adf7,#9254de);"></div>
+              <div class="prod-info">
+                <div class="sk sk-line" style="width:70%;"></div>
+                <span class="price-tag">¥ 220</span>
+              </div>
+            </div>
+            <!-- Floating CS button -->
+            <div class="cs-fab pos-br">
+              <span class="cs-fab-icon">💬</span>
+              联系客服
+              <span class="badge-dot"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            购物车页右下角「联系客服」按钮，常用于凑单、优惠、库存咨询。<br>
+            entry_tag: <code>cart</code> + <code>cart_items[]</code> · 购物车咨询
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>商品列表 · 总金额</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 5. 帮助中心 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji">❓</span>
+            帮助中心
+          </div>
+          <span class="entry-tag-chip">entry_tag: help</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / help</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner help">帮助中心 · 常见问题</div>
+            <div class="help-item">
+              <span>📦 物流查询</span>
+              <span style="color:#bfbfbf;">›</span>
+            </div>
+            <div class="help-item">
+              <span>↩️ 退换货政策</span>
+              <span style="color:#bfbfbf;">›</span>
+            </div>
+            <div class="help-item">
+              <span>💳 支付问题</span>
+              <span style="color:#bfbfbf;">›</span>
+            </div>
+            <!-- Floating CS button -->
+            <div class="cs-fab pos-br">
+              <span class="cs-fab-icon">💬</span>
+              在线客服
+              <span class="badge-dot"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            帮助中心底部「在线客服」按钮，FAQ 无法解决时的人工兜底入口。<br>
+            entry_tag: <code>help</code> + <code>faq_category</code>
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>当前浏览的 FAQ 分类</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 6. 个人中心 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji">👤</span>
+            个人中心
+          </div>
+          <span class="entry-tag-chip">entry_tag: profile</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / profile</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner profile">👤 会员等级 · 黄金会员</div>
+            <div class="profile-cell">
+              <span class="pico"></span>
+              <span style="flex:1;">我的订单</span>
+              <span style="color:#bfbfbf;">›</span>
+            </div>
+            <div class="profile-cell">
+              <span class="pico"></span>
+              <span style="flex:1;">优惠券 · 5 张</span>
+              <span style="color:#bfbfbf;">›</span>
+            </div>
+            <div class="profile-cell">
+              <span class="pico"></span>
+              <span style="flex:1;">收货地址</span>
+              <span style="color:#bfbfbf;">›</span>
+            </div>
+            <!-- Floating CS button -->
+            <div class="cs-fab pos-br">
+              <span class="cs-fab-icon">💬</span>
+              联系客服
+              <span class="badge-dot"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            个人中心「联系客服」按钮，处理账户、会员、地址类问题。<br>
+            entry_tag: <code>profile</code> · 账户类咨询
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>会员等级 · 账户信息</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /.entry-grid -->
+
+    <!-- ===== Interaction Flow Note ===== -->
+    <div class="prototype-note" style="margin-top:24px;">
+      <strong>交互流程：</strong> 用户在任意 6 个商城页面点击悬浮「联系客服」按钮 →
+      前端读取当前页面的 <code style="background:#fff8d8;padding:1px 4px;border-radius:3px;">entry_tag</code> 与上下文参数（product_id / order_id 等） →
+      跳转至 <a href="user-chat.html">聊天主界面</a> 并自动发送带场景标签的首条消息 +
+      对应商品/订单卡片 → 客服端工作台在会话建立时即可看到用户来源场景，实现「无需用户复述」的精准服务。
+    </div>
+
+    <!-- ===== Entry Tag Mapping Table ===== -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">entry_tag 场景标签对照表</div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:#fafbfc; border-bottom:1px solid #f0f0f0;">
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">页面</th>
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">entry_tag</th>
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">携带参数</th>
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">典型咨询场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;">🏠 首页</td>
+            <td style="padding:10px 12px;"><code style="background:#f0f5ff;color:#1677ff;padding:1px 5px;border-radius:3px;">home</code></td>
+            <td style="padding:10px 12px; color:#595959;">—</td>
+            <td style="padding:10px 12px; color:#595959;">活动咨询、通用问题</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;">🛍️ 商品详情</td>
+            <td style="padding:10px 12px;"><code style="background:#f0f5ff;color:#1677ff;padding:1px 5px;border-radius:3px;">product</code></td>
+            <td style="padding:10px 12px; color:#595959;">product_id, product_name, price</td>
+            <td style="padding:10px 12px; color:#595959;">尺码、库存、规格咨询</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;">📦 订单详情</td>
+            <td style="padding:10px 12px;"><code style="background:#f0f5ff;color:#1677ff;padding:1px 5px;border-radius:3px;">order</code></td>
+            <td style="padding:10px 12px; color:#595959;">order_id, order_status, amount</td>
+            <td style="padding:10px 12px; color:#595959;">物流、催发货、退款</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;">🛒 购物车</td>
+            <td style="padding:10px 12px;"><code style="background:#f0f5ff;color:#1677ff;padding:1px 5px;border-radius:3px;">cart</code></td>
+            <td style="padding:10px 12px; color:#595959;">cart_items[], total_amount</td>
+            <td style="padding:10px 12px; color:#595959;">凑单、优惠、满减</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;">❓ 帮助中心</td>
+            <td style="padding:10px 12px;"><code style="background:#f0f5ff;color:#1677ff;padding:1px 5px;border-radius:3px;">help</code></td>
+            <td style="padding:10px 12px; color:#595959;">faq_category</td>
+            <td style="padding:10px 12px; color:#595959;">FAQ 兜底、政策咨询</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;">👤 个人中心</td>
+            <td style="padding:10px 12px;"><code style="background:#f0f5ff;color:#1677ff;padding:1px 5px;border-radius:3px;">profile</code></td>
+            <td style="padding:10px 12px; color:#595959;">member_level</td>
+            <td style="padding:10px 12px; color:#595959;">账户、会员、地址</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <div style="text-align:center; padding:32px 0 16px; color:#8c8c8c; font-size:12px;">
+      <a href="index.html">← 返回原型首页</a>
+      <span style="margin:0 8px; opacity:.5;">|</span>
+      CS 商城客服系统 · 用户端原型 · US-MVP-16（6页面入口嵌入）
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>留言管理 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-leave-mgmt.html 专属样式 ===== */
+    body { background: #f0f2f5; }
+
+    /* ---------- 顶部统计条 ---------- */
+    .leave-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: box-shadow 0.2s;
+    }
+    .stat-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .stat-card .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .stat-card .stat-num { font-size: 26px; font-weight: 700; line-height: 1.1; }
+    .stat-card .stat-name { font-size: 13px; color: #8c8c8c; margin-top: 2px; }
+    .icon-pending  { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .icon-process  { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .icon-replied  { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .icon-invalid  { background: linear-gradient(135deg, #8c8c8c, #bfbfbf); }
+
+    /* ---------- 状态 Tab ---------- */
+    .status-tabs {
+      display: flex;
+      gap: 4px;
+      background: #fff;
+      border-radius: 8px 8px 0 0;
+      border: 1px solid #f0f0f0;
+      border-bottom: none;
+      padding: 0 8px;
+    }
+    .status-tab {
+      padding: 12px 20px;
+      font-size: 14px;
+      color: #595959;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+    .status-tab:hover { color: #1677ff; }
+    .status-tab.active {
+      color: #1677ff;
+      border-bottom-color: #1677ff;
+      font-weight: 600;
+    }
+    .status-tab .tab-count {
+      background: #f0f2f5;
+      color: #595959;
+      border-radius: 10px;
+      padding: 1px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-tab.active .tab-count { background: #e6f4ff; color: #1677ff; }
+
+    /* ---------- 筛选条 ---------- */
+    .filter-bar {
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-top: none;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-radius: 0 0 8px 8px;
+      margin-bottom: 16px;
+    }
+    .filter-bar .search-input {
+      flex: 1;
+      min-width: 200px;
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filter-bar .search-input:focus { border-color: #1677ff; }
+    .filter-bar select {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 10px;
+      font-size: 13px;
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+    }
+    .filter-bar select:focus { border-color: #1677ff; }
+
+    /* ---------- 留言列表表格 ---------- */
+    .leave-table-wrap {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      overflow: hidden;
+    }
+    .leave-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .leave-table thead th {
+      background: #fafafa;
+      color: #595959;
+      font-weight: 600;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
+    .leave-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5;
+      vertical-align: middle;
+    }
+    .leave-table tbody tr { transition: background 0.15s; }
+    .leave-table tbody tr:hover { background: #fafbfc; }
+    .leave-table tbody tr:last-child td { border-bottom: none; }
+
+    /* 留言人单元格 */
+    .leave-user { display: flex; align-items: center; gap: 10px; }
+    .leave-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .leave-avatar.orange { background: #fa8c16; }
+    .leave-avatar.purple { background: #722ed1; }
+    .leave-avatar.green  { background: #52c41a; }
+    .leave-avatar.gray   { background: #8c8c8c; }
+    .leave-name { font-weight: 600; color: #1f1f1f; }
+    .leave-contact { font-size: 12px; color: #8c8c8c; margin-top: 2px; }
+
+    /* 留言内容 */
+    .leave-msg {
+      max-width: 280px;
+      color: #595959;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* 时间 */
+    .leave-time { color: #8c8c8c; font-size: 12px; white-space: nowrap; }
+    .leave-time .rel { color: #bfbfbf; display: block; margin-top: 2px; font-size: 11px; }
+
+    /* 状态标签（用于行内） */
+    .leave-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .leave-status::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .leave-status.s-pending  { background: #fff7e6; color: #d46b08; }
+    .leave-status.s-pending::before  { background: #fa8c16; }
+    .leave-status.s-process  { background: #e6f4ff; color: #1677ff; }
+    .leave-status.s-process::before  { background: #1677ff; }
+    .leave-status.s-replied  { background: #f6ffed; color: #389e0d; }
+    .leave-status.s-replied::before  { background: #52c41a; }
+    .leave-status.s-invalid  { background: #f5f5f5; color: #8c8c8c; }
+    .leave-status.s-invalid::before  { background: #bfbfbf; }
+
+    /* 处理人 */
+    .leave-assignee {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #595959;
+    }
+    .leave-assignee .assignee-avatar {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+    }
+    .leave-unassigned { color: #bfbfbf; font-style: italic; font-size: 12px; }
+
+    /* 行操作 */
+    .row-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
+    .btn-sm {
+      padding: 4px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: #1f1f1f;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover { border-color: #1677ff; color: #1677ff; }
+    .btn-sm.primary { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .btn-sm.primary:hover { background: #4096ff; }
+    .btn-sm.success { color: #389e0d; border-color: #b7eb8f; }
+    .btn-sm.success:hover { background: #f6ffed; border-color: #52c41a; }
+    .btn-sm.danger { color: #f5222d; border-color: #ffccc7; }
+    .btn-sm.danger:hover { background: #fff1f0; border-color: #f5222d; }
+    .btn-link {
+      background: none;
+      border: none;
+      color: #1677ff;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+    .btn-link:hover { color: #4096ff; text-decoration: underline; }
+
+    /* 分页 */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-top: 1px solid #f0f0f0;
+    }
+    .pagination-info { font-size: 12px; color: #8c8c8c; }
+    .pagination-controls { display: flex; gap: 4px; }
+    .page-btn {
+      min-width: 28px; height: 28px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .page-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .page-btn.active { background: #1677ff; color: #fff; border-color: #1677ff; }
+
+    /* ---------- 分配/回复抽屉（简化弹层） ---------- */
+    .drawer-mask {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      display: none;
+    }
+    .drawer-mask.show { display: block; }
+    .drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 480px;
+      background: #fff;
+      z-index: 101;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer-head {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-head .title { font-size: 16px; font-weight: 600; }
+    .drawer-head .close { font-size: 20px; color: #8c8c8c; cursor: pointer; line-height: 1; }
+    .drawer-head .close:hover { color: #1f1f1f; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .drawer-foot {
+      padding: 12px 24px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: #595959;
+      margin-bottom: 6px;
+    }
+    .form-label .required { color: #f5222d; margin-left: 2px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #1677ff; }
+    .form-textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
+
+    /* 抽屉内留言详情展示 */
+    .msg-detail-box {
+      background: #f6f8fa;
+      border: 1px solid #f0f0f0;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+    .msg-detail-box .detail-row {
+      display: flex;
+      font-size: 13px;
+      padding: 4px 0;
+    }
+    .msg-detail-box .detail-label { color: #8c8c8c; width: 70px; flex-shrink: 0; }
+    .msg-detail-box .detail-content { color: #1f1f1f; }
+    .msg-detail-box .detail-msg {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #e8e8e8;
+      font-size: 13px;
+      color: #595959;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 商城客服</div>
+    <div class="menu-item">📊 数据看板</div>
+    <div class="menu-item">✅ 待办事项</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">📋 会话列表</div>
+    <div class="menu-item">👤 客户信息</div>
+    <div class="menu-item">📚 知识库</div>
+    <div class="menu-item">📝 话术库</div>
+    <div class="menu-item">⭐ 评价管理</div>
+    <div class="menu-item active">📨 留言管理</div>
+    <div class="menu-item">🔀 会话转接</div>
+    <div class="menu-item">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+
+    <!-- 顶部 Header -->
+    <header class="admin-header">
+      <div class="breadcrumb">首页 / 客服管理 / <span style="color:#1f1f1f;">留言管理</span></div>
+      <div class="user-info">
+        <span class="status-badge online">在线</span>
+        <span>客服主管 · 刘洋</span>
+        <span style="font-size:18px;">👤</span>
+      </div>
+    </header>
+
+    <!-- 内容区 -->
+    <main class="admin-content">
+
+      <!-- 交互说明 -->
+      <div class="prototype-note">
+        本页面演示 <strong>US-MVP-06 留言与离线反馈</strong>：当客服离线或排队超时，用户在
+        <a href="user-offline.html">离线留言页</a> 提交的问题将汇聚至此。支持按状态分 Tab 浏览（待处理 / 处理中 / 已回复 / 无效），
+        提供分配处理人、回复用户、标记无效等操作，形成离线反馈闭环。
+      </div>
+
+      <!-- ===== 顶部统计条 ===== -->
+      <div class="leave-stats">
+        <div class="stat-card">
+          <div class="stat-icon icon-pending">⏳</div>
+          <div>
+            <div class="stat-num">7</div>
+            <div class="stat-name">待处理</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-process">🔧</div>
+          <div>
+            <div class="stat-num">4</div>
+            <div class="stat-name">处理中</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-replied">✅</div>
+          <div>
+            <div class="stat-num">23</div>
+            <div class="stat-name">已回复</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-invalid">🗑️</div>
+          <div>
+            <div class="stat-num">2</div>
+            <div class="stat-name">无效</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 状态 Tab ===== -->
+      <div class="status-tabs">
+        <div class="status-tab active">
+          全部 <span class="tab-count">36</span>
+        </div>
+        <div class="status-tab">
+          待处理 <span class="tab-count">7</span>
+        </div>
+        <div class="status-tab">
+          处理中 <span class="tab-count">4</span>
+        </div>
+        <div class="status-tab">
+          已回复 <span class="tab-count">23</span>
+        </div>
+        <div class="status-tab">
+          无效 <span class="tab-count">2</span>
+        </div>
+      </div>
+
+      <!-- ===== 筛选条 ===== -->
+      <div class="filter-bar">
+        <input type="text" class="search-input" placeholder="搜索留言人 / 联系方式 / 留言内容..." />
+        <select>
+          <option>全部问题分类</option>
+          <option>商品咨询</option>
+          <option>订单售后</option>
+          <option>物流问题</option>
+          <option>退款/退货</option>
+          <option>账户问题</option>
+          <option>其他</option>
+        </select>
+        <select>
+          <option>全部处理人</option>
+          <option>未分配</option>
+          <option>王小明</option>
+          <option>李娜</option>
+          <option>赵强</option>
+        </select>
+        <select>
+          <option>全部时间</option>
+          <option>今天</option>
+          <option>近 3 天</option>
+          <option>近 7 天</option>
+          <option>近 30 天</option>
+        </select>
+        <button class="btn-default" style="height:32px; padding:0 14px; font-size:13px;">重置</button>
+        <button class="btn-primary" style="height:32px; padding:0 14px; font-size:13px;">查询</button>
+      </div>
+
+      <!-- ===== 留言列表 ===== -->
+      <div class="leave-table-wrap">
+        <table class="leave-table">
+          <thead>
+            <tr>
+              <th style="width:170px;">留言人</th>
+              <th>留言内容</th>
+              <th style="width:150px;">时间</th>
+              <th style="width:100px;">状态</th>
+              <th style="width:130px;">处理人</th>
+              <th style="width:230px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- 待处理 - 高亮 -->
+            <tr style="background:#fffbe6;">
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar orange">李</div>
+                  <div>
+                    <div class="leave-name">李婷婷</div>
+                    <div class="leave-contact">📱 138****6621 · 微信</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">订单 #20260611039 申请退款两天了还没到账，麻烦尽快处理，谢谢！</div>
+                <div style="margin-top:4px;"><span class="tag-urgent">退款/退货</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-11 09:32
+                  <span class="rel">25 分钟前</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-pending">待处理</span></td>
+              <td><span class="leave-unassigned">未分配</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm primary" onclick="openAssignDrawer()">分配</button>
+                  <button class="btn-sm success" onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 待处理 -->
+            <tr>
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar">张</div>
+                  <div>
+                    <div class="leave-name">张伟</div>
+                    <div class="leave-contact">📱 159****3387</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">收到的商品有破损，包装也是破的，要求换货，订单号 20260610088。</div>
+                <div style="margin-top:4px;"><span class="tag-urgent">订单售后</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-11 08:50
+                  <span class="rel">1 小时前</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-pending">待处理</span></td>
+              <td><span class="leave-unassigned">未分配</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm primary" onclick="openAssignDrawer()">分配</button>
+                  <button class="btn-sm success" onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 处理中 -->
+            <tr>
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar purple">陈</div>
+                  <div>
+                    <div class="leave-name">陈晓</div>
+                    <div class="leave-contact">✉️ chen***@qq.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">满 199 减 30 的优惠券下单时无法选择，提示已过期，但我的券明天才到期。</div>
+                <div style="margin-top:4px;"><span class="tag-normal">商品咨询</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-10 22:15
+                  <span class="rel">昨天</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-process">处理中</span></td>
+              <td>
+                <span class="leave-assignee">
+                  <span class="assignee-avatar">王</span>
+                  王小明
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm success" onclick="openReplyDrawer()">继续回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 已回复 -->
+            <tr>
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar green">刘</div>
+                  <div>
+                    <div class="leave-name">刘洋</div>
+                    <div class="leave-contact">📱 137****9012</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">物流一直显示在转运中心，三天没更新了，麻烦帮我查一下到哪了。</div>
+                <div style="margin-top:4px;"><span class="tag-normal">物流问题</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-10 15:40
+                  <span class="rel">昨天</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-replied">已回复</span></td>
+              <td>
+                <span class="leave-assignee">
+                  <span class="assignee-avatar">李</span>
+                  李娜
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm">查看回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 待处理 -->
+            <tr>
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar">周</div>
+                  <div>
+                    <div class="leave-name">周芳</div>
+                    <div class="leave-contact">📱 186****4471</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">请问会员积分兑换的商品什么时候发货？上周兑换的到现在还没动静。</div>
+                <div style="margin-top:4px;"><span class="tag-normal">账户问题</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-10 11:08
+                  <span class="rel">昨天</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-pending">待处理</span></td>
+              <td><span class="leave-unassigned">未分配</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm primary" onclick="openAssignDrawer()">分配</button>
+                  <button class="btn-sm success" onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 处理中 -->
+            <tr>
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar orange">吴</div>
+                  <div>
+                    <div class="leave-name">吴磊</div>
+                    <div class="leave-contact">✉️ wu***@163.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">下单后想修改收货地址，订单还没发货，能不能改一下送到公司？</div>
+                <div style="margin-top:4px;"><span class="tag-normal">订单售后</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-09 19:22
+                  <span class="rel">2 天前</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-process">处理中</span></td>
+              <td>
+                <span class="leave-assignee">
+                  <span class="assignee-avatar">赵</span>
+                  赵强
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm success" onclick="openReplyDrawer()">继续回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 已回复 -->
+            <tr>
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar purple">郑</div>
+                  <div>
+                    <div class="leave-name">郑丽</div>
+                    <div class="leave-contact">📱 152****0098</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">发票抬头填错了，需要改成公司名称：北京XX科技有限公司。</div>
+                <div style="margin-top:4px;"><span class="tag-normal">订单售后</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-09 14:05
+                  <span class="rel">2 天前</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-replied">已回复</span></td>
+              <td>
+                <span class="leave-assignee">
+                  <span class="assignee-avatar">王</span>
+                  王小明
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm">查看回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 无效 -->
+            <tr style="opacity:0.7;">
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar gray">孙</div>
+                  <div>
+                    <div class="leave-name">孙强</div>
+                    <div class="leave-contact">📱 131****5566</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">你们家东西太贵了，能不能便宜点？（无实质问题）</div>
+                <div style="margin-top:4px;"><span class="tag-normal">其他</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-08 10:30
+                  <span class="rel">3 天前</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-invalid">无效</span></td>
+              <td>
+                <span class="leave-assignee">
+                  <span class="assignee-avatar" style="background:#8c8c8c;">李</span>
+                  李娜
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm">查看回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 已回复 -->
+            <tr>
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar green">何</div>
+                  <div>
+                    <div class="leave-name">何静</div>
+                    <div class="leave-contact">✉️ he***@outlook.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">账号登录不上了，提示密码错误但我没改过密码，麻烦帮我重置一下。</div>
+                <div style="margin-top:4px;"><span class="tag-normal">账户问题</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-07 16:48
+                  <span class="rel">4 天前</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-replied">已回复</span></td>
+              <td>
+                <span class="leave-assignee">
+                  <span class="assignee-avatar">赵</span>
+                  赵强
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm">查看回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 待处理 -->
+            <tr style="background:#fffbe6;">
+              <td>
+                <div class="leave-user">
+                  <div class="leave-avatar">许</div>
+                  <div>
+                    <div class="leave-name">许文</div>
+                    <div class="leave-contact">📱 188****2233</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="leave-msg">想知道你们家支持货到付款吗？另外想咨询下企业采购的合作方式。</div>
+                <div style="margin-top:4px;"><span class="tag-normal">其他</span></div>
+              </td>
+              <td>
+                <div class="leave-time">
+                  06-07 09:15
+                  <span class="rel">4 天前</span>
+                </div>
+              </td>
+              <td><span class="leave-status s-pending">待处理</span></td>
+              <td><span class="leave-unassigned">未分配</span></td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-sm primary" onclick="openAssignDrawer()">分配</button>
+                  <button class="btn-sm success" onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-link">详情</button>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <!-- 分页 -->
+        <div class="pagination">
+          <div class="pagination-info">共 <strong>36</strong> 条记录，第 1/4 页</div>
+          <div class="pagination-controls">
+            <button class="page-btn">‹</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 批量操作 + 流程说明 ===== -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px;">
+        <div class="card">
+          <div class="card-title">⚡ 批量操作</div>
+          <div style="font-size:13px; color:#595959; line-height:2;">
+            · <strong>批量分配：</strong> 勾选多条留言后一键指派给指定客服（支持按问题分类智能推荐处理人）；<br/>
+            · <strong>批量回复：</strong> 对同类问题使用模板快速回复，回访话术从 <a href="#">话术库</a> 调用；<br/>
+            · <strong>批量标记无效：</strong> 对广告、骚扰、无意义留言统一标记，不计入考核统计；<br/>
+            · <strong>导出：</strong> 支持按状态/时间导出 Excel，用于复盘离线服务质量。
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 留言处理流程</div>
+          <div style="font-size:13px; color:#595959; line-height:2;">
+            ① 用户在客服离线 / 排队超时场景于 <a href="user-offline.html">离线留言页</a> 提交留言（含联系方式与问题分类）；<br/>
+            ② 留言进入 <strong>待处理</strong>，主管或系统按分类 <strong>分配</strong> 处理人 → 状态流转为 <strong>处理中</strong>；<br/>
+            ③ 客服在 <strong>回复抽屉</strong> 内填写回复内容（可选附图文/订单卡片）→ 用户收到通知，状态置为 <strong>已回复</strong>；<br/>
+            ④ 无效留言标记后状态为 <strong>无效</strong>；用户可在 <a href="user-offline.html">留言记录</a> 中查看处理结果。
+          </div>
+        </div>
+      </div>
+
+      <!-- 返回导航 -->
+      <div style="text-align:center; margin-top:24px;">
+        <a href="index.html" style="font-size:13px;">← 返回原型导航首页</a>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<!-- ===== 分配抽屉 ===== -->
+<div class="drawer-mask" id="assignMask" onclick="closeAllDrawers()"></div>
+<div class="drawer" id="assignDrawer">
+  <div class="drawer-head">
+    <div class="title">分配留言处理人</div>
+    <div class="close" onclick="closeAllDrawers()">×</div>
+  </div>
+  <div class="drawer-body">
+    <!-- 留言摘要 -->
+    <div class="msg-detail-box">
+      <div class="detail-row">
+        <span class="detail-label">留言人</span>
+        <span class="detail-content">李婷婷 · 138****6621</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">分类</span>
+        <span class="detail-content"><span class="tag-urgent">退款/退货</span></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">提交时间</span>
+        <span class="detail-content">06-11 09:32（25 分钟前）</span>
+      </div>
+      <div class="detail-msg">
+        订单 #20260611039 申请退款两天了还没到账，麻烦尽快处理，谢谢！
+      </div>
+    </div>
+
+    <!-- 分配表单 -->
+    <div class="form-group">
+      <label class="form-label">处理人 <span class="required">*</span></label>
+      <select class="form-select">
+        <option>请选择处理人</option>
+        <option>王小明（退款专员 · 在线）</option>
+        <option>李娜（售后客服 · 在线）</option>
+        <option>赵强（综合客服 · 离线）</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">优先级</label>
+      <select class="form-select">
+        <option>普通</option>
+        <option selected>紧急</option>
+        <option>非常紧急</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">分配备注（可选）</label>
+      <textarea class="form-textarea" placeholder="给处理人的说明，如：用户较急，建议优先处理退款到账问题..."></textarea>
+    </div>
+
+    <div class="prototype-note" style="margin-top:12px;">
+      分配后留言状态自动变更为「处理中」，并通过站内消息 / 短信通知被分配客服。系统会按问题分类智能推荐最合适的处理人。
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn-default" onclick="closeAllDrawers()">取消</button>
+    <button class="btn-primary" onclick="closeAllDrawers()">确认分配</button>
+  </div>
+</div>
+
+<!-- ===== 回复抽屉 ===== -->
+<div class="drawer-mask" id="replyMask" onclick="closeAllDrawers()"></div>
+<div class="drawer" id="replyDrawer">
+  <div class="drawer-head">
+    <div class="title">回复用户留言</div>
+    <div class="close" onclick="closeAllDrawers()">×</div>
+  </div>
+  <div class="drawer-body">
+    <!-- 留言摘要 -->
+    <div class="msg-detail-box">
+      <div class="detail-row">
+        <span class="detail-label">留言人</span>
+        <span class="detail-content">李婷婷 · 138****6621</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">分类</span>
+        <span class="detail-content"><span class="tag-urgent">退款/退货</span></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">订单号</span>
+        <span class="detail-content">#20260611039</span>
+      </div>
+      <div class="detail-msg">
+        订单 #20260611039 申请退款两天了还没到账，麻烦尽快处理，谢谢！
+      </div>
+    </div>
+
+    <!-- 快捷模板 -->
+    <div class="form-group">
+      <label class="form-label">快捷回复模板</label>
+      <select class="form-select" onchange="this.nextElementSibling.value=this.value">
+        <option value="">— 选择模板 —</option>
+        <option value="您好，您的退款已加急处理，预计 1-2 个工作日内到账，请留意银行卡到账短信，感谢您的耐心等待！">退款到账-加急</option>
+        <option value="您好，已为您核实订单信息，稍后会有专员与您电话联系，请保持手机畅通，谢谢！">核实中-待联系</option>
+        <option value="您好，问题已受理，我们会在 24 小时内处理完毕并通过短信通知您，请放心。">受理-24小时</option>
+      </select>
+      <textarea class="form-textarea" style="margin-top:8px;" placeholder="选择模板或手动输入回复内容..."></textarea>
+    </div>
+
+    <!-- 回复方式 -->
+    <div class="form-group">
+      <label class="form-label">通知方式</label>
+      <div style="display:flex; gap:16px; font-size:13px;">
+        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+          <input type="checkbox" checked /> 站内消息
+        </label>
+        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+          <input type="checkbox" checked /> 短信
+        </label>
+        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+          <input type="checkbox" /> 微信模板消息
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">处理结果标记</label>
+      <select class="form-select">
+        <option>已解决</option>
+        <option>待跟进</option>
+        <option>需转人工客服</option>
+      </select>
+    </div>
+
+    <div class="prototype-note" style="margin-top:12px;">
+      回复发送后，留言状态变更为「已回复」，用户可在 <a href="user-offline.html">离线留言记录</a> 中查看回复内容并继续追问。
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn-default" onclick="closeAllDrawers()">取消</button>
+    <button class="btn-primary" onclick="closeAllDrawers()">发送回复</button>
+  </div>
+</div>
+
+<script>
+  function openAssignDrawer() {
+    document.getElementById('assignMask').classList.add('show');
+    document.getElementById('assignDrawer').classList.add('show');
+  }
+  function openReplyDrawer() {
+    document.getElementById('replyMask').classList.add('show');
+    document.getElementById('replyDrawer').classList.add('show');
+  }
+  function closeAllDrawers() {
+    document.getElementById('assignMask').classList.remove('show');
+    document.getElementById('assignDrawer').classList.remove('show');
+    document.getElementById('replyMask').classList.remove('show');
+    document.getElementById('replyDrawer').classList.remove('show');
+  }
+</script>
+
+</body>
+</html>

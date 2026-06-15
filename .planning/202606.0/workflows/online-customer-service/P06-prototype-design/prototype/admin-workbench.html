@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>客服工作台 — CS 商城客服系统（管理端核心页）</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-workbench.html 专属样式 ===== */
+    :root {
+      --cs-primary: #1677ff;
+      --cs-success: #52c41a;
+      --cs-warning: #faad14;
+      --cs-danger: #f5222d;
+      --cs-purple: #722ed1;
+      --cs-text: #1f1f1f;
+      --cs-text-secondary: #595959;
+      --cs-text-tertiary: #8c8c8c;
+      --cs-border: #f0f0f0;
+      --cs-border-light: #f5f5f5;
+      --cs-bg-page: #f0f2f5;
+      --cs-bg-chat: #f5f6f8;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: var(--cs-bg-page);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", sans-serif;
+    }
+
+    /* ===== Top Bar (slim global header) ===== */
+    .wb-topbar {
+      height: 48px;
+      background: #001529;
+      color: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      flex-shrink: 0;
+      gap: 24px;
+    }
+    .wb-topbar .brand {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wb-topbar .brand .logo-box {
+      width: 26px; height: 26px;
+      background: #1677ff;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .wb-topbar .nav {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+    .wb-topbar .nav a {
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .wb-topbar .nav a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .wb-topbar .nav a.active { color: #fff; background: #1677ff; }
+    .wb-topbar .top-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+    }
+    .wb-topbar .top-right .status-pill {
+      background: rgba(82,196,26,0.18);
+      color: #52c41a;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .wb-topbar .top-right .status-pill::before {
+      content: ''; width: 6px; height: 6px;
+      border-radius: 50%; background: #52c41a;
+    }
+    .wb-topbar .top-right .agent-name { color: rgba(255,255,255,0.85); }
+
+    /* ===== Workbench shell: three columns ===== */
+    .wb-shell {
+      display: flex;
+      height: calc(100vh - 48px);
+      overflow: hidden;
+    }
+
+    /* ---------- LEFT: Session list ---------- */
+    .wb-left {
+      width: 300px;
+      background: #fff;
+      border-right: 1px solid var(--cs-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .wb-left .left-header {
+      padding: 14px 16px 8px;
+      flex-shrink: 0;
+    }
+    .wb-left .left-title {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .wb-left .left-title .total {
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      font-weight: 400;
+    }
+    .wb-left .search-box {
+      position: relative;
+      margin-top: 10px;
+    }
+    .wb-left .search-box input {
+      width: 100%;
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 12px 0 32px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .wb-left .search-box input:focus { border-color: var(--cs-primary); }
+    .wb-left .search-box .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--cs-text-tertiary);
+      font-size: 14px;
+    }
+
+    .wb-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--cs-border);
+      flex-shrink: 0;
+    }
+    .wb-tabs .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s;
+    }
+    .wb-tabs .tab:hover { color: var(--cs-primary); }
+    .wb-tabs .tab.active { color: var(--cs-primary); font-weight: 600; }
+    .wb-tabs .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 20%;
+      width: 60%; height: 2px;
+      background: var(--cs-primary);
+      border-radius: 2px;
+    }
+    .wb-tabs .tab .num {
+      display: inline-block;
+      background: #f0f0f0;
+      color: var(--cs-text-secondary);
+      font-size: 11px;
+      padding: 0 6px;
+      border-radius: 10px;
+      margin-left: 4px;
+      min-width: 18px;
+    }
+    .wb-tabs .tab.active .num {
+      background: #e6f4ff;
+      color: var(--cs-primary);
+    }
+
+    .session-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .session-list .session-item {
+      display: flex;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--cs-border-light);
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .session-list .session-item:hover { background: #fafafa; }
+    .session-list .session-item.active {
+      background: #e6f4ff;
+    }
+    .session-list .session-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary);
+    }
+    .session-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1677ff, #4096ff);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .session-avatar.waiting { background: linear-gradient(135deg, #faad14, #ffc53d); }
+    .session-avatar.closed { background: linear-gradient(135deg, #bfbfbf, #d9d9d9); }
+    .session-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .session-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .session-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--cs-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .session-time {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      flex-shrink: 0;
+    }
+    .session-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .session-last-msg {
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .unread-badge {
+      background: var(--cs-danger);
+      color: #fff;
+      font-size: 11px;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      padding: 0 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+    .s-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .s-tag.waiting { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+    .s-tag.urgent { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+    .s-tag.transferred { background: #f9f0ff; color: #531dab; border: 1px solid #d3adf7; }
+
+    /* ---------- MIDDLE: Chat conversation ---------- */
+    .wb-middle {
+      flex: 1;
+      min-width: 0;
+      background: var(--cs-bg-chat);
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-topbar {
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid var(--cs-border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .chat-topbar .cust-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .chat-topbar .cust-tags {
+      display: flex;
+      gap: 6px;
+    }
+    .chat-topbar .topbar-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: var(--cs-text-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-sm:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .btn-sm.primary {
+      background: var(--cs-primary);
+      border-color: var(--cs-primary);
+      color: #fff;
+    }
+    .btn-sm.primary:hover { background: #4096ff; border-color: #4096ff; color: #fff; }
+    .btn-icon-only {
+      width: 30px; height: 30px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    /* ---- Message thread ---- */
+    .msg-thread {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .msg-time-divider {
+      align-self: center;
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      background: rgba(0,0,0,0.04);
+      padding: 2px 12px;
+      border-radius: 4px;
+    }
+    .msg-row {
+      display: flex;
+      gap: 10px;
+      max-width: 78%;
+    }
+    .msg-row.agent {
+      align-self: flex-start;
+    }
+    .msg-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .msg-row .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .msg-row.user .msg-avatar { background: linear-gradient(135deg, #722ed1, #9254de); }
+    .msg-row.agent .msg-avatar { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .msg-row.user .msg-content { align-items: flex-end; }
+    .msg-sender {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      margin-bottom: 4px;
+    }
+    .msg-bubble {
+      background: #fff;
+      border: 1px solid #eee;
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-size: 14px;
+      word-wrap: break-word;
+      line-height: 1.5;
+    }
+    .msg-row.agent .msg-bubble { border-top-left-radius: 2px; }
+    .msg-row.user .msg-bubble {
+      background: #e6f4ff;
+      border-color: #bae0ff;
+      color: var(--cs-text);
+      border-top-right-radius: 2px;
+    }
+    .msg-bubble.image-bubble {
+      padding: 4px;
+      width: 160px;
+      height: 110px;
+      background: linear-gradient(135deg, #d3adf7, #efdbff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #722ed1;
+      font-size: 12px;
+      border: 1px solid #eee;
+    }
+
+    /* Order / product / coupon card in thread */
+    .thread-card {
+      width: 280px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    .thread-card .tc-banner {
+      height: 36px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 600;
+      gap: 6px;
+    }
+    .thread-card.order .tc-banner { background: linear-gradient(90deg, #fa8c16, #ffa940); }
+    .thread-card.product .tc-banner { background: linear-gradient(90deg, #52c41a, #73d13d); }
+    .thread-card.coupon .tc-banner { background: linear-gradient(90deg, #f5222d, #ff7875); }
+    .thread-card .tc-body { padding: 10px 12px; }
+    .thread-card .tc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      font-size: 12px;
+    }
+    .thread-card .tc-row .k { color: var(--cs-text-tertiary); }
+    .thread-card .tc-row .v { color: var(--cs-text); font-weight: 500; }
+    .thread-card .tc-footer {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-top: 1px solid var(--cs-border-light);
+    }
+    .thread-card .tc-btn {
+      flex: 1;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #d9d9d9;
+      color: var(--cs-text-secondary);
+    }
+    .thread-card .tc-btn.solid {
+      background: var(--cs-primary);
+      border-color: var(--cs-primary);
+      color: #fff;
+    }
+
+    /* ---- Input area ---- */
+    .input-area {
+      background: #fff;
+      border-top: 1px solid var(--cs-border);
+      padding: 12px 20px 16px;
+      flex-shrink: 0;
+    }
+    .input-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .quick-reply-dd {
+      position: relative;
+    }
+    .quick-reply-dd .qr-trigger {
+      padding: 4px 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--cs-text-secondary);
+    }
+    .quick-reply-dd .qr-trigger:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .quick-reply-dd .qr-panel {
+      position: absolute;
+      bottom: 36px; left: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--cs-border);
+      border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+      padding: 8px;
+      display: none;
+      z-index: 5;
+    }
+    .quick-reply-dd.open .qr-panel { display: block; }
+    .quick-reply-dd .qr-panel .qr-cat {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      padding: 6px 8px 2px;
+      font-weight: 600;
+    }
+    .quick-reply-dd .qr-panel .qr-item {
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--cs-text-secondary);
+    }
+    .quick-reply-dd .qr-panel .qr-item:hover { background: #f5f5f5; color: var(--cs-primary); }
+    .tool-divider {
+      width: 1px; height: 18px;
+      background: var(--cs-border);
+      margin: 0 4px;
+    }
+    .card-btn {
+      width: 30px; height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+    .card-btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .input-actions-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+    }
+
+    .input-box {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .input-box textarea {
+      flex: 1;
+      min-height: 64px;
+      max-height: 120px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input-box textarea:focus { border-color: var(--cs-primary); }
+    .send-btn {
+      align-self: flex-end;
+      height: 64px;
+      padding: 0 24px;
+      background: var(--cs-primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .send-btn:hover { background: #4096ff; }
+    .send-btn:disabled { background: #d9d9d9; cursor: not-allowed; }
+
+    /* ---------- RIGHT: Customer info panel ---------- */
+    .wb-right {
+      width: 320px;
+      background: #fff;
+      border-left: 1px solid var(--cs-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .info-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--cs-border);
+      flex-shrink: 0;
+    }
+    .info-tabs .itab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s;
+    }
+    .info-tabs .itab:hover { color: var(--cs-primary); }
+    .info-tabs .itab.active {
+      color: var(--cs-primary);
+      font-weight: 600;
+    }
+    .info-tabs .itab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 25%;
+      width: 50%; height: 2px;
+      background: var(--cs-primary);
+      border-radius: 2px;
+    }
+    .info-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .info-pane { display: none; }
+    .info-pane.active { display: block; }
+
+    .cust-card {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--cs-border-light);
+      margin-bottom: 16px;
+    }
+    .cust-card .avatar-lg {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      background: linear-gradient(135deg, #722ed1, #9254de);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    .cust-card .cn { font-size: 16px; font-weight: 600; }
+    .cust-card .cs { font-size: 12px; color: var(--cs-text-tertiary); margin-top: 4px; }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--cs-border-light);
+      font-size: 13px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .k { color: var(--cs-text-tertiary); }
+    .info-row .v { color: var(--cs-text); font-weight: 500; }
+    .level-badge {
+      background: linear-gradient(90deg, #fa8c16, #faad14);
+      color: #fff;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .section-label {
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      font-weight: 600;
+      margin: 16px 0 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .behavior-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--cs-border-light);
+      font-size: 13px;
+    }
+    .behavior-item .bi-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: #f0f5ff;
+      color: var(--cs-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .behavior-item .bi-text { flex: 1; min-width: 0; }
+    .behavior-item .bi-title {
+      font-size: 13px;
+      color: var(--cs-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .behavior-item .bi-time {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      margin-top: 2px;
+    }
+
+    .order-mini {
+      border: 1px solid var(--cs-border);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .order-mini .om-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .order-mini .om-no { font-weight: 600; color: var(--cs-text); }
+    .om-status {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+    .om-status.done { background: #f6ffed; color: #389e0d; }
+    .om-status.shipping { background: #e6f4ff; color: #1677ff; }
+    .om-status.refund { background: #fff1f0; color: #cf1322; }
+    .order-mini .om-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--cs-text-secondary);
+      padding: 2px 0;
+    }
+    .order-mini .om-amount { color: var(--cs-danger); font-weight: 600; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .stat-mini {
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+    .stat-mini .sv {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--cs-primary);
+    }
+    .stat-mini .sl {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      margin-top: 2px;
+    }
+    .satisfaction {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px;
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .stars { color: #faad14; letter-spacing: 2px; }
+
+    /* Scrollbar styling */
+    .msg-thread::-webkit-scrollbar,
+    .session-list::-webkit-scrollbar,
+    .info-body::-webkit-scrollbar { width: 6px; }
+    .msg-thread::-webkit-scrollbar-thumb,
+    .session-list::-webkit-scrollbar-thumb,
+    .info-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+
+    /* prototype note floating */
+    .wb-note-wrap {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(720px, 90vw);
+      z-index: 50;
+    }
+    .wb-note-wrap .prototype-note { margin: 0; }
+
+    /* back link */
+    .back-home {
+      position: fixed;
+      top: 10px; right: 16px;
+      z-index: 60;
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+    }
+    .back-home a { color: rgba(255,255,255,0.85); text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Global Top Bar ===== -->
+  <header class="wb-topbar">
+    <div class="brand">
+      <span class="logo-box">CS</span>
+      <span>商城客服系统</span>
+    </div>
+    <nav class="nav">
+      <a href="admin-workbench.html" class="active">客服工作台</a>
+      <a href="admin-todo.html">待办事项</a>
+      <a href="admin-session-list.html">会话记录</a>
+      <a href="admin-dashboard.html">数据看板</a>
+      <a href="admin-knowledge.html">知识库</a>
+      <a href="admin-settings.html">系统设置</a>
+    </nav>
+    <div class="top-right">
+      <span class="status-pill">在线接客中</span>
+      <span class="agent-name">王小明 · 客服A组</span>
+    </div>
+    <div class="back-home"><a href="index.html">← 返回原型首页</a></div>
+  </header>
+
+  <!-- ===== Workbench Shell (3 columns) ===== -->
+  <div class="wb-shell">
+
+    <!-- ========== LEFT: Session List ========== -->
+    <aside class="wb-left">
+      <div class="left-header">
+        <div class="left-title">
+          会话列表
+          <span class="total">共 24 个会话</span>
+        </div>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="搜索用户 / 订单号" />
+        </div>
+      </div>
+
+      <div class="wb-tabs">
+        <div class="tab active">进行中 <span class="num">8</span></div>
+        <div class="tab">等待中 <span class="num">3</span></div>
+        <div class="tab">已关闭 <span class="num">13</span></div>
+      </div>
+
+      <div class="session-list">
+
+        <div class="session-item active">
+          <div class="session-avatar">李</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">李晓红</span>
+              <span class="session-time">14:32</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">订单 #20260611 还没发货吗？</span>
+              <span class="s-tag urgent">紧急</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item">
+          <div class="session-avatar">张</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">张伟</span>
+              <span class="session-time">14:28</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">好的，谢谢客服</span>
+              <span class="unread-badge">2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item">
+          <div class="session-avatar">陈</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">陈芳</span>
+              <span class="session-time">14:15</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">退款什么时候到账？</span>
+              <span class="unread-badge">5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item">
+          <div class="session-avatar">刘</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">刘强</span>
+              <span class="session-time">13:50</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">商品图片发你了，麻烦看下</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item">
+          <div class="session-avatar">王</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">王丽娟</span>
+              <span class="session-time">13:42</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">优惠券怎么用不了？</span>
+              <span class="s-tag transferred">转接入</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item">
+          <div class="session-avatar">赵</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">赵敏</span>
+              <span class="session-time">12:30</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">已经收到货了，非常满意！</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item">
+          <div class="session-avatar">孙</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">孙建国</span>
+              <span class="session-time">11:58</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">发票能开企业抬头的吗</span>
+              <span class="unread-badge">1</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item">
+          <div class="session-avatar">周</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">周婷婷</span>
+              <span class="session-time">11:20</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">请问这个颜色有货吗</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 等待中示例（视觉一致，靠tab切换显示） -->
+        <div class="session-item">
+          <div class="session-avatar waiting">吴</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">吴鹏</span>
+              <span class="session-time">排队中</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">等待客服接入…</span>
+              <span class="s-tag waiting">等待</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ========== MIDDLE: Active Chat ========== -->
+    <section class="wb-middle">
+
+      <!-- Chat top bar -->
+      <div class="chat-topbar">
+        <span class="cust-name">李晓红</span>
+        <span class="cust-tags">
+          <span class="tag-urgent">紧急</span>
+          <span class="tag-normal">VIP</span>
+        </span>
+        <div class="topbar-actions">
+          <button class="btn-sm primary">⇄ 转接</button>
+          <button class="btn-sm">📋 更多</button>
+          <button class="btn-sm btn-icon-only" title="结束会话">✕</button>
+        </div>
+      </div>
+
+      <!-- Message thread -->
+      <div class="msg-thread">
+
+        <div class="msg-time-divider">今天 14:20</div>
+
+        <!-- user text -->
+        <div class="msg-row user">
+          <div class="msg-avatar">李</div>
+          <div class="msg-content">
+            <div class="msg-sender">李晓红</div>
+            <div class="msg-bubble">你好，我昨天下的单 #20260611 还没发货吗？比较急用。</div>
+          </div>
+        </div>
+
+        <!-- agent text -->
+        <div class="msg-row agent">
+          <div class="msg-avatar">王</div>
+          <div class="msg-content">
+            <div class="msg-sender">客服 王小明</div>
+            <div class="msg-bubble">您好李女士，稍等为您核实一下订单状态。</div>
+          </div>
+        </div>
+
+        <!-- agent sends order card -->
+        <div class="msg-row agent">
+          <div class="msg-avatar">王</div>
+          <div class="msg-content">
+            <div class="msg-sender">客服 王小明</div>
+            <div class="thread-card order">
+              <div class="tc-banner">📦 订单卡片</div>
+              <div class="tc-body">
+                <div class="tc-row"><span class="k">订单号</span><span class="v">#20260611</span></div>
+                <div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机 ×1</span></div>
+                <div class="tc-row"><span class="k">金额</span><span class="v" style="color:#f5222d">¥299.00</span></div>
+                <div class="tc-row"><span class="k">状态</span><span class="v">待发货</span></div>
+              </div>
+              <div class="tc-footer">
+                <div class="tc-btn">查看详情</div>
+                <div class="tc-btn solid">催发货</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- user image -->
+        <div class="msg-row user">
+          <div class="msg-avatar">李</div>
+          <div class="msg-content">
+            <div class="msg-sender">李晓红</div>
+            <div class="msg-bubble image-bubble">[商品图片]</div>
+          </div>
+        </div>
+
+        <!-- user text -->
+        <div class="msg-row user">
+          <div class="msg-avatar">李</div>
+          <div class="msg-content">
+            <div class="msg-sender">李晓红</div>
+            <div class="msg-bubble">就是这个，颜色发错了我收到的是黑色的，下单是白色。</div>
+          </div>
+        </div>
+
+        <!-- agent product card -->
+        <div class="msg-row agent">
+          <div class="msg-avatar">王</div>
+          <div class="msg-content">
+            <div class="msg-sender">客服 王小明</div>
+            <div class="thread-card product">
+              <div class="tc-banner">🛒 商品卡片</div>
+              <div class="tc-body">
+                <div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机（白色）</span></div>
+                <div class="tc-row"><span class="k">SKU</span><span class="v">BT-WHITE-001</span></div>
+                <div class="tc-row"><span class="k">库存</span><span class="v" style="color:#52c41a">有货</span></div>
+              </div>
+              <div class="tc-footer">
+                <div class="tc-btn">查看商品</div>
+                <div class="tc-btn solid">安排换货</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- agent coupon card -->
+        <div class="msg-row agent">
+          <div class="msg-avatar">王</div>
+          <div class="msg-content">
+            <div class="msg-sender">客服 王小明</div>
+            <div class="thread-card coupon">
+              <div class="tc-banner">🎟️ 优惠券卡片</div>
+              <div class="tc-body">
+                <div class="tc-row"><span class="k">优惠券</span><span class="v" style="color:#f5222d">满 200 减 30</span></div>
+                <div class="tc-row"><span class="k">有效期</span><span class="v">2026-06-30 前</span></div>
+                <div class="tc-row"><span class="k">适用</span><span class="v">全品类</span></div>
+              </div>
+              <div class="tc-footer">
+                <div class="tc-btn solid">立即领取</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- agent text latest -->
+        <div class="msg-row agent">
+          <div class="msg-avatar">王</div>
+          <div class="msg-content">
+            <div class="msg-sender">客服 王小明</div>
+            <div class="msg-bubble">非常抱歉给您带来不便，已为您加急安排换货，并附上一张优惠券作为补偿，请注意查收～</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area">
+        <div class="input-toolbar">
+          <div class="quick-reply-dd" id="qrdd">
+            <div class="qr-trigger" onclick="document.getElementById('qrdd').classList.toggle('open')">💬 快捷回复 ▾</div>
+            <div class="qr-panel">
+              <div class="qr-cat">— 常用问候 —</div>
+              <div class="qr-item">您好，很高兴为您服务～</div>
+              <div class="qr-item">请问有什么可以帮您？</div>
+              <div class="qr-cat">— 售后处理 —</div>
+              <div class="qr-item">已为您登记，将在 24 小时内处理</div>
+              <div class="qr-item">退款已发起，预计 1-3 工作日到账</div>
+              <div class="qr-cat">— 结束语 —</div>
+              <div class="qr-item">感谢您的咨询，祝您生活愉快！</div>
+            </div>
+          </div>
+          <div class="tool-divider"></div>
+          <button class="card-btn" title="发送订单卡片">📦</button>
+          <button class="card-btn" title="发送商品卡片">🛒</button>
+          <button class="card-btn" title="发送优惠券">🎟️</button>
+          <button class="card-btn" title="发送图片">🖼️</button>
+          <div class="input-actions-right">
+            <span>Shift + Enter 换行</span>
+          </div>
+        </div>
+        <div class="input-box">
+          <textarea placeholder="请输入消息内容…（Enter 发送）"></textarea>
+          <button class="send-btn">发 送</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========== RIGHT: Customer Info Panel ========== -->
+    <aside class="wb-right">
+
+      <div class="info-tabs">
+        <div class="itab active" data-pane="basic">基础信息</div>
+        <div class="itab" data-pane="behavior">行为数据</div>
+        <div class="itab" data-pane="trade">交易数据</div>
+        <div class="itab" data-pane="service">服务数据</div>
+      </div>
+
+      <div class="info-body">
+
+        <!-- ===== 基础信息 ===== -->
+        <div class="info-pane active" data-pane="basic">
+          <div class="cust-card">
+            <div class="avatar-lg">李</div>
+            <div class="cn">李晓红</div>
+            <div class="cs">用户ID: U20240318 · 注册 2 年</div>
+          </div>
+
+          <div class="info-row"><span class="k">手机号</span><span class="v">138****6621</span></div>
+          <div class="info-row"><span class="k">会员等级</span><span class="v"><span class="level-badge">黄金会员</span></span></div>
+          <div class="info-row"><span class="k">积分</span><span class="v">3,280</span></div>
+          <div class="info-row"><span class="k">来源渠道</span><span class="v">微信小程序</span></div>
+          <div class="info-row"><span class="k">所在地区</span><span class="v">广东 · 深圳</span></div>
+          <div class="info-row"><span class="k">实名认证</span><span class="v" style="color:#52c41a">已认证</span></div>
+
+          <div class="section-label">客户标签</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="tag-normal">高价值</span>
+            <span class="tag-urgent">易流失</span>
+            <span class="tag-normal">复购用户</span>
+          </div>
+        </div>
+
+        <!-- ===== 行为数据 ===== -->
+        <div class="info-pane" data-pane="behavior">
+          <div class="section-label" style="margin-top:0;">最近浏览（近 7 天）</div>
+
+          <div class="behavior-item">
+            <div class="bi-icon">👁</div>
+            <div class="bi-text">
+              <div class="bi-title">无线蓝牙耳机（白色）</div>
+              <div class="bi-time">2 分钟前 · 浏览 3 次</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon">🛒</div>
+            <div class="bi-text">
+              <div class="bi-title">加入购物车：蓝牙耳机</div>
+              <div class="bi-time">15 分钟前</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon">👁</div>
+            <div class="bi-text">
+              <div class="bi-title">便携充电宝 20000mAh</div>
+              <div class="bi-time">昨天 21:30</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon">❤</div>
+            <div class="bi-text">
+              <div class="bi-title">收藏：运动手环 Pro</div>
+              <div class="bi-time">2026-06-09</div>
+            </div>
+          </div>
+
+          <div class="section-label">活跃度</div>
+          <div class="stat-grid">
+            <div class="stat-mini">
+              <div class="sv">12</div>
+              <div class="sl">近7天访问</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv">3.2h</div>
+              <div class="sl">平均停留</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== 交易数据 ===== -->
+        <div class="info-pane" data-pane="trade">
+          <div class="section-label" style="margin-top:0;">交易概览</div>
+          <div class="stat-grid">
+            <div class="stat-mini">
+              <div class="sv">28</div>
+              <div class="sl">累计订单</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv">¥8.6k</div>
+              <div class="sl">累计消费</div>
+            </div>
+          </div>
+
+          <div class="section-label">近期订单</div>
+
+          <div class="order-mini">
+            <div class="om-head">
+              <span class="om-no">#20260611</span>
+              <span class="om-status shipping">待发货</span>
+            </div>
+            <div class="om-row"><span>无线蓝牙耳机 ×1</span><span class="om-amount">¥299.00</span></div>
+            <div class="om-row"><span>下单时间</span><span>06-10 19:22</span></div>
+          </div>
+
+          <div class="order-mini">
+            <div class="om-head">
+              <span class="om-no">#20260588</span>
+              <span class="om-status refund">退款中</span>
+            </div>
+            <div class="om-row"><span>便携充电宝 ×1</span><span class="om-amount">¥159.00</span></div>
+            <div class="om-row"><span>下单时间</span><span>06-05 14:10</span></div>
+          </div>
+
+          <div class="order-mini">
+            <div class="om-head">
+              <span class="om-no">#20260540</span>
+              <span class="om-status done">已完成</span>
+            </div>
+            <div class="om-row"><span>运动手环 Pro ×1</span><span class="om-amount">¥499.00</span></div>
+            <div class="om-row"><span>下单时间</span><span>05-28 10:05</span></div>
+          </div>
+        </div>
+
+        <!-- ===== 服务数据 ===== -->
+        <div class="info-pane" data-pane="service">
+          <div class="section-label" style="margin-top:0;">服务统计</div>
+          <div class="stat-grid">
+            <div class="stat-mini">
+              <div class="sv">16</div>
+              <div class="sl">累计咨询</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv">3</div>
+              <div class="sl">本月咨询</div>
+            </div>
+          </div>
+
+          <div class="section-label">满意度评价</div>
+          <div class="satisfaction">
+            <span class="stars">★★★★★</span>
+            <span style="font-weight:600;">4.8 / 5.0</span>
+            <span style="color:var(--cs-text-tertiary);font-size:12px;">（基于 12 次评价）</span>
+          </div>
+
+          <div class="section-label">历史咨询记录</div>
+          <div class="behavior-item">
+            <div class="bi-icon" style="background:#fff7e6;color:#d46b08;">💬</div>
+            <div class="bi-text">
+              <div class="bi-title">物流催单咨询</div>
+              <div class="bi-time">2026-06-05 · 客服 李娜 · 已解决</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon" style="background:#fff1f0;color:#cf1322;">↩</div>
+            <div class="bi-text">
+              <div class="bi-title">退款申请处理</div>
+              <div class="bi-time">2026-05-20 · 客服 王小明 · 已解决</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon" style="background:#f0f5ff;color:#1677ff;">❓</div>
+            <div class="bi-text">
+              <div class="bi-title">优惠券使用咨询</div>
+              <div class="bi-time">2026-05-12 · 客服 陈静 · 已解决</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ===== Prototype Note ===== -->
+  <div class="wb-note-wrap">
+    <div class="prototype-note">
+      本页是客服系统的<strong>核心工作空间</strong>——客服人员 90% 的工作时间都在此页完成。三栏布局：左侧<strong>会话列表</strong>（进行中/等待中/已关闭切换，每项显示用户名+最后消息+未读数+状态标签）；中间<strong>聊天会话区</strong>（顶部客户名+标签+转接按钮，消息流支持文字/图片/订单卡片/商品卡片/优惠券等富媒体，底部含快捷回复下拉、文字输入、发卡片按钮与发送按钮）；右侧<strong>客户信息面板</strong>（基础信息/行为数据/交易数据/服务数据四标签切换，聚合会员等级、近期浏览、订单、满意度等）。点击会话项、标签页、快捷回复均可交互。
+    </div>
+  </div>
+
+  <script>
+    // Session list tab switching (visual only)
+    document.querySelectorAll('.wb-tabs .tab').forEach(function(t){
+      t.addEventListener('click', function(){
+        document.querySelectorAll('.wb-tabs .tab').forEach(function(x){x.classList.remove('active');});
+        t.classList.add('active');
+      });
+    });
+
+    // Right panel tab switching
+    document.querySelectorAll('.info-tabs .itab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        var pane = tab.getAttribute('data-pane');
+        document.querySelectorAll('.info-tabs .itab').forEach(function(x){x.classList.remove('active');});
+        document.querySelectorAll('.info-pane').forEach(function(x){x.classList.remove('active');});
+        tab.classList.add('active');
+        var target = document.querySelector('.info-pane[data-pane="'+pane+'"]');
+        if(target) target.classList.add('active');
+      });
+    });
+
+    // Session item selection
+    document.querySelectorAll('.session-list .session-item').forEach(function(item){
+      item.addEventListener('click', function(){
+        document.querySelectorAll('.session-list .session-item').forEach(function(x){x.classList.remove('active');});
+        item.classList.add('active');
+      });
+    });
+
+    // Close quick reply panel on outside click
+    document.addEventListener('click', function(e){
+      var qrdd = document.getElementById('qrdd');
+      if(qrdd && !qrdd.contains(e.target)) qrdd.classList.remove('open');
+    });
+
+    // Quick reply insert into textarea
+    document.querySelectorAll('.qr-item').forEach(function(it){
+      it.addEventListener('click', function(){
+        var ta = document.querySelector('.input-box textarea');
+        if(ta) ta.value = it.textContent.trim();
+        document.getElementById('qrdd').classList.remove('open');
+        ta.focus();
+      });
+    });
+
+    // Enter to send (Shift+Enter newline)
+    var ta = document.querySelector('.input-box textarea');
+    if(ta){
+      ta.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' && !e.shiftKey){
+          e.preventDefault();
+          // visual: clear input (no real backend)
+          if(ta.value.trim().length){
+            ta.value = '';
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

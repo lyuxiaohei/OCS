@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>服务评价 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== user-rating.html 专属样式 ===== */
+    body {
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 0;
+    }
+
+    /* ---------- 模态遮罩 ---------- */
+    .rating-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 50;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fade-in 0.25s ease;
+    }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ---------- 评分弹层（底部弹出） ---------- */
+    .rating-modal {
+      width: 100%;
+      max-height: 88%;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 20px 16px 24px;
+      animation: slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      -webkit-overflow-scrolling: touch;
+    }
+    @keyframes slide-up {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    /* 拖拽指示条 */
+    .rating-handle {
+      width: 36px;
+      height: 4px;
+      background: #e4e4e4;
+      border-radius: 2px;
+      margin: 0 auto 14px;
+    }
+
+    /* 顶部图标 + 标题 */
+    .rating-hero { text-align: center; margin-bottom: 18px; }
+    .rating-hero .check-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #52c41a, #73d13d);
+      color: #fff;
+      font-size: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+    }
+    .rating-hero .rating-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin: 0 0 4px;
+    }
+    .rating-hero .rating-subtitle {
+      font-size: 13px;
+      color: #8c8c8c;
+    }
+
+    /* 客服信息条 */
+    .agent-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 18px;
+    }
+    .agent-bar .agent-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1677ff, #4096ff);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .agent-bar .agent-name { font-size: 14px; font-weight: 500; color: #1f1f1f; }
+    .agent-bar .agent-meta { font-size: 12px; color: #8c8c8c; }
+
+    /* 维度评分 */
+    .dim-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .dim-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dim-label {
+      font-size: 14px;
+      color: #1f1f1f;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .stars {
+      display: flex;
+      gap: 4px;
+    }
+    .star {
+      font-size: 22px;
+      color: #e0e0e0;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.12s ease, transform 0.12s ease;
+      user-select: none;
+    }
+    .star:hover { transform: scale(1.12); }
+    .star.active { color: #faad14; }
+
+    /* 分割线 */
+    .divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 4px 0 16px;
+    }
+
+    /* 标签选择 */
+    .section-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-bottom: 4px;
+    }
+    .section-hint {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-bottom: 12px;
+    }
+    .tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tag-chip {
+      padding: 6px 12px;
+      border-radius: 16px;
+      background: #f5f5f5;
+      color: #595959;
+      font-size: 13px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .tag-chip:hover { background: #e6f4ff; color: #1677ff; }
+    .tag-chip.selected {
+      background: #e6f4ff;
+      color: #1677ff;
+      border-color: #1677ff;
+    }
+
+    /* 文字评价 */
+    .comment-wrap { margin-bottom: 16px; }
+    .comment-textarea {
+      width: 100%;
+      min-height: 84px;
+      resize: vertical;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      color: #1f1f1f;
+      line-height: 1.5;
+    }
+    .comment-textarea::placeholder { color: #bfbfbf; }
+    .comment-textarea:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+    .comment-count {
+      text-align: right;
+      font-size: 11px;
+      color: #8c8c8c;
+      margin-top: 4px;
+    }
+
+    /* 提交按钮 */
+    .submit-btn {
+      width: 100%;
+      height: 44px;
+      background: #1677ff;
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      margin-top: 4px;
+    }
+    .submit-btn:hover { background: #4096ff; box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3); }
+    .submit-btn:active { background: #0958d9; }
+    .skip-btn {
+      width: 100%;
+      height: 40px;
+      background: transparent;
+      color: #8c8c8c;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* 提交成功态 */
+    .rating-done {
+      text-align: center;
+      padding: 48px 20px;
+      animation: fade-in 0.3s ease;
+    }
+    .rating-done .done-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .rating-done .done-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-bottom: 6px;
+    }
+    .rating-done .done-desc {
+      font-size: 13px;
+      color: #8c8c8c;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== 移动端聊天容器（背景） ===== -->
+  <div class="chat-mobile-container">
+    <!-- 头部 -->
+    <div class="chat-header">
+      <span class="back-arrow">‹</span>
+      <span class="title">客服小夏</span>
+      <span class="action-icon">⋯</span>
+    </div>
+
+    <!-- 消息区（会话已结束背景） -->
+    <div class="chat-messages">
+      <div class="msg-bubble-system">会话已结束</div>
+      <div class="msg-bubble-agent">您好，很高兴为您服务，请问还有什么可以帮您的吗？</div>
+      <div class="msg-bubble-user">没有了，问题已经解决，谢谢！</div>
+      <div class="msg-bubble-agent">感谢您的咨询，祝您生活愉快！欢迎下次再来～</div>
+      <div class="msg-bubble-system">客服已结束本次服务</div>
+    </div>
+
+    <!-- 输入区（已禁用） -->
+    <div class="chat-input-area">
+      <input type="text" placeholder="会话已结束" disabled style="background:#f0f0f0;" />
+    </div>
+
+    <!-- ===== 服务评价弹层 ===== -->
+    <div class="rating-overlay" id="ratingOverlay">
+      <div class="rating-modal">
+
+        <div class="rating-handle"></div>
+
+        <!-- 顶部 -->
+        <div class="rating-hero">
+          <div class="check-icon">✓</div>
+          <h2 class="rating-title">感谢您的服务，请为本次服务评分</h2>
+          <p class="rating-subtitle">您的评价是我们进步的动力</p>
+        </div>
+
+        <!-- 客服信息条 -->
+        <div class="agent-bar">
+          <div class="agent-avatar">夏</div>
+          <div>
+            <div class="agent-name">客服小夏</div>
+            <div class="agent-meta">工号 #A1024 · 服务时长 08:32</div>
+          </div>
+        </div>
+
+        <!-- 维度评分 -->
+        <div class="dim-list">
+          <div class="dim-row">
+            <span class="dim-label">服务态度</span>
+            <div class="stars" data-dim="attitude">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </div>
+          <div class="dim-row">
+            <span class="dim-label">响应速度</span>
+            <div class="stars" data-dim="speed">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </div>
+          <div class="dim-row">
+            <span class="dim-label">专业能力</span>
+            <div class="stars" data-dim="professional">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </div>
+          <div class="dim-row">
+            <span class="dim-label">解决问题能力</span>
+            <div class="stars" data-dim="solution">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 标签选择（多选） -->
+        <div class="section-label">服务印象</div>
+        <div class="section-hint">可多选，选择您对本次服务的感受</div>
+        <div class="tag-group" id="tagGroup">
+          <span class="tag-chip">态度热情</span>
+          <span class="tag-chip">响应及时</span>
+          <span class="tag-chip">专业</span>
+          <span class="tag-chip">耐心</span>
+          <span class="tag-chip">解决问题</span>
+          <span class="tag-chip">沟通顺畅</span>
+          <span class="tag-chip">有礼貌</span>
+          <span class="tag-chip">回复慢</span>
+          <span class="tag-chip">态度一般</span>
+          <span class="tag-chip">未解决</span>
+        </div>
+
+        <!-- 文字评价 -->
+        <div class="comment-wrap">
+          <div class="section-label">补充评价（选填）</div>
+          <div class="section-hint">说说您对本次服务的具体感受</div>
+          <textarea
+            class="comment-textarea"
+            id="commentInput"
+            maxlength="200"
+            placeholder="您的建议对我们很重要，帮助客服提供更好的服务～"
+          ></textarea>
+          <div class="comment-count"><span id="commentCount">0</span>/200</div>
+        </div>
+
+        <!-- 按钮 -->
+        <button class="submit-btn" id="submitBtn">提交评价</button>
+        <button class="skip-btn" id="skipBtn">跳过</button>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 交互说明 ===== -->
+  <div class="prototype-note" style="max-width:375px; margin:0 auto 24px;">
+    会话结束后弹出底部评分弹层：4 维度星级评分（服务态度 / 响应速度 / 专业能力 / 解决问题能力）+ 多选印象标签 + 选填文字评价，提交后写入 customer_chat_messages（type=rate）。对应需求 US-MVP-21（服务评价 UI）。
+  </div>
+
+  <script>
+    /* ---------- 星级评分交互 ---------- */
+    document.querySelectorAll('.stars').forEach(function (group) {
+      var stars = group.querySelectorAll('.star');
+      var current = 0;
+      group.addEventListener('click', function (e) {
+        var target = e.target;
+        if (!target.classList.contains('star')) return;
+        var val = parseInt(target.getAttribute('data-val'), 10);
+        if (val === current && val === 1) {
+          // 已是1星时点击不清零，最低1星
+          val = 0;
+        }
+        current = val;
+        stars.forEach(function (s) {
+          var sv = parseInt(s.getAttribute('data-val'), 10);
+          s.classList.toggle('active', sv <= val);
+        });
+      });
+    });
+
+    /* ---------- 标签多选 ---------- */
+    document.querySelectorAll('.tag-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chip.classList.toggle('selected');
+      });
+    });
+
+    /* ---------- 字数统计 ---------- */
+    var commentInput = document.getElementById('commentInput');
+    var commentCount = document.getElementById('commentCount');
+    commentInput.addEventListener('input', function () {
+      commentCount.textContent = commentInput.value.length;
+    });
+
+    /* ---------- 提交 → 成功态 ---------- */
+    var submitBtn = document.getElementById('submitBtn');
+    var modal = document.querySelector('.rating-modal');
+    submitBtn.addEventListener('click', function () {
+      modal.innerHTML =
+        '<div class="rating-done">' +
+          '<div class="done-icon">🎉</div>' +
+          '<div class="done-title">评价提交成功</div>' +
+          '<div class="done-desc">感谢您的反馈，期待再次为您服务！</div>' +
+        '</div>';
+    });
+
+    /* ---------- 跳过 → 关闭弹层 ---------- */
+    document.getElementById('skipBtn').addEventListener('click', function () {
+      document.getElementById('ratingOverlay').style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>

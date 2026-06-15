@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>系统设置 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-settings.html 专属样式 ===== */
+
+    .sidebar-menu-group-title {
+      padding: 8px 24px 4px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- 设置区域锚点导航 ---------- */
+    .settings-anchor {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 4px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .settings-anchor a {
+      padding: 6px 14px;
+      font-size: 13px;
+      color: #595959;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .settings-anchor a:hover { background: #f0f5ff; color: #1677ff; }
+    .settings-anchor a.active { background: #e6f4ff; color: #1677ff; font-weight: 500; }
+
+    /* ---------- 设置区块卡片 ---------- */
+    .setting-section {
+      margin-bottom: 20px;
+      scroll-margin-top: 80px;
+    }
+    .setting-section .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 20px;
+    }
+    .setting-section .section-head .head-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .icon-welcome  { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .icon-offline  { background: linear-gradient(135deg, #8c8c8c, #bfbfbf); }
+    .icon-routing  { background: linear-gradient(135deg, #722ed1, #9254de); }
+    .icon-timeout  { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .icon-sensitive{ background: linear-gradient(135deg, #f5222d, #ff7875); }
+
+    .setting-section .section-head h3 {
+      font-size: 16px;
+      font-weight: 600;
+      flex: 1;
+    }
+    .setting-section .section-head .head-desc {
+      font-size: 12px;
+      color: #8c8c8c;
+      font-weight: 400;
+    }
+
+    /* ---------- 表单行 ---------- */
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label {
+      width: 140px;
+      flex-shrink: 0;
+      font-size: 13px;
+      color: #262626;
+      padding-top: 6px;
+    }
+    .form-label .req { color: #f5222d; margin-right: 4px; }
+    .form-control { flex: 1; min-width: 0; }
+    .form-hint {
+      font-size: 12px;
+      color: #8c8c8c;
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    /* 输入框 / 文本域 */
+    .input-text,
+    .textarea-field,
+    .input-number {
+      width: 100%;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 6px 11px;
+      font-size: 13px;
+      color: #1f1f1f;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .input-text { height: 32px; }
+    .input-text:hover,
+    .textarea-field:hover,
+    .input-number:hover { border-color: #4096ff; }
+    .input-text:focus,
+    .textarea-field:focus,
+    .input-number:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .textarea-field {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.6;
+      padding: 8px 11px;
+    }
+    .input-number {
+      width: 120px;
+      height: 32px;
+    }
+
+    /* 字数统计 */
+    .char-count {
+      text-align: right;
+      font-size: 12px;
+      color: #bfbfbf;
+      margin-top: 4px;
+    }
+    .char-count .over { color: #f5222d; }
+
+    /* 预览框 */
+    .welcome-preview {
+      margin-top: 12px;
+      background: #f6f8fa;
+      border: 1px dashed #d9d9d9;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #595959;
+      line-height: 1.6;
+    }
+    .welcome-preview .preview-label {
+      font-size: 11px;
+      color: #bfbfbf;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .welcome-preview .bubble {
+      display: inline-block;
+      background: #fff;
+      border: 1px solid #eee;
+      border-top-left-radius: 2px;
+      border-radius: 8px;
+      padding: 9px 14px;
+      max-width: 80%;
+    }
+
+    /* ---------- 开关 Switch ---------- */
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .switch-track {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.25);
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .switch-track::after {
+      content: "";
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .switch.on .switch-track { background: #1677ff; }
+    .switch.on .switch-track::after { transform: translateX(16px); }
+    .switch-label { font-size: 13px; color: #1f1f1f; }
+    .switch-desc { font-size: 12px; color: #8c8c8c; margin-left: 44px; margin-top: 4px; }
+
+    /* ---------- 单选卡片组 ---------- */
+    .radio-card-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) { .radio-card-group { grid-template-columns: 1fr; } }
+    .radio-card {
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .radio-card:hover { border-color: #4096ff; }
+    .radio-card.checked {
+      border-color: #1677ff;
+      background: #f0f5ff;
+      box-shadow: 0 0 0 1px #1677ff;
+    }
+    .radio-card .rc-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .radio-card .rc-desc {
+      font-size: 12px;
+      color: #8c8c8c;
+      line-height: 1.6;
+    }
+    .radio-card .rc-check {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1px solid #d9d9d9;
+    }
+    .radio-card.checked .rc-check {
+      border-color: #1677ff;
+      background: #1677ff;
+      box-shadow: inset 0 0 0 3px #fff;
+    }
+
+    /* 数字+单位 组合 */
+    .input-with-unit {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .input-with-unit:hover { border-color: #4096ff; }
+    .input-with-unit:focus-within { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .input-with-unit input {
+      width: 90px;
+      height: 32px;
+      border: none;
+      outline: none;
+      text-align: center;
+      font-size: 13px;
+      color: #1f1f1f;
+      font-family: inherit;
+    }
+    .input-with-unit .unit {
+      padding: 0 12px;
+      height: 32px;
+      line-height: 32px;
+      background: #fafafa;
+      border-left: 1px solid #f0f0f0;
+      font-size: 13px;
+      color: #595959;
+    }
+
+    /* 下拉选择（伪） */
+    .select-field {
+      height: 32px;
+      min-width: 180px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 11px;
+      font-size: 13px;
+      color: #1f1f1f;
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .select-field:hover { border-color: #4096ff; }
+    .select-field::after {
+      content: "▾";
+      color: #bfbfbf;
+      font-size: 10px;
+      margin-left: 8px;
+    }
+
+    /* ---------- 敏感词标签 ---------- */
+    .sensitive-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .sensitive-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: #fff1f0;
+      border: 1px solid #ffccc7;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #f5222d;
+      transition: all 0.15s;
+    }
+    .sensitive-tag:hover { background: #ffccc7; }
+    .sensitive-tag .remove {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      color: #ff7875;
+      margin-left: 2px;
+    }
+    .sensitive-tag .remove:hover { color: #f5222d; }
+
+    .add-sensitive {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .add-sensitive .input-text { width: 180px; }
+    .sensitive-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: #fafafa;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #8c8c8c;
+    }
+    .sensitive-stats .num { font-size: 16px; font-weight: 600; color: #1f1f1f; margin-right: 4px; }
+
+    /* 分组（敏感词分类） */
+    .sensitive-group {
+      margin-bottom: 16px;
+      padding: 14px;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      background: #fcfcfc;
+    }
+    .sensitive-group .sg-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .sensitive-group .sg-title .sg-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #262626;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sensitive-group .sg-title .sg-count {
+      font-size: 12px;
+      color: #8c8c8c;
+      font-weight: 400;
+    }
+    .group-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .group-dot.political { background: #f5222d; }
+    .group-dot.porn      { background: #fa8c16; }
+    .group-dot.ad        { background: #faad14; }
+    .group-dot.insult    { background: #722ed1; }
+
+    /* ---------- 底部操作栏（吸底） ---------- */
+    .settings-footer {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      border-top: 1px solid #f0f0f0;
+      padding: 12px 24px;
+      margin: 0 -24px -24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+      z-index: 5;
+    }
+    .settings-footer .footer-tip {
+      font-size: 12px;
+      color: #faad14;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .settings-footer .footer-actions { display: flex; gap: 8px; }
+
+    /* 状态指示 */
+    .save-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #52c41a;
+    }
+    .save-status::before {
+      content: "✓";
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 客服管理后台</div>
+    <div class="sidebar-menu-group-title">工作台</div>
+    <div class="menu-item">📊 数据仪表盘</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">📋 待办事项</div>
+    <div class="sidebar-menu-group-title">服务管理</div>
+    <div class="menu-item">📁 历史会话</div>
+    <div class="menu-item">🔄 会话转接</div>
+    <div class="menu-item">⭐ 评价管理</div>
+    <div class="menu-item">📝 留言管理</div>
+    <div class="sidebar-menu-group-title">配置</div>
+    <div class="menu-item">📚 知识库</div>
+    <div class="menu-item">💬 话术库</div>
+    <div class="menu-item">🤖 自动回复</div>
+    <div class="menu-item active">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">配置 / 系统设置</div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:13px;color:#595959;">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <h2 style="font-size:20px; font-weight:600; margin-bottom:4px;">系统设置</h2>
+          <p style="font-size:13px; color:#8c8c8c;">配置全局欢迎语、离线语、智能路由、会话超时与敏感词过滤（对应功能 US-ADMIN-02 / US-ADMIN-03 / US-ADMIN-04）</p>
+        </div>
+        <div class="flex gap-8">
+          <span class="save-status">已自动保存 · 17:42</span>
+        </div>
+      </div>
+
+      <!-- 原型交互说明 -->
+      <div class="prototype-note">本页演示管理端核心配置能力：<strong>US-ADMIN-02 欢迎语与离线语设置</strong>（对应 customer_chat_settings.welcome_content / offline_content）、<strong>US-ADMIN-03 智能路由与分流规则</strong>（is_auto_accept 开关 + 分流策略）、<strong>US-ADMIN-04 会话超时与敏感词管理</strong>（cron 定时关闭 + 敏感词库）。</div>
+
+      <!-- 锚点导航 -->
+      <div class="settings-anchor">
+        <a class="active">👋 欢迎语</a>
+        <a>💤 离线语</a>
+        <a>🔀 路由规则</a>
+        <a>⏱️ 会话超时</a>
+        <a>🚫 敏感词</a>
+      </div>
+
+      <!-- ========== 1. 欢迎语设置 ========== -->
+      <div class="card setting-section" id="welcome">
+        <div class="section-head">
+          <div class="head-icon icon-welcome">👋</div>
+          <h3>欢迎语设置
+            <span class="head-desc">用户进入会话时自动推送的欢迎文案</span>
+          </h3>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label"><span class="req">*</span>welcome_content</div>
+          <div class="form-control">
+            <textarea class="textarea-field" rows="3">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？😊</textarea>
+            <div class="flex-between" style="margin-top:4px;">
+              <span class="form-hint" style="margin:0;">支持文字与表情符号，不支持图片。用户进入会话后 0.5s 内自动推送。</span>
+              <span class="char-count"><span style="color:#1f1f1f;">42</span> / 200</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">推送时机</div>
+          <div class="form-control">
+            <div class="radio-card-group">
+              <div class="radio-card checked">
+                <div class="rc-title">进入会话立即推送</div>
+                <div class="rc-desc">用户点击咨询入口，建立会话后立刻发送欢迎语</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">客服接入后推送</div>
+                <div class="rc-desc">客服点击「接入」会话后才发送，避免排队期间打扰</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">不推送</div>
+                <div class="rc-desc">关闭自动欢迎语，由客服手动发送首条消息</div>
+                <div class="rc-check"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 预览 -->
+        <div class="welcome-preview">
+          <div class="preview-label">💬 用户端预览</div>
+          <div class="bubble">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？😊</div>
+        </div>
+      </div>
+
+      <!-- ========== 2. 离线语设置 ========== -->
+      <div class="card setting-section" id="offline">
+        <div class="section-head">
+          <div class="head-icon icon-offline">💤</div>
+          <h3>离线语设置
+            <span class="head-desc">无客服在线时，用户进入会话展示的提示文案</span>
+          </h3>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label"><span class="req">*</span>offline_content</div>
+          <div class="form-control">
+            <textarea class="textarea-field" rows="3">当前无客服在线（工作时间 9:00-21:00），您可以留下问题和联系方式，客服上线后将第一时间为您处理。</textarea>
+            <div class="flex-between" style="margin-top:4px;">
+              <span class="form-hint" style="margin:0;">触发条件：所有客服处于「离线」或「忙碌」状态时展示。</span>
+              <span class="char-count"><span style="color:#1f1f1f;">58</span> / 200</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">离线行为</div>
+          <div class="form-control">
+            <div class="switch on">
+              <div class="switch-track"></div>
+              <span class="switch-label">允许用户提交留言</span>
+            </div>
+            <div class="switch-desc">开启后，离线期间用户可填写留言表单（姓名/手机号/问题描述），留言进入「待办事项」并通知客服</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">留言通知方式</div>
+          <div class="form-control">
+            <div class="flex gap-8" style="flex-wrap:wrap;">
+              <div class="select-field">站内消息（默认）</div>
+              <div class="select-field">短信通知客服</div>
+              <div class="select-field">企业微信推送</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 预览 -->
+        <div class="welcome-preview">
+          <div class="preview-label">💤 用户端预览（离线态）</div>
+          <div class="bubble">当前无客服在线（工作时间 9:00-21:00），您可以留下问题和联系方式，客服上线后将第一时间为您处理。</div>
+        </div>
+      </div>
+
+      <!-- ========== 3. 路由规则配置 ========== -->
+      <div class="card setting-section" id="routing">
+        <div class="section-head">
+          <div class="head-icon icon-routing">🔀</div>
+          <h3>路由规则配置
+            <span class="head-desc">控制会话如何分配给客服，支持自动接入与智能分流</span>
+          </h3>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">is_auto_accept</div>
+          <div class="form-control">
+            <div class="switch on">
+              <div class="switch-track"></div>
+              <span class="switch-label">开启自动接入</span>
+            </div>
+            <div class="switch-desc">开启后，新会话自动按分流策略分配给在线客服，无需客服手动点击「接入」</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">分流策略</div>
+          <div class="form-control">
+            <div class="radio-card-group">
+              <div class="radio-card checked">
+                <div class="rc-title">⚖️ 轮询分配（均衡）</div>
+                <div class="rc-desc">按在线客服顺序轮流分配，保证每位客服接待量大致相等</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">📊 按空闲度分配</div>
+                <div class="rc-desc">优先分配给当前接待会话数最少的客服，避免过载</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">🎯 按客户优先级</div>
+                <div class="rc-desc">VIP/高价值客户优先分配给指定客服组（需配合技能组）</div>
+                <div class="rc-check"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">单客服接待上限</div>
+          <div class="form-control">
+            <div class="input-with-unit">
+              <input type="text" value="10" />
+              <span class="unit">个会话</span>
+            </div>
+            <p class="form-hint">当客服当前接待会话数达到上限时，新会话进入排队等待队列</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">排队超时转人工</div>
+          <div class="form-control">
+            <div class="input-with-unit">
+              <input type="text" value="120" />
+              <span class="unit">秒</span>
+            </div>
+            <p class="form-hint">用户在等待队列中超过该时长未被接入，触发「转人工」提示并优先分配</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">关键词转人工</div>
+          <div class="form-control">
+            <div class="switch on">
+              <div class="switch-track"></div>
+              <span class="switch-label">开启关键词识别转人工</span>
+            </div>
+            <div class="switch-desc">用户消息命中以下关键词时，自动将会话转接给人工客服（跳过机器人）</div>
+            <div class="sensitive-tags" style="margin-top:10px;">
+              <span class="sensitive-tag" style="background:#f9f0ff; border-color:#d3adf7; color:#722ed1;">人工 <span class="remove">×</span></span>
+              <span class="sensitive-tag" style="background:#f9f0ff; border-color:#d3adf7; color:#722ed1;">客服 <span class="remove">×</span></span>
+              <span class="sensitive-tag" style="background:#f9f0ff; border-color:#d3adf7; color:#722ed1;">投诉 <span class="remove">×</span></span>
+              <span class="sensitive-tag" style="background:#f9f0ff; border-color:#d3adf7; color:#722ed1;">退款 <span class="remove">×</span></span>
+              <span class="sensitive-tag" style="background:#f9f0ff; border-color:#d3adf7; color:#722ed1;">售后 <span class="remove">×</span></span>
+              <span class="sensitive-tag" style="background:#f9f0ff; border-color:#d3adf7; color:#722ed1;">转人工 <span class="remove">×</span></span>
+            </div>
+            <div class="add-sensitive">
+              <input class="input-text" placeholder="输入关键词后回车" />
+              <button class="btn-default" style="padding:4px 12px;">+ 添加</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 4. 会话超时设置 ========== -->
+      <div class="card setting-section" id="timeout">
+        <div class="section-head">
+          <div class="head-icon icon-timeout">⏱️</div>
+          <h3>会话超时设置
+            <span class="head-desc">用户长时间无回复时，自动关闭会话并释放接待名额</span>
+          </h3>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">用户无响应超时</div>
+          <div class="form-control">
+            <div class="input-with-unit">
+              <input type="text" value="15" />
+              <span class="unit">分钟</span>
+            </div>
+            <p class="form-hint">客服发送最后一条消息后，用户超过该时长未回复，触发超时提醒</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">自动关闭时长</div>
+          <div class="form-control">
+            <div class="input-with-unit">
+              <input type="text" value="30" />
+              <span class="unit">分钟</span>
+            </div>
+            <p class="form-hint">超时提醒后用户仍未回复，到达此时长自动关闭会话（状态 wait/accept → close）</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">超时提醒文案</div>
+          <div class="form-control">
+            <textarea class="textarea-field" rows="2">您已长时间未回复，如需继续咨询请回复任意内容；会话将在 15 分钟后自动关闭。</textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">定时任务执行频率</div>
+          <div class="form-control">
+            <div class="select-field">每 1 分钟扫描一次（cron.go）</div>
+            <p class="form-hint">后台定时任务扫描超过超时阈值的会话并执行关闭逻辑</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">关闭后行为</div>
+          <div class="form-control">
+            <div class="switch">
+              <div class="switch-track"></div>
+              <span class="switch-label">允许用户重新发起会话</span>
+            </div>
+            <div class="switch-desc">关闭后用户可点击「再次咨询」发起新会话，历史记录保留在「历史会话」中</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 5. 敏感词管理 ========== -->
+      <div class="card setting-section" id="sensitive">
+        <div class="section-head">
+          <div class="head-icon icon-sensitive">🚫</div>
+          <h3>敏感词管理
+            <span class="head-desc">过滤用户/客服消息中的敏感词，命中后自动替换或拦截</span>
+          </h3>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">敏感词过滤</div>
+          <div class="form-control">
+            <div class="switch on">
+              <div class="switch-track"></div>
+              <span class="switch-label">开启全局敏感词过滤</span>
+            </div>
+            <div class="switch-desc">对所有会话消息（用户端 & 客服端）实时检测，命中敏感词后按策略处理</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">命中处理策略</div>
+          <div class="form-control">
+            <div class="radio-card-group">
+              <div class="radio-card checked">
+                <div class="rc-title">🔞 替换为 ***</div>
+                <div class="rc-desc">将敏感词替换为星号后正常发送，不打断对话</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">🚫 拦截并提示</div>
+                <div class="rc-desc">消息不发送，提示用户「消息含违规内容，请修改后重发」</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">⚠️ 仅记录不拦截</div>
+                <div class="rc-desc">消息正常发送，但记录到违规日志供管理员事后审查</div>
+                <div class="rc-check"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">敏感词库</div>
+          <div class="form-control">
+
+            <!-- 政治类 -->
+            <div class="sensitive-group">
+              <div class="sg-title">
+                <div class="sg-name"><span class="group-dot political"></span>政治敏感</div>
+                <div class="sg-count">5 个</div>
+              </div>
+              <div class="sensitive-tags">
+                <span class="sensitive-tag">词A <span class="remove">×</span></span>
+                <span class="sensitive-tag">词B <span class="remove">×</span></span>
+                <span class="sensitive-tag">词C <span class="remove">×</span></span>
+                <span class="sensitive-tag">词D <span class="remove">×</span></span>
+                <span class="sensitive-tag">词E <span class="remove">×</span></span>
+              </div>
+            </div>
+
+            <!-- 色情类 -->
+            <div class="sensitive-group">
+              <div class="sg-title">
+                <div class="sg-name"><span class="group-dot porn"></span>色情低俗</div>
+                <div class="sg-count">8 个</div>
+              </div>
+              <div class="sensitive-tags">
+                <span class="sensitive-tag">词F <span class="remove">×</span></span>
+                <span class="sensitive-tag">词G <span class="remove">×</span></span>
+                <span class="sensitive-tag">词H <span class="remove">×</span></span>
+                <span class="sensitive-tag">词I <span class="remove">×</span></span>
+                <span class="sensitive-tag">词J <span class="remove">×</span></span>
+                <span class="sensitive-tag">词K <span class="remove">×</span></span>
+                <span class="sensitive-tag">词L <span class="remove">×</span></span>
+                <span class="sensitive-tag">词M <span class="remove">×</span></span>
+              </div>
+            </div>
+
+            <!-- 广告类 -->
+            <div class="sensitive-group">
+              <div class="sg-title">
+                <div class="sg-name"><span class="group-dot ad"></span>广告引流</div>
+                <div class="sg-count">4 个</div>
+              </div>
+              <div class="sensitive-tags">
+                <span class="sensitive-tag">加微信 <span class="remove">×</span></span>
+                <span class="sensitive-tag">代购 <span class="remove">×</span></span>
+                <span class="sensitive-tag">兼职 <span class="remove">×</span></span>
+                <span class="sensitive-tag">二维码 <span class="remove">×</span></span>
+              </div>
+            </div>
+
+            <!-- 辱骂类 -->
+            <div class="sensitive-group">
+              <div class="sg-title">
+                <div class="sg-name"><span class="group-dot insult"></span>辱骂攻击</div>
+                <div class="sg-count">3 个</div>
+              </div>
+              <div class="sensitive-tags">
+                <span class="sensitive-tag">词N <span class="remove">×</span></span>
+                <span class="sensitive-tag">词O <span class="remove">×</span></span>
+                <span class="sensitive-tag">词P <span class="remove">×</span></span>
+              </div>
+            </div>
+
+            <!-- 添加新词 -->
+            <div class="add-sensitive" style="margin-top:8px;">
+              <input class="input-text" placeholder="输入敏感词后回车添加" />
+              <div class="select-field" style="height:32px; min-width:120px;">选择分类 ▾</div>
+              <button class="btn-primary" style="padding:6px 14px;">+ 添加</button>
+            </div>
+
+            <!-- 统计 -->
+            <div class="sensitive-stats">
+              <div><span class="num">20</span>敏感词总数</div>
+              <div><span class="num">4</span>分类</div>
+              <div><span class="num">156</span>今日命中</div>
+              <div style="margin-left:auto; align-self:center;">
+                <a style="font-size:12px;">批量导入</a> · <a style="font-size:12px;">导出词库</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:8px; font-size:12px; color:#bfbfbf;">
+        数据来源：customer_chat_settings（welcome_content / offline_content / is_auto_accept） · 敏感词对应新建表 customer_chat_sensitive_words · 超时逻辑由 internal/cron/cron.go 执行
+      </p>
+
+      <!-- 吸底操作栏 -->
+      <div class="settings-footer">
+        <div class="footer-tip">⚠️ 修改后请点击「保存设置」生效，部分配置（如路由策略）将在新会话生效</div>
+        <div class="footer-actions">
+          <button class="btn-default">重置默认</button>
+          <button class="btn-default">取消</button>
+          <button class="btn-primary">保存设置</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>管理员登录 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-login.html 专属样式 ===== */
+    :root {
+      --cs-primary: #1677ff;
+      --cs-primary-hover: #4096ff;
+      --cs-primary-dark: #0958d9;
+      --cs-text: #1f1f1f;
+      --cs-text-secondary: #595959;
+      --cs-text-tertiary: #8c8c8c;
+      --cs-border: #d9d9d9;
+      --cs-bg-input: #ffffff;
+      --cs-bg-input-hover: #f5f5f5;
+      --cs-shadow-login: 0 6px 16px rgba(0,0,0,0.08), 0 3px 6px rgba(0,0,0,0.04);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f0f5ff 0%, #f0f2f5 50%, #e6f4ff 100%);
+      padding: 24px;
+    }
+
+    /* ===== Login Card ===== */
+    .login-card {
+      width: 380px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: var(--cs-shadow-login);
+      padding: 40px 32px 32px;
+    }
+
+    /* ===== Logo & Title ===== */
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-logo {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1677ff, #0958d9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(22,119,255,0.32);
+    }
+    .login-logo svg { display: block; }
+    .login-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--cs-text);
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--cs-text-tertiary);
+      margin-top: 6px;
+    }
+
+    /* ===== Form Items (Ant Design style) ===== */
+    .form-item { margin-bottom: 22px; }
+    .form-item-label {
+      display: block;
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-prefix {
+      position: absolute;
+      left: 12px;
+      color: var(--cs-text-tertiary);
+      font-size: 16px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .input-suffix {
+      position: absolute;
+      right: 12px;
+      color: var(--cs-text-tertiary);
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .input-suffix:hover { color: var(--cs-text-secondary); }
+
+    .form-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 40px;
+      font-size: 14px;
+      color: var(--cs-text);
+      background: var(--cs-bg-input);
+      border: 1px solid var(--cs-border);
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-input::placeholder { color: #bfbfbf; }
+    .form-input:hover { border-color: var(--cs-primary-hover); }
+    .form-input:focus {
+      border-color: var(--cs-primary);
+      box-shadow: 0 0 0 2px rgba(22,119,255,0.12);
+    }
+
+    /* ===== Remember Me Row ===== */
+    .login-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .checkbox-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      user-select: none;
+    }
+    .checkbox-box {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--cs-border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      transition: all 0.2s;
+    }
+    .checkbox-box.checked {
+      background: var(--cs-primary);
+      border-color: var(--cs-primary);
+    }
+    .checkbox-box.checked::after {
+      content: '';
+      width: 4px;
+      height: 8px;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+    .forgot-link { font-size: 13px; color: var(--cs-primary); }
+    .forgot-link:hover { color: var(--cs-primary-hover); }
+
+    /* ===== Login Button ===== */
+    .btn-login {
+      width: 100%;
+      height: 42px;
+      background: var(--cs-primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(22,119,255,0.2);
+    }
+    .btn-login:hover {
+      background: var(--cs-primary-hover);
+      box-shadow: 0 4px 12px rgba(22,119,255,0.32);
+    }
+    .btn-login:active { transform: translateY(1px); }
+
+    /* ===== Footer Links ===== */
+    .login-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+    }
+    .login-footer a { color: var(--cs-primary); }
+    .login-footer .sep { margin: 0 8px; color: #d9d9d9; }
+
+    /* ===== Prototype note toggle hint ===== */
+    .login-prototype-note {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      border-left: 4px solid #faad14;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #614700;
+      max-width: 280px;
+    }
+    .login-prototype-note a { color: #d46b08; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <!-- Prototype hint -->
+  <div class="login-prototype-note">
+    💡 原型演示：账号 <strong>admin</strong> / 密码 <strong>123456</strong> · 点击登录跳转 <a href="index.html">返回首页</a>
+  </div>
+
+  <!-- ===== Login Card ===== -->
+  <div class="login-card">
+
+    <!-- Logo & Title -->
+    <div class="login-header">
+      <div class="login-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.04 2 11c0 2.52 1.17 4.8 3.06 6.46L4 22l4.74-2.06C9.86 20.28 10.91 20.5 12 20.5c5.52 0 10-4.04 10-9S17.52 2 12 2z" fill="#fff"/>
+          <circle cx="8" cy="11" r="1.2" fill="#1677ff"/>
+          <circle cx="12" cy="11" r="1.2" fill="#1677ff"/>
+          <circle cx="16" cy="11" r="1.2" fill="#1677ff"/>
+        </svg>
+      </div>
+      <h1 class="login-title">CS 商城客服系统</h1>
+      <p class="login-subtitle">客服工作台 · 多租户在线客服平台</p>
+    </div>
+
+    <!-- Form -->
+    <form onsubmit="return handleLogin(event)">
+
+      <!-- Username -->
+      <div class="form-item">
+        <label class="form-item-label" for="username">用户名</label>
+        <div class="input-wrap">
+          <span class="input-prefix">👤</span>
+          <input
+            id="username"
+            class="form-input"
+            type="text"
+            placeholder="请输入用户名"
+            value="admin"
+            autocomplete="username"
+          />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-item">
+        <label class="form-item-label" for="password">密码</label>
+        <div class="input-wrap">
+          <span class="input-prefix">🔒</span>
+          <input
+            id="password"
+            class="form-input"
+            type="password"
+            placeholder="请输入密码"
+            value="123456"
+            autocomplete="current-password"
+          />
+          <span class="input-suffix" id="togglePwd" onclick="togglePassword()">👁</span>
+        </div>
+      </div>
+
+      <!-- Remember me & Forgot -->
+      <div class="login-options">
+        <label class="checkbox-wrap" onclick="toggleRemember(event)">
+          <span class="checkbox-box checked" id="rememberBox"></span>
+          <span>记住我</span>
+        </label>
+        <a href="javascript:;" class="forgot-link">忘记密码？</a>
+      </div>
+
+      <!-- Login button -->
+      <button type="submit" class="btn-login">登 录</button>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <span>© 2026 CS 商城客服系统</span>
+      <span class="sep">|</span>
+      <a href="index.html">← 返回原型首页</a>
+    </div>
+
+  </div>
+
+  <script>
+    // Toggle password visibility
+    function togglePassword() {
+      var input = document.getElementById('password');
+      var icon = document.getElementById('togglePwd');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        icon.textContent = '👁';
+      }
+    }
+
+    // Toggle remember me
+    function toggleRemember(e) {
+      if (e.target.tagName === 'A') return;
+      e.preventDefault();
+      var box = document.getElementById('rememberBox');
+      box.classList.toggle('checked');
+    }
+
+    // Handle login (prototype demo)
+    function handleLogin(e) {
+      e.preventDefault();
+      var username = document.getElementById('username').value.trim();
+      var password = document.getElementById('password').value.trim();
+      if (!username || !password) {
+        alert('请输入用户名和密码');
+        return false;
+      }
+      // Prototype: simulate login success → jump to index
+      alert('登录成功（原型演示）\n用户名：' + username + '\n即将返回原型首页');
+      window.location.href = 'index.html';
+      return false;
+    }
+  </script>
+
+</body>
+</html>

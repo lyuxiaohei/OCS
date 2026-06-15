@@ -31,6 +31,9 @@ npm-debug.log*
 *.temp
 .cache/
 
+# Agent local worktrees / tool state
+.claude/
+
 # Go
 go-chat-service/temp/
 go-chat-service/manifest/

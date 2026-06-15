@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>待办事项面板 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-todo.html 专属样式 ===== */
+    body { background: #f0f2f5; }
+
+    /* ---------- 顶部统计条 ---------- */
+    .todo-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: box-shadow 0.2s;
+    }
+    .stat-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .stat-card .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .stat-card .stat-num { font-size: 26px; font-weight: 700; line-height: 1.1; }
+    .stat-card .stat-name { font-size: 13px; color: #8c8c8c; margin-top: 2px; }
+    .icon-unreply  { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .icon-timeout  { background: linear-gradient(135deg, #f5222d, #ff7875); }
+    .icon-rate     { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .icon-total    { background: linear-gradient(135deg, #722ed1, #9254de); }
+
+    /* ---------- 三列布局 ---------- */
+    .todo-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) {
+      .todo-columns { grid-template-columns: 1fr; }
+      .todo-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ---------- 区块标题 ---------- */
+    .section-card { padding: 0; overflow: hidden; }
+    .section-card .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafafa;
+    }
+    .section-card .section-head .title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 600;
+    }
+    .section-card .section-head .count-pill {
+      background: #f0f2f5;
+      color: #595959;
+      border-radius: 10px;
+      padding: 1px 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .section-card .section-head .count-pill.danger { background: #fff1f0; color: #f5222d; }
+    .section-card .section-head .count-pill.warn   { background: #fff7e6; color: #d46b08; }
+    .section-card .section-head .head-actions a {
+      font-size: 13px; color: #1677ff;
+    }
+
+    .section-body { padding: 6px 0; max-height: 640px; overflow-y: auto; }
+
+    /* ---------- 待办条目（通用） ---------- */
+    .todo-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.15s;
+    }
+    .todo-row:hover { background: #fafbfc; }
+    .todo-row:last-child { border-bottom: none; }
+
+    .todo-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .todo-avatar.warn   { background: #fa8c16; }
+    .todo-avatar.danger { background: #f5222d; }
+    .todo-avatar.violet { background: #722ed1; }
+
+    .todo-main { flex: 1; min-width: 0; }
+    .todo-top {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 4px;
+    }
+    .todo-name { font-size: 14px; font-weight: 600; color: #1f1f1f; }
+    .todo-sub {
+      font-size: 12px; color: #8c8c8c;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .todo-time { font-size: 12px; color: #bfbfbf; white-space: nowrap; margin-left: 4px; }
+
+    .todo-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* 紧急度标签 */
+    .urgency {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+    .urgency.high   { background: #fff1f0; color: #f5222d; border: 1px solid #ffccc7; }
+    .urgency.medium { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+    .urgency.low    { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+
+    /* 倒计时条 */
+    .countdown {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; color: #f5222d; font-weight: 600;
+    }
+    .countdown::before { content: '⏰'; font-size: 12px; }
+
+    /* 小号按钮 */
+    .btn-sm {
+      padding: 4px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: #1f1f1f;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover { border-color: #1677ff; color: #1677ff; }
+    .btn-sm.primary { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .btn-sm.primary:hover { background: #4096ff; }
+    .btn-sm.danger { color: #f5222d; border-color: #ffccc7; }
+    .btn-sm.danger:hover { background: #fff1f0; border-color: #f5222d; }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #bfbfbf;
+    }
+    .empty-state .emoji { font-size: 32px; margin-bottom: 8px; }
+    .empty-state .text { font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 商城客服</div>
+    <div class="menu-item">📊 数据看板</div>
+    <div class="menu-item active">✅ 待办事项</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">📋 会话列表</div>
+    <div class="menu-item">👤 客户信息</div>
+    <div class="menu-item">📚 知识库</div>
+    <div class="menu-item">📝 话术库</div>
+    <div class="menu-item">⭐ 评价管理</div>
+    <div class="menu-item">📨 留言管理</div>
+    <div class="menu-item">🔀 会话转接</div>
+    <div class="menu-item">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+
+    <!-- 顶部 Header -->
+    <header class="admin-header">
+      <div class="breadcrumb">首页 / 工作台 / <span style="color:#1f1f1f;">待办事项</span></div>
+      <div class="user-info">
+        <span class="status-badge online">在线</span>
+        <span>客服A · 王小明</span>
+        <span style="font-size:18px;">👤</span>
+      </div>
+    </header>
+
+    <!-- 内容区 -->
+    <main class="admin-content">
+
+      <!-- 交互说明 -->
+      <div class="prototype-note">
+        本页面演示 <strong>US-MVP-01 待处理事项面板</strong>：集中展示未回复消息、超时预警、待评价会话三类待办，
+        支持按紧急度排序与一键处理（回复 / 接入 / 催办 / 关闭）。实时刷新，确保客服优先处理高优先级任务。
+      </div>
+
+      <!-- ===== 顶部统计条 ===== -->
+      <div class="todo-stats">
+        <div class="stat-card">
+          <div class="stat-icon icon-unreply">💬</div>
+          <div>
+            <div class="stat-num">8</div>
+            <div class="stat-name">未回复消息</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-timeout">⏰</div>
+          <div>
+            <div class="stat-num">3</div>
+            <div class="stat-name">超时预警</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-rate">⭐</div>
+          <div>
+            <div class="stat-num">5</div>
+            <div class="stat-name">待评价会话</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-total">📌</div>
+          <div>
+            <div class="stat-num">16</div>
+            <div class="stat-name">待办总数</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 三列待办 ===== -->
+      <div class="todo-columns">
+
+        <!-- ===== 1. 未回复消息 ===== -->
+        <section class="card section-card">
+          <div class="section-head">
+            <div class="title">💬 未回复消息 <span class="count-pill">8</span></div>
+            <div class="head-actions"><a href="admin-workbench.html">全部处理 ›</a></div>
+          </div>
+          <div class="section-body">
+
+            <div class="todo-row">
+              <div class="todo-avatar danger">李</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">李婷婷</span>
+                  <span class="urgency high">紧急</span>
+                </div>
+                <div class="todo-sub">退款金额不对，订单 #20260611039</div>
+              </div>
+              <div class="todo-actions">
+                <span class="todo-time">2分钟前</span>
+              </div>
+            </div>
+            <div class="todo-row" style="border-left:3px solid #f5222d; background:#fffbe6;">
+              <div class="todo-avatar danger">张</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">张伟</span>
+                  <span class="urgency high">紧急</span>
+                  <span class="countdown">已超 3 分钟</span>
+                </div>
+                <div class="todo-sub">商品破损，要求立刻换货</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm primary">立即回复</button>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar warn">陈</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">陈晓</span>
+                  <span class="urgency medium">较急</span>
+                </div>
+                <div class="todo-sub">优惠券无法使用，已等 5 分钟</div>
+              </div>
+              <div class="todo-actions">
+                <span class="todo-time">5分钟前</span>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar">刘</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">刘洋</span>
+                  <span class="urgency medium">较急</span>
+                </div>
+                <div class="todo-sub">物流一直没更新，订单 #20260610088</div>
+              </div>
+              <div class="todo-actions">
+                <span class="todo-time">8分钟前</span>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar">周</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">周芳</span>
+                  <span class="urgency low">一般</span>
+                </div>
+                <div class="todo-sub">咨询会员积分兑换规则</div>
+              </div>
+              <div class="todo-actions">
+                <span class="todo-time">12分钟前</span>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar">吴</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">吴磊</span>
+                  <span class="urgency low">一般</span>
+                </div>
+                <div class="todo-sub">想了解发货时间</div>
+              </div>
+              <div class="todo-actions">
+                <span class="todo-time">15分钟前</span>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar">郑</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">郑丽</span>
+                  <span class="urgency low">一般</span>
+                </div>
+                <div class="todo-sub">发票抬头怎么修改</div>
+              </div>
+              <div class="todo-actions">
+                <span class="todo-time">20分钟前</span>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar">孙</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">孙强</span>
+                  <span class="urgency low">一般</span>
+                </div>
+                <div class="todo-sub">咨询是否支持货到付款</div>
+              </div>
+              <div class="todo-actions">
+                <span class="todo-time">25分钟前</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== 2. 超时预警 ===== -->
+        <section class="card section-card">
+          <div class="section-head">
+            <div class="title">⏰ 超时预警 <span class="count-pill danger">3</span></div>
+            <div class="head-actions"><a href="#">设置规则 ›</a></div>
+          </div>
+          <div class="section-body">
+
+            <div class="todo-row" style="background:#fff1f0;">
+              <div class="todo-avatar danger">!</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">会话超时 · 张伟</span>
+                  <span class="urgency high">超时</span>
+                </div>
+                <div class="todo-sub">用户已等待 <strong style="color:#f5222d;">8 分 32 秒</strong>（阈值 5 分钟）</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm primary">立即接入</button>
+              </div>
+            </div>
+            <div class="todo-row" style="background:#fff7e6;">
+              <div class="todo-avatar warn">!</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">响应超时 · 李婷婷</span>
+                  <span class="urgency medium">临界</span>
+                </div>
+                <div class="todo-sub">距超时阈值还剩 <strong style="color:#d46b08;">1 分 20 秒</strong></div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm">催办</button>
+                <button class="btn-sm primary">回复</button>
+              </div>
+            </div>
+            <div class="todo-row" style="background:#fff7e6;">
+              <div class="todo-avatar warn">!</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">排队超时 · 王芳</span>
+                  <span class="urgency medium">临界</span>
+                </div>
+                <div class="todo-sub">已在等待队列 <strong style="color:#d46b08;">3 分 45 秒</strong>（阈值 4 分钟）</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm">转接</button>
+                <button class="btn-sm primary">接入</button>
+              </div>
+            </div>
+
+            <!-- 预警规则说明 -->
+            <div style="padding:12px 18px; background:#fafafa; border-top:1px solid #f0f0f0;">
+              <div style="font-size:12px; color:#8c8c8c; margin-bottom:6px;">⚙️ 当前预警规则</div>
+              <div style="font-size:12px; color:#595959; line-height:1.8;">
+                · 首次响应：超过 <strong>5 分钟</strong> 标记超时<br/>
+                · 排队等待：超过 <strong>4 分钟</strong> 触发预警<br/>
+                · 会话静默：超过 <strong>15 分钟</strong> 提醒关闭
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== 3. 待评价会话 ===== -->
+        <section class="card section-card">
+          <div class="section-head">
+            <div class="title">⭐ 待评价会话 <span class="count-pill warn">5</span></div>
+            <div class="head-actions"><a href="admin-rating-mgmt.html">查看全部 ›</a></div>
+          </div>
+          <div class="section-body">
+
+            <div class="todo-row">
+              <div class="todo-avatar violet">赵</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">赵敏</span>
+                  <span class="urgency medium">待评价</span>
+                </div>
+                <div class="todo-sub">会话已结束 · 订单 #20260611039</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm">催评</button>
+                <button class="btn-sm danger">关闭</button>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar violet">钱</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">钱多多</span>
+                  <span class="urgency low">待评价</span>
+                </div>
+                <div class="todo-sub">会话已结束 · 优惠券咨询</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm">催评</button>
+                <button class="btn-sm danger">关闭</button>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar violet">冯</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">冯绍</span>
+                  <span class="urgency medium">待评价</span>
+                </div>
+                <div class="todo-sub">会话已结束 · 退款问题</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm">催评</button>
+                <button class="btn-sm danger">关闭</button>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar violet">何</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">何静</span>
+                  <span class="urgency low">待评价</span>
+                </div>
+                <div class="todo-sub">会话已结束 · 物流咨询</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm">催评</button>
+                <button class="btn-sm danger">关闭</button>
+              </div>
+            </div>
+            <div class="todo-row">
+              <div class="todo-avatar violet">许</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">许文</span>
+                  <span class="urgency low">待评价</span>
+                </div>
+                <div class="todo-sub">会话已结束 · 会员升级</div>
+              </div>
+              <div class="todo-actions">
+                <button class="btn-sm">催评</button>
+                <button class="btn-sm danger">关闭</button>
+              </div>
+            </div>
+
+            <!-- 底部汇总 -->
+            <div style="padding:12px 18px; background:#fafafa; border-top:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; color:#8c8c8c;">平均催评转化率：<strong style="color:#52c41a;">62%</strong></span>
+              <button class="btn-sm primary">一键催评全部</button>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <div style="margin-top:24px; padding:16px 20px; background:#fff; border-radius:8px; border:1px solid #f0f0f0;">
+        <div style="font-size:13px; font-weight:600; color:#1f1f1f; margin-bottom:8px;">📋 待办处理流程说明</div>
+        <div style="font-size:12px; color:#8c8c8c; line-height:1.9;">
+          ① 系统按 <strong>紧急度（紧急 &gt; 较急 &gt; 一般）</strong> 自动排序待办，超时项置顶高亮；<br/>
+          ② 点击「立即回复」跳转 <a href="admin-workbench.html">客服工作台</a> 并定位会话；「接入」直接接入排队/超时会话；<br/>
+          ③ 「催评」向用户推送评价邀请（用户端 <a href="user-rating.html">服务评价</a> 弹层），「关闭」结束未评价会话；<br/>
+          ④ 预警规则可在 <a href="admin-settings.html">系统设置</a> 中配置响应/排队/静默阈值。
+        </div>
+      </div>
+
+      <!-- 返回导航 -->
+      <div style="text-align:center; margin-top:24px;">
+        <a href="index.html" style="font-size:13px;">← 返回原型导航首页</a>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS 商城客服系统 — 交互原型</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== index.html 归属视图样式 ===== */
+    body {
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+      font-size: var(--cs-font-size-base, 13px);
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+
+    /* 页头 */
+    .head {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--cs-border-light);
+      margin-bottom: 8px;
+    }
+    .head h1 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .head .sub {
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      line-height: 1.6;
+    }
+    .head .src {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--cs-text-placeholder);
+    }
+
+    /* 图例 */
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding: 10px 12px;
+      background: var(--cs-bg-card);
+      border: 1px solid var(--cs-border-light);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .legend .lg { display: inline-flex; align-items: center; gap: 5px; color: var(--cs-text-secondary); }
+    .legend .sw { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+    /* 分期区块 */
+    .phase {
+      margin-top: 28px;
+    }
+    .phase-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .phase-head h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .phase-head .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .ph1 { background: var(--cs-primary-bg); color: var(--cs-primary); }
+    .ph2 { background: var(--cs-success-bg); color: var(--cs-success); }
+    .ph3 { background: var(--cs-purple-bg); color: var(--cs-purple); }
+    .phase-head .sum {
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+    }
+
+    /* 归属组表格 */
+    .groups {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border: 1px solid var(--cs-border-light);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--cs-bg-card);
+    }
+    .grp {
+      display: grid;
+      grid-template-columns: 22px 1fr 34px 1.3fr 72px;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      font-size: 13px;
+    }
+    .grp:last-child { border-bottom: none; }
+
+    /* 状态圆点 */
+    .dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      justify-self: center;
+    }
+    .dot-ok   { background: var(--cs-success); }
+    .dot-part { background: var(--cs-warning); }
+    .dot-no   { background: #d4380d; opacity: .55; }
+    .dot-skip { background: var(--cs-text-placeholder); }
+
+    /* 归属组名 + 说明 */
+    .grp-name {
+      font-weight: 600;
+      color: var(--cs-text);
+    }
+    .grp-name .code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      font-weight: 500;
+      margin-right: 4px;
+    }
+    .grp-desc {
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* 负责人 */
+    .owner {
+      text-align: center;
+      font-size: 12px;
+      color: var(--cs-text-secondary);
+      font-weight: 500;
+    }
+    .owner .na { color: var(--cs-text-placeholder); }
+
+    /* 对应文件 / 暂无原型 */
+    .files {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .files a {
+      font-size: 12px;
+      color: var(--cs-primary);
+      text-decoration: none;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      transition: opacity .12s;
+    }
+    .files a:hover { opacity: .7; text-decoration: underline; }
+    .files .none {
+      font-size: 12px;
+      color: var(--cs-text-placeholder);
+      font-style: normal;
+    }
+    .files .conflict {
+      font-size: 11px;
+      color: var(--cs-warning);
+      margin-top: 1px;
+    }
+
+    /* 页面数徽标 */
+    .cnt {
+      text-align: center;
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+    }
+    .cnt b { color: var(--cs-text-secondary); }
+
+    /* 页脚 */
+    .foot {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--cs-border-light);
+      font-size: 12px;
+      color: var(--cs-text-tertiary);
+      line-height: 1.7;
+    }
+
+    /* 移动端 */
+    @media (max-width: 640px) {
+      .wrap { padding: 20px 16px 32px; }
+      .grp {
+        grid-template-columns: 18px 1fr 28px;
+        gap: 8px;
+      }
+      .grp .files, .grp .cnt { grid-column: 2 / -1; }
+      .grp .owner { grid-column: 3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- 页头 -->
+    <header class="head">
+      <h1>CS 商城客服系统 · 交互原型</h1>
+      <div class="sub">
+        已实现 <b>20</b> 个 HTML 原型页面，对照排期表「原型归属」标注覆盖状态。
+      </div>
+      <div class="src">数据来源：线上客服排期_20260610.xlsx（T1 排期 + T2 原型分组）· 更新于 2026-06-11</div>
+
+      <!-- 图例 -->
+      <div class="legend">
+        <span class="lg"><span class="sw dot-ok"></span>有原型</span>
+        <span class="lg"><span class="sw dot-part"></span>部分覆盖</span>
+        <span class="lg"><span class="sw dot-no"></span>无原型</span>
+        <span class="lg"><span class="sw dot-skip"></span>跳过不做</span>
+        <span class="lg" style="margin-left:auto;color:var(--cs-text-placeholder);">负责人：A / B 双人泳道</span>
+      </div>
+    </header>
+
+    <!-- ===== 1期 MVP ===== -->
+    <section class="phase">
+      <div class="phase-head">
+        <h2>1期 · MVP</h2>
+        <span class="pill ph1">1期-MVP</span>
+        <span class="sum">12 个归属组 · 全部有原型 ✅</span>
+      </div>
+      <ul class="groups">
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B1</span>工作台首页</div>
+            <div class="grp-desc">多渠道工作台 + 待处理事项</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files">
+            <a href="admin/admin-workbench.html">admin-workbench.html</a>
+            <a href="admin/admin-todo.html">admin-todo.html</a>
+          </div>
+          <div class="cnt"><b>2</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B2</span>会话工作区（聊天窗）</div>
+            <div class="grp-desc">会话转接、消息撤回</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files">
+            <a href="admin/admin-workbench.html">admin-workbench.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B2</span>右栏 360° 客户视图</div>
+            <div class="grp-desc">基础/行为/交易/服务 4 维数据</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files">
+            <a href="admin/admin-customer-info.html">admin-customer-info.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B3</span>会话配置中心</div>
+            <div class="grp-desc">智能路由、敏感词、超时、欢迎语、离线回复</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files">
+            <a href="admin/admin-settings.html">admin-settings.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B4</span>历史会话质检</div>
+            <div class="grp-desc">历史服务记录 + 多维筛选导出</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files">
+            <a href="admin/admin-session-list.html">admin-session-list.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B5</span>知识库管理</div>
+            <div class="grp-desc">FAQ 增删改查 + 快捷回复 + 话术库</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files">
+            <a href="admin/admin-knowledge.html">admin-knowledge.html</a>
+            <a href="admin/admin-scripts.html">admin-scripts.html</a>
+          </div>
+          <div class="cnt"><b>2</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B6</span>评价管理</div>
+            <div class="grp-desc">客服评价详情 + 评分筛选</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files">
+            <a href="admin/admin-rating-mgmt.html">admin-rating-mgmt.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">B7</span>留言离线管理</div>
+            <div class="grp-desc">B 端留言列表 + 分配</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files">
+            <a href="admin/admin-leave-mgmt.html">admin-leave-mgmt.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">C1</span>客服入口地图</div>
+            <div class="grp-desc">商品/订单/购物车/物流/退换货等 9 场景入口</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files">
+            <a href="user/user-entry.html">user-entry.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">C2</span>聊天窗主界面</div>
+            <div class="grp-desc">订单/商品/优惠券卡片 + 断线重连</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files">
+            <a href="user/user-chat.html">user-chat.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">C3</span>FAQ 机器人</div>
+            <div class="grp-desc">快捷问题入口 + 服务指南</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files">
+            <a href="user/user-faq.html">user-faq.html</a>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-ok"></span>
+          <div>
+            <div class="grp-name"><span class="code">C4</span>人工客服交互</div>
+            <div class="grp-desc">留言提交表单 + 服务评价弹窗</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files">
+            <a href="user/user-offline.html">user-offline.html</a>
+            <a href="user/user-rating.html">user-rating.html</a>
+          </div>
+          <div class="cnt"><b>2</b> 页</div>
+        </li>
+
+      </ul>
+
+      <!-- 支撑页（无独立归属） -->
+      <div style="margin-top:10px; font-size:12px; color:var(--cs-text-tertiary);">
+        支撑页（排期表无独立归属，作为基础/支撑页面存在）：
+        <a href="admin/admin-login.html" style="color:var(--cs-primary);font-family:Consolas,monospace;">admin-login.html</a>
+        （管理员登录 · JWT 鉴权）、
+        <a href="admin/admin-transfer.html" style="color:var(--cs-primary);font-family:Consolas,monospace;">admin-transfer.html</a>
+        （会话转接，归属 B2 子功能）
+      </div>
+    </section>
+
+    <!-- ===== 2期 体验提升 ===== -->
+    <section class="phase">
+      <div class="phase-head">
+        <h2>2期 · 体验提升</h2>
+        <span class="pill ph2">2期-体验提升</span>
+        <span class="sum">10 个归属组 · 1 页有原型 / 9 组无原型</span>
+      </div>
+      <ul class="groups">
+
+        <li class="grp">
+          <span class="dot dot-part"></span>
+          <div>
+            <div class="grp-name"><span class="code">数据看板</span>（2期）</div>
+            <div class="grp-desc">实时监控面板 + 个人绩效 + 预警 + 会话量/渠道统计</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files">
+            <a href="admin/admin-dashboard.html">admin-dashboard.html</a>
+            <span class="conflict">⚠ 排期表标 2 期，但原型已按 1 期样式实现</span>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B2</span>会话工作区（2期功能）</div>
+            <div class="grp-desc">消息预显、三方会话、拉黑/屏蔽</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B2</span>右栏 360°（2期功能）</div>
+            <div class="grp-desc">客户标签体系</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B2</span>右栏 AI 辅助</div>
+            <div class="grp-desc">AI 话术推荐、商品推荐、订单上下文提醒、转人工意图提示</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B3</span>会话配置中心（2期功能）</div>
+            <div class="grp-desc">主动推送消息</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B5</span>知识库管理（2期功能）</div>
+            <div class="grp-desc">关键词联想</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">C2</span>聊天窗（2期功能）</div>
+            <div class="grp-desc">消息已读/未读、输入状态提示</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">C3</span>FAQ 机器人（2期功能）</div>
+            <div class="grp-desc">多轮引导、智能自助服务、猜你想问、自助办理</div>
+          </div>
+          <div class="owner">A</div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">C4</span>人工客服（2期功能）</div>
+            <div class="grp-desc">排队等待提示</div>
+          </div>
+          <div class="owner">B</div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">C3 / C6</span>大模型智能客服（基础版）</div>
+            <div class="grp-desc">基于大模型的智能客服</div>
+          </div>
+          <div class="owner"><span class="na">A(部分)</span></div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ===== 3期 AI 智能化 ===== -->
+    <section class="phase">
+      <div class="phase-head">
+        <h2>3期 · AI 智能化</h2>
+        <span class="pill ph3">3期-AI智能化</span>
+        <span class="sum">9 个归属组 · 3 页部分覆盖 / 6 组无原型</span>
+      </div>
+      <ul class="groups">
+
+        <li class="grp">
+          <span class="dot dot-part"></span>
+          <div>
+            <div class="grp-name"><span class="code">B11</span>机器人配置（3期）</div>
+            <div class="grp-desc">商品/活动/物流知识库、转人工触发、匹配率监控、对话树编辑</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files">
+            <a href="admin/ai-bot-config.html">ai-bot-config.html</a>
+            <span class="conflict">⚠ 部分覆盖：流程设计/意图管理/知识库关联</span>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-part"></span>
+          <div>
+            <div class="grp-name"><span class="code">B11</span>数据报表（3期）</div>
+            <div class="grp-desc">机器人报表、服务质量报告、工单报表、客户分析</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files">
+            <a href="admin/ai-report.html">ai-report.html</a>
+            <span class="conflict">⚠ 部分覆盖：趋势/排行/渠道/AI解决率</span>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-part"></span>
+          <div>
+            <div class="grp-name"><span class="code">B12</span>人机协同（3期）</div>
+            <div class="grp-desc">无缝转人工、辅助模式、AI 质检与会话摘要</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files">
+            <a href="admin/ai-quality.html">ai-quality.html</a>
+            <span class="conflict">⚠ 仅覆盖 AI 质检，转人工/辅助模式无原型</span>
+          </div>
+          <div class="cnt"><b>1</b> 页</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B9</span>客服账号管理（3期）</div>
+            <div class="grp-desc">账号增删改查、技能组+权重分流、6 种角色权限</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B10</span>渠道接入（3期）</div>
+            <div class="grp-desc">客服热线电话 IVR、邮件渠道、抖音/小红书私信</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B12</span>智能客服 · 核心能力（3期）</div>
+            <div class="grp-desc">意图识别、知识图谱、NLP 多模态、文档解析、上下文记忆</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B12</span>智能客服 · 售前（3期）</div>
+            <div class="grp-desc">商品参数对比、促销解读、尺码推荐、个性化推荐、热点预测</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-no"></span>
+          <div>
+            <div class="grp-name"><span class="code">B12</span>智能客服 · 售中售后（3期）</div>
+            <div class="grp-desc">物流跟踪、订单状态查询、退换货引导、退差价/改地址、延期检测</div>
+          </div>
+          <div class="owner"><span class="na">未分配</span></div>
+          <div class="files"><span class="none">暂无原型</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+        <li class="grp">
+          <span class="dot dot-skip"></span>
+          <div>
+            <div class="grp-name"><span class="code">—</span>工单系统</div>
+            <div class="grp-desc">排期表标记「OMS 已有工单系统，先不做」</div>
+          </div>
+          <div class="owner"><span class="na">跳过</span></div>
+          <div class="files"><span class="none" style="color:var(--cs-text-placeholder);">➖ 不做</span></div>
+          <div class="cnt">—</div>
+        </li>
+
+      </ul>
+    </section>
+
+    <footer class="foot">
+      覆盖统计：1 期 12 组全部有原型（含 2 支撑页共 20 页）· 2 期 10 组仅 dashboard 有原型 · 3 期 9 组仅机器人配置/报表/质检 3 页部分覆盖<br>
+      技术栈：Go / React (Umi) / Taro · 负责人 A / B 为双人泳道分工
+    </footer>
+
+  </div>
+</body>
+</html>

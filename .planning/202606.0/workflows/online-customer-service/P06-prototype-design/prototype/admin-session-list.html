@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>历史会话 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-session-list.html 专属样式 ===== */
+
+    /* 顶部筛选区 */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .filter-bar .field {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-bar .field-label {
+      font-size: 13px;
+      color: #595959;
+      white-space: nowrap;
+    }
+    /* 伪输入框 / 下拉框（纯原型展示） */
+    .ipt,
+    .select {
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 11px;
+      font-size: 13px;
+      background: #fff;
+      color: #1f1f1f;
+      display: inline-flex;
+      align-items: center;
+      min-width: 120px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .ipt:hover,
+    .select:hover { border-color: #1677ff; }
+    .ipt.input-search {
+      min-width: 220px;
+      cursor: text;
+    }
+    .select::after {
+      content: "▾";
+      margin-left: 6px;
+      color: #bfbfbf;
+      font-size: 10px;
+    }
+
+    /* 状态 Tab 切换 */
+    .status-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .status-tab {
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #595959;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+      top: 1px;
+    }
+    .status-tab:hover { color: #1677ff; }
+    .status-tab.active {
+      color: #1677ff;
+      border-bottom-color: #1677ff;
+      font-weight: 500;
+    }
+    .status-tab .tab-count {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 0 7px;
+      min-width: 22px;
+      height: 18px;
+      line-height: 18px;
+      text-align: center;
+      background: #f0f0f0;
+      color: #8c8c8c;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .status-tab.active .tab-count {
+      background: #e6f4ff;
+      color: #1677ff;
+    }
+
+    /* ---------- 数据表格 ---------- */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      color: #595959;
+      font-weight: 500;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #1f1f1f;
+      vertical-align: middle;
+    }
+    .data-table tbody tr { transition: background 0.15s; }
+    .data-table tbody tr:hover { background: #fafafa; }
+    .data-table .col-id { font-family: "SFMono-Regular", Consolas, monospace; color: #595959; font-size: 12px; }
+    .data-table .col-user { display: flex; align-items: center; gap: 8px; }
+    .data-table .mini-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .data-table .mini-avatar.orange { background: #fa8c16; }
+    .data-table .mini-avatar.purple { background: #722ed1; }
+    .data-table .mini-avatar.green  { background: #52c41a; }
+    .data-table .duration { color: #595959; }
+
+    /* 状态标签（行内） */
+    .s-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .s-tag::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .s-tag.ongoing { background: #e6f4ff; color: #1677ff; }
+    .s-tag.ongoing::before { background: #1677ff; }
+    .s-tag.closed  { background: #f5f5f5; color: #8c8c8c; }
+    .s-tag.closed::before  { background: #bfbfbf; }
+    .s-tag.transferred { background: #f9f0ff; color: #722ed1; }
+    .s-tag.transferred::before { background: #722ed1; }
+    .s-tag.cancelled { background: #fff1f0; color: #f5222d; }
+    .s-tag.cancelled::before { background: #f5222d; }
+
+    /* 评分星标 */
+    .stars { color: #faad14; letter-spacing: 1px; font-size: 13px; }
+    .stars .empty { color: #e8e8e8; }
+    .no-rate { color: #c0c0c0; font-size: 12px; }
+
+    /* 操作列 */
+    .row-actions { display: flex; gap: 8px; }
+    .row-actions a {
+      font-size: 13px;
+      color: #1677ff;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .row-actions a:hover { color: #4096ff; }
+    .row-actions .divider { color: #d9d9d9; }
+
+    /* ---------- 分页 ---------- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 20px;
+    }
+    .pagination .pg-info { font-size: 13px; color: #8c8c8c; margin-right: 12px; }
+    .pagination .pg-btn,
+    .pagination .pg-num {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      color: #1f1f1f;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pagination .pg-btn:hover,
+    .pagination .pg-num:hover { border-color: #1677ff; color: #1677ff; }
+    .pagination .pg-num.active {
+      background: #1677ff;
+      border-color: #1677ff;
+      color: #fff;
+    }
+    .pagination .pg-btn.disabled {
+      color: #d9d9d9;
+      cursor: not-allowed;
+      background: #fafafa;
+    }
+    .pagination .pg-jump {
+      font-size: 13px;
+      color: #8c8c8c;
+      margin-left: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pagination .pg-jump input {
+      width: 48px;
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 13px;
+      outline: none;
+    }
+
+    /* 统计摘要条 */
+    .stat-summary {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #595959;
+    }
+    .stat-summary .stat-item .num {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-right: 4px;
+    }
+    .stat-summary .stat-item.accent .num { color: #1677ff; }
+
+    .sidebar-menu-group-title {
+      padding: 8px 24px 4px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 客服管理后台</div>
+    <div class="sidebar-menu-group-title">工作台</div>
+    <div class="menu-item">📊 数据仪表盘</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">📋 待办事项</div>
+    <div class="sidebar-menu-group-title">服务管理</div>
+    <div class="menu-item active">📁 历史会话</div>
+    <div class="menu-item">🔄 会话转接</div>
+    <div class="menu-item">⭐ 评价管理</div>
+    <div class="menu-item">📝 留言管理</div>
+    <div class="sidebar-menu-group-title">配置</div>
+    <div class="menu-item">📚 知识库</div>
+    <div class="menu-item">💬 话术库</div>
+    <div class="menu-item">🤖 自动回复</div>
+    <div class="menu-item">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">服务管理 / 历史会话</div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:13px;color:#595959;">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <h2 style="font-size:20px; font-weight:600; margin-bottom:4px;">历史会话</h2>
+          <p style="font-size:13px; color:#8c8c8c;">查看所有历史服务记录，支持多维度筛选与详情回溯（对应功能 F-EX-03 / F-EX-04）</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-default">导出记录</button>
+          <button class="btn-primary">刷新数据</button>
+        </div>
+      </div>
+
+      <!-- 原型交互说明 -->
+      <div class="prototype-note">本页演示已有能力 <strong>F-EX-03 历史服务记录</strong> 与 <strong>F-EX-04 历史会话</strong>：通过状态 Tab、日期范围、客服、关键词组合筛选历史会话，并支持查看会话详情、评分与转接记录。</div>
+
+      <!-- 统计摘要 -->
+      <div class="stat-summary">
+        <div class="stat-item accent"><span class="num">1,284</span>总会话</div>
+        <div class="stat-item"><span class="num">47</span>进行中</div>
+        <div class="stat-item"><span class="num">1,128</span>已关闭</div>
+        <div class="stat-item"><span class="num">109</span>已转接</div>
+        <div class="stat-item" style="margin-left:auto;"><span class="num" style="color:#faad14;">4.6</span>平均评分</div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="card" style="padding:16px;">
+        <div class="filter-bar">
+          <div class="field">
+            <span class="field-label">日期范围</span>
+            <span class="ipt">2026-06-01</span>
+            <span style="color:#bfbfbf;">~</span>
+            <span class="ipt">2026-06-11</span>
+          </div>
+          <div class="field">
+            <span class="field-label">客服</span>
+            <span class="select">全部客服</span>
+          </div>
+          <div class="field">
+            <span class="field-label">关键词</span>
+            <span class="ipt input-search">🔍 搜索用户昵称 / 会话ID / 手机号</span>
+          </div>
+          <div style="margin-left:auto;" class="flex gap-8">
+            <button class="btn-default">重置</button>
+            <button class="btn-primary">查询</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表卡片 -->
+      <div class="card mt-16" style="padding:0;">
+
+        <!-- 状态 Tab -->
+        <div class="status-tabs" style="padding: 0 16px;">
+          <div class="status-tab active">全部 <span class="tab-count">1284</span></div>
+          <div class="status-tab">进行中 <span class="tab-count">47</span></div>
+          <div class="status-tab">已关闭 <span class="tab-count">1128</span></div>
+          <div class="status-tab">已转接 <span class="tab-count">109</span></div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>会话ID</th>
+                <th>用户</th>
+                <th>客服</th>
+                <th>开始时间</th>
+                <th>时长</th>
+                <th>状态</th>
+                <th>评分</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-id">#CS20260611001</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">李</div>
+                    <div>
+                      <div>李小红</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP3 · 138****2891</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明</td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:24:11</span></td>
+                <td class="duration">12分38秒</td>
+                <td><span class="s-tag ongoing">进行中</span></td>
+                <td><span class="no-rate">未评价</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>转接记录</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260611002</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">王</div>
+                    <div>
+                      <div>王志强</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 159****6601</div>
+                    </div>
+                  </div>
+                </td>
+                <td>李静</td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:52:03</span></td>
+                <td class="duration">06分12秒</td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看评价</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260611003</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar purple">陈</div>
+                    <div>
+                      <div>陈思雨</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP2 · 186****0452</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明 → 李静</td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:18:45</span></td>
+                <td class="duration">23分04秒</td>
+                <td><span class="s-tag transferred">已转接</span></td>
+                <td><span class="stars">★★★★★</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>转接记录</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260610024</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar green">刘</div>
+                    <div>
+                      <div>刘大伟</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 137****8839</div>
+                    </div>
+                  </div>
+                </td>
+                <td>王磊</td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">18:36:22</span></td>
+                <td class="duration">04分51秒</td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看评价</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260610019</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">赵</div>
+                    <div>
+                      <div>赵丽丽</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP4 · 133****1278</div>
+                    </div>
+                  </div>
+                </td>
+                <td>李静</td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">15:09:17</span></td>
+                <td class="duration">31分27秒</td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td><span class="stars">★★★★★</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看评价</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260610015</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">孙</div>
+                    <div>
+                      <div>孙建国</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 188****6612</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明</td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:42:08</span></td>
+                <td class="duration">02分19秒</td>
+                <td><span class="s-tag cancelled">已取消</span></td>
+                <td><span class="no-rate">未评价</span></td>
+                <td class="row-actions">
+                  <a>详情</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260609088</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar purple">周</div>
+                    <div>
+                      <div>周晓彤</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP1 · 150****3344</div>
+                    </div>
+                  </div>
+                </td>
+                <td>王磊 → 张小明</td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">19:55:31</span></td>
+                <td class="duration">18分42秒</td>
+                <td><span class="s-tag transferred">已转接</span></td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>转接记录</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260609076</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar green">吴</div>
+                    <div>
+                      <div>吴婷婷</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP3 · 199****0098</div>
+                    </div>
+                  </div>
+                </td>
+                <td>李静</td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">14:21:55</span></td>
+                <td class="duration">09分07秒</td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td><span class="stars">★★★★★</span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>查看评价</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260609061</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar">郑</div>
+                    <div>
+                      <div>郑国华</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 131****5577</div>
+                    </div>
+                  </div>
+                </td>
+                <td>张小明</td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">10:08:42</span></td>
+                <td class="duration">15分33秒</td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+                <td class="row-actions">
+                  <a>详情</a><span class="divider">|</span>
+                  <a>差评追踪</a>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="col-id">#CS20260608052</td>
+                <td>
+                  <div class="col-user">
+                    <div class="mini-avatar orange">马</div>
+                    <div>
+                      <div>马晓军</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP2 · 176****2299</div>
+                    </div>
+                  </div>
+                </td>
+                <td>王磊</td>
+                <td>2026-06-08<br/><span style="font-size:12px;color:#8c8c8c;">16:47:13</span></td>
+                <td class="duration">07分28秒</td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td><span class="no-rate">未评价</span></td>
+                <td class="row-actions">
+                  <a>详情</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" style="padding: 16px;">
+          <span class="pg-info">共 1,284 条</span>
+          <span class="pg-btn disabled">‹</span>
+          <span class="pg-num active">1</span>
+          <span class="pg-num">2</span>
+          <span class="pg-num">3</span>
+          <span class="pg-num">4</span>
+          <span class="pg-num">5</span>
+          <span style="color:#bfbfbf;">...</span>
+          <span class="pg-num">129</span>
+          <span class="pg-btn">›</span>
+          <span class="pg-jump">跳至<input value="1" />页</span>
+        </div>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:16px; font-size:12px; color:#bfbfbf;">
+        数据来源：customer_chat_sessions 表 · 状态流转：wait → accept → close / cancel · 转接记录见 customer_chat_transfers
+      </p>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

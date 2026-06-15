@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>话术库 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== admin-scripts.html 专属样式 ===== */
+    body { background: #f0f2f5; }
+
+    /* ---------- 顶部统计条 ---------- */
+    .script-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: box-shadow 0.2s;
+    }
+    .stat-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .stat-card .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .stat-card .stat-num { font-size: 26px; font-weight: 700; line-height: 1.1; }
+    .stat-card .stat-name { font-size: 13px; color: #8c8c8c; margin-top: 2px; }
+    .icon-total   { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .icon-scene   { background: linear-gradient(135deg, #722ed1, #9254de); }
+    .icon-usage   { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .icon-hot     { background: linear-gradient(135deg, #f5222d, #ff7875); }
+
+    /* ---------- 场景标签筛选 ---------- */
+    .filter-bar {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-bar .filter-label {
+      font-size: 13px;
+      color: #595959;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .scene-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f5f5f5;
+      color: #595959;
+      border: 1px solid #f0f0f0;
+      user-select: none;
+    }
+    .scene-tag:hover { border-color: #1677ff; color: #1677ff; }
+    .scene-tag.active {
+      background: #e6f4ff;
+      color: #1677ff;
+      border-color: #1677ff;
+      font-weight: 600;
+    }
+    .scene-tag .tag-count {
+      background: rgba(0,0,0,0.06);
+      border-radius: 10px;
+      padding: 0 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .scene-tag.active .tag-count { background: rgba(22,119,255,0.15); }
+
+    /* 场景颜色映射（用于列表中标签） */
+    .scene-enter    { background: #e6f4ff; color: #1677ff; border: 1px solid #91caff; }
+    .scene-offline  { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+    .scene-keyword  { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+    .scene-transfer { background: #fff1f0; color: #f5222d; border: 1px solid #ffccc7; }
+    .scene-general  { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+
+    .filter-search {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .filter-search input {
+      flex: 1;
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .filter-search input:focus { border-color: #1677ff; }
+
+    /* ---------- 主体两列布局 ---------- */
+    .scripts-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) {
+      .scripts-layout { grid-template-columns: 1fr; }
+      .script-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ---------- 话术列表 ---------- */
+    .scripts-list-card { padding: 0; overflow: hidden; }
+    .scripts-list-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafafa;
+    }
+    .scripts-list-head .title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 600;
+    }
+    .scripts-list-head .count-pill {
+      background: #f0f2f5;
+      color: #595959;
+      border-radius: 10px;
+      padding: 1px 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .scripts-list-body { max-height: 720px; overflow-y: auto; padding: 4px 0; }
+
+    /* 话术条目 */
+    .script-item {
+      padding: 14px 18px;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .script-item:hover { background: #fafbfc; }
+    .script-item:last-child { border-bottom: none; }
+    .script-item.expanded { background: #fafcff; border-left: 3px solid #1677ff; padding-left: 15px; }
+
+    .script-item-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .script-index {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: #f0f2f5;
+      color: #8c8c8c;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .script-index.hot { background: #fff1f0; color: #f5222d; }
+
+    .script-body { flex: 1; min-width: 0; }
+    .script-content {
+      font-size: 14px;
+      color: #1f1f1f;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .script-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .scene-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .usage-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 12px;
+      color: #8c8c8c;
+    }
+    .usage-count::before { content: '🔄'; font-size: 11px; }
+    .usage-count.hot { color: #f5222d; font-weight: 600; }
+
+    .script-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+      align-items: flex-end;
+    }
+
+    .script-extra {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #f0f0f0;
+      display: none;
+    }
+    .script-item.expanded .script-extra { display: block; }
+
+    /* 小号按钮 */
+    .btn-sm {
+      padding: 4px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: #1f1f1f;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover { border-color: #1677ff; color: #1677ff; }
+    .btn-sm.primary { background: #1677ff; color: #fff; border-color: #1677ff; }
+    .btn-sm.primary:hover { background: #4096ff; }
+    .btn-sm.danger { color: #f5222d; border-color: #ffccc7; }
+    .btn-sm.danger:hover { background: #fff1f0; border-color: #f5222d; }
+
+    /* ---------- 新建话术表单 ---------- */
+    .new-script-card { position: sticky; top: 80px; }
+    .new-script-card .card-title { margin-bottom: 18px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin-bottom: 6px;
+    }
+    .form-label .required { color: #f5222d; margin-left: 2px; }
+    .form-input, .form-textarea {
+      width: 100%;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .form-hint { font-size: 12px; color: #8c8c8c; margin-top: 4px; }
+
+    /* 场景选择器 */
+    .scene-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .scene-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      color: #595959;
+      user-select: none;
+    }
+    .scene-option:hover { border-color: #1677ff; color: #1677ff; }
+    .scene-option.selected {
+      background: #e6f4ff;
+      border-color: #1677ff;
+      color: #1677ff;
+      font-weight: 600;
+    }
+    .scene-option .scene-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-enter    { background: #1677ff; }
+    .dot-offline  { background: #fa8c16; }
+    .dot-keyword  { background: #722ed1; }
+    .dot-transfer { background: #f5222d; }
+    .dot-general  { background: #52c41a; }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    /* 场景说明面板 */
+    .scene-info {
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #595959;
+      line-height: 1.8;
+      display: none;
+    }
+    .scene-info.show { display: block; }
+    .scene-info-row { display: flex; align-items: center; gap: 6px; }
+    .scene-info-row strong { color: #1f1f1f; }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="admin-sidebar">
+    <div class="logo">CS 商城客服</div>
+    <div class="menu-item">📊 数据看板</div>
+    <div class="menu-item">✅ 待办事项</div>
+    <div class="menu-item">💬 客服工作台</div>
+    <div class="menu-item">📋 会话列表</div>
+    <div class="menu-item">👤 客户信息</div>
+    <div class="menu-item">📚 知识库</div>
+    <div class="menu-item active">📝 话术库</div>
+    <div class="menu-item">⭐ 评价管理</div>
+    <div class="menu-item">📨 留言管理</div>
+    <div class="menu-item">🔀 会话转接</div>
+    <div class="menu-item">⚙️ 系统设置</div>
+  </aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+
+    <!-- 顶部 Header -->
+    <header class="admin-header">
+      <div class="breadcrumb">首页 / 内容管理 / <span style="color:#1f1f1f;">话术库</span></div>
+      <div class="user-info">
+        <span class="status-badge online">在线</span>
+        <span>客服A · 王小明</span>
+        <span style="font-size:18px;">👤</span>
+      </div>
+    </header>
+
+    <!-- 内容区 -->
+    <main class="admin-content">
+
+      <!-- 交互说明 -->
+      <div class="prototype-note">
+        本页面演示 <strong>US-MVP-12 话术库场景分类</strong>：话术按场景标签（进入会话 / 客服离线 / 关键词匹配 / 转人工）分类管理，
+        支持场景筛选、关键词搜索、使用次数统计与新建话术。话术可在工作台聊天框中按场景智能推荐，提升回复效率。
+      </div>
+
+      <!-- ===== 顶部统计条 ===== -->
+      <div class="script-stats">
+        <div class="stat-card">
+          <div class="stat-icon icon-total">📝</div>
+          <div>
+            <div class="stat-num">48</div>
+            <div class="stat-name">话术总数</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-scene">🏷️</div>
+          <div>
+            <div class="stat-num">4</div>
+            <div class="stat-name">场景分类</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-usage">🔄</div>
+          <div>
+            <div class="stat-num">2,136</div>
+            <div class="stat-name">累计使用次数</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-hot">🔥</div>
+          <div>
+            <div class="stat-num">186</div>
+            <div class="stat-name">高频话术使用</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 场景标签筛选栏 ===== -->
+      <div class="filter-bar">
+        <span class="filter-label">场景筛选：</span>
+        <span class="scene-tag active" onclick="filterScene(this, 'all')">全部 <span class="tag-count">48</span></span>
+        <span class="scene-tag" onclick="filterScene(this, 'enter')">🚪 进入会话 <span class="tag-count">15</span></span>
+        <span class="scene-tag" onclick="filterScene(this, 'offline')">💤 客服离线 <span class="tag-count">9</span></span>
+        <span class="scene-tag" onclick="filterScene(this, 'keyword')">🔑 关键词匹配 <span class="tag-count">16</span></span>
+        <span class="scene-tag" onclick="filterScene(this, 'transfer')">🔀 转人工 <span class="tag-count">8</span></span>
+        <div class="filter-search">
+          <input type="text" placeholder="搜索话术内容或关键词..." />
+        </div>
+      </div>
+
+      <!-- ===== 主体两列 ===== -->
+      <div class="scripts-layout">
+
+        <!-- ===== 左侧：话术列表 ===== -->
+        <section class="card scripts-list-card">
+          <div class="scripts-list-head">
+            <div class="title">📝 话术列表 <span class="count-pill" id="list-count">48 条</span></div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <select style="height:30px; border:1px solid #d9d9d9; border-radius:5px; padding:0 8px; font-size:12px; outline:none;">
+                <option>按使用次数排序</option>
+                <option>按创建时间排序</option>
+                <option>按场景排序</option>
+              </select>
+              <button class="btn-sm primary">批量导入</button>
+            </div>
+          </div>
+
+          <div class="scripts-list-body">
+
+            <!-- 话术 1（高频·进入会话） -->
+            <div class="script-item expanded" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index hot">🔥</div>
+                <div class="script-body">
+                  <div class="script-content">您好，欢迎来到 CS 商城！我是您的专属客服，很高兴为您服务 🌟 请问有什么可以帮您的吗？</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-enter">🚪 进入会话</span>
+                    <span class="usage-count hot">使用 186 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：刚刚</span>
+                  </div>
+                  <div class="script-extra">
+                    <div style="font-size:12px; color:#8c8c8c; line-height:1.8;">
+                      <strong style="color:#1f1f1f;">触发场景：</strong>用户进入会话时自动发送（欢迎语）<br/>
+                      <strong style="color:#1f1f1f;">关联关键词：</strong>你好、在吗、客服<br/>
+                      <strong style="color:#1f1f1f;">使用效果：</strong>平均响应时长缩短 <span style="color:#52c41a; font-weight:600;">3.2 秒</span>，满意度 <span style="color:#52c41a; font-weight:600;">96%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 2（高频·关键词匹配） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index hot">🔥</div>
+                <div class="script-body">
+                  <div class="script-content">关于您的退款申请，一般会在 1-3 个工作日内审核完成，审核通过后退款将原路返回至您的支付账户，请耐心等待。查询退款进度可点击「我的订单 → 退款详情」。</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-keyword">🔑 关键词匹配</span>
+                    <span class="usage-count hot">使用 142 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：5 分钟前</span>
+                  </div>
+                  <div class="script-extra">
+                    <div style="font-size:12px; color:#8c8c8c; line-height:1.8;">
+                      <strong style="color:#1f1f1f;">触发关键词：</strong>退款、退钱、退货退款、申请退款<br/>
+                      <strong style="color:#1f1f1f;">匹配方式：</strong>部分匹配（用户消息包含任一关键词即推荐）
+                    </div>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 3（转人工） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">3</div>
+                <div class="script-body">
+                  <div class="script-content">您好，您的问题需要更专业的同事为您处理，正在为您转接至【售后专员】，请稍候，预计等待 30 秒。转接后您无需重复问题，我会同步历史记录。</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-transfer">🔀 转人工</span>
+                    <span class="usage-count">使用 98 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：12 分钟前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 4（客服离线） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">4</div>
+                <div class="script-body">
+                  <div class="script-content">亲爱的用户，当前客服不在线（工作时间：9:00-22:00）。您可以先留言描述您的问题，我们会在次日 9:00 优先为您处理。紧急问题请拨打客服热线：400-888-XXXX 📞</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-offline">💤 客服离线</span>
+                    <span class="usage-count">使用 76 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：1 小时前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 5（关键词匹配·物流） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">5</div>
+                <div class="script-body">
+                  <div class="script-content">您的订单已发货，物流单号 SF1234567890（顺丰速运）。正常情况下 2-3 天送达，您可点击「我的订单 → 查看物流」实时追踪。如超时未送达请联系我处理。</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-keyword">🔑 关键词匹配</span>
+                    <span class="usage-count">使用 64 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：2 小时前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 6（进入会话·促销） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">6</div>
+                <div class="script-body">
+                  <div class="script-content">您好！CS 商城 618 大促火热进行中 🔥 满 300 减 50、满 500 减 100，更有会员专属优惠券可领！需要我帮您查询活动详情或领取优惠券吗？</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-enter">🚪 进入会话</span>
+                    <span class="usage-count">使用 52 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：3 小时前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 7（转人工·投诉） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">7</div>
+                <div class="script-body">
+                  <div class="script-content">非常抱歉给您带来不愉快的体验 😔 您的反馈我已经记录，现在为您转接至【投诉处理主管】跟进，一定会给您满意的答复，请稍等。</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-transfer">🔀 转人工</span>
+                    <span class="usage-count">使用 43 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：昨天</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 8（客服离线·留言） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">8</div>
+                <div class="script-body">
+                  <div class="script-content">客服小伙伴已下线休息啦~ 您的问题对我们很重要，欢迎留言 ✍️ 留下订单号和问题描述，上线后我们会第一时间回复您（承诺 4 小时内响应）。</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-offline">💤 客服离线</span>
+                    <span class="usage-count">使用 38 次</span>
+                    <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：昨天</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 9（关键词匹配·优惠券） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">9</div>
+                <div class="script-body">
+                  <div class="script-content">优惠券使用规则：满减券需满足对应金额门槛方可使用，每笔订单仅可使用一张优惠券，不可与秒杀商品叠加。优惠券有效期为发放后 7 天内，请尽快使用哦~</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-keyword">🔑 关键词匹配</span>
+                    <span class="usage-count">使用 31 次</span>
+                        <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：2 天前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 10（进入会话·会员） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">10</div>
+                <div class="script-body">
+                  <div class="script-content">您好！检测到您是我们的银卡会员，当前可享受会员专属 9.5 折优惠。升级金卡会员还可享包邮、生日礼遇等权益，需要了解详情吗？</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-enter">🚪 进入会话</span>
+                    <span class="usage-count">使用 24 次</span>
+                        <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：3 天前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 11（关键词匹配·发票） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">11</div>
+                <div class="script-body">
+                  <div class="script-content">电子发票将在订单完成后 24 小时内自动开具，您可在「我的订单 → 发票管理」中查看和下载。如需修改发票抬头，请在订单确认页提前设置。</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-keyword">🔑 关键词匹配</span>
+                    <span class="usage-count">使用 19 次</span>
+                        <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：4 天前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术 12（转人工·技术） -->
+            <div class="script-item" onclick="toggleExpand(this)">
+              <div class="script-item-head">
+                <div class="script-index">12</div>
+                <div class="script-body">
+                  <div class="script-content">您咨询的商品技术参数问题较为专业，正在为您转接至【产品专家】。转接期间请勿关闭窗口，预计 1 分钟内接通。</div>
+                  <div class="script-meta">
+                    <span class="scene-badge scene-transfer">🔀 转人工</span>
+                    <span class="usage-count">使用 15 次</span>
+                        <span style="font-size:12px; color:#bfbfbf;">·</span>
+                    <span style="font-size:12px; color:#8c8c8c;">最后使用：5 天前</span>
+                  </div>
+                </div>
+                <div class="script-actions">
+                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
+                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 列表底部 -->
+          <div style="padding:12px 18px; background:#fafafa; border-top:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; color:#8c8c8c;">共 <strong>48</strong> 条话术 · 当前展示 12 条</span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-sm">上一页</button>
+              <button class="btn-sm primary">1</button>
+              <button class="btn-sm">2</button>
+              <button class="btn-sm">3</button>
+              <button class="btn-sm">4</button>
+              <button class="btn-sm">下一页</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== 右侧：新建话术 ===== -->
+        <section class="card new-script-card">
+          <div class="card-title">
+            <span>✏️ 新建话术</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">话术内容 <span class="required">*</span></label>
+            <textarea class="form-textarea" placeholder="请输入话术内容，支持 emoji 和变量（如 {用户昵称}、{订单号}）...">您好，欢迎来到 CS 商城！我是您的专属客服，很高兴为您服务 🌟 请问有什么可以帮您的吗？</textarea>
+            <div class="form-hint">支持插入变量：{用户昵称} {订单号} {客服昵称}，发送时自动替换</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">场景标签 <span class="required">*</span></label>
+            <div class="scene-selector">
+              <span class="scene-option selected" onclick="selectScene(this)">
+                <span class="scene-dot dot-enter"></span>进入会话
+              </span>
+              <span class="scene-option" onclick="selectScene(this)">
+                <span class="scene-dot dot-offline"></span>客服离线
+              </span>
+              <span class="scene-option" onclick="selectScene(this)">
+                <span class="scene-dot dot-keyword"></span>关键词匹配
+              </span>
+              <span class="scene-option" onclick="selectScene(this)">
+                <span class="scene-dot dot-transfer"></span>转人工
+              </span>
+              <span class="scene-option" onclick="selectScene(this)">
+                <span class="scene-dot dot-general"></span>通用
+              </span>
+            </div>
+
+            <!-- 场景说明 -->
+            <div class="scene-info show" id="scene-info">
+              <div class="scene-info-row">
+                <strong>🚪 进入会话：</strong>用户发起会话时自动发送或首次推荐
+              </div>
+              <div class="scene-info-row" style="margin-top:4px;">
+                适用：欢迎语、活动引导、会员权益提醒
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" id="keyword-group" style="display:none;">
+            <label class="form-label">触发关键词</label>
+            <input type="text" class="form-input" placeholder="多个关键词用逗号分隔，如：退款,退货,退钱" />
+            <div class="form-hint">用户消息包含任一关键词时，系统自动推荐此话术</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">分类备注</label>
+            <input type="text" class="form-input" placeholder="如：欢迎语 / 退款咨询 / 物流查询" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">启用状态</label>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                <input type="radio" name="status" checked /> 启用
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                <input type="radio" name="status" /> 停用
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" style="flex:1;">💾 保存话术</button>
+            <button class="btn-default">清空</button>
+          </div>
+
+          <!-- 场景统计小贴士 -->
+          <div style="margin-top:20px; padding:12px; background:#e6f4ff; border-radius:6px; border:1px solid #bae0ff;">
+            <div style="font-size:12px; color:#0958d9; font-weight:600; margin-bottom:6px;">💡 场景标签说明</div>
+            <div style="font-size:12px; color:#595959; line-height:1.9;">
+              <span style="color:#1677ff;">●</span> <strong>进入会话</strong>：用户进入会话自动触发<br/>
+              <span style="color:#fa8c16;">●</span> <strong>客服离线</strong>：非工作时间自动回复<br/>
+              <span style="color:#722ed1;">●</span> <strong>关键词匹配</strong>：消息命中关键词推荐<br/>
+              <span style="color:#f5222d;">●</span> <strong>转人工</strong>：转接时提示用户
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <div style="margin-top:24px; padding:16px 20px; background:#fff; border-radius:8px; border:1px solid #f0f0f0;">
+        <div style="font-size:13px; font-weight:600; color:#1f1f1f; margin-bottom:8px;">📋 话术库使用说明</div>
+        <div style="font-size:12px; color:#8c8c8c; line-height:1.9;">
+          ① 话术按 <strong>场景标签</strong> 分类管理，客服在 <a href="admin-workbench.html">工作台</a> 聊天框输入时，系统根据当前场景智能推荐话术；<br/>
+          ② 「关键词匹配」场景需配置触发关键词，支持部分匹配；命中后话术将出现在快捷回复列表顶部；<br/>
+          ③ 「进入会话」「客服离线」场景由系统自动触发，无需客服手动操作；<br/>
+          ④ 使用次数统计帮助识别高频话术，持续优化话术质量；低频话术可定期清理。<br/>
+          ⑤ 关联 <a href="#">自动回复规则</a>：话术可作为规则的回复内容，实现场景化自动应答。
+        </div>
+      </div>
+
+      <!-- 返回导航 -->
+      <div style="text-align:center; margin-top:24px;">
+        <a href="index.html" style="font-size:13px;">← 返回原型导航首页</a>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<script>
+  // 场景标签筛选
+  function filterScene(el, scene) {
+    document.querySelectorAll('.filter-bar .scene-tag').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    // 原型仅做交互演示，实际筛选逻辑在后端实现
+    var labels = {
+      all: '48 条', enter: '15 条', offline: '9 条', keyword: '16 条', transfer: '8 条'
+    };
+    document.getElementById('list-count').textContent = labels[scene] || '48 条';
+  }
+
+  // 话术条目展开/收起
+  function toggleExpand(el) {
+    el.classList.toggle('expanded');
+  }
+
+  // 场景选择器
+  var sceneInfoMap = {
+    '进入会话': { icon: '🚪', color: '#1677ff', bg: '#e6f4ff', border: '#bae0ff', desc: '用户发起会话时自动发送或首次推荐', detail: '适用：欢迎语、活动引导、会员权益提醒' },
+    '客服离线': { icon: '💤', color: '#fa8c16', bg: '#fff7e6', border: '#ffd591', desc: '客服不在线时自动回复用户', detail: '适用：离线提示、留言引导、客服热线' },
+    '关键词匹配': { icon: '🔑', color: '#722ed1', bg: '#f9f0ff', border: '#d3adf7', desc: '用户消息命中关键词时推荐此话术', detail: '需配置触发关键词，支持部分匹配' },
+    '转人工': { icon: '🔀', color: '#f5222d', bg: '#fff1f0', border: '#ffccc7', desc: '会话转接时发送给用户的提示', detail: '适用：转专员、转主管、转技术支持' },
+    '通用': { icon: '📋', color: '#389e0d', bg: '#f6ffed', border: '#b7eb8f', desc: '无特定场景，客服手动选择使用', detail: '适用：常规问候、结束语、通用答疑' }
+  };
+
+  function selectScene(el) {
+    document.querySelectorAll('.scene-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    var text = el.textContent.trim();
+    var info = sceneInfoMap[text];
+    var infoBox = document.getElementById('scene-info');
+    var keywordGroup = document.getElementById('keyword-group');
+
+    if (info) {
+      infoBox.style.background = info.bg;
+      infoBox.style.borderColor = info.border;
+      infoBox.innerHTML =
+        '<div class="scene-info-row"><strong>' + info.icon + ' ' + text + '：</strong>' + info.desc + '</div>' +
+        '<div class="scene-info-row" style="margin-top:4px;">' + info.detail + '</div>';
+      infoBox.classList.add('show');
+      // 关键词匹配场景显示关键词输入框
+      keywordGroup.style.display = (text === '关键词匹配') ? 'block' : 'none';
+    }
+  }
+</script>
+
+</body>
+</html>
