@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能场景 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--cs-bg-page); padding: 24px; }
+    .placeholder-card { width: 520px; background: var(--cs-bg-card); border: 1px solid var(--cs-border-light); border-radius: 10px; padding: 40px 36px; text-align: center; }
+    .status-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--cs-text-placeholder); margin: 0 auto 20px; display: block; }
+    .ph-title { font-size: 17px; font-weight: 600; color: var(--cs-text); margin: 0 0 6px; }
+    .ph-phase { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: var(--cs-purple-bg); color: var(--cs-purple); margin-bottom: 16px; }
+    .ph-desc { font-size: 13px; color: var(--cs-text-tertiary); line-height: 1.7; margin: 0 0 20px; }
+    .ph-features { text-align: left; background: var(--cs-bg-page); border: 1px solid var(--cs-border-lighter); border-radius: 6px; padding: 14px 18px; margin: 0; }
+    .ph-features li { font-size: 12px; color: var(--cs-text-secondary); line-height: 2; list-style: none; }
+    .ph-features li::before { content: '○'; color: var(--cs-text-placeholder); margin-right: 8px; }
+    .ph-back { display: inline-block; margin-top: 24px; font-size: 12px; color: var(--cs-primary); text-decoration: none; }
+    .ph-back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="placeholder-card">
+    <span class="status-dot"></span>
+    <h1 class="ph-title">智能场景</h1>
+    <span class="ph-phase">3期 · 待开发</span>
+    <p class="ph-desc">
+      该页面为占位原型，尚未实现。<br>
+      电商业务技能包，按售前 / 售中售后 Tab 组织，每场景含开关/意图/知识库/业务接口配置。
+    </p>
+    <ul class="ph-features">
+      <li>售前场景：商品参数对比 / 促销解读 / 尺码推荐 / 个性化推荐 / 热点预测</li>
+      <li>售中售后场景：物流跟踪 / 订单状态查询 / 退换货引导 / 退差价改地址 / 延期检测</li>
+      <li>每个场景：开关 + 关联意图 + 关联知识库 + 业务接口（订单/物流/商品 API）+ 示例对话</li>
+    </ul>
+    <p style="font-size:11px;color:var(--cs-text-placeholder);margin-top:16px;">
+      注：核心能力（意图识别/知识图谱/NLP/上下文记忆）并入 ai-bot-config + admin-knowledge，不单独建页。
+    </p>
+    <a class="ph-back" href="../index.html">← 返回原型首页</a>
+  </div>
+</body>
+</html>
