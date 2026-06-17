@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>话术库 — 供应链平台</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
   <style>
     /* ===== admin-scripts.html 专属样式 ===== */
 
@@ -412,22 +413,22 @@
       <div class="filter-bar">
         <div class="filter-row">
           <span class="filter-label">场景筛选：</span>
-          <span class="scene-tag active" onclick="filterScene(this, 'all')">全部 <span class="tag-count">48</span></span>
-          <span class="scene-tag" onclick="filterScene(this, 'enter')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>进入会话 <span class="tag-count">15</span></span>
-          <span class="scene-tag" onclick="filterScene(this, 'offline')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>客服离线 <span class="tag-count">9</span></span>
-          <span class="scene-tag" onclick="filterScene(this, 'keyword')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配 <span class="tag-count">16</span></span>
-          <span class="scene-tag" onclick="filterScene(this, 'transfer')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转人工 <span class="tag-count">8</span></span>
+          <span class="scene-tag active">全部 <span class="tag-count">48</span></span>
+          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>进入会话 <span class="tag-count">15</span></span>
+          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>客服离线 <span class="tag-count">9</span></span>
+          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配 <span class="tag-count">16</span></span>
+          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转人工 <span class="tag-count">8</span></span>
           <div class="filter-search">
             <input type="text" placeholder="搜索话术内容或关键词..." />
           </div>
         </div>
         <div class="filter-row">
           <span class="filter-label">业务分类：</span>
-          <span class="biz-tag active" onclick="filterBiz(this, 'all')">全部 <span class="tag-count">48</span></span>
-          <span class="biz-tag" onclick="filterBiz(this, 'presale')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>售前 <span class="tag-count">12</span></span>
-          <span class="biz-tag" onclick="filterBiz(this, 'aftersale')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>售后 <span class="tag-count">18</span></span>
-          <span class="biz-tag" onclick="filterBiz(this, 'complaint')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>投诉 <span class="tag-count">8</span></span>
-          <span class="biz-tag" onclick="filterBiz(this, 'general')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>通用 <span class="tag-count">10</span></span>
+          <span class="biz-tag active">全部 <span class="tag-count">48</span></span>
+          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>售前 <span class="tag-count">12</span></span>
+          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>售后 <span class="tag-count">18</span></span>
+          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>投诉 <span class="tag-count">8</span></span>
+          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>通用 <span class="tag-count">10</span></span>
         </div>
       </div>
 
@@ -451,7 +452,7 @@
           <div class="scripts-list-body">
 
             <!-- 话术 1（高频·进入会话） -->
-            <div class="script-item expanded" data-biz="general" onclick="toggleExpand(this)">
+            <div class="script-item expanded" data-biz="general">
               <div class="script-item-head">
                 <div class="script-index hot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></div>
                 <div class="script-body">
@@ -479,7 +480,7 @@
             </div>
 
             <!-- 话术 2（高频·关键词匹配） -->
-            <div class="script-item" data-biz="aftersale" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="aftersale">
               <div class="script-item-head">
                 <div class="script-index hot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></div>
                 <div class="script-body">
@@ -506,7 +507,7 @@
             </div>
 
             <!-- 话术 3（转人工） -->
-            <div class="script-item" data-biz="general" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="general">
               <div class="script-item-head">
                 <div class="script-index">3</div>
                 <div class="script-body">
@@ -527,7 +528,7 @@
             </div>
 
             <!-- 话术 4（客服离线） -->
-            <div class="script-item" data-biz="general" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="general">
               <div class="script-item-head">
                 <div class="script-index">4</div>
                 <div class="script-body">
@@ -548,7 +549,7 @@
             </div>
 
             <!-- 话术 5（关键词匹配·物流） -->
-            <div class="script-item" data-biz="aftersale" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="aftersale">
               <div class="script-item-head">
                 <div class="script-index">5</div>
                 <div class="script-body">
@@ -569,7 +570,7 @@
             </div>
 
             <!-- 话术 6（进入会话·促销） -->
-            <div class="script-item" data-biz="presale" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="presale">
               <div class="script-item-head">
                 <div class="script-index">6</div>
                 <div class="script-body">
@@ -590,7 +591,7 @@
             </div>
 
             <!-- 话术 7（转人工·投诉） -->
-            <div class="script-item" data-biz="complaint" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="complaint">
               <div class="script-item-head">
                 <div class="script-index">7</div>
                 <div class="script-body">
@@ -611,7 +612,7 @@
             </div>
 
             <!-- 话术 8（客服离线·留言） -->
-            <div class="script-item" data-biz="general" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="general">
               <div class="script-item-head">
                 <div class="script-index">8</div>
                 <div class="script-body">
@@ -632,7 +633,7 @@
             </div>
 
             <!-- 话术 9（关键词匹配·优惠券） -->
-            <div class="script-item" data-biz="presale" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="presale">
               <div class="script-item-head">
                 <div class="script-index">9</div>
                 <div class="script-body">
@@ -653,7 +654,7 @@
             </div>
 
             <!-- 话术 10（进入会话·会员） -->
-            <div class="script-item" data-biz="presale" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="presale">
               <div class="script-item-head">
                 <div class="script-index">10</div>
                 <div class="script-body">
@@ -674,7 +675,7 @@
             </div>
 
             <!-- 话术 11（关键词匹配·发票） -->
-            <div class="script-item" data-biz="aftersale" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="aftersale">
               <div class="script-item-head">
                 <div class="script-index">11</div>
                 <div class="script-body">
@@ -695,7 +696,7 @@
             </div>
 
             <!-- 话术 12（转人工·技术） -->
-            <div class="script-item" data-biz="general" onclick="toggleExpand(this)">
+            <div class="script-item" data-biz="general">
               <div class="script-item-head">
                 <div class="script-index">12</div>
                 <div class="script-body">
@@ -746,19 +747,19 @@
           <div class="form-group">
             <label class="form-label">场景标签 <span class="required">*</span></label>
             <div class="scene-selector">
-              <span class="scene-option selected" onclick="selectScene(this)">
+              <span class="scene-option selected">
                 <span class="scene-dot dot-enter"></span>进入会话
               </span>
-              <span class="scene-option" onclick="selectScene(this)">
+              <span class="scene-option">
                 <span class="scene-dot dot-offline"></span>客服离线
               </span>
-              <span class="scene-option" onclick="selectScene(this)">
+              <span class="scene-option">
                 <span class="scene-dot dot-keyword"></span>关键词匹配
               </span>
-              <span class="scene-option" onclick="selectScene(this)">
+              <span class="scene-option">
                 <span class="scene-dot dot-transfer"></span>转人工
               </span>
-              <span class="scene-option" onclick="selectScene(this)">
+              <span class="scene-option">
                 <span class="scene-dot dot-general"></span>通用
               </span>
             </div>
@@ -783,16 +784,16 @@
           <div class="form-group">
             <label class="form-label">业务分类 <span class="required">*</span></label>
             <div class="scene-selector">
-              <span class="scene-option selected" onclick="selectBiz(this)" data-biz="general">
+              <span class="scene-option selected" data-biz="general">
                 <span class="scene-dot" style="background:#8c8c8c;"></span>通用
               </span>
-              <span class="scene-option" onclick="selectBiz(this)" data-biz="presale">
+              <span class="scene-option" data-biz="presale">
                 <span class="scene-dot" style="background:#1677ff;"></span>售前
               </span>
-              <span class="scene-option" onclick="selectBiz(this)" data-biz="aftersale">
+              <span class="scene-option" data-biz="aftersale">
                 <span class="scene-dot" style="background:#d48806;"></span>售后
               </span>
-              <span class="scene-option" onclick="selectBiz(this)" data-biz="complaint">
+              <span class="scene-option" data-biz="complaint">
                 <span class="scene-dot" style="background:#f5222d;"></span>投诉
               </span>
             </div>
@@ -870,104 +871,212 @@
 </div>
 
 <script>
-  // 当前筛选状态
-  var currentSceneFilter = 'all';
-  var currentBizFilter = 'all';
+/* ============================================================
+   admin-scripts.html 交互（话术库）
+   约定对齐兄弟页 admin-transfer.html：
+   - 工具 $/$$/toast 统一封装
+   - 行/卡状态从已渲染 DOM 推断 data-scene / data-biz
+   - 标签筛选、按钮点击全部走 document 委派
+   - csModal.toast 作为统一反馈
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
 
-  // 场景标签筛选
-  function filterScene(el, scene) {
-    document.querySelectorAll('.filter-bar .scene-tag').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    currentSceneFilter = scene;
-    applyFilters();
-  }
+  /* ---------- 0. 卡片 data-* 标记（从 scene-badge / biz-* class 推断） ---------- */
+  // 场景 class → scene key（与 scene-tag 的 onclick 入参一致）
+  var SCENE_BYClass = { 'scene-enter': 'enter', 'scene-offline': 'offline', 'scene-keyword': 'keyword', 'scene-transfer': 'transfer', 'scene-general': 'general' };
+  // 业务 class → biz key（与 biz-tag 的 onclick 入参一致）
+  var BIZ_BYClass = { 'biz-presale': 'presale', 'biz-aftersale': 'aftersale', 'biz-complaint': 'complaint', 'biz-general': 'general' };
 
-  // 业务分类筛选
-  function filterBiz(el, biz) {
-    document.querySelectorAll('.filter-bar .biz-tag').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    currentBizFilter = biz;
-    applyFilters();
-  }
+  var items = $$('.script-item');
+  items.forEach(function (it) {
+    // 第一个 scene-badge 是场景（scene-enter 等）；取其 scene-* class
+    var sBadge = $('.scene-badge', it);
+    if (sBadge && !it.getAttribute('data-scene')) {
+      for (var k in SCENE_BYClass) {
+        if (sBadge.classList.contains(k)) { it.setAttribute('data-scene', SCENE_BYClass[k]); break; }
+      }
+    }
+    // 第二个 scene-badge 是业务分类（biz-* class），覆盖 data-biz（保持与 class 同步）
+    var bBadges = $$('.scene-badge', it);
+    var bBadge = bBadges[1];
+    if (bBadge) {
+      for (var bk in BIZ_BYClass) {
+        if (bBadge.classList.contains(bk)) { it.setAttribute('data-biz', BIZ_BYClass[bk]); break; }
+      }
+    }
+    if (!it.getAttribute('data-biz')) it.setAttribute('data-biz', 'general');
+  });
 
-  // 组合筛选逻辑
+  /* ---------- 1. 场景标签 + 业务分类 筛选（叠加） ---------- */
+  var currentScene = 'all';
+  var currentBiz = 'all';
+  var sceneTags = $$('.filter-bar .scene-tag');
+  var bizTags = $$('.filter-bar .biz-tag');
+
   function applyFilters() {
-    var items = document.querySelectorAll('.script-item');
-    var visibleCount = 0;
-    items.forEach(function(item) {
-      var sceneMatch = (currentSceneFilter === 'all');
-      var bizMatch = (currentBizFilter === 'all');
-      var itemBiz = item.getAttribute('data-biz') || 'general';
-
-      // 场景匹配判断（基于场景badge内容）
-      if (!sceneMatch) {
-        var badge = item.querySelector('.scene-badge');
-        if (badge) {
-          var text = badge.textContent.trim();
-          var sceneMap = {
-            'enter': '进入会话',
-            'offline': '客服离线',
-            'keyword': '关键词匹配',
-            'transfer': '转人工'
-          };
-          sceneMatch = (text === sceneMap[currentSceneFilter]);
-        }
-      }
-
-      // 业务分类匹配判断
-      if (!bizMatch) {
-        bizMatch = (itemBiz === currentBizFilter);
-      }
-
-      if (sceneMatch && bizMatch) {
-        item.style.display = '';
-        visibleCount++;
-      } else {
-        item.style.display = 'none';
-      }
+    var visible = 0;
+    items.forEach(function (it) {
+      var sOk = (currentScene === 'all') || (it.getAttribute('data-scene') === currentScene);
+      var bOk = (currentBiz === 'all') || (it.getAttribute('data-biz') === currentBiz);
+      var ok = sOk && bOk;
+      it.style.display = ok ? '' : 'none';
+      if (ok) visible++;
     });
-    document.getElementById('list-count').textContent = visibleCount + ' 条';
+    var countEl = $('#list-count');
+    if (countEl) countEl.textContent = visible + ' 条';
   }
 
-  // 话术条目展开/收起
-  function toggleExpand(el) {
-    el.classList.toggle('expanded');
-  }
-
-  // 场景选择器
+  /* ---------- 2. 右侧编辑面板：场景选择 / 业务选择（保留原视觉） ---------- */
   var sceneInfoMap = {
-    '进入会话': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>', color: '#1677ff', bg: '#e6f4ff', border: '#bae0ff', desc: '用户发起会话时自动发送或首次推荐', detail: '适用：欢迎语、活动引导、会员权益提醒' },
-    '客服离线': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>', color: '#faad14', bg: '#fffbe6', border: '#ffe58f', desc: '客服不在线时自动回复用户', detail: '适用：离线提示、留言引导、客服热线' },
-    '关键词匹配': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>', color: '#1677ff', bg: '#e6f4ff', border: '#d3adf7', desc: '用户消息命中关键词时推荐此话术', detail: '需配置触发关键词，支持部分匹配' },
-    '转人工': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>', color: '#f5222d', bg: '#fff1f0', border: '#ffccc7', desc: '会话转接时发送给用户的提示', detail: '适用：转专员、转主管、转技术支持' },
-    '通用': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', color: '#389e0d', bg: '#f6ffed', border: '#b7eb8f', desc: '无特定场景，客服手动选择使用', detail: '适用：常规问候、结束语、通用答疑' }
+    '进入会话': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>', bg: '#e6f4ff', border: '#bae0ff', desc: '用户发起会话时自动发送或首次推荐', detail: '适用：欢迎语、活动引导、会员权益提醒' },
+    '客服离线': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>', bg: '#fffbe6', border: '#ffe58f', desc: '客服不在线时自动回复用户', detail: '适用：离线提示、留言引导、客服热线' },
+    '关键词匹配': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>', bg: '#e6f4ff', border: '#d3adf7', desc: '用户消息命中关键词时推荐此话术', detail: '需配置触发关键词，支持部分匹配' },
+    '转人工': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>', bg: '#fff1f0', border: '#ffccc7', desc: '会话转接时发送给用户的提示', detail: '适用：转专员、转主管、转技术支持' },
+    '通用': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', bg: '#f6ffed', border: '#b7eb8f', desc: '无特定场景，客服手动选择使用', detail: '适用：常规问候、结束语、通用答疑' }
   };
 
-  function selectScene(el) {
-    document.querySelectorAll('.scene-selector .scene-option').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    var text = el.textContent.trim();
+  function selectSceneOption(opt) {
+    // 编辑面板内的场景选择器（与列表筛选不同，互不干扰）
+    $$('.scene-selector .scene-option').forEach(function (o) {
+      // 仅作用于编辑面板顶部第一个 .scene-selector（场景），避免误伤业务分类
+    });
+    var parent = opt.parentElement;
+    if (!parent) return;
+    $$('.scene-option', parent).forEach(function (o) { o.classList.remove('selected'); });
+    opt.classList.add('selected');
+    // 仅编辑面板场景组会更新 scene-info
+    var infoBox = $('#scene-info');
+    var keywordGroup = $('#keyword-group');
+    var text = opt.textContent.trim();
     var info = sceneInfoMap[text];
-    var infoBox = document.getElementById('scene-info');
-    var keywordGroup = document.getElementById('keyword-group');
-
-    if (info) {
-      infoBox.style.background = info.bg;
-      infoBox.style.borderColor = info.border;
-      infoBox.innerHTML =
-        '<div class="scene-info-row"><strong>' + info.icon + ' ' + text + '：</strong>' + info.desc + '</div>' +
-        '<div class="scene-info-row" style="margin-top:4px;">' + info.detail + '</div>';
-      infoBox.classList.add('show');
-      // 关键词匹配场景显示关键词输入框
-      keywordGroup.style.display = (text === '关键词匹配') ? 'block' : 'none';
+    if (info && infoBox && parent.classList.contains('scene-selector')) {
+      // 确认是场景选择器（含 scene-dot）而非业务分类
+      if ($('.scene-dot', opt)) {
+        infoBox.style.background = info.bg;
+        infoBox.style.borderColor = info.border;
+        infoBox.innerHTML =
+          '<div class="scene-info-row"><strong>' + info.icon + ' ' + text + '：</strong>' + info.desc + '</div>' +
+          '<div class="scene-info-row" style="margin-top:4px;">' + info.detail + '</div>';
+        infoBox.classList.add('show');
+        if (keywordGroup) keywordGroup.style.display = (text === '关键词匹配') ? 'block' : 'none';
+      }
     }
   }
 
-  // 业务分类选择器
-  function selectBiz(el) {
-    el.parentElement.querySelectorAll('.scene-option').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
+  /* ---------- 3. 全局点击委派：标签 / 卡片 / 按钮 / 分页 ---------- */
+  document.addEventListener('click', function (e) {
+    /* —— 3.1 场景标签筛选 —— */
+    var sceneTag = e.target.closest('.filter-bar .scene-tag');
+    if (sceneTag) {
+      e.preventDefault();
+      sceneTags.forEach(function (t) { t.classList.remove('active'); });
+      sceneTag.classList.add('active');
+      currentScene = sceneTag.getAttribute('data-scene-key') || inferSceneKey(sceneTag);
+      applyFilters();
+      return;
+    }
+    /* —— 3.2 业务分类标签筛选 —— */
+    var bizTag = e.target.closest('.filter-bar .biz-tag');
+    if (bizTag) {
+      e.preventDefault();
+      bizTags.forEach(function (t) { t.classList.remove('active'); });
+      bizTag.classList.add('active');
+      currentBiz = bizTag.getAttribute('data-biz-key') || inferBizKey(bizTag);
+      applyFilters();
+      return;
+    }
+    /* —— 3.3 编辑面板 场景/业务 选择器 —— */
+    var sceneOpt = e.target.closest('.new-script-card .scene-selector .scene-option');
+    if (sceneOpt) { selectSceneOption(sceneOpt); return; }
+    /* —— 3.4 话术卡 展开/收起（点卡片空白处） —— */
+    var item = e.target.closest('.script-item');
+    if (item && !e.target.closest('.script-actions') && !e.target.closest('button')) {
+      item.classList.toggle('expanded');
+      return;
+    }
+    /* —— 3.5 话术卡 复制 / 编辑 —— */
+    var actBtn = e.target.closest('.script-actions .btn-sm');
+    if (actBtn && item) {
+      e.preventDefault();
+      e.stopPropagation();
+      var txt = (actBtn.textContent || '').trim();
+      var content = $('.script-content', item);
+      var text = content ? content.textContent.trim() : '';
+      if (txt === '复制') {
+        if (text && navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () { /* 忽略剪贴板失败 */ });
+        }
+        toast('已复制到剪贴板');
+      } else if (txt === '编辑') {
+        var editor = $('.new-script-card .form-textarea');
+        if (editor && text) editor.value = text;
+        toast('已加载到右侧编辑面板');
+      }
+      return;
+    }
+    /* —— 3.6 批量导入 —— */
+    var importBtn = e.target.closest('.scripts-list-head .btn-sm.primary');
+    if (importBtn && (importBtn.textContent || '').indexOf('批量导入') >= 0) {
+      e.preventDefault();
+      toast('请选择要导入的话术文件（CSV/Excel）');
+      return;
+    }
+    /* —— 3.7 分页 上一页 / 下一页 —— */
+    var pgBtn = e.target.closest('.scripts-list-card .btn-sm');
+    if (pgBtn) {
+      var pt = (pgBtn.textContent || '').trim();
+      if (pt === '上一页') { e.preventDefault(); toast('已是当前页的上一页'); return; }
+      if (pt === '下一页') { e.preventDefault(); toast('已切换到下一页'); return; }
+      // 数字分页
+      if (/^\d+$/.test(pt)) {
+        e.preventDefault();
+        $$('.scripts-list-card .btn-sm').forEach(function (b) {
+          var bt = (b.textContent || '').trim();
+          if (/^\d+$/.test(bt)) b.classList.remove('primary');
+        });
+        pgBtn.classList.add('primary');
+        toast('已切换到第 ' + pt + ' 页');
+        return;
+      }
+    }
+    /* —— 3.8 编辑面板 保存话术 / 清空 —— */
+    var saveBtn = e.target.closest('.new-script-card .form-actions .btn-primary');
+    if (saveBtn) { e.preventDefault(); toast('话术已保存'); return; }
+    var clearBtn = e.target.closest('.new-script-card .form-actions .btn-default');
+    if (clearBtn) {
+      e.preventDefault();
+      var ta = $('.new-script-card .form-textarea');
+      if (ta) ta.value = '';
+      var inputs = $$('.new-script-card .form-input');
+      inputs.forEach(function (inp) { if (inp.type !== 'radio') inp.value = ''; });
+      toast('已清空编辑区');
+      return;
+    }
+  });
+
+  /* —— 从标签文案/上下文推断 scene/biz key（兼容现有无 data-*-key 的标签） —— */
+  var SCENEByText = { '全部': 'all', '进入会话': 'enter', '客服离线': 'offline', '关键词匹配': 'keyword', '转人工': 'transfer' };
+  function inferSceneKey(el) {
+    var t = (el.textContent || '').trim();
+    for (var k in SCENEByText) { if (t.indexOf(k) >= 0) return SCENEByText[k]; }
+    return 'all';
   }
+  function inferBizKey(el) {
+    var t = (el.textContent || '').trim();
+    // 注意 "通用" 与 "全部"：精确匹配前缀
+    if (/售前/.test(t)) return 'presale';
+    if (/售后/.test(t)) return 'aftersale';
+    if (/投诉/.test(t)) return 'complaint';
+    if (/通用/.test(t)) return 'general';
+    return 'all';
+  }
+
+  applyFilters();
+})();
 </script>
 
 <script src="nav.js"></script>

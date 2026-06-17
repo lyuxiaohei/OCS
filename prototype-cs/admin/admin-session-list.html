@@ -62,8 +62,8 @@
           <p style="font-size:13px; color:#8c8c8c;">查看所有历史服务记录，支持多维度筛选与详情回溯（对应功能 F-EX-03 / F-EX-04）</p>
         </div>
         <div class="flex gap-8">
-          <button class="btn-default">导出记录</button>
-          <button class="btn-primary">刷新数据</button>
+          <button class="btn-default" id="btnExport">导出记录</button>
+          <button class="btn-primary" id="btnRefresh">刷新数据</button>
         </div>
       </div>
 
@@ -87,11 +87,16 @@
           </div>
           <div class="field">
             <span class="field-label">客服</span>
-            <span class="select">全部客服</span>
+            <select class="select" id="fAgent">
+              <option value="">全部客服</option>
+              <option>张小明</option>
+              <option>李静</option>
+              <option>王磊</option>
+            </select>
           </div>
           <div class="field">
             <span class="field-label">关键词</span>
-            <span class="ipt input-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>搜索用户昵称 / 会话ID / 手机号</span>
+            <input type="text" class="ipt input-search" id="fKw" placeholder="搜索用户昵称 / 会话ID / 手机号" />
           </div>
           <div style="margin-left:auto;" class="flex gap-8">
             <button class="btn-default">重置</button>
@@ -377,15 +382,107 @@
 
 <script src="nav.js"></script>
 <script>
-  // 详情 / 转接记录 / 查看评价 → 会话详情弹窗（按 type 切换内容）
-  document.addEventListener('click', function (e) {
-    var d = e.target.closest('.sl-detail');
-    if (d) { e.preventDefault(); csModal.open('modals/modal-session-detail.html?type=detail', { variant: 'center', width: 540 }); return; }
-    var t = e.target.closest('.sl-transfer');
-    if (t) { e.preventDefault(); csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 }); return; }
-    var r = e.target.closest('.sl-rating');
-    if (r) { e.preventDefault(); csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 }); return; }
+/* ============================================================
+   admin-session-list.html 交互（F-EX-03 / F-EX-04 历史会话）
+   约定对齐 admin-transfer：状态 Tab 过滤、伪控件改真控件、
+   行操作按文案委派 → csModal、csModal.toast 反馈。
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+  /* ---------- 0. 行 data-* 推断（状态 / 客服） ---------- */
+  function refreshRows() { return $$('.data-table tbody tr'); }
+  function annotateRow(tr) {
+    var tag = $('.s-tag', tr);
+    if (tag) {
+      var cls = ['ongoing', 'closed', 'transferred', 'cancelled']
+        .filter(function (c) { return tag.classList.contains(c); })[0];
+      if (cls) tr.setAttribute('data-status', cls);
+    }
+    var cells = $$('td', tr);
+    var agentTd = cells[2];
+    if (agentTd) {
+      var a = agentTd.textContent.trim().split('→')[0].trim();
+      if (a) tr.setAttribute('data-agent', a);
+    }
+  }
+  var rows = refreshRows();
+  rows.forEach(annotateRow);
+
+  /* ---------- 1. 状态 Tab 过滤 ---------- */
+  var TABByText = { '全部': 'all', '进行中': 'ongoing', '已关闭': 'closed', '已转接': 'transferred' };
+  var statusTabs = $$('.status-tab');
+  var currentStatus = 'all';
+  function tabKey(tab) { return tab.textContent.replace(/[0-9]/g, '').trim(); }
+  statusTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      statusTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentStatus = TABByText[tabKey(tab)] || 'all';
+      applyFilters();
+    });
   });
+
+  /* ---------- 2. 筛选（客服 / 关键词）+ 查询 / 重置 ---------- */
+  var fAgent = $('#fAgent'), fKw = $('#fKw');
+  var btnQuery = $('.filter-bar .btn-primary');
+  var btnReset = $('.filter-bar .btn-default');
+  function applyFilters() {
+    var agent = fAgent ? fAgent.value : '';
+    var kw = (fKw ? fKw.value : '').trim().toLowerCase();
+    rows.forEach(function (tr) {
+      var ok = (currentStatus === 'all' || tr.getAttribute('data-status') === currentStatus)
+        && (!agent || tr.getAttribute('data-agent') === agent)
+        && (!kw || tr.textContent.toLowerCase().indexOf(kw) >= 0);
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    if (fAgent) fAgent.value = '';
+    if (fKw) fKw.value = '';
+    currentStatus = 'all';
+    statusTabs.forEach(function (t) { t.classList.toggle('active', tabKey(t) === '全部'); });
+    applyFilters(); toast('已重置筛选');
+  });
+  if (fAgent) fAgent.addEventListener('change', applyFilters);
+  if (fKw) fKw.addEventListener('input', applyFilters);
+
+  /* ---------- 3. 顶部按钮：导出 / 刷新 ---------- */
+  var btnExport = $('#btnExport'), btnRefresh = $('#btnRefresh');
+  if (btnExport) btnExport.addEventListener('click', function () { toast('正在导出历史会话记录…'); });
+  if (btnRefresh) btnRefresh.addEventListener('click', function () { toast('数据已刷新'); });
+
+  /* ---------- 4. 行操作（按文案委派） ---------- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var txt = (a.textContent || '').trim();
+    if (txt === '详情') {
+      csModal.open('modals/modal-session-detail.html?type=detail', { variant: 'center', width: 540 });
+    } else if (txt === '转接记录') {
+      csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 });
+    } else if (txt === '查看评价') {
+      csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 });
+    } else if (txt === '差评追踪') {
+      csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 });
+    }
+  });
+
+  /* ---------- 5. 分页 ---------- */
+  $$('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  applyFilters();
+})();
   </script>
 
 </body>

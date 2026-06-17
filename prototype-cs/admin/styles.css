@@ -754,7 +754,7 @@ a { color: var(--cs-primary); text-decoration: none; }
   border-bottom: 1px solid var(--cs-border-lighter);
   font-size: var(--cs-font-size-base);
 }
-.customer-info-panel .info-label { color: var(--cs-text-tertiary); }
+.customer-info-panel .info-label { color: var(--cs-text-tertiary); font-size: var(--cs-font-size-base); }
 
 /* ============================================================
    18. AI Dark Theme

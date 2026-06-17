@@ -5,19 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>数据仪表盘 — 供应链平台</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
   <style>
     /* ===== admin-dashboard.html 专属样式 ===== */
 
-    /* Fake bar chart bars (会话量趋势) */
+    /* 会话量趋势 — 柱状图撑满卡片 */
+    .chart-card { display: flex; flex-direction: column; }
+    .chart-canvas {
+      flex: 1;                 /* 撑满卡片剩余高度（与右侧排行卡等高） */
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      padding: var(--cs-space-4) 0 28px;
+    }
     .fake-bars {
       display: flex;
       align-items: flex-end;
-      gap: 10px;
-      height: 180px;
-      padding: 0 12px;
+      gap: 14px;
+      flex: 1;                 /* 撑满高度（原固定 180px） */
+      padding-top: 24px;       /* 为柱顶数值标签留位 */
     }
     .fake-bars .bar {
-      width: 22px;
+      flex: 1;                 /* 撑满宽度（原固定 22px） */
+      min-width: 12px;
       background: linear-gradient(180deg, var(--cs-primary-hover), var(--cs-primary));
       border-radius: var(--cs-radius-xs) var(--cs-radius-xs) 0 0;
       position: relative;
@@ -26,7 +36,7 @@
     .fake-bars .bar:hover { opacity: 0.8; }
     .fake-bars .bar .bar-val {
       position: absolute;
-      top: -20px;
+      top: -22px;
       left: 50%;
       transform: translateX(-50%);
       font-size: var(--cs-font-size-xs);
@@ -41,13 +51,6 @@
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-tertiary);
       white-space: nowrap;
-    }
-    .chart-axis-wrap {
-      padding: var(--cs-space-6) var(--cs-space-6) 32px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
     }
 
     /* ---------- 排行榜 (客服绩效) ---------- */
@@ -131,7 +134,7 @@
       color: var(--cs-text);
     }
     .todo-num {
-      font-size: 18px;
+      font-size: var(--cs-font-size-2xl);
       font-weight: var(--cs-font-weight-bold);
       color: var(--cs-danger);
     }
@@ -213,13 +216,13 @@
       <!-- Header -->
       <header class="admin-header">
         <div>
-          <div style="font-size:16px; font-weight:600;">数据仪表盘</div>
+          <div style="font-size:var(--cs-font-size-xl); font-weight:600;">数据仪表盘</div>
           <div class="breadcrumb">首页 / 数据仪表盘</div>
         </div>
         <div class="user-info">
           <span class="live-tag">实时</span>
           <div class="header-avatar">张</div>
-          <span style="font-size:13px;">张客服主管</span>
+          <span style="font-size:var(--cs-font-size-base);">张客服主管</span>
         </div>
       </header>
 
@@ -271,16 +274,15 @@
         <div class="grid grid-2 mb-24">
 
           <!-- 会话量趋势 -->
-          <div class="card">
+          <div class="card chart-card">
             <div class="section-row">
               <h3>会话量趋势</h3>
               <div class="flex gap-8">
-                <button class="btn-default" style="padding:2px 10px; font-size:12px;">近7天</button>
-                <button class="btn-primary" style="padding:2px 10px; font-size:12px;">今天</button>
+                <button class="btn-default" style="padding:2px 10px; font-size:var(--cs-font-size-sm);">近7天</button>
+                <button class="btn-primary" style="padding:2px 10px; font-size:var(--cs-font-size-sm);">今天</button>
               </div>
             </div>
-            <div class="chart-placeholder">
-              <div class="chart-axis-wrap">
+            <div class="chart-canvas">
                 <div class="fake-bars">
                   <div class="bar" style="height:55%;">
                     <span class="bar-val">98</span>
@@ -315,15 +317,14 @@
                     <span class="bar-label">16:00</span>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
 
-          <!-- 客服绩效排行 -->
+          <!-- 客服满意度排行 -->
           <div class="card">
             <div class="section-row">
-              <h3>客服绩效排行</h3>
-              <button class="btn-default" style="padding:2px 10px; font-size:12px;">本月</button>
+              <h3>客服满意度排行</h3>
+              <button class="btn-default" style="padding:2px 10px; font-size:var(--cs-font-size-sm);">本月</button>
             </div>
             <div class="rank-list">
 
@@ -331,50 +332,50 @@
                 <div class="rank-no top1">1</div>
                 <div class="rank-avatar">李</div>
                 <div class="rank-info">
-                  <div class="rank-name">李明 · 满意度 99%</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:96%;"></div></div>
+                  <div class="rank-name">李明 · 328 单</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:99%;"></div></div>
                 </div>
-                <div class="rank-score">328</div>
+                <div class="rank-score">99%</div>
               </div>
 
               <div class="rank-item">
                 <div class="rank-no top2">2</div>
-                <div class="rank-avatar" style="background:var(--cs-primary);">王</div>
+                <div class="rank-avatar">王</div>
                 <div class="rank-info">
-                  <div class="rank-name">王芳 · 满意度 97%</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:88%; background:var(--cs-primary);"></div></div>
+                  <div class="rank-name">王芳 · 301 单</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:97%;"></div></div>
                 </div>
-                <div class="rank-score" style="color:var(--cs-text-secondary);">301</div>
+                <div class="rank-score">97%</div>
               </div>
 
               <div class="rank-item">
                 <div class="rank-no top3">3</div>
-                <div class="rank-avatar" style="background:var(--cs-primary);">赵</div>
+                <div class="rank-avatar">赵</div>
                 <div class="rank-info">
-                  <div class="rank-name">赵磊 · 满意度 95%</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:80%; background:var(--cs-primary);"></div></div>
+                  <div class="rank-name">赵磊 · 276 单</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:95%;"></div></div>
                 </div>
-                <div class="rank-score" style="color:var(--cs-text-secondary);">276</div>
+                <div class="rank-score">95%</div>
               </div>
 
               <div class="rank-item">
                 <div class="rank-no">4</div>
-                <div class="rank-avatar" style="background:var(--cs-primary);">陈</div>
+                <div class="rank-avatar">陈</div>
                 <div class="rank-info">
-                  <div class="rank-name">陈静 · 满意度 94%</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:72%; background:var(--cs-primary);"></div></div>
+                  <div class="rank-name">陈静 · 248 单</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:94%;"></div></div>
                 </div>
-                <div class="rank-score" style="color:var(--cs-text-secondary);">248</div>
+                <div class="rank-score">94%</div>
               </div>
 
               <div class="rank-item">
                 <div class="rank-no">5</div>
-                <div class="rank-avatar" style="background:#1677ff;">刘</div>
+                <div class="rank-avatar">刘</div>
                 <div class="rank-info">
-                  <div class="rank-name">刘洋 · 满意度 92%</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:64%; background:linear-gradient(90deg,#1677ff,#4096ff);"></div></div>
+                  <div class="rank-name">刘洋 · 221 单</div>
+                  <div class="rank-bar"><div class="rank-bar-fill" style="width:92%;"></div></div>
                 </div>
-                <div class="rank-score" style="color:#1677ff;">221</div>
+                <div class="rank-score">92%</div>
               </div>
 
             </div>
@@ -383,13 +384,13 @@
         </div>
 
         <!-- ===== 待处理事项 + 概况 ===== -->
-        <div class="grid grid-3">
+        <div class="grid grid-2">
 
           <!-- 待处理事项 summary -->
-          <div class="card" style="grid-column: span 2;">
+          <div class="card">
             <div class="section-row">
               <h3>待处理事项</h3>
-              <span class="tag-urgent">需关注 5 项</span>
+              <a class="view-all-link" href="admin-todo.html" style="margin-top:0;">查看全部待办 →</a>
             </div>
 
             <div class="todo-panel">
@@ -432,8 +433,6 @@
                 </div>
                 <span class="todo-num normal">5</span>
               </div>
-
-              <a class="view-all-link" href="admin-todo.html">查看全部待办 →</a>
             </div>
           </div>
 
@@ -478,5 +477,33 @@
   </div>
 
 <script src="nav.js"></script>
+<script>
+/* ============================================================
+   admin-dashboard.html 轻交互（纯展示页）
+   仅给图表/排行的切换按钮接上 toast 反馈，不过度改造。
+   ============================================================ */
+(function () {
+  'use strict';
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+  // 会话量趋势：近7天 / 今天
+  var trendGroup = document.querySelectorAll('.chart-card .section-row button');
+  trendGroup.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      trendGroup.forEach(function (b) { b.classList.remove('btn-primary'); b.classList.add('btn-default'); });
+      btn.classList.remove('btn-default'); btn.classList.add('btn-primary');
+      toast('已切换至 ' + btn.textContent.trim() + ' 视图');
+    });
+  });
+  // 客服绩效排行：本月
+  var rankSection = document.querySelectorAll('.card .section-row');
+  rankSection.forEach(function (row) {
+    var h3 = row.querySelector('h3');
+    var btn = row.querySelector('button');
+    if (h3 && btn && h3.textContent.indexOf('满意度') !== -1) {
+      btn.addEventListener('click', function () { toast('当前展示：' + btn.textContent.trim() + ' 满意度排行'); });
+    }
+  });
+})();
+</script>
 </body>
 </html>

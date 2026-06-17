@@ -158,8 +158,8 @@
           <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">统一查看用户对客服的服务评价，监控满意度趋势并追踪差评（对应功能 US-MVP-13 / F-MVP-22）</p>
         </div>
         <div class="flex gap-8">
-          <button class="btn-default">导出评价</button>
-          <button class="btn-primary">刷新数据</button>
+          <button class="btn-default" id="btnExport">导出评价</button>
+          <button class="btn-primary" id="btnRefresh">刷新数据</button>
         </div>
       </div>
 
@@ -291,7 +291,13 @@
           </div>
           <div class="field">
             <span class="field-label">客服</span>
-            <span class="select">全部客服</span>
+            <select class="select" id="fAgent">
+              <option value="">全部客服</option>
+              <option>张小明</option>
+              <option>李静</option>
+              <option>王磊</option>
+              <option>赵丽</option>
+            </select>
           </div>
           <div class="field">
             <span class="field-label">评分范围</span>
@@ -305,7 +311,7 @@
           </div>
           <div class="field">
             <span class="field-label">关键词</span>
-            <span class="ipt input-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>搜索用户昵称 / 评价内容 / 会话ID</span>
+            <input type="text" class="ipt input-search" id="fKw" placeholder="搜索用户昵称 / 评价内容 / 会话ID" />
           </div>
           <div style="margin-left:auto;" class="flex gap-8">
             <button class="btn-default">重置</button>
@@ -656,11 +662,140 @@
 
 <script src="nav.js"></script>
 <script>
-  // 差评追踪 → 详情弹窗
-  document.addEventListener('click', function (e) {
-    var t = e.target.closest('.sl-track');
-    if (t) { e.preventDefault(); csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 }); }
+/* ============================================================
+   admin-rating-mgmt.html 交互（US-MVP-13 / F-MVP-22 评价管理）
+   约定对齐 admin-transfer：状态 Tab 过滤 + 评分范围 pill 筛选、
+   伪控件改真控件、行操作按文案委派 → csModal、toast 反馈。
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+  /* ---------- 0. 行推断：评分（.score-num）+ 客服 ---------- */
+  function refreshRows() { return $$('.data-table tbody tr'); }
+  function annotateRow(tr) {
+    var sn = $('.score-num', tr);
+    if (sn) {
+      var s = parseFloat(sn.textContent);
+      if (!isNaN(s)) tr.setAttribute('data-score', s);
+    }
+    var cells = $$('td', tr);
+    var agentTd = cells[2];
+    if (agentTd) tr.setAttribute('data-agent', agentTd.textContent.trim());
+  }
+  var rows = refreshRows();
+  rows.forEach(annotateRow);
+
+  /* ---------- 1. 状态 Tab 过滤（好评 / 中评 / 差评） ---------- */
+  function classifyTab(tab) {
+    var t = tab.textContent;
+    if (t.indexOf('好评') >= 0) return 'good';
+    if (t.indexOf('中评') >= 0) return 'mid';
+    if (t.indexOf('差评') >= 0) return 'bad';
+    return 'all';
+  }
+  var statusTabs = $$('.status-tab');
+  var currentTab = 'all';
+  statusTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      statusTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentTab = classifyTab(tab);
+      applyFilters();
+    });
   });
+
+  /* ---------- 2. 评分范围 pill 筛选 ---------- */
+  function classifyPill(pill) {
+    var t = pill.textContent;
+    if (t.indexOf('全部') >= 0) return 'all';
+    if (t.indexOf('差评') >= 0) return 'bad';
+    if (t.indexOf('5') >= 0) return '5';
+    if (t.indexOf('4') >= 0) return '4';
+    if (t.indexOf('3') >= 0) return '3';
+    return 'all';
+  }
+  function matchPill(score, pill) {
+    if (pill === 'all') return true;
+    if (pill === 'bad') return !isNaN(score) && score <= 2;
+    if (pill === '5') return score === 5;
+    if (pill === '4') return score === 4;
+    if (pill === '3') return score === 3;
+    return true;
+  }
+  var starPills = $$('.star-pill');
+  var currentPill = 'all';
+  starPills.forEach(function (p) {
+    p.addEventListener('click', function () {
+      starPills.forEach(function (x) { x.classList.remove('active'); });
+      p.classList.add('active');
+      currentPill = classifyPill(p);
+      applyFilters();
+    });
+  });
+
+  /* ---------- 3. 筛选（客服 / 关键词）+ 查询 / 重置 ---------- */
+  var fAgent = $('#fAgent'), fKw = $('#fKw');
+  var btnQuery = $('.filter-bar .btn-primary');
+  var btnReset = $('.filter-bar .btn-default');
+  function applyFilters() {
+    var agent = fAgent ? fAgent.value : '';
+    var kw = (fKw ? fKw.value : '').trim().toLowerCase();
+    rows.forEach(function (tr) {
+      var s = parseFloat(tr.getAttribute('data-score'));
+      var bucket = isNaN(s) ? 'unknown' : (s >= 4 ? 'good' : (s === 3 ? 'mid' : 'bad'));
+      var ok = (currentTab === 'all' || bucket === currentTab)
+        && matchPill(s, currentPill)
+        && (!agent || tr.getAttribute('data-agent') === agent)
+        && (!kw || tr.textContent.toLowerCase().indexOf(kw) >= 0);
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    if (fAgent) fAgent.value = '';
+    if (fKw) fKw.value = '';
+    currentTab = 'all';
+    statusTabs.forEach(function (t) { t.classList.toggle('active', classifyTab(t) === 'all'); });
+    currentPill = 'all';
+    starPills.forEach(function (p) { p.classList.toggle('active', classifyPill(p) === 'all'); });
+    applyFilters(); toast('已重置筛选');
+  });
+  if (fAgent) fAgent.addEventListener('change', applyFilters);
+  if (fKw) fKw.addEventListener('input', applyFilters);
+
+  /* ---------- 4. 顶部按钮：导出 / 刷新 ---------- */
+  var btnExport = $('#btnExport'), btnRefresh = $('#btnRefresh');
+  if (btnExport) btnExport.addEventListener('click', function () { toast('正在导出评价数据…'); });
+  if (btnRefresh) btnRefresh.addEventListener('click', function () { toast('数据已刷新'); });
+
+  /* ---------- 5. 行操作（按文案委派） ---------- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var txt = (a.textContent || '').trim();
+    if (txt === '详情') {
+      csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 });
+    } else if (txt === '查看会话') {
+      toast('正在打开会话工作台…');
+    } else if (txt === '差评追踪') {
+      csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 });
+    }
+  });
+
+  /* ---------- 6. 分页 ---------- */
+  $$('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  applyFilters();
+})();
   </script>
 
 </body>

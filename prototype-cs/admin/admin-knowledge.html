@@ -621,13 +621,33 @@
             <div class="card" style="padding:16px;">
               <!-- 工具条：搜索 + 筛选 -->
               <div class="kb-toolbar">
-                <span class="ipt input-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>搜索文章标题 / 关键词</span>
-                <span class="select">全部分类</span>
-                <span class="select">全部状态</span>
-                <span class="select">更新时间</span>
+                <input type="text" id="kbSearch" class="ipt input-search" placeholder="搜索文章标题 / 关键词" style="min-width:260px;color:var(--cs-text);" />
+                <select id="kbCategory" class="select" style="min-width:110px;">
+                  <option value="">全部分类</option>
+                  <option value="order">订单</option>
+                  <option value="return">退换货</option>
+                  <option value="pay">支付</option>
+                  <option value="logistic">物流</option>
+                  <option value="account">账户</option>
+                </select>
+                <select id="kbStatus" class="select" style="min-width:110px;">
+                  <option value="">全部状态</option>
+                  <option value="published">已发布</option>
+                  <option value="draft">草稿</option>
+                  <option value="review">待审核</option>
+                  <option value="rejected">已驳回</option>
+                  <option value="offline">已下线</option>
+                </select>
+                <select id="kbTime" class="select" style="min-width:110px;">
+                  <option value="">更新时间</option>
+                  <option value="today">今天</option>
+                  <option value="3d">近 3 天</option>
+                  <option value="7d">近 7 天</option>
+                  <option value="30d">近 30 天</option>
+                </select>
                 <div style="margin-left:auto;" class="flex gap-8">
-                  <button class="btn-default">重置</button>
-                  <button class="btn-primary">查询</button>
+                  <button id="kbBtnReset" class="btn-default">重置</button>
+                  <button id="kbBtnQuery" class="btn-primary">查询</button>
                 </div>
               </div>
             </div>
@@ -1014,12 +1034,24 @@
         <!-- 筛选栏 -->
         <div class="card" style="padding:16px; margin-bottom:var(--cs-space-4);">
           <div class="filter-bar" style="margin-bottom:0;">
-            <span class="ipt input-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>搜索快捷回复内容</span>
-            <span class="select">全部分类</span>
-            <span class="select">全部状态</span>
+            <input type="text" id="qrSearch" class="ipt input-search" placeholder="搜索快捷回复内容" style="min-width:240px;color:var(--cs-text);" />
+            <select id="qrCategory" class="select" style="min-width:110px;">
+              <option value="">全部分类</option>
+              <option value="general">通用</option>
+              <option value="greeting">问候</option>
+              <option value="presale">售前</option>
+              <option value="aftersale">售后</option>
+              <option value="complaint">投诉</option>
+              <option value="logistic">物流</option>
+            </select>
+            <select id="qrStatus" class="select" style="min-width:110px;">
+              <option value="">全部状态</option>
+              <option value="on">启用</option>
+              <option value="off">停用</option>
+            </select>
             <div style="margin-left:auto;" class="flex gap-8">
-              <button class="btn-default">重置</button>
-              <button class="btn-primary">查询</button>
+              <button id="qrBtnReset" class="btn-default">重置</button>
+              <button id="qrBtnQuery" class="btn-primary">查询</button>
             </div>
           </div>
         </div>
@@ -1290,6 +1322,150 @@
     btn.addEventListener('click', function() {
       btn.classList.toggle('active');
     });
+  });
+
+  // ===== 文章列表：筛选 + 查询/重置 + 分页 + 行操作委派 =====
+  var $$k = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var $k = function (s, c) { return (c || document).querySelector(s); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+  var CATByCls = { 'order': 'order', 'return': 'return', 'pay': 'pay', 'logistic': 'logistic', 'account': 'account' };
+  var STByCls = { 'published': 'published', 'draft': 'draft', 'review': 'review', 'rejected': 'rejected', 'offline': 'offline' };
+  function kbRows() { return $$k('#panel-knowledge .data-table tbody tr'); }
+  kbRows().forEach(function (tr) {
+    var catTag = $k('.cat-tag', tr);
+    var catKey = '';
+    if (catTag) { for (var k in CATByCls) { if (catTag.classList.contains(k)) { catKey = CATByCls[k]; break; } } }
+    tr.setAttribute('data-cat', catKey);
+    var sTag = $k('.s-tag', tr);
+    var stKey = '';
+    if (sTag) { for (var kk in STByCls) { if (sTag.classList.contains(kk)) { stKey = STByCls[kk]; break; } } }
+    tr.setAttribute('data-kbstatus', stKey);
+  });
+  function applyKbFilters() {
+    var kw = ($k('#kbSearch') ? $k('#kbSearch').value : '').trim().toLowerCase();
+    var cat = $k('#kbCategory') ? $k('#kbCategory').value : '';
+    var st = $k('#kbStatus') ? $k('#kbStatus').value : '';
+    kbRows().forEach(function (tr) {
+      var ok = (!cat || tr.getAttribute('data-cat') === cat)
+        && (!st || tr.getAttribute('data-kbstatus') === st);
+      if (ok && kw) { ok = (tr.textContent || '').toLowerCase().indexOf(kw) !== -1; }
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  [$k('#kbSearch'), $k('#kbCategory'), $k('#kbStatus')].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener('change', applyKbFilters);
+    if (el.id === 'kbSearch') el.addEventListener('input', applyKbFilters);
+  });
+  var kbQuery = $k('#kbBtnQuery'), kbReset = $k('#kbBtnReset');
+  if (kbQuery) kbQuery.addEventListener('click', function () { applyKbFilters(); toast('已应用筛选条件'); });
+  if (kbReset) kbReset.addEventListener('click', function () {
+    ['#kbSearch', '#kbCategory', '#kbStatus', '#kbTime'].forEach(function (id) { var el = $k(id); if (el) el.value = ''; });
+    applyKbFilters(); toast('已重置筛选');
+  });
+  // 分类树点击 → 按分类过滤
+  $$k('.tree-node[data-cat]').forEach(function (node) {
+    node.addEventListener('click', function () {
+      $$k('.tree-node').forEach(function (n) { n.classList.remove('active'); });
+      node.classList.add('active');
+      var cat = node.getAttribute('data-cat');
+      var sel = $k('#kbCategory'); if (sel) { sel.value = cat || ''; }
+      applyKbFilters(); toast('已筛选分类：' + node.querySelector('.tree-label').textContent.trim());
+    });
+  });
+
+  // ===== 快捷回复列表：筛选 + 查询/重置 =====
+  var QRByCls = { 'general': 'general', 'greeting': 'greeting', 'presale': 'presale', 'aftersale': 'aftersale', 'complaint': 'complaint', 'logistic': 'logistic' };
+  function qrRows() { return $$k('#panel-quickreply .data-table tbody tr'); }
+  qrRows().forEach(function (tr) {
+    var tag = $k('.qr-category-tag', tr);
+    var key = '';
+    if (tag) { for (var k in QRByCls) { if (tag.classList.contains(k)) { key = QRByCls[k]; break; } } }
+    tr.setAttribute('data-qrcat', key);
+    var st = $k('.qr-status', tr);
+    tr.setAttribute('data-qrstatus', st && st.classList.contains('on') ? 'on' : 'off');
+  });
+  function applyQrFilters() {
+    var kw = ($k('#qrSearch') ? $k('#qrSearch').value : '').trim().toLowerCase();
+    var cat = $k('#qrCategory') ? $k('#qrCategory').value : '';
+    var st = $k('#qrStatus') ? $k('#qrStatus').value : '';
+    qrRows().forEach(function (tr) {
+      var ok = (!cat || tr.getAttribute('data-qrcat') === cat)
+        && (!st || tr.getAttribute('data-qrstatus') === st);
+      if (ok && kw) { ok = (tr.textContent || '').toLowerCase().indexOf(kw) !== -1; }
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  [$k('#qrSearch'), $k('#qrCategory'), $k('#qrStatus')].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener('change', applyQrFilters);
+    if (el.id === 'qrSearch') el.addEventListener('input', applyQrFilters);
+  });
+  var qrQuery = $k('#qrBtnQuery'), qrReset = $k('#qrBtnReset');
+  if (qrQuery) qrQuery.addEventListener('click', function () { applyQrFilters(); toast('已应用筛选条件'); });
+  if (qrReset) qrReset.addEventListener('click', function () {
+    ['#qrSearch', '#qrCategory', '#qrStatus'].forEach(function (id) { var el = $k(id); if (el) el.value = ''; });
+    applyQrFilters(); toast('已重置筛选');
+  });
+
+  // ===== 分页 active（两个列表通用 .pg-num） =====
+  $$k('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      var panel = n.closest('.tab-panel'); if (!panel) return;
+      $$('.pg-num', panel).forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  // ===== 文章行操作委派（预览/下线/上线/发布/查看驳回原因/修改并重新提交） =====
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.data-table .row-actions a');
+    if (!a) return;
+    if (a.classList.contains('danger') || a.classList.contains('kb-del-btn')) return; // 删除走原逻辑
+    if (a.classList.contains('kb-edit-btn') || a.classList.contains('kb-review-btn')) return; // 编辑/审核走原逻辑
+    var txt = (a.textContent || '').trim();
+    var tr = a.closest('tr');
+    e.preventDefault();
+    if (txt === '预览') { toast('新窗口预览文章'); }
+    else if (txt === '下线') {
+      var st1 = $k('.s-tag', tr);
+      if (st1) { st1.className = 's-tag offline'; st1.textContent = '已下线'; if (tr) tr.setAttribute('data-kbstatus', 'offline'); }
+      a.textContent = '上线'; toast('文章已下线');
+    } else if (txt === '上线') {
+      var st2 = $k('.s-tag', tr);
+      if (st2) { st2.className = 's-tag published'; st2.textContent = '已发布'; if (tr) tr.setAttribute('data-kbstatus', 'published'); }
+      a.textContent = '下线'; toast('文章已上线');
+    } else if (txt === '发布') {
+      var st3 = $k('.s-tag', tr);
+      if (st3) { st3.className = 's-tag published'; st3.textContent = '已发布'; if (tr) tr.setAttribute('data-kbstatus', 'published'); }
+      var cell = a.closest('td'); if (cell) cell.innerHTML = '<a>预览</a><span class="divider">|</span><a class="kb-edit-btn">编辑</a><span class="divider">|</span><a>下线</a><span class="divider">|</span><a class="danger">删除</a>';
+      toast('文章已发布');
+    } else if (txt === '查看驳回原因') {
+      toast(a.getAttribute('title') ? '驳回原因：' + a.getAttribute('title') : '查看审核驳回原因');
+    } else if (txt === '修改并重新提交') {
+      var ed = $k('#editor-section'); if (ed) { ed.style.display = 'block'; ed.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      toast('请在编辑器中修改后重新提交审核');
+    }
+  });
+
+  // ===== 快捷回复行操作委派（编辑/停用/启用） =====
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('#panel-quickreply .row-actions a');
+    if (!a) return;
+    if (a.classList.contains('danger')) return; // 删除走原逻辑
+    var txt = (a.textContent || '').trim();
+    var tr = a.closest('tr');
+    e.preventDefault();
+    if (txt === '编辑') { toast('编辑快捷回复'); }
+    else if (txt === '停用') {
+      var s1 = $k('.qr-status', tr);
+      if (s1) { s1.className = 'qr-status off'; s1.textContent = '停用'; if (tr) tr.setAttribute('data-qrstatus', 'off'); }
+      a.textContent = '启用'; toast('已停用该快捷回复');
+    } else if (txt === '启用') {
+      var s2 = $k('.qr-status', tr);
+      if (s2) { s2.className = 'qr-status on'; s2.textContent = '启用'; if (tr) tr.setAttribute('data-qrstatus', 'on'); }
+      a.textContent = '停用'; toast('已启用该快捷回复');
+    }
   });
 })();
 

@@ -393,32 +393,32 @@
 
       <!-- ===== 筛选条 ===== -->
       <div class="filter-bar">
-        <input type="text" class="search-input" placeholder="搜索留言人 / 联系方式 / 留言内容..." />
-        <select>
-          <option>全部问题分类</option>
-          <option>商品咨询</option>
-          <option>订单售后</option>
-          <option>物流问题</option>
-          <option>退款/退货</option>
-          <option>账户问题</option>
-          <option>其他</option>
+        <input type="text" id="lmSearch" class="search-input" placeholder="搜索留言人 / 联系方式 / 留言内容..." />
+        <select id="lmCategory">
+          <option value="">全部问题分类</option>
+          <option value="商品咨询">商品咨询</option>
+          <option value="订单售后">订单售后</option>
+          <option value="物流问题">物流问题</option>
+          <option value="退款/退货">退款/退货</option>
+          <option value="账户问题">账户问题</option>
+          <option value="其他">其他</option>
         </select>
-        <select>
-          <option>全部处理人</option>
-          <option>未分配</option>
-          <option>王小明</option>
-          <option>李娜</option>
-          <option>赵强</option>
+        <select id="lmAssignee">
+          <option value="">全部处理人</option>
+          <option value="__unassigned__">未分配</option>
+          <option value="王小明">王小明</option>
+          <option value="李娜">李娜</option>
+          <option value="赵强">赵强</option>
         </select>
-        <select>
-          <option>全部时间</option>
-          <option>今天</option>
-          <option>近 3 天</option>
-          <option>近 7 天</option>
-          <option>近 30 天</option>
+        <select id="lmTime">
+          <option value="">全部时间</option>
+          <option value="today">今天</option>
+          <option value="3d">近 3 天</option>
+          <option value="7d">近 7 天</option>
+          <option value="30d">近 30 天</option>
         </select>
-        <button class="btn-default" style="height:32px; padding:0 14px; font-size:13px;">重置</button>
-        <button class="btn-primary" style="height:32px; padding:0 14px; font-size:13px;">查询</button>
+        <button id="lmBtnReset" class="btn-default" style="height:32px; padding:0 14px; font-size:13px;">重置</button>
+        <button id="lmBtnQuery" class="btn-primary" style="height:32px; padding:0 14px; font-size:13px;">查询</button>
       </div>
 
       <!-- ===== 留言列表 ===== -->
@@ -836,70 +836,180 @@
 <script src="nav.js"></script>
 
 <script>
-  // ===== cs-modal 接线：分配 / 回复 / 标记无效（UC-S-11） =====
-  (function () {
-    // 分配抽屉
-    document.addEventListener('click', function (e) {
-      var assignBtn = e.target.closest('.lm-assign-btn');
-      if (assignBtn) {
-        var row = assignBtn.closest('tr[data-leave-id]');
-        csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
-          onConfirm: function (data) {
-            if (!row) return;
-            // 启用回复按钮
-            var replyBtn = row.querySelector('.lm-reply-btn');
-            if (replyBtn) replyBtn.removeAttribute('disabled');
-            // 状态 待处理 → 处理中
-            var statusSpan = row.querySelector('.leave-status.s-pending');
-            if (statusSpan) { statusSpan.className = 'leave-status s-process'; statusSpan.textContent = '处理中'; }
-            // 分配人列
-            var unassigned = row.querySelector('.leave-unassigned');
-            if (unassigned) {
-              var name = data.assignee || '客服';
-              unassigned.outerHTML = '<span class="leave-assignee"><span class="assignee-avatar">' + name.charAt(0) + '</span>' + name + '</span>';
-            }
-            row.style.background = '';
-            // 隐藏分配按钮、回复按钮文案改为「继续回复」
-            assignBtn.style.display = 'none';
-            if (replyBtn) replyBtn.textContent = '继续回复';
-          }
-        });
-        return;
-      }
-      var replyBtn = e.target.closest('.lm-reply-btn');
-      if (replyBtn && !replyBtn.disabled) {
-        csModal.open('modals/drawer-reply.html', { variant: 'drawer-right', width: 480,
-          onConfirm: function (data) {
-            var row = replyBtn.closest('tr[data-leave-id]');
-            if (!row) return;
-            // 状态 → 已回复
-            var st = row.querySelector('.leave-status');
-            if (st) { st.className = 'leave-status s-replied'; st.textContent = '已回复'; }
-            // 操作列精简
-            var actions = row.querySelector('.row-actions');
-            if (actions) actions.innerHTML = '<button class="btn-sm">查看回复</button><button class="btn-link">详情</button>';
-          }
-        });
-        return;
-      }
-      var invalidBtn = e.target.closest('.lm-invalid-btn');
-      if (invalidBtn) {
-        var row = invalidBtn.closest('tr[data-leave-id]');
-        csModal.open('modals/modal-mark-invalid.html', { variant: 'center', width: 420,
-          onConfirm: function (data) {
-            if (!row) return;
-            var st = row.querySelector('.leave-status');
-            if (st) { st.className = 'leave-status s-invalid'; st.textContent = '无效'; }
-            row.style.background = '#fafafa';
-            row.style.opacity = '0.6';
-            var actions = row.querySelector('.row-actions');
-            if (actions) actions.innerHTML = '<button class="btn-link">详情</button><button class="btn-link">撤销无效</button>';
-          }
-        });
-        return;
-      }
+/* ============================================================
+   admin-leave-mgmt.html 交互（UC-S-11 留言管理）
+   约定对齐 admin-transfer.html：状态 Tab 过滤、行操作事件委派、
+   查询/重置/分页 → csModal.toast 反馈。保留原有
+   分配/回复/标无效弹窗委派。
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+  /* ---------- 0. 行 data-* 标记（从已渲染 DOM 推断） ---------- */
+  var STATUSByCls = { 's-pending': 'pending', 's-process': 'process', 's-replied': 'replied', 's-invalid': 'invalid' };
+  function refreshRows() { return $$('.leave-table tbody tr'); }
+  function rowStatus(tr) {
+    var tag = $('.leave-status', tr); if (!tag) return '';
+    for (var k in STATUSByCls) { if (tag.classList.contains(k)) return STATUSByCls[k]; }
+    return '';
+  }
+  function rowCategory(tr) {
+    var t = $('.tag-urgent, .tag-normal', tr);
+    return t ? t.textContent.trim() : '';
+  }
+  function rowAssignee(tr) {
+    var un = $('.leave-unassigned', tr); if (un) return '__unassigned__';
+    var a = $('.leave-assignee', tr); return a ? a.textContent.trim() : '';
+  }
+  function annotate(tr) {
+    tr.setAttribute('data-status', rowStatus(tr));
+    tr.setAttribute('data-cat', rowCategory(tr));
+    tr.setAttribute('data-assignee', rowAssignee(tr));
+  }
+  refreshRows().forEach(annotate);
+
+  /* ---------- 1. 状态 Tab 过滤 ---------- */
+  var TABByText = { '全部': 'all', '待处理': 'pending', '处理中': 'process', '已回复': 'replied', '无效': 'invalid' };
+  var statusTabs = $$('.status-tab');
+  var currentStatus = 'all';
+  function tabKey(tab) { return tab.textContent.replace(/[0-9]/g, '').trim(); }
+  statusTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      statusTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentStatus = TABByText[tabKey(tab)] || 'all';
+      applyFilters();
     });
-  })();
+  });
+
+  /* ---------- 2. 筛选条件 + 查询/重置 ---------- */
+  var fSearch = $('#lmSearch'), fCat = $('#lmCategory'), fAssignee = $('#lmAssignee'), fTime = $('#lmTime');
+  var btnQuery = $('#lmBtnQuery'), btnReset = $('#lmBtnReset');
+  function applyFilters() {
+    var kw = (fSearch ? fSearch.value : '').trim().toLowerCase();
+    var cat = fCat ? fCat.value : '';
+    var assignee = fAssignee ? fAssignee.value : '';
+    refreshRows().forEach(function (tr) {
+      var ok = (currentStatus === 'all' || tr.getAttribute('data-status') === currentStatus)
+        && (!cat || tr.getAttribute('data-cat') === cat)
+        && (!assignee || tr.getAttribute('data-assignee') === assignee);
+      if (ok && kw) {
+        var text = (tr.textContent || '').toLowerCase();
+        ok = text.indexOf(kw) !== -1;
+      }
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    if (fSearch) fSearch.value = ''; if (fCat) fCat.value = ''; if (fAssignee) fAssignee.value = ''; if (fTime) fTime.value = '';
+    currentStatus = 'all';
+    statusTabs.forEach(function (t) { t.classList.toggle('active', tabKey(t) === '全部'); });
+    applyFilters(); toast('已重置筛选');
+  });
+  [fSearch, fCat, fAssignee, fTime].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener('change', applyFilters);
+    if (el === fSearch) el.addEventListener('input', applyFilters);
+  });
+
+  /* ---------- 3. 分页 active ---------- */
+  $$('.page-btn').forEach(function (n) {
+    n.addEventListener('click', function () {
+      if (n.classList.contains('disabled')) return;
+      $$('.page-btn').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  /* ---------- 4. 行操作委派（详情/查看回复/继续回复/撤销无效 + 导出占位） ---------- */
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('.btn-link, .btn-sm');
+    if (!link) return;
+    var txt = (link.textContent || '').trim();
+    var tr = link.closest('tr');
+    // 详情：复用留言详情弹窗（如无专用弹窗则 toast）
+    if (txt === '详情') { toast('查看留言详情：' + (tr ? (tr.querySelector('.leave-name') ? tr.querySelector('.leave-name').textContent : '') : '')); return; }
+    if (txt === '查看回复') { toast('查看客服回复内容'); return; }
+    if (txt === '继续回复' && !link.classList.contains('lm-reply-btn')) { toast('继续回复该留言'); return; }
+    if (txt === '撤销无效') {
+      if (!tr) return;
+      var st = tr.querySelector('.leave-status');
+      if (st) { st.className = 'leave-status s-pending'; st.textContent = '待处理'; }
+      tr.style.opacity = '';
+      tr.setAttribute('data-status', 'pending');
+      var act = tr.querySelector('.row-actions');
+      if (act) act.innerHTML = '<button class="btn-sm primary lm-assign-btn">分配</button><button class="btn-sm success lm-reply-btn" disabled>回复</button><button class="btn-link">详情</button><button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>';
+      applyFilters(); toast('已撤销无效标记，恢复为待处理');
+      return;
+    }
+  });
+})();
+
+/* ============================================================
+   cs-modal 接线：分配 / 回复 / 标记无效（UC-S-11，原有逻辑保留）
+   ============================================================ */
+(function () {
+  // 分配抽屉
+  document.addEventListener('click', function (e) {
+    var assignBtn = e.target.closest('.lm-assign-btn');
+    if (assignBtn) {
+      var row = assignBtn.closest('tr[data-leave-id]');
+      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
+        onConfirm: function (data) {
+          if (!row) return;
+          var replyBtn = row.querySelector('.lm-reply-btn');
+          if (replyBtn) replyBtn.removeAttribute('disabled');
+          var statusSpan = row.querySelector('.leave-status.s-pending');
+          if (statusSpan) { statusSpan.className = 'leave-status s-process'; statusSpan.textContent = '处理中'; row.setAttribute('data-status', 'process'); }
+          var unassigned = row.querySelector('.leave-unassigned');
+          if (unassigned) {
+            var name = data.assignee || '客服';
+            unassigned.outerHTML = '<span class="leave-assignee"><span class="assignee-avatar">' + name.charAt(0) + '</span>' + name + '</span>';
+            row.setAttribute('data-assignee', name);
+          }
+          row.style.background = '';
+          assignBtn.style.display = 'none';
+          if (replyBtn) replyBtn.textContent = '继续回复';
+        }
+      });
+      return;
+    }
+    var replyBtn = e.target.closest('.lm-reply-btn');
+    if (replyBtn && !replyBtn.disabled) {
+      csModal.open('modals/drawer-reply.html', { variant: 'drawer-right', width: 480,
+        onConfirm: function (data) {
+          var row = replyBtn.closest('tr[data-leave-id]');
+          if (!row) return;
+          var st = row.querySelector('.leave-status');
+          if (st) { st.className = 'leave-status s-replied'; st.textContent = '已回复'; row.setAttribute('data-status', 'replied'); }
+          var actions = row.querySelector('.row-actions');
+          if (actions) actions.innerHTML = '<button class="btn-sm">查看回复</button><button class="btn-link">详情</button>';
+        }
+      });
+      return;
+    }
+    var invalidBtn = e.target.closest('.lm-invalid-btn');
+    if (invalidBtn) {
+      var row = invalidBtn.closest('tr[data-leave-id]');
+      csModal.open('modals/modal-mark-invalid.html', { variant: 'center', width: 420,
+        onConfirm: function (data) {
+          if (!row) return;
+          var st = row.querySelector('.leave-status');
+          if (st) { st.className = 'leave-status s-invalid'; st.textContent = '无效'; row.setAttribute('data-status', 'invalid'); }
+          row.style.background = '#fafafa';
+          row.style.opacity = '0.6';
+          var actions = row.querySelector('.row-actions');
+          if (actions) actions.innerHTML = '<button class="btn-link">详情</button><button class="btn-link">撤销无效</button>';
+        }
+      });
+      return;
+    }
+  });
+})();
 </script>
 
 </body>

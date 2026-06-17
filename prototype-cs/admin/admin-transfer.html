@@ -318,8 +318,8 @@
           <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">管理会话转接记录，查看在线客服负载以选择合适的转接目标（对应功能 F-EX-02 会话转接）</p>
         </div>
         <div class="flex gap-8">
-          <button class="btn-default">导出记录</button>
-          <button class="btn-primary">发起转接</button>
+          <button class="btn-default" id="btnExport">导出记录</button>
+          <button class="btn-primary" id="btnNewTransfer">发起转接</button>
         </div>
       </div>
 
@@ -349,15 +349,35 @@
               </div>
               <div class="field">
                 <span class="field-label">原客服</span>
-                <span class="select">全部</span>
+                <select class="select" id="fFrom">
+                  <option value="">全部</option>
+                  <option>张小明</option>
+                  <option>李静</option>
+                  <option>王磊</option>
+                  <option>赵敏</option>
+                  <option>周涛</option>
+                </select>
               </div>
               <div class="field">
                 <span class="field-label">目标客服</span>
-                <span class="select">全部</span>
+                <select class="select" id="fTo">
+                  <option value="">全部</option>
+                  <option>张小明</option>
+                  <option>李静</option>
+                  <option>王磊</option>
+                  <option>赵敏</option>
+                  <option>周涛</option>
+                </select>
               </div>
               <div class="field">
                 <span class="field-label">转接原因</span>
-                <span class="select">全部</span>
+                <select class="select" id="fReason">
+                  <option value="">全部</option>
+                  <option value="vip">VIP</option>
+                  <option value="skill">技能</option>
+                  <option value="busy">繁忙</option>
+                  <option value="timeout">超时</option>
+                </select>
               </div>
               <div style="margin-left:auto;" class="flex gap-8">
                 <button class="btn-default">重置</button>
@@ -1018,14 +1038,294 @@
 
 <script src="nav.js"></script>
 <script>
-  // 确认转接 → 转接确认弹窗
-  (function () {
-    var b = document.getElementById('btnConfirmTransfer');
-    if (!b) return;
-    b.addEventListener('click', function () {
-      csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420 });
+/* ============================================================
+   admin-transfer.html 交互（F-EX-02 会话转接）
+   约定对齐兄弟页：状态 Tab 过滤、行操作事件委派 → csModal、
+   csModal.toast 反馈。行/卡的状态从已渲染 DOM 推断 data-*，
+   避免逐行改模板。
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+  /* ---------- 0. 行 data-* 标记（推断） ---------- */
+  var REASONByText = { 'VIP': 'vip', '技能': 'skill', '繁忙': 'busy', '超时': 'timeout' };
+  function refreshRows() { return $$('.data-table tbody tr'); }
+  function annotateRow(tr) {
+    var tag = $('.t-tag', tr);
+    if (tag) {
+      var cls = ['pending', 'accepted', 'rejected', 'cancelled', 'timeout']
+        .filter(function (c) { return tag.classList.contains(c); })[0];
+      if (cls) tr.setAttribute('data-status', cls);
+    }
+    var cells = $$('td', tr);
+    var fromSpan = cells[1] ? $('.agent-cell span', cells[1]) : null;
+    var toSpan   = cells[2] ? $('.agent-cell span', cells[2]) : null;
+    if (fromSpan) tr.setAttribute('data-from', fromSpan.textContent.trim());
+    if (toSpan)   tr.setAttribute('data-to',   toSpan.textContent.trim());
+    var rtag = $('.reason-tag', tr);
+    if (rtag) {
+      var rt = rtag.textContent.trim();
+      for (var k in REASONByText) { if (rt.indexOf(k) === 0) { tr.setAttribute('data-reason', REASONByText[k]); break; } }
+    }
+  }
+  var rows = refreshRows();
+  rows.forEach(annotateRow);
+
+  /* ---------- 1. 状态 Tab 过滤 ---------- */
+  var TABByText = { '全部': 'all', '待处理': 'pending', '已接受': 'accepted', '已拒绝': 'rejected', '已取消': 'cancelled', '超时': 'timeout' };
+  var statusTabs = $$('.status-tab');
+  var currentStatus = 'all';
+  function tabKey(tab) { return tab.textContent.replace(/[0-9]/g, '').trim(); }
+  statusTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      statusTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentStatus = TABByText[tabKey(tab)] || 'all';
+      applyFilters();
     });
-  })();
+  });
+
+  /* ---------- 2. 筛选下拉 + 查询/重置 ---------- */
+  var fFrom = $('#fFrom'), fTo = $('#fTo'), fReason = $('#fReason');
+  var btnQuery = $('.filter-bar .btn-primary');
+  var btnReset = $('.filter-bar .btn-default');
+  function applyFilters() {
+    var from = fFrom ? fFrom.value : '';
+    var to = fTo ? fTo.value : '';
+    var reason = fReason ? fReason.value : '';
+    rows.forEach(function (tr) {
+      var ok = (currentStatus === 'all' || tr.getAttribute('data-status') === currentStatus)
+        && (!from || tr.getAttribute('data-from') === from)
+        && (!to || tr.getAttribute('data-to') === to)
+        && (!reason || tr.getAttribute('data-reason') === reason);
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    if (fFrom) fFrom.value = ''; if (fTo) fTo.value = ''; if (fReason) fReason.value = '';
+    currentStatus = 'all';
+    statusTabs.forEach(function (t) { t.classList.toggle('active', tabKey(t) === '全部'); });
+    applyFilters(); toast('已重置筛选');
+  });
+  [fFrom, fTo, fReason].forEach(function (sel) { if (sel) sel.addEventListener('change', applyFilters); });
+
+  /* ---------- 3. 在线客服卡：选择转接目标 ---------- */
+  var cards = $$('.agent-card');
+  function cardName(c)    { return $('.agent-name', c) ? $('.agent-name', c).textContent.trim() : ''; }
+  function cardLoadPct(c) { var f = $('.capacity-bar .fill', c); return f ? (parseInt(f.style.width, 10) || 0) : 0; }
+  function cardCur(c)     { var v = $('.agent-stats .stat-col .val', c); return v ? (parseInt(v.textContent, 10) || 0) : 0; }
+  function cardRating(c)  { var vs = $$('.agent-stats .stat-col .val', c); return vs[1] ? (parseFloat(vs[1].textContent) || 0) : 0; }
+  function cardGroup(c)   { var r = $('.agent-role', c); if (!r) return ''; var p = r.textContent.split('·'); return (p[1] || p[0] || '').trim(); }
+  function defaultFooter(pct) {
+    var color, label;
+    if (pct >= 100)      { color = 'var(--cs-danger)';  label = '满载'; }
+    else if (pct >= 50)  { color = 'var(--cs-warning)'; label = '较忙'; }
+    else                 { color = 'var(--cs-success)'; label = '空闲'; }
+    var action = pct >= 100
+      ? '<span class="transfer-btn" style="color:var(--cs-border);cursor:not-allowed;">无法转接</span>'
+      : '<span class="transfer-btn">选为目标 &#8594;</span>';
+    return '<span style="font-size:var(--cs-font-size-sm);color:' + color + ';">&#9679; ' + label + '</span>' + action;
+  }
+  cards.forEach(function (c) {
+    var pct = cardLoadPct(c);
+    c.setAttribute('data-agent', cardName(c));
+    c.setAttribute('data-load', cardCur(c));
+    c.setAttribute('data-loadpct', pct);
+    c.setAttribute('data-rating', cardRating(c));
+    c.setAttribute('data-group', cardGroup(c));
+    c.setAttribute('data-disabled', pct >= 100 ? '1' : '0');
+    var foot = $('.agent-footer', c); if (foot) foot.innerHTML = defaultFooter(pct);
+    c.classList.remove('selected');
+    c.addEventListener('click', function () {
+      if (c.getAttribute('data-disabled') === '1') { toast('该客服已满载，无法转接'); return; }
+      if (c.classList.contains('selected')) { deselectAll(); } else { selectCard(c); }
+    });
+  });
+  function selectCard(c) {
+    cards.forEach(function (x) {
+      x.classList.remove('selected');
+      var f = $('.agent-footer', x); if (f) f.innerHTML = defaultFooter(parseInt(x.getAttribute('data-loadpct'), 10));
+    });
+    c.classList.add('selected');
+    var f = $('.agent-footer', c);
+    if (f) f.innerHTML = '<span style="font-size:var(--cs-font-size-sm);color:var(--cs-primary);">&#10003; 已选为目标</span><span class="transfer-btn">取消选择</span>';
+    updateConfirmBtn();
+  }
+  function deselectAll() {
+    cards.forEach(function (x) {
+      x.classList.remove('selected');
+      var f = $('.agent-footer', x); if (f) f.innerHTML = defaultFooter(parseInt(x.getAttribute('data-loadpct'), 10));
+    });
+    updateConfirmBtn();
+  }
+  function updateConfirmBtn() {
+    var btn = $('#btnConfirmTransfer'); if (!btn) return;
+    var sel = $('.agent-card.selected');
+    if (sel) {
+      btn.textContent = '确认转接至 ' + sel.getAttribute('data-agent');
+      btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+    } else {
+      btn.textContent = '请先选择目标客服';
+      btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed';
+    }
+  }
+  // 保持原视觉：周涛初始为预选目标
+  var initCard = cards.filter(function (c) { return c.getAttribute('data-agent') === '周涛'; })[0];
+  if (initCard) selectCard(initCard); else updateConfirmBtn();
+
+  /* ---------- 4. 排序（负载/技能/评分） ---------- */
+  $$('.sort-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      $$('.sort-item').forEach(function (x) { x.classList.remove('active'); });
+      item.classList.add('active');
+      var key = item.textContent.replace('按', '').trim();
+      var grid = $('.agents-grid');
+      cards.slice().sort(function (a, b) {
+        if (key === '负载') return (parseInt(a.getAttribute('data-load'), 10) || 0) - (parseInt(b.getAttribute('data-load'), 10) || 0);
+        if (key === '评分') return (parseFloat(b.getAttribute('data-rating')) || 0) - (parseFloat(a.getAttribute('data-rating')) || 0);
+        return (a.getAttribute('data-group') || '').localeCompare(b.getAttribute('data-group') || '', 'zh');
+      }).forEach(function (c) { grid.appendChild(c); });
+      toast('已按' + key + '排序');
+    });
+  });
+
+  /* ---------- 5. 发起 / 确认转接（新增待处理记录 + 计数自增） ---------- */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function escapeHtml(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
+  function bumpTab(label, delta) {
+    statusTabs.forEach(function (t) {
+      if (tabKey(t) === label) { var c = $('.tab-count', t); if (c) c.textContent = (parseInt(c.textContent, 10) || 0) + delta; }
+    });
+  }
+  function bumpStat(cls, delta) {
+    var el = $('.stat-summary .stat-item.' + cls + ' .num');
+    if (el) { el.textContent = el.textContent.replace(/[\d.]+/, function (x) { return String((parseFloat(x) || 0) + delta); }); }
+  }
+  function bumpPgInfo(delta) {
+    var el = $('.pg-info'); if (!el) return;
+    el.textContent = el.textContent.replace(/\d+/, function (x) { return String((parseInt(x, 10) || 0) + delta); });
+  }
+  function addPendingRow(data) {
+    data = data || {};
+    var target = data.target || '目标客服';
+    var reasonMap = { 'VIP 用户': 'vip', '技能不匹配': 'skill', '当前繁忙': 'busy', '响应超时': 'timeout', 'vip': 'vip', 'skill': 'skill', 'busy': 'busy', 'timeout': 'timeout' };
+    var rKey = reasonMap[data.reason] || 'busy';
+    var rLabel = { 'vip': 'VIP', 'skill': '技能', 'busy': '繁忙', 'timeout': '超时' }[rKey];
+    var note = data.note || ('会话转接至 ' + target);
+    var now = new Date();
+    var ds = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+    var ts = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    var sid = '#CS' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
+    var tbody = $('.data-table tbody'); if (!tbody) return;
+    var tr = document.createElement('tr');
+    tr.setAttribute('data-status', 'pending');
+    tr.setAttribute('data-from', '张小明');
+    tr.setAttribute('data-to', target);
+    tr.setAttribute('data-reason', rKey);
+    tr.style.background = '#fffbe6';
+    tr.innerHTML =
+      '<td><div class="col-session"><div class="mini-avatar purple">新</div><div>' +
+        '<div class="col-id">' + sid + '</div>' +
+        '<div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">当前会话 · 发起转接</div></div></div></td>' +
+      '<td><div class="agent-cell"><div class="agent-avatar a1">张</div><span>张小明</span></div></td>' +
+      '<td><div class="agent-cell"><div class="agent-avatar a5">' + escapeHtml(target.charAt(0)) + '</div><span>' + escapeHtml(target) + '</span></div></td>' +
+      '<td>' + ds + '<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">' + ts + '</span></td>' +
+      '<td><span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 5:00</span></td>' +
+      '<td><span class="reason-tag ' + rKey + '">' + rLabel + '</span><span class="reason-text">' + escapeHtml(note) + '</span></td>' +
+      '<td class="row-actions"><a>催办</a><span class="divider">|</span><a>详情</a><span class="divider">|</span><a>取消</a></td>';
+    tbody.insertBefore(tr, tbody.firstChild);
+    rows = refreshRows();
+    applyFilters();
+    bumpTab('全部', 1); bumpTab('待处理', 1);
+    bumpStat('accent', 1); bumpStat('warn', 1);
+    bumpPgInfo(1);
+  }
+  var btnNew = $('#btnNewTransfer');
+  if (btnNew) btnNew.addEventListener('click', function () {
+    csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420,
+      onConfirm: function (d) {
+        addPendingRow({ target: d.target, reason: d.reason, note: d.note });
+        toast('已向 ' + (d.target || '目标客服') + ' 发起转接，等待响应');
+      }
+    });
+  });
+  var btnExp = $('#btnExport');
+  if (btnExp) btnExp.addEventListener('click', function () { toast('正在导出转接记录…'); });
+  var btnConfirm = $('#btnConfirmTransfer');
+  if (btnConfirm) btnConfirm.addEventListener('click', function () {
+    if (this.disabled) return;
+    var sel = $('.agent-card.selected');
+    if (!sel) { toast('请先选择目标客服'); return; }
+    var target = sel.getAttribute('data-agent');
+    addPendingRow({ target: target, reason: '当前繁忙', note: '会话转接分流至 ' + target });
+    toast('已向 ' + target + ' 发起转接，等待响应');
+  });
+  var btnCancel = $('.agents-panel button.btn-default');
+  if (btnCancel) btnCancel.addEventListener('click', deselectAll);
+
+  /* ---------- 6. 行操作（按文案委派） ---------- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var txt = (a.textContent || '').trim();
+    var tr = a.closest('tr');
+    if (txt === '详情') {
+      csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 });
+    } else if (txt === '查看会话') {
+      toast('正在打开会话工作台…');
+    } else if (txt === '催办') {
+      toast('已向 ' + (tr ? tr.getAttribute('data-to') : '目标客服') + ' 催办，将再次提醒响应');
+    } else if (txt === '取消') {
+      cancelRow(tr);
+    } else if (txt === '重新转接') {
+      csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420,
+        onConfirm: function (d) { if (tr) setRowPending(tr, d); toast('已重新发起转接'); }
+      });
+    }
+  });
+  function setStatusCell(tr, html) { var td = $$('td', tr)[4]; if (td) td.innerHTML = html; }
+  function cancelRow(tr) {
+    if (!tr) return;
+    setStatusCell(tr, '<span class="t-tag cancelled">已取消</span>');
+    tr.setAttribute('data-status', 'cancelled');
+    var act = $$('td', tr)[6]; if (act) act.innerHTML = '<a>详情</a>';
+    tr.style.background = '';
+    applyFilters(); toast('已取消该转接');
+  }
+  function setRowPending(tr, d) {
+    if (!tr) return; d = d || {};
+    setStatusCell(tr, '<span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 5:00</span>');
+    tr.setAttribute('data-status', 'pending');
+    if (d.target) {
+      var toTd = $$('td', tr)[2];
+      if (toTd) toTd.innerHTML = '<div class="agent-cell"><div class="agent-avatar a5">' + escapeHtml(d.target.charAt(0)) + '</div><span>' + escapeHtml(d.target) + '</span></div>';
+      tr.setAttribute('data-to', d.target);
+    }
+    var act = $$('td', tr)[6]; if (act) act.innerHTML = '<a>催办</a><span class="divider">|</span><a>详情</a><span class="divider">|</span><a>取消</a>';
+    tr.style.background = '#fffbe6';
+    applyFilters();
+  }
+
+  /* ---------- 7. 超时策略 / 分页 ---------- */
+  var panel = $('.agents-panel');
+  var tMin = panel ? $('input[type=number]', panel) : null;
+  var tAct = panel ? $('select', panel) : null;
+  if (tMin) tMin.addEventListener('change', function () { toast('超时阈值已设为 ' + this.value + ' 分钟'); });
+  if (tAct) tAct.addEventListener('change', function () { toast('超时回退策略：' + this.value); });
+  $$('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  applyFilters();
+})();
   </script>
 
 </body>

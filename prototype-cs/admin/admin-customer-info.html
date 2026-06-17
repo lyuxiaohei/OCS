@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>客户信息 — 供应链平台</title>
   <link rel="stylesheet" href="styles.css" />
+<script src="js/cs-modal.js"></script>
   <style>
     /* ===== admin-customer-info.html 专属样式 ===== */
     :root {
@@ -1153,6 +1154,8 @@
 
   <!-- ===== Tab Switch Script ===== -->
   <script>
+    /* 全局 alert → csModal.toast：统一原型占位反馈，免逐个改 onclick="alert(...)" */
+    window.alert = function (msg) { if (window.csModal && csModal.toast) csModal.toast(msg); };
     (function () {
       var tabs = document.querySelectorAll('.tab-item');
       var contents = document.querySelectorAll('.tab-content');

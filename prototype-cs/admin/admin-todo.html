@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>待办事项 — 供应链平台</title>
   <link rel="stylesheet" href="styles.css" />
+<script src="js/cs-modal.js"></script>
   <style>
     /* ===== admin-todo.html 专属样式 ===== */
 
@@ -507,34 +508,102 @@
 
 <script src="nav.js"></script>
 <script>
-  /* ---------- 评价状态筛选 ---------- */
-  (function () {
-    var filters = document.querySelectorAll('.eval-filter');
-    var rows = document.querySelectorAll('.todo-row[data-status]');
+/* ============================================================
+   admin-todo.html 交互（待办事项三列看板）
+   按钮按文案委派 → csModal / toast；催评·关闭改行状态 + 计数。
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
 
-    filters.forEach(function (pill) {
-      pill.addEventListener('click', function () {
-        // Update active state
-        filters.forEach(function (f) {
-          f.style.background = 'var(--cs-border-lighter)';
-          f.style.color = 'var(--cs-text-secondary)';
-        });
-        pill.style.background = 'var(--cs-primary)';
-        pill.style.color = '#fff';
-
-        var filter = pill.getAttribute('data-filter');
-        rows.forEach(function (row) {
-          if (filter === 'all') {
-            row.style.display = '';
-          } else if (row.getAttribute('data-status') === filter) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
+  /* ---------- 1. 评价状态筛选（保留原逻辑） ---------- */
+  var filters = $$('.eval-filter');
+  var evalRows = $$('.todo-row[data-status]');
+  filters.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      filters.forEach(function (f) {
+        f.style.background = 'var(--cs-border-lighter)';
+        f.style.color = 'var(--cs-text-secondary)';
+      });
+      pill.style.background = 'var(--cs-primary)';
+      pill.style.color = '#fff';
+      var filter = pill.getAttribute('data-filter');
+      evalRows.forEach(function (row) {
+        row.style.display = (filter === 'all' || row.getAttribute('data-status') === filter) ? '' : 'none';
       });
     });
-  })();
+  });
+
+  /* ---------- 2. 行移除 + 计数自减 ---------- */
+  function bumpCount(sec, delta) {
+    if (!sec) return;
+    var pill = $('.count-pill', sec);
+    if (pill) pill.textContent = (parseInt(pill.textContent, 10) || 0) + delta;
+  }
+  function bumpStatByName(name, delta) {
+    $$('.stat-card').forEach(function (card) {
+      var nm = $('.stat-name', card);
+      if (nm && nm.textContent.indexOf(name) >= 0) {
+        var num = $('.stat-num', card);
+        if (num) num.textContent = (parseInt(num.textContent, 10) || 0) + delta;
+      }
+    });
+  }
+  function removeRow(row) {
+    var sec = row.closest('.section-card');
+    row.style.transition = 'opacity .2s';
+    row.style.opacity = '0';
+    setTimeout(function () { row.style.display = 'none'; }, 200);
+    if (sec) bumpCount(sec, -1);
+  }
+
+  /* ---------- 3. 按钮委派（按文案） ---------- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.todo-actions a');
+    if (a) {
+      e.preventDefault();
+      var at = (a.textContent || '').trim();
+      if (at === '查看评价') { toast('正在跳转评价管理…'); }
+      return;
+    }
+    var b = e.target.closest('.todo-btn-sm');
+    if (!b) return;
+    var txt = (b.textContent || '').trim();
+    var row = b.closest('.todo-row');
+    var name = row ? $('.todo-name', row) : null;
+    var nm = name ? name.textContent.trim() : '用户';
+    if (txt === '立即回复' || txt === '回复') {
+      toast('正在跳转客服工作台…');
+    } else if (txt === '立即接入' || txt === '接入') {
+      toast('已接入「' + nm + '」的会话');
+      if (row) removeRow(row);
+    } else if (txt === '催办') {
+      toast('已催办，将再次提醒客服响应');
+    } else if (txt === '转接') {
+      csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420 });
+    } else if (txt === '催评') {
+      toast('已向「' + nm + '」发送催评邀请');
+    } else if (txt === '关闭') {
+      if (row) { removeRow(row); bumpStatByName('待评价', -1); }
+      toast('已关闭该未评价会话');
+    } else if (txt.indexOf('一键催评') >= 0) {
+      var n = $$('.todo-row[data-status="pending"]').length;
+      toast('已向 ' + n + ' 位待评价用户发送催评邀请');
+    }
+  });
+
+  /* ---------- 4. 顶部统计卡轻反馈 ---------- */
+  $$('.stat-card').forEach(function (card) {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function () {
+      var nm = $('.stat-name', card);
+      var num = $('.stat-num', card);
+      toast((nm ? nm.textContent.trim() : '') + '：' + (num ? num.textContent.trim() : '') + '，点击下方列处理');
+    });
+  });
+})();
 </script>
 </body>
 </html>
