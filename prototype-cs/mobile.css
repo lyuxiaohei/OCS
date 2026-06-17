@@ -15,16 +15,18 @@
    独立 cs- 前缀，不污染旧 .chat-mobile-container / .chat-header。
    ============================================================ */
 
-/* --- Phone Frame (375px 手机壳) --- */
+/* --- Phone Frame (375px 扁平卡片，对齐 mini-program 小程序规范) ---
+   去掉旧的「8px 黑边实体手机」观感，改为干净扁平卡片：
+   白底 + 1px 细边 + 柔和投影 + 16px 圆角，高度内容驱动（保底 680px）。 */
 .cs-phone {
   width: 375px;
-  min-height: 760px;        /* 默认最小高度，内容超出时自适应增高 */
+  min-height: 680px;        /* 内容驱动；保底避免短页空荡 */
   margin: var(--cs-space-6) auto;
-  background: #ededed;
-  border-radius: 28px;
-  border: 8px solid #1a1a1a;
+  background: var(--cs-bg-card);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -73,7 +75,7 @@
   padding-top: 44px;        /* 为绝对定位的状态栏让出空间 */
   flex-shrink: 0;
   background: var(--cs-bg-card);
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   z-index: 4;
 }
 .cs-nav-bar .cs-back {
@@ -135,7 +137,9 @@
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.cs-content::-webkit-scrollbar { width: 0; height: 0; }
 
 /* --- 响应式：窄屏撑满宽度 --- */
 @media (max-width: 430px) {
@@ -180,7 +184,9 @@
   flex-direction: column;
   gap: 10px;
   background: #ededed;
+  scrollbar-width: none;          /* Firefox：隐藏滚动条 */
 }
+.chat-messages::-webkit-scrollbar { width: 0; height: 0; }  /* WebKit：隐藏滚动条 */
 
 .chat-input-area {
   height: 56px;

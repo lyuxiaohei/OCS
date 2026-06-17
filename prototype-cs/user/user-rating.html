@@ -11,10 +11,18 @@
     body {
       background: var(--cs-bg-page);
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
       padding: var(--cs-space-6) 0;
     }
+    /* 外层低调说明（与各页统一） */
+    .page-caption {
+      text-align: center;
+      margin: 0 0 var(--cs-space-3);
+      color: var(--cs-text-tertiary);
+      font-size: var(--cs-font-size-sm);
+    }
+    .page-caption strong { color: var(--cs-text); font-size: var(--cs-font-size-lg); font-weight: var(--cs-font-weight-semibold); }
 
     /* ---------- 模态遮罩 ---------- */
     .rating-overlay {
@@ -272,6 +280,8 @@
   </style>
 </head>
 <body>
+
+  <p class="page-caption"><strong>用户端 · 服务评价</strong> &nbsp;|&nbsp; US-MVP-21 服务评价 UI</p>
 
   <!-- ===== 移动端聊天容器（背景） ===== -->
   <div class="cs-phone">

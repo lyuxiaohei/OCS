@@ -26,28 +26,30 @@
       margin: 0 auto 16px;
     }
 
-    /* ---- Page heading & nav ---- */
+    /* ---- Page heading & nav（外层轻量说明，与各页统一低调风格） ---- */
     .page-head {
       max-width: 480px;
-      margin: 0 auto 16px;
+      margin: 0 auto 18px;
       text-align: center;
     }
     .page-head h1 {
-      font-size: var(--cs-font-size-2xl);
-      font-weight: var(--cs-font-weight-bold);
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
       color: var(--cs-text);
-      margin: 0 0 4px;
+      margin: 0 0 3px;
     }
     .page-head .back-link {
-      font-size: var(--cs-font-size-md);
-      color: var(--cs-text-secondary);
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
     }
     .page-head .back-link a { color: var(--cs-primary); }
 
-    /* ---- Header avatar + status ---- */
+    /* ---- Header avatar + status（单一客服信息条，与导航栏连成一片白） ---- */
     .chat-header {
-      padding: 0 8px 0 6px;
+      padding: 0 10px 0 8px;
       gap: 4px;
+      background: var(--cs-bg-card);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
     .header-back {
       width: 32px; height: 32px;
@@ -719,7 +721,7 @@
       <div class="cs-back" title="返回" onclick="location.href='../index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
-      <span class="cs-nav-title">客服 李小米</span>
+      <span class="cs-nav-title">在线客服</span>
       <div class="cs-capsule" title="微信胶囊">
         <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
       </div>
