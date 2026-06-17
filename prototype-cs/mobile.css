@@ -1,0 +1,273 @@
+/* ============================================================
+   mobile.css — 用户端（小程序）专属样式
+   ------------------------------------------------------------
+   依赖 styles.css 中的 CSS 变量（--cs-* tokens）与 reset。
+   仅用户端 4 个页面(chat/faq/offline/rating)引用。
+   包含：小程序手机壳骨架(cs-phone) + 聊天容器 + 消息气泡 + 富媒体卡片。
+   ============================================================ */
+
+/* ============================================================
+   13.5 Mobile Mini-Program Frame (统一小程序骨架)
+   ------------------------------------------------------------
+   对齐参考项目 mini-program 的小程序规范：
+   .cs-phone 外壳 + .cs-status-bar 状态栏 + .cs-nav-bar 导航栏(返回/标题/胶囊)。
+   用户端 4 个页面(chat/faq/offline/rating)共用此骨架。
+   独立 cs- 前缀，不污染旧 .chat-mobile-container / .chat-header。
+   ============================================================ */
+
+/* --- Phone Frame (375px 手机壳) --- */
+.cs-phone {
+  width: 375px;
+  min-height: 760px;        /* 默认最小高度，内容超出时自适应增高 */
+  margin: var(--cs-space-6) auto;
+  background: #ededed;
+  border-radius: 28px;
+  border: 8px solid #1a1a1a;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* --- Status Bar (顶部 44px，绝对定位浮于外壳顶部) --- */
+.cs-status-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  padding: 14px 24px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: var(--cs-font-size-sm);
+  z-index: 5;
+  pointer-events: none;     /* 仅展示，不拦截点击 */
+}
+.cs-status-bar .sb-time {
+  font-weight: var(--cs-font-weight-bold);
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text);
+  margin-top: 2px;
+}
+.cs-status-bar .sb-icons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.cs-status-bar .sb-icons svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--cs-text);
+}
+
+/* --- Nav Bar (导航栏；预留状态栏高度 + 自身 44px) ---
+ * 状态栏 44px 用 padding-top 占位，导航内容区 44px 高度内：
+ * 返回键/胶囊绝对定位贴左右，标题绝对定位并 flex 居中。
+ */
+.cs-nav-bar {
+  position: relative;
+  height: 88px;             /* 44(状态栏预留) + 44(导航栏) */
+  padding-top: 44px;        /* 为绝对定位的状态栏让出空间 */
+  flex-shrink: 0;
+  background: var(--cs-bg-card);
+  border-bottom: 1px solid #f0f0f0;
+  z-index: 4;
+}
+.cs-nav-bar .cs-back {
+  position: absolute;
+  left: var(--cs-space-2);
+  top: 44px;                /* 紧贴状态栏下方 */
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+.cs-nav-bar .cs-back:active { background: rgba(0,0,0,0.06); }
+.cs-nav-bar .cs-back svg {
+  width: 22px; height: 22px;
+  color: var(--cs-text);
+}
+.cs-nav-bar .cs-nav-title {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--cs-font-size-xl);
+  font-weight: var(--cs-font-weight-semibold);
+  color: var(--cs-text);
+  padding: 0 96px;          /* 两侧避开返回键/胶囊 */
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;     /* 让标题仅展示，点击穿透到下层 */
+}
+.cs-nav-bar .cs-capsule {
+  position: absolute;
+  top: 44px;
+  right: var(--cs-space-1);
+  height: 44px;
+  width: 87px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cs-nav-bar .cs-capsule svg {
+  width: 87px;
+  height: 32px;
+  display: block;
+}
+
+/* --- 可滚动内容区 (消息/表单/列表) --- */
+.cs-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- 响应式：窄屏撑满宽度 --- */
+@media (max-width: 430px) {
+  .cs-phone { width: 100%; border-radius: 0; border: none; min-height: 100vh; }
+}
+
+/* ============================================================
+   14. Mobile Chat Container (375px)
+   ============================================================ */
+.chat-mobile-container {
+  width: 375px;
+  height: 760px;
+  margin: var(--cs-space-6) auto;
+  background: #ededed;
+  border-radius: var(--cs-radius-xl) * 2;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 8px solid #1a1a1a;
+}
+.chat-header {
+  height: 56px;
+  background: #f7f7f7;
+  border-bottom: 1px solid #dcdcdc;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: var(--cs-space-2);
+  flex-shrink: 0;
+}
+.chat-header .back-arrow { font-size: 22px; color: var(--cs-text); cursor: pointer; }
+.chat-header .title { flex: 1; font-size: var(--cs-font-size-xl); font-weight: var(--cs-font-weight-semibold); text-align: center; }
+.chat-header .action-icon { font-size: 20px; color: var(--cs-text); cursor: pointer; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--cs-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ededed;
+}
+
+.chat-input-area {
+  height: 56px;
+  background: #f7f7f7;
+  border-top: 1px solid #dcdcdc;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: var(--cs-space-2);
+  flex-shrink: 0;
+}
+.chat-input-area input {
+  flex: 1;
+  height: 36px;
+  border-radius: 18px;
+  border: 1px solid #ddd;
+  padding: 0 16px;
+  font-size: var(--cs-font-size-md);
+  outline: none;
+}
+
+/* ============================================================
+   15. Message Bubbles
+   ============================================================ */
+.msg-bubble-user {
+  align-self: flex-end;
+  max-width: 72%;
+  background: #95ec69;
+  color: var(--cs-text);
+  padding: 9px 14px;
+  border-radius: var(--cs-radius-md);
+  border-top-right-radius: 2px;
+  font-size: var(--cs-font-size-md);
+  word-wrap: break-word;
+}
+.msg-bubble-agent {
+  align-self: flex-start;
+  max-width: 72%;
+  background: #fff;
+  color: var(--cs-text);
+  padding: 9px 14px;
+  border-radius: var(--cs-radius-md);
+  border-top-left-radius: 2px;
+  font-size: var(--cs-font-size-md);
+  word-wrap: break-word;
+  border: 1px solid #eee;
+}
+.msg-bubble-system {
+  align-self: center;
+  background: rgba(0,0,0,0.12);
+  color: #fff;
+  font-size: var(--cs-font-size-sm);
+  padding: 4px 12px;
+  border-radius: var(--cs-radius-xs);
+}
+
+/* ============================================================
+   16. Rich Media Cards (order/product/coupon)
+   ============================================================ */
+.msg-card {
+  width: 240px;
+  background: #fff;
+  border-radius: var(--cs-radius-md);
+  border: 1px solid var(--cs-border-light);
+  overflow: hidden;
+  font-size: var(--cs-font-size-base);
+}
+.msg-card .card-banner {
+  height: 90px;
+  background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--cs-font-size-sm);
+}
+.msg-card.order .card-banner { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
+.msg-card.coupon .card-banner { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
+.msg-card.product .card-banner { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
+.msg-card .card-body { padding: 10px 12px; }
+.msg-card .card-row { display: flex; justify-content: space-between; margin: 4px 0; }
+.msg-card .card-action {
+  text-align: center;
+  padding: 8px;
+  background: var(--cs-primary);
+  color: #fff;
+  margin-top: var(--cs-space-2);
+  cursor: pointer;
+  border-radius: 0 0 var(--cs-radius-md) var(--cs-radius-md);
+}

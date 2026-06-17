@@ -74,7 +74,7 @@ function renderSidebar() {
 
   const activeId = el.getAttribute('data-active') || '';
 
-  let html = '<div class="logo">CS 客服管理后台</div>';
+  let html = '<div class="logo">供应链平台</div>';
 
   MENU_DATA.forEach(group => {
     html += `<div class="sidebar-menu-group-title">${group.group}</div>`;

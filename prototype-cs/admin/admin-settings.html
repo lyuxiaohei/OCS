@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>系统设置 — CS 商城客服系统</title>
+  <title>系统设置 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
   <style>
     /* ===== admin-settings.html 专属样式 ===== */
@@ -27,7 +27,7 @@
       transition: var(--cs-transition-normal);
       white-space: nowrap;
     }
-    .settings-anchor a:hover { background: #f0f5ff; color: var(--cs-primary); }
+    .settings-anchor a:hover { background: #e6f4ff; color: var(--cs-primary); }
     .settings-anchor a.active { background: var(--cs-primary-bg); color: var(--cs-primary); font-weight: var(--cs-font-weight-medium); }
 
     /* ---------- 设置区块卡片 ---------- */
@@ -209,7 +209,7 @@
     .radio-card:hover { border-color: var(--cs-primary-hover); }
     .radio-card.checked {
       border-color: var(--cs-primary);
-      background: #f0f5ff;
+      background: #e6f4ff;
       box-shadow: 0 0 0 1px var(--cs-primary);
     }
     .radio-card .rc-title {
@@ -409,8 +409,13 @@
       color: var(--cs-success);
     }
     .save-status::before {
-      content: "✓";
-      font-weight: 600;
+      content: "";
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      background-color: currentColor;
+      -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") center / contain no-repeat;
+              mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") center / contain no-repeat;
     }
 
     /* Dirty section indicator */
@@ -456,9 +461,6 @@
         </div>
       </div>
 
-      <!-- 原型交互说明 -->
-      <div class="prototype-note">本页演示管理端核心配置能力：<strong>US-ADMIN-02 欢迎语与离线语设置</strong>（对应 customer_chat_settings.welcome_content / offline_content）、<strong>US-ADMIN-03 智能路由与分流规则</strong>（is_auto_accept 开关 + 分流策略）、<strong>US-ADMIN-04 会话超时与敏感词管理</strong>（cron 定时关闭 + 敏感词库）。</div>
-
       <!-- 锚点导航 -->
       <div class="settings-anchor">
         <a class="active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 欢迎语</a>
@@ -480,7 +482,7 @@
         <div class="form-row">
           <div class="form-label"><span class="req">*</span>welcome_content</div>
           <div class="form-control">
-            <textarea class="textarea-field" rows="3">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？😊</textarea>
+            <textarea class="textarea-field" rows="3">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？</textarea>
             <div class="flex-between" style="margin-top:4px;">
               <span class="form-hint" style="margin:0;">支持文字与表情符号，不支持图片。用户进入会话后 0.5s 内自动推送。</span>
               <span class="char-count"><span style="color:var(--cs-text);">42</span> / 200</span>
@@ -514,7 +516,7 @@
         <!-- 预览 -->
         <div class="welcome-preview">
           <div class="preview-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>用户端预览</div>
-          <div class="bubble">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？😊</div>
+          <div class="bubble">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？</div>
         </div>
       </div>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>客户信息 — CS 商城客服系统</title>
+  <title>客户信息 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
   <style>
     /* ===== admin-customer-info.html 专属样式 ===== */
@@ -304,7 +304,7 @@
     }
     .action-tag.view { background: #e6f4ff; color: var(--cs-primary); }
     .action-tag.cart { background: #fffbe6; color: #d48b08; }
-    .action-tag.search { background: #f9f0ff; color: var(--cs-purple); }
+    .action-tag.search { background: #e6f4ff; color: var(--cs-purple); }
     .action-tag.order { background: #f6ffed; color: var(--cs-success); }
 
     /* ===== 交易记录 Tab ===== */
@@ -557,11 +557,6 @@
 
       <!-- Content -->
       <div class="admin-content">
-
-        <div class="prototype-note">
-          本页演示 <strong>US-MVP-07/08/09/10</strong>（客户基础信息视图 / 客户行为数据 / 客户交易数据 / 客户服务数据）。
-          MVP 阶段会员等级、行为、交易数据均使用 Mock 占位，完整对接商城/OMS 后从实时接口获取；服务历史数据由本系统 sessions + messages + 评价表聚合计算。
-        </div>
 
         <!-- ===== Profile Header ===== -->
         <div class="profile-header">
@@ -996,11 +991,6 @@
             <div style="color:#ff4d4f;font-size:14px;margin:8px 0 4px;">数据加载失败</div>
             <div style="color:#999;font-size:12px;margin-bottom:12px;">客服数据库 响应超时，请稍后重试</div>
             <button class="btn-sm" style="border:1px solid #d9d9d9;padding:4px 16px;border-radius:4px;font-size:12px;" onclick="retryLoad(this)">重新加载</button>
-          </div>
-
-          <div class="prototype-note" style="margin-top:0;">
-            服务数据由本系统 <strong>已有数据聚合</strong>（customer_chat_sessions + customer_chat_messages + 评价表），无需外部依赖。
-            接口：GET /api/backend/user/service-stats
           </div>
 
           <!-- Service stats -->

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>待办事项 — CS 商城客服系统</title>
+  <title>待办事项 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
   <style>
     /* ===== admin-todo.html 专属样式 ===== */
@@ -79,9 +79,9 @@
       font-size: var(--cs-font-size-base); font-weight: var(--cs-font-weight-semibold);
       flex-shrink: 0;
     }
-    .todo-avatar.warn   { background: var(--cs-orange); }
-    .todo-avatar.danger { background: var(--cs-danger); }
-    .todo-avatar.violet { background: var(--cs-purple); }
+    .todo-avatar.warn   { background: var(--cs-primary); }
+    .todo-avatar.danger { background: var(--cs-primary); }
+    .todo-avatar.violet { background: var(--cs-primary); }
 
     .todo-main { flex: 1; min-width: 0; }
     .todo-top {
@@ -107,7 +107,7 @@
       line-height: 1.6;
     }
     .urgency.high   { background: var(--cs-danger-bg); color: var(--cs-danger); border: 1px solid #ffccc7; }
-    .urgency.medium { background: var(--cs-orange-bg); color: var(--cs-orange); border: 1px solid #ffd591; }
+    .urgency.medium { background: var(--cs-orange-bg); color: var(--cs-orange); border: 1px solid #ffe58f; }
     .urgency.low    { background: var(--cs-success-bg); color: #389e0d; border: 1px solid #b7eb8f; }
 
     /* 倒计时条 */
@@ -166,12 +166,6 @@
 
     <!-- 内容区 -->
     <main class="admin-content">
-
-      <!-- 交互说明 -->
-      <div class="prototype-note">
-        本页面演示 <strong>US-MVP-01 待处理事项面板</strong>：集中展示未回复消息、超时预警、待评价会话三类待办，
-        支持按紧急度排序与一键处理（回复 / 接入 / 催办 / 关闭）。实时刷新，确保客服优先处理高优先级任务。
-      </div>
 
       <!-- ===== 顶部统计条 ===== -->
       <div class="todo-stats">
@@ -481,8 +475,8 @@
             </div>
 
             <!-- 跳过状态说明 -->
-            <div style="margin:10px 18px 12px;background:#e6f7ff;border:1px solid #91d5ff;border-radius:6px;padding:8px 12px;font-size:12px;color:#1890ff;">
-              ℹ️ 用户跳过评价后，系统记录为"已跳过"状态。管理员仍可发送催评邀请，或手动关闭会话。
+            <div style="margin:10px 18px 12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:8px 12px;font-size:12px;color:#1677ff;">
+              用户跳过评价后，系统记录为"已跳过"状态。管理员仍可发送催评邀请，或手动关闭会话。
             </div>
 
           </div>

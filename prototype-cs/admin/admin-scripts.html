@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>话术库 — CS 商城客服系统</title>
+  <title>话术库 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
   <style>
     /* ===== admin-scripts.html 专属样式 ===== */
@@ -103,13 +103,13 @@
 
     /* 业务分类颜色映射（用于列表中标签） */
     .biz-presale  { background: #e6f4ff; color: #1677ff; border: 1px solid #91caff; }
-    .biz-aftersale { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+    .biz-aftersale { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
     .biz-complaint { background: #fff1f0; color: #f5222d; border: 1px solid #ffccc7; }
     .biz-general  { background: #f5f5f5; color: #8c8c8c; border: 1px solid #e8e8e8; }
 
     /* 场景颜色映射（用于列表中标签） */
     .scene-enter    { background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; }
-    .scene-offline  { background: var(--cs-orange-bg); color: #d46b08; border: 1px solid #ffd591; }
+    .scene-offline  { background: var(--cs-orange-bg); color: #d48806; border: 1px solid #ffe58f; }
     .scene-keyword  { background: var(--cs-purple-bg); color: var(--cs-purple); border: 1px solid #d3adf7; }
     .scene-transfer { background: var(--cs-danger-bg); color: var(--cs-danger); border: 1px solid #ffccc7; }
     .scene-general  { background: var(--cs-success-bg); color: #389e0d; border: 1px solid #b7eb8f; }
@@ -375,12 +375,6 @@
 
     <!-- 内容区 -->
     <main class="admin-content">
-
-      <!-- 交互说明 -->
-      <div class="prototype-note">
-        本页面演示 <strong>US-MVP-12 话术库场景分类</strong>：话术按场景标签（进入会话 / 客服离线 / 关键词匹配 / 转人工）和业务分类（售前 / 售后 / 投诉 / 通用）两个维度分类管理，
-        支持场景筛选、业务筛选、关键词搜索、使用次数统计与新建话术。话术可在工作台聊天框中按场景智能推荐，提升回复效率。
-      </div>
 
       <!-- ===== 顶部统计条 ===== -->
       <div class="script-stats">
@@ -796,7 +790,7 @@
                 <span class="scene-dot" style="background:#1677ff;"></span>售前
               </span>
               <span class="scene-option" onclick="selectBiz(this)" data-biz="aftersale">
-                <span class="scene-dot" style="background:#d46b08;"></span>售后
+                <span class="scene-dot" style="background:#d48806;"></span>售后
               </span>
               <span class="scene-option" onclick="selectBiz(this)" data-biz="complaint">
                 <span class="scene-dot" style="background:#f5222d;"></span>投诉
@@ -843,7 +837,7 @@
             <div style="font-size:12px; color:#d48806; font-weight:600; margin-bottom:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>业务分类说明</div>
             <div style="font-size:12px; color:var(--cs-text-secondary); line-height:1.9;">
               <span style="color:#1677ff;">●</span> <strong>售前</strong>：商品咨询、活动促销、会员引导<br/>
-              <span style="color:#d46b08;">●</span> <strong>售后</strong>：退款退货、物流查询、发票开具<br/>
+              <span style="color:#d48806;">●</span> <strong>售后</strong>：退款退货、物流查询、发票开具<br/>
               <span style="color:#f5222d;">●</span> <strong>投诉</strong>：投诉处理、纠纷调解、升级转接<br/>
               <span style="color:#8c8c8c;">●</span> <strong>通用</strong>：欢迎语、转接提示、离线留言
             </div>
@@ -943,8 +937,8 @@
   // 场景选择器
   var sceneInfoMap = {
     '进入会话': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>', color: '#1677ff', bg: '#e6f4ff', border: '#bae0ff', desc: '用户发起会话时自动发送或首次推荐', detail: '适用：欢迎语、活动引导、会员权益提醒' },
-    '客服离线': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>', color: '#fa8c16', bg: '#fff7e6', border: '#ffd591', desc: '客服不在线时自动回复用户', detail: '适用：离线提示、留言引导、客服热线' },
-    '关键词匹配': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>', color: '#722ed1', bg: '#f9f0ff', border: '#d3adf7', desc: '用户消息命中关键词时推荐此话术', detail: '需配置触发关键词，支持部分匹配' },
+    '客服离线': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>', color: '#faad14', bg: '#fffbe6', border: '#ffe58f', desc: '客服不在线时自动回复用户', detail: '适用：离线提示、留言引导、客服热线' },
+    '关键词匹配': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>', color: '#1677ff', bg: '#e6f4ff', border: '#d3adf7', desc: '用户消息命中关键词时推荐此话术', detail: '需配置触发关键词，支持部分匹配' },
     '转人工': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>', color: '#f5222d', bg: '#fff1f0', border: '#ffccc7', desc: '会话转接时发送给用户的提示', detail: '适用：转专员、转主管、转技术支持' },
     '通用': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', color: '#389e0d', bg: '#f6ffed', border: '#b7eb8f', desc: '无特定场景，客服手动选择使用', detail: '适用：常规问候、结束语、通用答疑' }
   };

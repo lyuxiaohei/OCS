@@ -30,9 +30,9 @@
     .mhead { color: var(--cs-text-placeholder); font-size: 11px; border-bottom: 1px solid var(--cs-border-lighter); padding-bottom: 6px; margin-bottom: 2px; }
     .mrow:not(.mhead):hover { background: var(--cs-bg-page); }
     .mtag { font-size: 11px; font-weight: 500; }
-    .mtag.p1 { color: var(--cs-primary); }
-    .mtag.p2 { color: var(--cs-success); }
-    .mtag.p3 { color: var(--cs-purple); }
+    .mtag.p1 { color: var(--cs-orange); }
+    .mtag.p2 { color: var(--cs-primary); opacity: 0.5; }
+    .mtag.p3 { color: var(--cs-purple); opacity: 0.5; }
     .m-role { color: var(--cs-text-secondary); }
     .m-l1 { color: var(--cs-text); font-weight: 500; }
     .m-l2 { color: var(--cs-text); }
@@ -46,30 +46,18 @@
   <div class="wrap">
     <header class="head">
       <h1>CS 商城客服系统 · 交互原型</h1>
-      <div class="sub">共 <b>24</b> 个原型页面。菜单字段（版本/使用角色/一级菜单/二级菜单/子页面）数据来源：线上客服排期 T2 + 竞品调研。</div>
+      <div class="sub">共 <b>23</b> 个原型页面（其中 <b>16</b> 个为 1 期 MVP：管理端 11 + 用户端 5；其余 7 个为 2/3 期占位页，已从 1 期侧边栏导航隐藏）。菜单字段（版本/使用角色/一级菜单/二级菜单/子页面）数据来源：线上客服排期 T2 + 竞品调研。</div>
       <div class="src">数据来源：线上客服排期_20260610.xlsx（T2）· 更新于 2026-06-15</div>
       <div class="legend">
         <span class="lg"><span class="sw" style="background:var(--cs-success)"></span>已完成(绿)</span>
         <span class="lg"><span class="sw" style="background:var(--cs-text-placeholder)"></span>未完成(灰)</span>
-        <span class="lg"><span class="sw" style="background:var(--cs-primary)"></span>V1</span>
-        <span class="lg"><span class="sw" style="background:var(--cs-success)"></span>V2</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-orange)"></span>V1</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-primary)"></span>V2</span>
         <span class="lg"><span class="sw" style="background:var(--cs-purple)"></span>V3</span>
       </div>
     </header>
 
     <ul class="groups2">
-      <li class="grp2">
-        <span class="dot dot-ok"></span>
-        <div class="grp2-head">
-          <a class="grp2-file" href="admin/admin-login.html">admin-login.html</a>
-          <span class="cnt">1 项</span>
-        </div>
-        <div class="grp2-menus">
-          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
-        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">登录</span><span class="m-l2">管理员登录</span><span class="m-sub">—</span></div>
-        </div>
-      </li>
-
       <li class="grp2">
         <span class="dot dot-ok"></span>
         <div class="grp2-head">
@@ -432,7 +420,7 @@
     </ul>
 
     <footer class="foot">
-      页面总数：24（绿点=已有原型，灰点=占位待开发）· 版本信息统一在表内「版本」列<br>
+      页面总数：23（绿点=已有原型，灰点=占位待开发）· 1 期 MVP 16 页（管理端 11 + 用户端 5）· 版本信息统一在表内「版本」列<br>2/3 期排除页（不在 1 期导航，对应 PRD V1.0 Out of Scope）：工单 admin-ticket.html（2 期）、客服管理 admin-staff.html / 渠道接入 admin-channel.html / 机器人配置 ai-bot-config.html / 智能客服场景 ai-scene.html / 质检分析 ai-quality.html / 报表看板 ai-report.html（均为 3 期）<br>
       菜单数据来源：线上客服排期 T2 + 竞品调研（B9/B10/B12 归类）<br>
       技术栈：Go / React (Umi) / Taro
     </footer>

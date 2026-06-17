@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡片颜色统一方案 · 线框图</title>
+<style>
+  :root{
+    /* 复用项目 Design Token（与 styles.css 一致） */
+    --cs-primary:#1677ff; --cs-primary-bg:#e6f4ff;
+    --cs-success:#52c41a; --cs-success-bg:#f6ffed;
+    --cs-warning:#faad14; --cs-warning-bg:#fffbe6;
+    --cs-danger:#f5222d;  --cs-danger-bg:#fff1f0;
+    --cs-orange:#fa8c16;  --cs-orange-bg:#fff7e6;
+    --cs-purple:#722ed1;  --cs-purple-bg:#f9f0ff;
+    --cs-text:#1f1f1f; --cs-text-secondary:#595959; --cs-text-tertiary:#8c8c8c;
+    --cs-border:#d9d9d9; --cs-border-light:#f0f0f0; --cs-border-lighter:#f5f5f5;
+    --cs-bg-page:#f0f2f5; --cs-bg-card:#fff; --cs-bg-header:#fafafa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+  body{background:var(--cs-bg-page);color:var(--cs-text);padding:32px 24px;line-height:1.6;}
+  h1{font-size:22px;margin-bottom:6px;}
+  .sub{color:var(--cs-text-tertiary);font-size:13px;margin-bottom:28px;}
+  .wrap{max-width:980px;margin:0 auto;}
+
+  /* 方案区块 */
+  .section{background:var(--cs-bg-card);border:1px solid var(--cs-border-light);border-radius:10px;padding:28px 28px 20px;margin-bottom:24px;}
+  .section-title{font-size:17px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .badge-wf{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;}
+  .badge-before{background:var(--cs-danger-bg);color:var(--cs-danger);}
+  .badge-after{background:var(--cs-success-bg);color:var(--cs-success);}
+  .section-desc{color:var(--cs-text-secondary);font-size:13px;margin:4px 0 24px;}
+
+  /* 两栏对照：移动端聊天卡片 */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+  @media(max-width:760px){.cmp{grid-template-columns:1fr;}}
+  .cmp-col h4{font-size:13px;color:var(--cs-text-tertiary);font-weight:600;margin-bottom:14px;letter-spacing:.5px;}
+  /* 手机外框 */
+  .phone{width:300px;background:#ededed;border-radius:14px;padding:14px 10px;margin:0 auto;}
+  .phone-row{display:flex;gap:8px;margin-bottom:12px;align-items:flex-start;}
+  .av{width:30px;height:30px;border-radius:50%;background:var(--cs-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+
+  /* ===== 现状（改造前）===== */
+  .old-card{width:248px;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .old-banner{height:40px;display:flex;align-items:center;padding:0 12px;color:#fff;font-weight:600;font-size:13px;gap:6px;}
+  .old-banner.order{background:var(--cs-orange);}
+  .old-banner.product{background:var(--cs-success);}
+  .old-banner.coupon{background:var(--cs-danger);}
+  .old-body{padding:10px 12px;}
+  .old-row{display:flex;justify-content:space-between;font-size:12px;margin:4px 0;}
+  .old-row .l{color:var(--cs-text-tertiary);}
+  .old-action{text-align:center;padding:8px;color:#fff;font-size:12px;border-radius:4px;margin-top:8px;}
+  .old-action.order{background:var(--cs-orange);}
+  .old-action.product{background:var(--cs-success);}
+  .old-action.coupon{background:var(--cs-danger);}
+  .old-thumb{width:48px;height:48px;border-radius:6px;background:linear-gradient(135deg,#d9f7be,#b7eb8f);display:inline-flex;vertical-align:middle;margin-right:8px;}
+  .old-prod{display:flex;align-items:center;}
+  .mark-old{outline:2px dashed var(--cs-danger);outline-offset:3px;border-radius:10px;}
+
+  /* ===== 新方案（改造后）===== */
+  .new-card{width:248px;border-radius:10px;overflow:hidden;background:#fff;border:1px solid var(--cs-border-light);box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .new-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--cs-border-lighter);}
+  .new-head .h-left{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--cs-text);}
+  .new-head .h-ico{width:18px;height:18px;border-radius:4px;background:var(--cs-bg-header);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--cs-text-secondary);border:1px solid var(--cs-border-light);}
+  /* 类型标签：小、浅底、对应语义色——只占很小面积 */
+  .type-pill{font-size:11px;padding:1px 7px;border-radius:10px;font-weight:500;}
+  .type-pill.t-order{background:var(--cs-orange-bg);color:var(--cs-orange);}
+  .type-pill.t-product{background:var(--cs-primary-bg);color:var(--cs-primary);}
+  .type-pill.t-coupon{background:var(--cs-danger-bg);color:var(--cs-danger);}
+  .new-body{padding:10px 12px;}
+  .new-row{display:flex;justify-content:space-between;font-size:12px;margin:4px 0;align-items:center;}
+  .new-row .l{color:var(--cs-text-tertiary);}
+  .new-row .v{color:var(--cs-text);font-weight:500;}
+  /* 状态徽标：小圆点 + 文字，颜色编码"状态"而非"卡片类型" */
+  .state{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;}
+  .state::before{content:"";width:6px;height:6px;border-radius:50%;}
+  .state.s-warn{color:var(--cs-orange);}    .state.s-warn::before{background:var(--cs-orange);}   /* 待发货 */
+  .state.s-proc{color:var(--cs-primary);}   .state.s-proc::before{background:var(--cs-primary);}  /* 进行中 */
+  .state.s-done{color:var(--cs-success);}   .state.s-done::before{background:var(--cs-success);}  /* 已完成 */
+  .state.s-danger{color:var(--cs-danger);}  .state.s-danger::before{background:var(--cs-danger);} /* 退款 */
+  .price{color:var(--cs-text);font-weight:600;}
+  .new-prod{display:flex;align-items:center;gap:8px;}
+  .new-thumb{width:48px;height:48px;border-radius:6px;background:var(--cs-bg-header);border:1px solid var(--cs-border-light);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--cs-text-tertiary);flex-shrink:0;}
+  .new-action{text-align:center;padding:8px;font-size:12px;border-radius:4px;margin-top:8px;background:var(--cs-bg-card);color:var(--cs-primary);border:1px solid var(--cs-primary);font-weight:500;}
+  .mark-new{outline:2px dashed var(--cs-success);outline-offset:3px;border-radius:10px;}
+
+  /* 状态色对照表 */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--cs-border-lighter);}
+  th{background:var(--cs-bg-header);color:var(--cs-text-secondary);font-weight:500;}
+  td .demo{display:inline-flex;align-items:center;gap:5px;}
+
+  /* 规则卡 */
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+  @media(max-width:760px){.rules{grid-template-columns:1fr;}}
+  .rule{border:1px solid var(--cs-border-light);border-radius:8px;padding:14px 16px;}
+  .rule .rh{font-weight:600;font-size:13px;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+  .rule .rd{font-size:12px;color:var(--cs-text-secondary);}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  .legend-note{font-size:12px;color:var(--cs-text-tertiary);margin-top:16px;padding:10px 12px;background:var(--cs-warning-bg);border-radius:6px;border-left:3px solid var(--cs-warning);}
+  .ok{color:var(--cs-success);font-weight:600;}
+  .no{color:var(--cs-danger);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>卡片颜色统一方案 · 线框图</h1>
+  <div class="sub">调研基线：千牛 / ChatUI（阿里官方对话组件）、飞书卡片规范、华为卡片 UX、NN/g。结论：卡片本体统一中性色，颜色只留给"类型小标签 + 状态徽标"。</div>
+
+  <!-- ============ 1. 改造前后对照 ============ -->
+  <div class="section">
+    <div class="section-title"><span class="badge-wf badge-before">改造前</span> vs <span class="badge-wf badge-after">改造后</span></div>
+    <div class="section-desc">左：现状用"整块 banner 色 + 彩色按钮"区分卡片类型（橙=订单 / 绿=商品 / 红=优惠券）。右：卡片本体统一白底浅描边，类型靠小标签 + 图标，颜色只用于状态徽标。</div>
+
+    <div class="cmp">
+      <!-- 改造前 -->
+      <div class="cmp-col">
+        <h4>改造前 · 用整块颜色区分类型</h4>
+        <div class="phone">
+          <!-- 订单 -->
+          <div class="phone-row">
+            <div class="av">李</div>
+            <div class="mark-old old-card">
+              <div class="old-banner order">📦 订单信息</div>
+              <div class="old-body">
+                <div class="old-row"><span class="l">订单号</span><span>CS2026061109</span></div>
+                <div class="old-row"><span class="l">状态</span><span style="color:#fa8c16">待发货</span></div>
+                <div class="old-row"><span class="l">金额</span><span>¥299.00</span></div>
+                <div class="old-action order">查看订单详情</div>
+              </div>
+            </div>
+          </div>
+          <!-- 商品 -->
+          <div class="phone-row">
+            <div class="av">李</div>
+            <div class="mark-old old-card">
+              <div class="old-banner product">🛒 商品信息</div>
+              <div class="old-body">
+                <div class="old-prod"><span class="old-thumb"></span><span style="font-size:12px">无线蓝牙耳机 白色</span></div>
+                <div class="old-row"><span class="l">价格</span><span>¥299.00</span></div>
+                <div class="old-action product">查看商品</div>
+              </div>
+            </div>
+          </div>
+          <!-- 优惠券 -->
+          <div class="phone-row">
+            <div class="av">李</div>
+            <div class="mark-old old-card">
+              <div class="old-banner coupon">🎟 优惠券</div>
+              <div class="old-body">
+                <div class="old-row"><span class="l">面额</span><span>¥20.00</span></div>
+                <div class="old-row"><span class="l">门槛</span><span>满¥99可用</span></div>
+                <div class="old-action coupon">立即领取</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 改造后 -->
+      <div class="cmp-col">
+        <h4>改造后 · 统一中性卡 + 类型标签 + 状态徽标</h4>
+        <div class="phone">
+          <!-- 订单 -->
+          <div class="phone-row">
+            <div class="av">李</div>
+            <div class="mark-new new-card">
+              <div class="new-head">
+                <div class="h-left"><span class="h-ico">📦</span>订单</div>
+                <span class="type-pill t-order">订单</span>
+              </div>
+              <div class="new-body">
+                <div class="new-row"><span class="l">订单号</span><span class="v">CS2026061109</span></div>
+                <div class="new-row"><span class="l">状态</span><span class="state s-warn">待发货</span></div>
+                <div class="new-row"><span class="l">金额</span><span class="price">¥299.00</span></div>
+                <div class="new-action">查看订单详情</div>
+              </div>
+            </div>
+          </div>
+          <!-- 商品 -->
+          <div class="phone-row">
+            <div class="av">李</div>
+            <div class="mark-new new-card">
+              <div class="new-head">
+                <div class="h-left"><span class="h-ico">🛒</span>商品</div>
+                <span class="type-pill t-product">商品</span>
+              </div>
+              <div class="new-body">
+                <div class="new-prod"><span class="new-thumb">图</span><span style="font-size:12px;font-weight:500">无线蓝牙耳机 白色</span></div>
+                <div class="new-row" style="margin-top:6px"><span class="l">价格</span><span class="price">¥299.00</span></div>
+                <div class="new-action">查看商品</div>
+              </div>
+            </div>
+          </div>
+          <!-- 优惠券 -->
+          <div class="phone-row">
+            <div class="av">李</div>
+            <div class="mark-new new-card">
+              <div class="new-head">
+                <div class="h-left"><span class="h-ico">🎟</span>优惠券</div>
+                <span class="type-pill t-coupon">优惠券</span>
+              </div>
+              <div class="new-body">
+                <div class="new-row"><span class="l">面额</span><span class="price">¥20.00</span></div>
+                <div class="new-row"><span class="l">门槛</span><span class="v">满 ¥99 可用</span></div>
+                <div class="new-action">立即领取</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="legend-note">对比要点：<span class="no">改造前</span>三张卡 banner 颜色各异（橙/绿/红），且按钮同色——类型靠"大色块"识别；<span class="ok">改造后</span>三张卡本体完全一致（白底/浅描边/同一按钮样式），类型用右上角小标签传达，颜色节省下来给<b>状态</b>（待发货=橙点）使用。</div>
+  </div>
+
+  <!-- ============ 2. 状态色规范 ============ -->
+  <div class="section">
+    <div class="section-title">颜色语义规范 · 颜色只服务"状态"，不服务"类型"</div>
+    <div class="section-desc">无论订单/商品/优惠券卡，本体永远是白底。下面这套颜色统一用于所有卡片的"状态徽标"和"紧急标记"，与 styles.css 的 status-tag 体系完全对齐。</div>
+    <table>
+      <thead><tr><th width="26%">状态</th><th>颜色</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><span class="demo"><span class="dot" style="background:var(--cs-primary)"></span>进行中 / 进行中</span></td><td>主色 #1677ff</td><td>待付款、处理中、已发货、进行中会话</td></tr>
+        <tr><td><span class="demo"><span class="dot" style="background:var(--cs-success)"></span>已完成 / 成功</span></td><td>成功 #52c41a</td><td>已完成订单、已领取优惠券、质检通过</td></tr>
+        <tr><td><span class="demo"><span class="dot" style="background:var(--cs-orange)"></span>待处理 / 警告</span></td><td>橙色 #fa8c16</td><td>待发货、待回复、超时预警</td></tr>
+        <tr><td><span class="demo"><span class="dot" style="background:var(--cs-danger)"></span>异常 / 危险</span></td><td>危险 #f5222d</td><td>退款、取消、质检不通过、紧急工单</td></tr>
+        <tr><td><span class="demo"><span class="dot" style="background:#bfbfbf"></span>已关闭 / 中性</span></td><td>灰色 #8c8c8c</td><td>已关闭会话、已失效优惠券、草稿</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 3. 同一订单卡的不同状态 ============ -->
+  <div class="section">
+    <div class="section-title">同一张订单卡 · 用"状态徽标"表达流转（而非换卡背景色）</div>
+    <div class="section-desc">这是改造的核心收益：卡片结构不变，只切换右上角状态徽标颜色，即可表达订单全生命周期。竞品千牛/ChatUI 正是如此。</div>
+    <div class="cmp" style="grid-template-columns:repeat(4,1fr);gap:16px;">
+      <div style="text-align:center">
+        <div class="new-card" style="width:100%;margin:0 auto">
+          <div class="new-head"><div class="h-left"><span class="h-ico">📦</span>订单</div><span class="state s-warn">待发货</span></div>
+          <div class="new-body"><div class="new-row"><span class="l">金额</span><span class="price">¥299</span></div></div>
+        </div>
+        <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:8px">待发货（橙）</div>
+      </div>
+      <div style="text-align:center">
+        <div class="new-card" style="width:100%;margin:0 auto">
+          <div class="new-head"><div class="h-left"><span class="h-ico">📦</span>订单</div><span class="state s-proc">已发货</span></div>
+          <div class="new-body"><div class="new-row"><span class="l">金额</span><span class="price">¥299</span></div></div>
+        </div>
+        <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:8px">已发货（蓝）</div>
+      </div>
+      <div style="text-align:center">
+        <div class="new-card" style="width:100%;margin:0 auto">
+          <div class="new-head"><div class="h-left"><span class="h-ico">📦</span>订单</div><span class="state s-done">已完成</span></div>
+          <div class="new-body"><div class="new-row"><span class="l">金额</span><span class="price">¥299</span></div></div>
+        </div>
+        <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:8px">已完成（绿）</div>
+      </div>
+      <div style="text-align:center">
+        <div class="new-card" style="width:100%;margin:0 auto">
+          <div class="new-head"><div class="h-left"><span class="h-ico">📦</span>订单</div><span class="state s-danger">退款中</span></div>
+          <div class="new-body"><div class="new-row"><span class="l">金额</span><span class="price">¥299</span></div></div>
+        </div>
+        <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:8px">退款中（红）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 4. 设计规则 ============ -->
+  <div class="section">
+    <div class="section-title">落地规则（确认后据此改 styles.css 与各页面）</div>
+    <div class="rules">
+      <div class="rule"><div class="rh"><span class="dot" style="background:var(--cs-text)"></span>卡片本体统一中性</div><div class="rd">所有卡片：白底 + <code>#f0f0f0</code> 浅描边 + 8px 圆角 + 统一阴影。删除按类型变化的 banner 背景/色条。</div></div>
+      <div class="rule"><div class="rh"><span class="dot" style="background:var(--cs-primary)"></span>类型靠标签+图标</div><div class="rd">类型用右上角小 pill 标签（订单/商品/优惠券）+ 左上小图标传达，浅底深字，面积小、不抢视觉。</div></div>
+      <div class="rule"><div class="rh"><span class="dot" style="background:var(--cs-success)"></span>颜色专属状态</div><div class="rd">5 档状态色（进行/完成/待处理/异常/关闭），复用现有 <code>status-tag</code>，跨卡片类型一致。</div></div>
+      <div class="rule"><div class="rh"><span class="dot" style="background:var(--cs-orange)"></span>按钮统一样式</div><div class="rd">卡片操作按钮统一为主色描边按钮（白底+主色字+主色边），不再随类型变橙/绿/红。</div></div>
+      <div class="rule"><div class="rh"><span class="dot" style="background:var(--cs-purple)"></span>清理残留 class</div><div class="rd">删除 <code>.metric-icon.blue/.green/.orange/.purple</code> 这类名存实亡的多色 class，KPI 卡改用中性图标 + 数值颜色。</div></div>
+      <div class="rule"><div class="rh"><span class="dot" style="background:#bfbfbf"></span>hex 收敛为 token</div><div class="rd">admin-workbench / admin-customer-info 里的内联 <code>#faad14/#52c41a</code> 统一替换为 <code>var(--cs-*)</code>，杜绝漂移。</div></div>
+    </div>
+    <div class="legend-note">影响范围（待确认后执行）：user-chat.html、admin-workbench.html、admin-customer-info.html、user-faq.html、user-entry.html，以及 styles.css 中 card / metric-icon / mini-avatar 相关段落。不改功能逻辑，仅统一视觉。</div>
+  </div>
+
+  <div style="text-align:center;color:var(--cs-text-tertiary);font-size:12px;margin-top:8px;">
+    ▲ 线框图（wireframe）· 仅表达结构与配色规则 · 确认后再进入高保真实现
+  </div>
+</div>
+</body>
+</html>
