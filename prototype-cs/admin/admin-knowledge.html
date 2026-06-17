@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>知识库管理 — CS 商城客服系统</title>
+  <title>知识库管理 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
+  <script src="../js/cs-modal.js"></script>
   <style>
     /* ===== admin-knowledge.html 专属样式 ===== */
 
@@ -499,9 +500,6 @@
         </div>
       </div>
 
-      <!-- 原型交互说明 -->
-      <div class="prototype-note">本页演示 <strong>知识库管理 + 快捷回复管理</strong>：知识库模块按分类树组织内容，支持富文本编辑；快捷回复模块管理客服常用话术模板，按场景分类，支持启用/停用。</div>
-
       <!-- ===== 顶级 Tabs ===== -->
       <div class="top-tabs">
         <div class="top-tab active" data-tab="knowledge">知识库</div>
@@ -776,7 +774,7 @@
                       <td class="row-actions">
                         <a>预览</a><span class="divider">|</span>
                         <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
-                        <a onclick="openReviewModal('如何申请开具发票？');">审核</a><span class="divider">|</span>
+                        <a class="kb-review-btn" data-title="如何申请开具发票？">审核</a><span class="divider">|</span>
                         <a class="danger">删除</a>
                       </td>
                     </tr>
@@ -1031,7 +1029,7 @@
           <div style="font-size:var(--cs-font-size-base); color:var(--cs-text-secondary);">
             共 <strong style="color:var(--cs-text);">86</strong> 条快捷回复
           </div>
-          <button class="btn-primary" onclick="document.getElementById('qr-modal').classList.remove('hidden');">+ 新增快捷回复</button>
+          <button class="btn-primary" id="btnAddQuickReply">+ 新增快捷回复</button>
         </div>
 
         <!-- 数据表格 -->
@@ -1199,107 +1197,68 @@
 
 </div>
 
-<!-- ===== 新增快捷回复 Modal ===== -->
-<div class="modal-overlay hidden" id="qr-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span>新增快捷回复</span>
-      <span class="modal-close" onclick="document.getElementById('qr-modal').classList.add('hidden');">&times;</span>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>回复内容 <span style="color:var(--cs-danger);">*</span></label>
-        <textarea class="form-ipt" placeholder="请输入快捷回复内容，支持变量如 {用户昵称}、{订单号} 等"></textarea>
-      </div>
-      <div class="form-group">
-        <label>分类 <span style="color:var(--cs-danger);">*</span></label>
-        <select class="form-ipt" style="cursor:pointer;">
-          <option value="">请选择分类</option>
-          <option value="general">通用</option>
-          <option value="greeting">问候</option>
-          <option value="presale">售前</option>
-          <option value="aftersale">售后</option>
-          <option value="complaint">投诉</option>
-          <option value="logistic">物流</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>排序</label>
-        <input type="number" class="form-ipt" value="0" style="width:120px;">
-      </div>
-      <div class="form-group">
-        <label>状态</label>
-        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
-          <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; font-weight:var(--cs-font-weight-normal);">
-            <input type="radio" name="qr-status" checked> 启用
-          </label>
-          <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; font-weight:var(--cs-font-weight-normal);">
-            <input type="radio" name="qr-status"> 停用
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-default" onclick="document.getElementById('qr-modal').classList.add('hidden');">取消</button>
-      <button class="btn-primary" onclick="document.getElementById('qr-modal').classList.add('hidden');">确定</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== 审核文章 Modal ===== -->
-<div class="modal-overlay hidden" id="review-modal">
-  <div class="modal-box" style="width:620px;">
-    <div class="modal-header">
-      <span>审核文章</span>
-      <span class="modal-close" onclick="document.getElementById('review-modal').classList.add('hidden');">&times;</span>
-    </div>
-    <div class="modal-body">
-      <!-- 文章预览 -->
-      <div style="background:var(--cs-bg-header);border-radius:var(--cs-radius-sm);padding:16px;margin-bottom:var(--cs-space-4);">
-        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);margin-bottom:4px;">文章标题</div>
-        <div id="review-article-title" style="font-size:var(--cs-font-size-lg);font-weight:var(--cs-font-weight-semibold);color:var(--cs-text);"></div>
-        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-secondary);margin-top:8px;line-height:1.6;" id="review-article-preview">文章内容预览区域，供审核人查看文章核心内容后再做审核决定。</div>
-      </div>
-
-      <!-- 审核人 -->
-      <div class="form-group">
-        <label>审核人</label>
-        <select class="form-ipt" style="cursor:pointer;">
-          <option value="">指定审核人</option>
-          <option value="王主管">王主管</option>
-          <option value="李主管">李主管</option>
-          <option value="张经理">张经理</option>
-        </select>
-      </div>
-
-      <!-- 审核决定 -->
-      <div class="form-group">
-        <label>审核决定</label>
-        <div style="display:flex; align-items:center; gap:16px; margin-top:4px;">
-          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:var(--cs-font-weight-medium); color:var(--cs-success);">
-            <input type="radio" name="review-decision" value="approve" onclick="toggleRejectReason(false);"> 通过
-          </label>
-          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-weight:var(--cs-font-weight-medium); color:var(--cs-danger);">
-            <input type="radio" name="review-decision" value="reject" onclick="toggleRejectReason(true);"> 驳回
-          </label>
-        </div>
-      </div>
-
-      <!-- 驳回原因 -->
-      <div class="form-group" id="reject-reason-group" style="display:none;">
-        <label>驳回原因 <span style="color:var(--cs-danger);">*</span></label>
-        <textarea class="form-ipt" id="reject-reason-text" placeholder="请输入驳回原因，帮助作者改进..." style="height:80px;"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-default" onclick="document.getElementById('review-modal').classList.add('hidden');">取消</button>
-      <button class="btn-primary" onclick="submitReview();">提交审核结果</button>
-    </div>
-  </div>
-</div>
 
 <script src="../nav.js"></script>
 <script>
+    // ===== cs-modal 接线：快捷回复 / 审核 / 删除确认 =====
+    (function () {
+      // 记录最近一次审核的行（点击审核链接时设置）
+      var _currentReviewRow = null;
+
+      function openDeleteConfirm(articleTitle) {
+        csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该文章？') +
+          '&desc=' + encodeURIComponent(articleTitle ? ('文章《' + articleTitle + '》删除后不可恢复。') : '删除后不可恢复，请谨慎操作。'),
+          { variant: 'center', width: 380,
+            onConfirm: function () { /* 原型：删除即时反馈 */ } });
+      }
+
+      // 快捷回复新增
+      var btnAdd = document.getElementById('btnAddQuickReply');
+      if (btnAdd) {
+        btnAdd.addEventListener('click', function () {
+          csModal.open('modals/modal-quick-reply.html', { variant: 'center', width: 480 });
+        });
+      }
+
+      // 审核链接（含动态生成的）
+      document.addEventListener('click', function (e) {
+        var reviewBtn = e.target.closest('.kb-review-btn');
+        if (reviewBtn) {
+          e.preventDefault();
+          var title = reviewBtn.getAttribute('data-title') || '文章审核';
+          _currentReviewRow = reviewBtn.closest('tr');
+          csModal.open('modals/modal-review.html?title=' + encodeURIComponent(title) +
+            '&preview=' + encodeURIComponent('文章内容预览区域，供审核人查看文章核心内容后再做审核决定。'),
+            { variant: 'center', width: 620,
+              onConfirm: function (data) {
+                if (!_currentReviewRow) return;
+                var statusCell = _currentReviewRow.querySelectorAll('td')[2];
+                var actionsCell = _currentReviewRow.querySelectorAll('td')[5];
+                if (data.decision === 'approve') {
+                  if (statusCell) statusCell.innerHTML = '<span class="s-tag published">已发布</span>';
+                  if (actionsCell) actionsCell.innerHTML = '<a>预览</a><span class="divider">|</span><a class="kb-edit-btn">编辑</a><span class="divider">|</span><a>下线</a><span class="divider">|</span><a class="kb-del-btn danger" data-title="' + title + '">删除</a>';
+                } else {
+                  if (statusCell) statusCell.innerHTML = '<span class="s-tag rejected">已驳回</span>';
+                  var reasonDisplay = data.reason ? ' title="' + data.reason.replace(/"/g, '&quot;') + '"' : '';
+                  if (actionsCell) actionsCell.innerHTML = '<a' + reasonDisplay + '>查看驳回原因</a><span class="divider">|</span><a>修改并重新提交</a><span class="divider">|</span><a class="kb-del-btn danger" data-title="' + title + '">删除</a>';
+                }
+                _currentReviewRow = null;
+              }
+            });
+          return;
+        }
+        // 删除链接（静态 .danger 与动态 .kb-del-btn 统一走删除确认）
+        var delBtn = e.target.closest('a.danger, a.kb-del-btn');
+        if (delBtn && delBtn.classList.contains('danger')) {
+          e.preventDefault();
+          var row = delBtn.closest('tr');
+          var titleEl = row && row.querySelector('.col-title');
+          var t = titleEl ? (titleEl.textContent || '').trim() : '';
+          openDeleteConfirm(t);
+        }
+      });
+    })();
+
 (function() {
   // ===== Tab switching =====
   var tabs = document.querySelectorAll('.top-tab');
@@ -1335,73 +1294,6 @@
 })();
 
 // ===== Review modal functions =====
-var _currentReviewRow = null;
-
-function openReviewModal(title) {
-  // Find the table row that contains this title and has "待审核" status
-  var rows = document.querySelectorAll('#panel-knowledge .data-table tbody tr');
-  for (var i = 0; i < rows.length; i++) {
-    var titleEl = rows[i].querySelector('.col-title');
-    if (titleEl && titleEl.childNodes[0] && titleEl.childNodes[0].textContent.trim() === title) {
-      _currentReviewRow = rows[i];
-      break;
-    }
-  }
-  document.getElementById('review-article-title').textContent = title;
-  document.getElementById('review-article-preview').textContent = '文章内容预览区域，供审核人查看文章核心内容后再做审核决定。';
-  // Reset form
-  var radios = document.querySelectorAll('input[name="review-decision"]');
-  radios.forEach(function(r) { r.checked = false; });
-  document.getElementById('reject-reason-text').value = '';
-  toggleRejectReason(false);
-  document.getElementById('review-modal').classList.remove('hidden');
-}
-
-function toggleRejectReason(show) {
-  document.getElementById('reject-reason-group').style.display = show ? 'block' : 'none';
-}
-
-function submitReview() {
-  var radios = document.querySelectorAll('input[name="review-decision"]');
-  var decision = null;
-  radios.forEach(function(r) { if (r.checked) decision = r.value; });
-
-  if (!decision) {
-    alert('请选择审核决定');
-    return;
-  }
-
-  if (!_currentReviewRow) {
-    document.getElementById('review-modal').classList.add('hidden');
-    return;
-  }
-
-  var statusCell = _currentReviewRow.querySelectorAll('td')[2];
-  var actionsCell = _currentReviewRow.querySelectorAll('td')[5];
-
-  if (decision === 'approve') {
-    statusCell.innerHTML = '<span class="s-tag published">已发布</span>';
-    actionsCell.innerHTML = '<a>预览</a><span class="divider">|</span><a class="kb-edit-btn">编辑</a><span class="divider">|</span><a>下线</a><span class="divider">|</span><a class="danger">删除</a>';
-    // Re-bind edit button
-    var newEditBtn = actionsCell.querySelector('.kb-edit-btn');
-    if (newEditBtn) {
-      newEditBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var es = document.getElementById('editor-section');
-        es.style.display = 'block';
-        es.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
-  } else {
-    var reason = document.getElementById('reject-reason-text').value.trim();
-    statusCell.innerHTML = '<span class="s-tag rejected">已驳回</span>';
-    var reasonDisplay = reason ? ' title="' + reason.replace(/"/g, '&quot;') + '"' : '';
-    actionsCell.innerHTML = '<a' + reasonDisplay + '>查看驳回原因</a><span class="divider">|</span><a>修改并重新提交</a><span class="divider">|</span><a class="danger">删除</a>';
-  }
-
-  _currentReviewRow = null;
-  document.getElementById('review-modal').classList.add('hidden');
-}
 </script>
 </body>
 </html>

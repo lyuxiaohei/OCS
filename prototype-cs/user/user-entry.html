@@ -495,13 +495,7 @@
       </div>
     </div>
 
-    <span class="back-link" onclick="location.href='index.html'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="15 18 9 12 15 6"/></svg> 返回原型首页</span>
-
-    <div class="prototype-note">
-      每个入口均携带 <code style="background:#fff8d8;padding:1px 4px;border-radius:3px;">entry_tag</code> 场景标签，
-      用于在进入会话时自动填充咨询上下文（例如商品页 → 自动发送「我想咨询这个商品」并附带商品卡片），
-      客服端可在会话开始时即获知用户来源场景，无需用户重复描述。这是 US-MVP-16（6页面入口嵌入）的核心实现机制。
-    </div>
+    <span class="back-link" onclick="location.href='../index.html'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="15 18 9 12 15 6"/></svg> 返回原型首页</span>
 
     <!-- ===== Entry Grid ===== -->
     <div class="entry-grid">
@@ -952,14 +946,6 @@
     </div>
     <!-- /.entry-grid -->
 
-    <!-- ===== Interaction Flow Note ===== -->
-    <div class="prototype-note" style="margin-top:24px;">
-      <strong>交互流程：</strong> 用户在任意商城页面点击悬浮「联系客服」按钮或全站悬浮组件 →
-      前端读取当前页面的 <code style="background:#fff8d8;padding:1px 4px;border-radius:3px;">entry_tag</code> 与上下文参数（product_id / order_id 等） →
-      跳转至 <a href="user-chat.html">聊天主界面</a> 并自动发送带场景标签的首条消息 +
-      对应商品/订单卡片 → 客服端工作台在会话建立时即可看到用户来源场景，实现「无需用户复述」的精准服务。
-    </div>
-
     <!-- ===== 全站悬浮按钮组件 Section ===== -->
     <div style="margin-top:28px;">
       <h2 style="font-size:17px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
@@ -995,7 +981,7 @@
               </div>
               <div class="sk sk-line" style="width:40%;"></div>
               <!-- Floating circle button -->
-              <div class="floating-circle-btn">
+              <div class="floating-circle-btn" id="demoFab">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h6"/></svg>
                 <span class="drag-hint">可拖动</span>
               </div>
@@ -1179,6 +1165,102 @@
     </div>
 
   </div>
+
+<!-- ===== 真实可交互悬浮按钮（AC-U-06 拖拽 / AC-U-07 松手吸边） ===== -->
+<a href="user-chat.html" class="cs-fab" id="csFab" title="拖动我，松手吸附屏幕边缘">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h6"/></svg>
+</a>
+<style>
+  .cs-fab {
+    position: fixed;
+    right: 20px; bottom: 90px;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1677ff, #4096ff);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(22,119,255,.45);
+    z-index: 9999;
+    cursor: grab;
+    transition: transform 0.15s ease, opacity 0.15s ease, right 0.3s cubic-bezier(.2,.8,.2,1), left 0.3s cubic-bezier(.2,.8,.2,1);
+    touch-action: none; /* 让 pointer 事件接管，避免页面滚动 */
+    user-select: none;
+  }
+  .cs-fab.dragging { cursor: grabbing; transform: scale(1.12); opacity: 0.9; transition: none; }
+  .cs-fab:hover { transform: scale(1.06); }
+  .cs-fab-label {
+    position: fixed; bottom: 96px; z-index: 9998;
+    font-size: 12px; color: #fff; background: rgba(0,0,0,.7);
+    padding: 4px 10px; border-radius: 12px; pointer-events: none;
+    white-space: nowrap; opacity: 0; transition: opacity .2s;
+  }
+</style>
+<script>
+  (function () {
+    var fab = document.getElementById('csFab');
+    if (!fab) return;
+    var SIZE = 52, MARGIN = 20;
+    var dragging = false, moved = false;
+    var startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+
+    // 用 left/top 定位（拖拽期），初始沿用 right/bottom
+    function toAbsolute() {
+      var r = fab.getBoundingClientRect();
+      fab.style.right = 'auto'; fab.style.bottom = 'auto';
+      fab.style.left = r.left + 'px';
+      fab.style.top = r.top + 'px';
+    }
+
+    fab.addEventListener('pointerdown', function (e) {
+      dragging = true; moved = false;
+      fab.setPointerCapture(e.pointerId);
+      var r = fab.getBoundingClientRect();
+      toAbsolute();
+      startX = e.clientX; startY = e.clientY;
+      offsetX = e.clientX - r.left; offsetY = e.clientY - r.top;
+      fab.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    fab.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+      var x = e.clientX - offsetX, y = e.clientY - offsetY;
+      // 限制在视口内
+      var maxX = window.innerWidth - SIZE - MARGIN;
+      var maxY = window.innerHeight - SIZE - MARGIN;
+      x = Math.max(MARGIN, Math.min(maxX, x));
+      y = Math.max(MARGIN, Math.min(maxY, y));
+      fab.style.left = x + 'px'; fab.style.top = y + 'px';
+    });
+
+    fab.addEventListener('pointerup', function (e) {
+      if (!dragging) return;
+      dragging = false;
+      fab.classList.remove('dragging');
+      // AC-U-07：松手吸附最近屏幕边缘（左/右）
+      var r = fab.getBoundingClientRect();
+      var centerX = r.left + SIZE / 2;
+      var snapLeft = centerX < window.innerWidth / 2;
+      var y = parseFloat(fab.style.top) || r.top;
+      y = Math.max(MARGIN, Math.min(window.innerHeight - SIZE - MARGIN, y));
+      // 切换为 left+top / right+top 定位，触发 transition 吸边动画
+      fab.style.left = ''; fab.style.right = '';
+      if (snapLeft) { fab.style.left = MARGIN + 'px'; }
+      else { fab.style.right = MARGIN + 'px'; }
+      fab.style.top = y + 'px';
+      // 若未真正拖动，则视为点击 → 放行跳转（a href）
+      if (!moved) { return; }
+      e.preventDefault();
+    });
+
+    fab.addEventListener('click', function (e) {
+      // 拖动发生过则阻止跳转
+      if (moved) { e.preventDefault(); moved = false; }
+    });
+  })();
+</script>
 
 </body>
 </html>

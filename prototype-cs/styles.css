@@ -1,9 +1,9 @@
 /* ============================================================
-   CS 商城客服系统 — 原型设计统一样式（设计系统 V2）
+   CS 鍟嗗煄瀹㈡湇绯荤粺 鈥?鍘熷瀷璁捐缁熶竴鏍峰紡锛堣璁＄郴缁?V2锛?
    Unified Design System for Prototype (P06)
    ============================================================
-   - 管理端 Admin: Ant Design v5 style (#1677ff primary)
-   - 用户端 User:  Mobile chat style (375px, iOS-like)
+   - 绠＄悊绔?Admin: Ant Design v5 style (#1677ff primary)
+   - 鐢ㄦ埛绔?User:  Mobile chat style (375px, iOS-like)
    - Phase3 AI:    Dashboard dark theme accents
    ============================================================ */
 
@@ -404,7 +404,7 @@ a { color: var(--cs-primary); text-decoration: none; }
 .select:hover { border-color: var(--cs-primary); }
 .ipt.input-search { min-width: 220px; cursor: text; }
 .select::after {
-  content: "▾";
+  content: "鈻?;
   margin-left: 6px;
   color: var(--cs-text-placeholder);
   font-size: 10px;
@@ -499,10 +499,10 @@ a { color: var(--cs-primary); text-decoration: none; }
   font-size: var(--cs-font-size-sm);
   flex-shrink: 0;
 }
-.data-table .mini-avatar.orange { background: var(--cs-orange); }
-.data-table .mini-avatar.purple { background: var(--cs-purple); }
-.data-table .mini-avatar.green  { background: var(--cs-success); }
-.data-table .mini-avatar.red    { background: var(--cs-danger); }
+.data-table .mini-avatar.orange { background: var(--cs-primary); }
+.data-table .mini-avatar.purple { background: var(--cs-primary); }
+.data-table .mini-avatar.green  { background: var(--cs-primary); }
+.data-table .mini-avatar.red    { background: var(--cs-primary); }
 .data-table .duration { color: var(--cs-text-secondary); }
 
 /* --- Row Actions --- */
@@ -603,11 +603,12 @@ a { color: var(--cs-primary); text-decoration: none; }
   color: #fff;
   flex-shrink: 0;
 }
-.metric-icon.blue   { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
-.metric-icon.green  { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
-.metric-icon.orange { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
-.metric-icon.purple { background: linear-gradient(135deg, var(--cs-purple), var(--cs-purple-hover)); }
-.metric-icon.red    { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
+/* 指标图标按语义着色（KPI 多指标场景保留色彩区分，名实一致） */
+.metric-icon.blue   { background: var(--cs-primary); }
+.metric-icon.green  { background: var(--cs-success); }
+.metric-icon.orange { background: var(--cs-orange); }
+.metric-icon.purple { background: var(--cs-purple); }
+.metric-icon.red    { background: var(--cs-danger); }
 .metric-body { flex: 1; min-width: 0; }
 .metric-value {
   font-size: var(--cs-font-size-3xl);
@@ -660,17 +661,17 @@ a { color: var(--cs-primary); text-decoration: none; }
 .stat-card .stat-name { font-size: var(--cs-font-size-base); color: var(--cs-text-tertiary); margin-top: 2px; }
 
 /* Icon gradient backgrounds */
-.icon-unreply  { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
-.icon-timeout  { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
-.icon-rate     { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
-.icon-total    { background: linear-gradient(135deg, var(--cs-purple), var(--cs-purple-hover)); }
-.icon-pending  { background: linear-gradient(135deg, var(--cs-warning), var(--cs-warning-hover)); }
-.icon-process  { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
-.icon-replied  { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
-.icon-invalid  { background: linear-gradient(135deg, #8c8c8c, #bfbfbf); }
-.icon-scene    { background: linear-gradient(135deg, var(--cs-purple), var(--cs-purple-hover)); }
-.icon-usage    { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
-.icon-hot      { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
+.icon-unreply  { background: var(--cs-primary); }
+.icon-timeout  { background: var(--cs-danger); }
+.icon-rate     { background: var(--cs-primary); }
+.icon-total    { background: var(--cs-primary); }
+.icon-pending  { background: var(--cs-warning); }
+.icon-process  { background: var(--cs-primary); }
+.icon-replied  { background: var(--cs-success); }
+.icon-invalid  { background: #8c8c8c; }
+.icon-scene    { background: var(--cs-primary); }
+.icon-usage    { background: var(--cs-primary); }
+.icon-hot      { background: var(--cs-danger); }
 
 /* ============================================================
    12. Chart Placeholder
@@ -700,136 +701,6 @@ a { color: var(--cs-primary); text-decoration: none; }
 .avatar-md { width: 32px; height: 32px; }
 .avatar-lg { width: 40px; height: 40px; }
 .avatar-xl { width: 48px; height: 48px; }
-
-/* ============================================================
-   14. Mobile Chat Container (375px)
-   ============================================================ */
-.chat-mobile-container {
-  width: 375px;
-  height: 760px;
-  margin: var(--cs-space-6) auto;
-  background: #ededed;
-  border-radius: var(--cs-radius-xl) * 2;
-  overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  border: 8px solid #1a1a1a;
-}
-.chat-header {
-  height: 56px;
-  background: #f7f7f7;
-  border-bottom: 1px solid #dcdcdc;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  gap: var(--cs-space-2);
-  flex-shrink: 0;
-}
-.chat-header .back-arrow { font-size: 22px; color: var(--cs-text); cursor: pointer; }
-.chat-header .title { flex: 1; font-size: var(--cs-font-size-xl); font-weight: var(--cs-font-weight-semibold); text-align: center; }
-.chat-header .action-icon { font-size: 20px; color: var(--cs-text); cursor: pointer; }
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--cs-space-3);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: #ededed;
-}
-
-.chat-input-area {
-  height: 56px;
-  background: #f7f7f7;
-  border-top: 1px solid #dcdcdc;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  gap: var(--cs-space-2);
-  flex-shrink: 0;
-}
-.chat-input-area input {
-  flex: 1;
-  height: 36px;
-  border-radius: 18px;
-  border: 1px solid #ddd;
-  padding: 0 16px;
-  font-size: var(--cs-font-size-md);
-  outline: none;
-}
-
-/* ============================================================
-   15. Message Bubbles
-   ============================================================ */
-.msg-bubble-user {
-  align-self: flex-end;
-  max-width: 72%;
-  background: #95ec69;
-  color: var(--cs-text);
-  padding: 9px 14px;
-  border-radius: var(--cs-radius-md);
-  border-top-right-radius: 2px;
-  font-size: var(--cs-font-size-md);
-  word-wrap: break-word;
-}
-.msg-bubble-agent {
-  align-self: flex-start;
-  max-width: 72%;
-  background: #fff;
-  color: var(--cs-text);
-  padding: 9px 14px;
-  border-radius: var(--cs-radius-md);
-  border-top-left-radius: 2px;
-  font-size: var(--cs-font-size-md);
-  word-wrap: break-word;
-  border: 1px solid #eee;
-}
-.msg-bubble-system {
-  align-self: center;
-  background: rgba(0,0,0,0.12);
-  color: #fff;
-  font-size: var(--cs-font-size-sm);
-  padding: 4px 12px;
-  border-radius: var(--cs-radius-xs);
-}
-
-/* ============================================================
-   16. Rich Media Cards (order/product/coupon)
-   ============================================================ */
-.msg-card {
-  width: 240px;
-  background: #fff;
-  border-radius: var(--cs-radius-md);
-  border: 1px solid var(--cs-border-light);
-  overflow: hidden;
-  font-size: var(--cs-font-size-base);
-}
-.msg-card .card-banner {
-  height: 90px;
-  background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--cs-font-size-sm);
-}
-.msg-card.order .card-banner { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
-.msg-card.coupon .card-banner { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
-.msg-card.product .card-banner { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
-.msg-card .card-body { padding: 10px 12px; }
-.msg-card .card-row { display: flex; justify-content: space-between; margin: 4px 0; }
-.msg-card .card-action {
-  text-align: center;
-  padding: 8px;
-  background: var(--cs-primary);
-  color: #fff;
-  margin-top: var(--cs-space-2);
-  cursor: pointer;
-  border-radius: 0 0 var(--cs-radius-md) var(--cs-radius-md);
-}
 
 /* ============================================================
    17. Admin Panels
@@ -965,21 +836,11 @@ a { color: var(--cs-primary); text-decoration: none; }
 
 /* ============================================================
    20. Prototype Note
+   ------------------------------------------------------------
+   浜や簰璇存槑鍗＄墖鏍峰紡宸茬Щ闄わ紙V1.0锛夈€?
+   浜や簰闇€姹傛敼鐢卞師鍨嬪唴鐨勭湡瀹炰氦浜掑疄鐜?+ PRD 鏂囨。锛圥RD-OCS-V1.0.md锛?
+   鍏卞悓婢勬竻锛屼笉鍐嶄娇鐢ㄦ偓娴?宓屽叆寮忚鏄庡崱鐗囥€?
    ============================================================ */
-.prototype-note {
-  background: var(--cs-warning-bg);
-  border: 1px solid #ffe58f;
-  border-left: 4px solid var(--cs-warning);
-  border-radius: var(--cs-radius-xs);
-  padding: 10px 14px;
-  margin: var(--cs-space-3) 0;
-  font-size: var(--cs-font-size-base);
-  color: #614700;
-}
-.prototype-note::before {
-  content: '\2139\FE0F 交互说明: ';
-  font-weight: var(--cs-font-weight-semibold);
-}
 
 /* ============================================================
    21. Utility Classes
@@ -1003,3 +864,170 @@ a { color: var(--cs-primary); text-decoration: none; }
 .mr-8 { margin-right: 8px; } .mr-16 { margin-right: 16px; }
 .w-full { width: 100%; }
 .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ============================================================
+   22. cs-modal 弹窗运行时（iframe + postMessage，file:// 可用）
+   ------------------------------------------------------------
+   宿主页调用：csModal.open('modals/modal-x.html', {variant,width,...})
+   弹窗页调用：window.parent 通过 csModalBridge 通信（见 cs-modal.js）
+   三种 variant：center（居中）/ drawer-right（右侧抽屉）/ sheet（移动端底部）
+   ============================================================ */
+
+/* —— 宿主层：遮罩 + iframe 容器 —— */
+.csm-host {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.csm-host.show { opacity: 1; }
+
+/* variant: center（居中弹窗） */
+.csm-host.center .csm-frame {
+  width: 480px;
+  max-width: 92vw;
+  max-height: 86vh;
+  border-radius: var(--cs-radius-md);
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  transform: scale(0.96) translateY(8px);
+  transition: transform 0.2s ease;
+}
+.csm-host.center.show .csm-frame { transform: scale(1) translateY(0); }
+
+/* variant: drawer-right（右侧抽屉） */
+.csm-host.drawer-right {
+  align-items: stretch;
+  justify-content: flex-end;
+}
+.csm-host.drawer-right .csm-frame {
+  width: 480px;
+  max-width: 92vw;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  background: #fff;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.csm-host.drawer-right.show .csm-frame { transform: translateX(0); }
+
+/* variant: sheet（移动端底部弹出） */
+.csm-host.sheet {
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+.csm-host.sheet .csm-frame {
+  width: 420px;
+  max-width: 100vw;
+  max-height: 90vh;
+  border-radius: var(--cs-radius-xl) var(--cs-radius-xl) 0 0;
+  background: #fff;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.csm-host.sheet.show .csm-frame { transform: translateY(0); }
+
+/* iframe 本体：透明背景，让弹窗页控制内部背景 */
+.csm-frame {
+  border: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.csm-host.center .csm-frame,
+.csm-host.sheet .csm-frame { height: auto; }
+.csm-host.center .csm-frame { min-height: 120px; }
+
+/* —— 弹窗页内部通用结构（供独立 modal HTML 复用） —— */
+.csm-body {
+  background: #fff;
+  font-family: var(--cs-font-family);
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text);
+  -webkit-font-smoothing: antialiased;
+}
+.csm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--cs-border-light);
+  font-size: var(--cs-font-size-lg);
+  font-weight: var(--cs-font-weight-semibold);
+}
+.csm-head .csm-close {
+  font-size: 22px;
+  line-height: 1;
+  color: var(--cs-text-tertiary);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--cs-radius-xs);
+  transition: var(--cs-transition-normal);
+}
+.csm-head .csm-close:hover { color: var(--cs-text); background: var(--cs-border-lighter); }
+.csm-content { padding: 20px; }
+.csm-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--cs-border-light);
+  background: var(--cs-bg-card);
+}
+.csm-foot.sticky {
+  position: sticky;
+  bottom: 0;
+}
+
+/* —— 通用确认弹窗内容（删除/标记无效/结束会话等） —— */
+.csm-confirm { padding: 4px 0 8px; }
+.csm-confirm .csm-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 20px;
+}
+.csm-confirm .csm-icon.danger { background: var(--cs-danger-bg); color: var(--cs-danger); }
+.csm-confirm .csm-icon.warn { background: var(--cs-warning-bg); color: var(--cs-warning); }
+.csm-confirm .csm-icon.info { background: var(--cs-primary-bg); color: var(--cs-primary); }
+.csm-confirm .csm-title {
+  text-align: center;
+  font-size: var(--cs-font-size-lg);
+  font-weight: var(--cs-font-weight-semibold);
+  margin-bottom: 6px;
+}
+.csm-confirm .csm-desc {
+  text-align: center;
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-text-secondary);
+  line-height: 1.6;
+}
+
+/* —— 轻提示 toast（移动端「+」面板图标点击反馈） —— */
+.csm-toast-host {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%);
+  z-index: 2100;
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff;
+  font-size: var(--cs-font-size-base);
+  padding: 9px 18px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.csm-toast-host.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }

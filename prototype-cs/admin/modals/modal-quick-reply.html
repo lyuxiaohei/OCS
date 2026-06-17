@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>新增快捷回复 · 弹窗</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 480px; max-width: 92vw; }
+    .qr-body { padding: 18px 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group > label { display: block; font-size: 13px; color: var(--cs-text); margin-bottom: 6px; font-weight: 500; }
+    .form-ipt {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 7px 11px; font-size: 13px; font-family: inherit; background: #fff;
+      outline: none; transition: border-color 0.15s;
+    }
+    .form-ipt:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    select.form-ipt { height: 34px; cursor: pointer; }
+    textarea.form-ipt { min-height: 76px; resize: vertical; }
+    .radio-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .radio-row label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 400; }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span>新增快捷回复</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="qr-body">
+      <div class="form-group">
+        <label>回复内容 <span style="color:var(--cs-danger);">*</span></label>
+        <textarea class="form-ipt" id="qrContent" placeholder="请输入快捷回复内容，支持变量如 {用户昵称}、{订单号} 等"></textarea>
+      </div>
+      <div class="form-group">
+        <label>分类 <span style="color:var(--cs-danger);">*</span></label>
+        <select class="form-ipt" id="qrCategory">
+          <option value="">请选择分类</option>
+          <option value="general">通用</option>
+          <option value="greeting">问候</option>
+          <option value="presale">售前</option>
+          <option value="aftersale">售后</option>
+          <option value="complaint">投诉</option>
+          <option value="logistic">物流</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>排序</label>
+        <input type="number" class="form-ipt" id="qrSort" value="0" style="width:120px;">
+      </div>
+      <div class="form-group">
+        <label>状态</label>
+        <div class="radio-row">
+          <label><input type="radio" name="qr-status" value="enabled" checked> 启用</label>
+          <label><input type="radio" name="qr-status" value="disabled"> 停用</label>
+        </div>
+      </div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn">确定</button>
+    </div>
+  </div>
+
+  <script src="../../js/cs-modal.js"></script>
+  <script>
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      var content = document.getElementById('qrContent').value.trim();
+      var cat = document.getElementById('qrCategory').value;
+      if (!content) { markErr('qrContent'); return; }
+      if (!cat) { markErr('qrCategory'); return; }
+      window.csModalBridge.confirm({
+        content: content,
+        category: cat,
+        sort: document.getElementById('qrSort').value,
+        status: document.querySelector('input[name="qr-status"]:checked').value
+      });
+    });
+    function markErr(id) {
+      var el = document.getElementById(id);
+      el.style.borderColor = 'var(--cs-danger)'; el.focus();
+      setTimeout(function () { el.style.borderColor = ''; }, 1500);
+    }
+  </script>
+</body>
+</html>

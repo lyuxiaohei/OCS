@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>留言管理 — CS 商城客服系统</title>
+  <title>留言管理 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
+  <script src="../js/cs-modal.js"></script>
   <style>
     /* ===== admin-leave-mgmt.html 专属样式（仅保留页面独有样式） ===== */
 
@@ -120,9 +121,9 @@
       font-weight: var(--cs-font-weight-semibold);
       flex-shrink: 0;
     }
-    .leave-avatar.orange { background: var(--cs-orange); }
-    .leave-avatar.purple { background: var(--cs-purple); }
-    .leave-avatar.green  { background: var(--cs-success); }
+    .leave-avatar.orange { background: var(--cs-primary); }
+    .leave-avatar.purple { background: var(--cs-primary); }
+    .leave-avatar.green  { background: var(--cs-primary); }
     .leave-avatar.gray   { background: #8c8c8c; }
     .leave-name { font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); }
     .leave-contact { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); margin-top: 2px; }
@@ -158,7 +159,7 @@
       width: 6px; height: 6px;
       border-radius: 50%;
     }
-    .leave-status.s-pending  { background: var(--cs-warning-bg); color: #d46b08; }
+    .leave-status.s-pending  { background: var(--cs-warning-bg); color: #d48806; }
     .leave-status.s-pending::before  { background: var(--cs-orange); }
     .leave-status.s-process  { background: var(--cs-primary-bg); color: var(--cs-primary); }
     .leave-status.s-process::before  { background: var(--cs-primary); }
@@ -339,13 +340,6 @@
     <!-- 内容区 -->
     <main class="admin-content">
 
-      <!-- 交互说明 -->
-      <div class="prototype-note">
-        本页面演示 <strong>US-MVP-06 留言与离线反馈</strong>：当客服离线或排队超时，用户在
-        <a href="user-offline.html">离线留言页</a> 提交的问题将汇聚至此。支持按状态分 Tab 浏览（待处理 / 处理中 / 已回复 / 无效），
-        提供分配处理人、回复用户、标记无效等操作，形成离线反馈闭环。
-      </div>
-
       <!-- ===== 顶部统计条 ===== -->
       <div class="leave-stats">
         <div class="stat-card">
@@ -467,9 +461,10 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary" onclick="openAssignDrawer(this)">分配</button>
-                  <button class="btn-sm success" disabled onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-sm primary lm-assign-btn">分配</button>
+                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
                   <button class="btn-link">详情</button>
+                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
                 </div>
               </td>
             </tr>
@@ -499,9 +494,10 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary" onclick="openAssignDrawer(this)">分配</button>
-                  <button class="btn-sm success" disabled onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-sm primary lm-assign-btn">分配</button>
+                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
                   <button class="btn-link">详情</button>
+                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
                 </div>
               </td>
             </tr>
@@ -603,9 +599,10 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary" onclick="openAssignDrawer(this)">分配</button>
-                  <button class="btn-sm success" disabled onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-sm primary lm-assign-btn">分配</button>
+                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
                   <button class="btn-link">详情</button>
+                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
                 </div>
               </td>
             </tr>
@@ -779,9 +776,10 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary" onclick="openAssignDrawer(this)">分配</button>
-                  <button class="btn-sm success" disabled onclick="openReplyDrawer()">回复</button>
+                  <button class="btn-sm primary lm-assign-btn">分配</button>
+                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
                   <button class="btn-link">详情</button>
+                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
                 </div>
               </td>
             </tr>
@@ -835,203 +833,73 @@
 
 </div>
 
-<!-- ===== 分配抽屉 ===== -->
-<div class="drawer-mask" id="assignMask" onclick="closeAllDrawers()"></div>
-<div class="drawer" id="assignDrawer">
-  <div class="drawer-head">
-    <div class="title">分配留言处理人</div>
-    <div class="close" onclick="closeAllDrawers()">×</div>
-  </div>
-  <div class="drawer-body">
-    <!-- 留言摘要 -->
-    <div class="msg-detail-box">
-      <div class="detail-row">
-        <span class="detail-label">留言人</span>
-        <span class="detail-content">李婷婷 · 138****6621</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">分类</span>
-        <span class="detail-content"><span class="tag-urgent">退款/退货</span></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">提交时间</span>
-        <span class="detail-content">06-11 09:32（25 分钟前）</span>
-      </div>
-      <div class="detail-msg">
-        订单 #20260611039 申请退款两天了还没到账，麻烦尽快处理，谢谢！
-      </div>
-    </div>
-
-    <!-- 分配表单 -->
-    <div class="form-group">
-      <label class="form-label">处理人 <span class="required">*</span></label>
-      <select class="form-select">
-        <option>请选择处理人</option>
-        <option>王小明（退款专员 · 在线）</option>
-        <option>李娜（售后客服 · 在线）</option>
-        <option>赵强（综合客服 · 离线）</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">优先级</label>
-      <select class="form-select">
-        <option>普通</option>
-        <option selected>紧急</option>
-        <option>非常紧急</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">分配备注（可选）</label>
-      <textarea class="form-textarea" placeholder="给处理人的说明，如：用户较急，建议优先处理退款到账问题..."></textarea>
-    </div>
-
-    <div class="prototype-note" style="margin-top:12px;">
-      分配后留言状态自动变更为「处理中」，并通过站内消息 / 短信通知被分配客服。系统会按问题分类智能推荐最合适的处理人。
-    </div>
-  </div>
-  <div class="drawer-foot">
-    <button class="btn-default" onclick="closeAllDrawers()">取消</button>
-    <button class="btn-primary" onclick="confirmAssign()">确认分配</button>
-  </div>
-</div>
-
-<!-- ===== 回复抽屉 ===== -->
-<div class="drawer-mask" id="replyMask" onclick="closeAllDrawers()"></div>
-<div class="drawer" id="replyDrawer">
-  <div class="drawer-head">
-    <div class="title">回复用户留言</div>
-    <div class="close" onclick="closeAllDrawers()">×</div>
-  </div>
-  <div class="drawer-body">
-    <!-- 留言摘要 -->
-    <div class="msg-detail-box">
-      <div class="detail-row">
-        <span class="detail-label">留言人</span>
-        <span class="detail-content">李婷婷 · 138****6621</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">分类</span>
-        <span class="detail-content"><span class="tag-urgent">退款/退货</span></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">订单号</span>
-        <span class="detail-content">#20260611039</span>
-      </div>
-      <div class="detail-msg">
-        订单 #20260611039 申请退款两天了还没到账，麻烦尽快处理，谢谢！
-      </div>
-    </div>
-
-    <!-- 快捷模板 -->
-    <div class="form-group">
-      <label class="form-label">快捷回复模板</label>
-      <select class="form-select" onchange="this.nextElementSibling.value=this.value">
-        <option value="">— 选择模板 —</option>
-        <option value="您好，您的退款已加急处理，预计 1-2 个工作日内到账，请留意银行卡到账短信，感谢您的耐心等待！">退款到账-加急</option>
-        <option value="您好，已为您核实订单信息，稍后会有专员与您电话联系，请保持手机畅通，谢谢！">核实中-待联系</option>
-        <option value="您好，问题已受理，我们会在 24 小时内处理完毕并通过短信通知您，请放心。">受理-24小时</option>
-      </select>
-      <textarea class="form-textarea" style="margin-top:8px;" placeholder="选择模板或手动输入回复内容..."></textarea>
-    </div>
-
-    <!-- 回复方式 -->
-    <div class="form-group">
-      <label class="form-label">通知方式</label>
-      <div style="display:flex; gap:16px; font-size:13px;">
-        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-          <input type="checkbox" checked /> 站内消息
-        </label>
-        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-          <input type="checkbox" checked /> 短信
-        </label>
-        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-          <input type="checkbox" /> 微信模板消息
-        </label>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">处理结果标记</label>
-      <select class="form-select">
-        <option>已解决</option>
-        <option>待跟进</option>
-        <option>需转人工客服</option>
-      </select>
-    </div>
-
-    <div class="prototype-note" style="margin-top:12px;">
-      回复发送后，留言状态变更为「已回复」，用户可在 <a href="user-offline.html">离线留言记录</a> 中查看回复内容并继续追问。
-    </div>
-  </div>
-  <div class="drawer-foot">
-    <button class="btn-default" onclick="closeAllDrawers()">取消</button>
-    <button class="btn-primary" onclick="closeAllDrawers()">发送回复</button>
-  </div>
-</div>
-
 <script src="../nav.js"></script>
-<script>
-  // Track which row is currently being assigned
-  var currentAssignRow = null;
 
-  function openAssignDrawer(btn) {
-    // Find the <tr> ancestor of the clicked button
-    var row = btn.closest('tr[data-leave-id]');
-    currentAssignRow = row || null;
-    document.getElementById('assignMask').classList.add('show');
-    document.getElementById('assignDrawer').classList.add('show');
-  }
-  function openReplyDrawer() {
-    document.getElementById('replyMask').classList.add('show');
-    document.getElementById('replyDrawer').classList.add('show');
-  }
-  function closeAllDrawers() {
-    document.getElementById('assignMask').classList.remove('show');
-    document.getElementById('assignDrawer').classList.remove('show');
-    document.getElementById('replyMask').classList.remove('show');
-    document.getElementById('replyDrawer').classList.remove('show');
-  }
-  function confirmAssign() {
-    if (currentAssignRow) {
-      // Remove disabled from reply button
-      var replyBtn = currentAssignRow.querySelector('.btn-sm.success[disabled]');
-      if (replyBtn) {
-        replyBtn.removeAttribute('disabled');
-      }
-      // Change status from pending to processing
-      var statusSpan = currentAssignRow.querySelector('.leave-status.s-pending');
-      if (statusSpan) {
-        statusSpan.className = 'leave-status s-process';
-        statusSpan.textContent = '处理中';
-      }
-      // Update assignee column (replace "未分配" with assigned person)
-      var unassignedSpan = currentAssignRow.querySelector('.leave-unassigned');
-      if (unassignedSpan) {
-        var selectedOption = document.querySelector('#assignDrawer .form-select');
-        var assigneeName = '客服人员';
-        if (selectedOption && selectedOption.selectedIndex > 0) {
-          var raw = selectedOption.options[selectedOption.selectedIndex].text;
-          assigneeName = raw.replace(/（.*$/, '').trim();
-        }
-        var initial = assigneeName.charAt(0);
-        unassignedSpan.outerHTML = '<span class="leave-assignee"><span class="assignee-avatar">' + initial + '</span>' + assigneeName + '</span>';
-      }
-      // Remove highlight background
-      currentAssignRow.style.background = '';
-      // Hide the assign button (replaced with nothing for processing rows)
-      var assignBtn = currentAssignRow.querySelector('.btn-sm.primary');
+<script>
+  // ===== cs-modal 接线：分配 / 回复 / 标记无效（UC-S-11） =====
+  (function () {
+    // 分配抽屉
+    document.addEventListener('click', function (e) {
+      var assignBtn = e.target.closest('.lm-assign-btn');
       if (assignBtn) {
-        assignBtn.style.display = 'none';
+        var row = assignBtn.closest('tr[data-leave-id]');
+        csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
+          onConfirm: function (data) {
+            if (!row) return;
+            // 启用回复按钮
+            var replyBtn = row.querySelector('.lm-reply-btn');
+            if (replyBtn) replyBtn.removeAttribute('disabled');
+            // 状态 待处理 → 处理中
+            var statusSpan = row.querySelector('.leave-status.s-pending');
+            if (statusSpan) { statusSpan.className = 'leave-status s-process'; statusSpan.textContent = '处理中'; }
+            // 分配人列
+            var unassigned = row.querySelector('.leave-unassigned');
+            if (unassigned) {
+              var name = data.assignee || '客服';
+              unassigned.outerHTML = '<span class="leave-assignee"><span class="assignee-avatar">' + name.charAt(0) + '</span>' + name + '</span>';
+            }
+            row.style.background = '';
+            // 隐藏分配按钮、回复按钮文案改为「继续回复」
+            assignBtn.style.display = 'none';
+            if (replyBtn) replyBtn.textContent = '继续回复';
+          }
+        });
+        return;
       }
-      // Change reply button text
-      var replyBtnAll = currentAssignRow.querySelector('.btn-sm.success');
-      if (replyBtnAll) {
-        replyBtnAll.textContent = '继续回复';
+      var replyBtn = e.target.closest('.lm-reply-btn');
+      if (replyBtn && !replyBtn.disabled) {
+        csModal.open('modals/drawer-reply.html', { variant: 'drawer-right', width: 480,
+          onConfirm: function (data) {
+            var row = replyBtn.closest('tr[data-leave-id]');
+            if (!row) return;
+            // 状态 → 已回复
+            var st = row.querySelector('.leave-status');
+            if (st) { st.className = 'leave-status s-replied'; st.textContent = '已回复'; }
+            // 操作列精简
+            var actions = row.querySelector('.row-actions');
+            if (actions) actions.innerHTML = '<button class="btn-sm">查看回复</button><button class="btn-link">详情</button>';
+          }
+        });
+        return;
       }
-      currentAssignRow = null;
-    }
-    closeAllDrawers();
-  }
+      var invalidBtn = e.target.closest('.lm-invalid-btn');
+      if (invalidBtn) {
+        var row = invalidBtn.closest('tr[data-leave-id]');
+        csModal.open('modals/modal-mark-invalid.html', { variant: 'center', width: 420,
+          onConfirm: function (data) {
+            if (!row) return;
+            var st = row.querySelector('.leave-status');
+            if (st) { st.className = 'leave-status s-invalid'; st.textContent = '无效'; }
+            row.style.background = '#fafafa';
+            row.style.opacity = '0.6';
+            var actions = row.querySelector('.row-actions');
+            if (actions) actions.innerHTML = '<button class="btn-link">详情</button><button class="btn-link">撤销无效</button>';
+          }
+        });
+        return;
+      }
+    });
+  })();
 </script>
 
 </body>

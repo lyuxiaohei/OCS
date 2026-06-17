@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>评价管理 — CS 商城客服系统</title>
+  <title>评价管理 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
+<script src="../js/cs-modal.js"></script>
   <style>
     /* ===== admin-rating-mgmt.html 专属样式 ===== */
 
@@ -162,11 +163,8 @@
         </div>
       </div>
 
-      <!-- 原型交互说明 -->
-      <div class="prototype-note">本页演示 1期-MVP 功能 <strong>US-MVP-13 客服评价管理</strong>：顶部呈现平均满意度、评价总数与差评数三项核心指标；列表展示用户对客服的评分、评价标签、评论与时间，支持按评分区间（1-5 星）、客服、时间筛选，差评记录以高亮行突出显示并可发起追踪。</div>
-
       <!-- 顶部指标 -->
-      <div class="grid grid-3 mb-16">
+      <div class="grid grid-4 mb-16">
         <div class="metric-card">
           <div class="metric-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
           <div class="metric-body">
@@ -189,6 +187,15 @@
             <div class="metric-value">42<span class="unit">条</span></div>
             <div class="metric-label">差评数（≤ 2 星）</div>
             <div class="metric-trend down">▼ 5 较上周</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="metric-body">
+            <div class="metric-value">62<span class="unit">%</span></div>
+            <div class="metric-label">催评转化率</div>
+            <div class="metric-trend up">▲ 4% 较上周</div>
+            <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:4px;">口径：已评价 /（已评价+已跳过）= 1,083 / 1,748</div>
           </div>
         </div>
       </div>
@@ -444,7 +451,7 @@
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
                   <a>查看会话</a><span class="divider">|</span>
-                  <a class="warn">差评追踪</a>
+                  <a class="warn sl-track">差评追踪</a>
                 </td>
               </tr>
 
@@ -529,7 +536,7 @@
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
                   <a>查看会话</a><span class="divider">|</span>
-                  <a class="warn">差评追踪</a>
+                  <a class="warn sl-track">差评追踪</a>
                 </td>
               </tr>
 
@@ -614,7 +621,7 @@
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
                   <a>查看会话</a><span class="divider">|</span>
-                  <a class="warn">差评追踪</a>
+                  <a class="warn sl-track">差评追踪</a>
                 </td>
               </tr>
             </tbody>
@@ -648,5 +655,13 @@
 </div>
 
 <script src="../nav.js"></script>
+<script>
+  // 差评追踪 → 详情弹窗
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('.sl-track');
+    if (t) { e.preventDefault(); csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 }); }
+  });
+  </script>
+
 </body>
 </html>

@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>历史会话 — CS 商城客服系统</title>
+  <title>历史会话 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
+<script src="../js/cs-modal.js"></script>
   <style>
     /* ===== admin-session-list.html 页面特有样式 ===== */
 
@@ -65,9 +66,6 @@
           <button class="btn-primary">刷新数据</button>
         </div>
       </div>
-
-      <!-- 原型交互说明 -->
-      <div class="prototype-note">本页演示已有能力 <strong>F-EX-03 历史服务记录</strong> 与 <strong>F-EX-04 历史会话</strong>：通过状态 Tab、日期范围、客服、关键词组合筛选历史会话，并支持查看会话详情、评分与转接记录。</div>
 
       <!-- 统计摘要 -->
       <div class="stat-summary">
@@ -146,8 +144,8 @@
                 <td><span class="s-tag ongoing">进行中</span></td>
                 <td><span class="no-rate">未评价</span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
-                  <a>转接记录</a>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
+                  <a class="sl-transfer">转接记录</a>
                 </td>
               </tr>
 
@@ -168,8 +166,8 @@
                 <td><span class="s-tag closed">已关闭</span></td>
                 <td><span class="stars">★★★★<span class="empty">★</span></span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
-                  <a>查看评价</a>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
+                  <a class="sl-rating">查看评价</a>
                 </td>
               </tr>
 
@@ -190,8 +188,8 @@
                 <td><span class="s-tag transferred">已转接</span></td>
                 <td><span class="stars">★★★★★</span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
-                  <a>转接记录</a>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
+                  <a class="sl-transfer">转接记录</a>
                 </td>
               </tr>
 
@@ -212,8 +210,8 @@
                 <td><span class="s-tag closed">已关闭</span></td>
                 <td><span class="stars">★★★<span class="empty">★★</span></span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
-                  <a>查看评价</a>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
+                  <a class="sl-rating">查看评价</a>
                 </td>
               </tr>
 
@@ -234,8 +232,8 @@
                 <td><span class="s-tag closed">已关闭</span></td>
                 <td><span class="stars">★★★★★</span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
-                  <a>查看评价</a>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
+                  <a class="sl-rating">查看评价</a>
                 </td>
               </tr>
 
@@ -256,7 +254,7 @@
                 <td><span class="s-tag cancelled">已取消</span></td>
                 <td><span class="no-rate">未评价</span></td>
                 <td class="row-actions">
-                  <a>详情</a>
+                  <a class="sl-detail">详情</a>
                 </td>
               </tr>
 
@@ -277,8 +275,8 @@
                 <td><span class="s-tag transferred">已转接</span></td>
                 <td><span class="stars">★★★★<span class="empty">★</span></span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
-                  <a>转接记录</a>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
+                  <a class="sl-transfer">转接记录</a>
                 </td>
               </tr>
 
@@ -299,8 +297,8 @@
                 <td><span class="s-tag closed">已关闭</span></td>
                 <td><span class="stars">★★★★★</span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
-                  <a>查看评价</a>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
+                  <a class="sl-rating">查看评价</a>
                 </td>
               </tr>
 
@@ -321,7 +319,7 @@
                 <td><span class="s-tag closed">已关闭</span></td>
                 <td><span class="stars">★★<span class="empty">★★★</span></span></td>
                 <td class="row-actions">
-                  <a>详情</a><span class="divider">|</span>
+                  <a class="sl-detail">详情</a><span class="divider">|</span>
                   <a>差评追踪</a>
                 </td>
               </tr>
@@ -343,7 +341,7 @@
                 <td><span class="s-tag closed">已关闭</span></td>
                 <td><span class="no-rate">未评价</span></td>
                 <td class="row-actions">
-                  <a>详情</a>
+                  <a class="sl-detail">详情</a>
                 </td>
               </tr>
             </tbody>
@@ -378,5 +376,17 @@
 </div>
 
 <script src="../nav.js"></script>
+<script>
+  // 详情 / 转接记录 / 查看评价 → 会话详情弹窗（按 type 切换内容）
+  document.addEventListener('click', function (e) {
+    var d = e.target.closest('.sl-detail');
+    if (d) { e.preventDefault(); csModal.open('modals/modal-session-detail.html?type=detail', { variant: 'center', width: 540 }); return; }
+    var t = e.target.closest('.sl-transfer');
+    if (t) { e.preventDefault(); csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 }); return; }
+    var r = e.target.closest('.sl-rating');
+    if (r) { e.preventDefault(); csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 }); return; }
+  });
+  </script>
+
 </body>
 </html>

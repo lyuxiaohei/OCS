@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>会话转接 — CS 商城客服系统</title>
+  <title>会话转接 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
+<script src="../js/cs-modal.js"></script>
   <style>
     /* ===== admin-transfer.html 专属样式 ===== */
 
@@ -30,10 +31,10 @@
       flex-shrink: 0;
     }
     .agent-cell .agent-avatar.a1 { background: var(--cs-primary); }
-    .agent-cell .agent-avatar.a2 { background: var(--cs-orange); }
-    .agent-cell .agent-avatar.a3 { background: var(--cs-success); }
-    .agent-cell .agent-avatar.a4 { background: var(--cs-purple); }
-    .agent-cell .agent-avatar.a5 { background: #13c2c2; }
+    .agent-cell .agent-avatar.a2 { background: var(--cs-primary); }
+    .agent-cell .agent-avatar.a3 { background: var(--cs-primary); }
+    .agent-cell .agent-avatar.a4 { background: var(--cs-primary); }
+    .agent-cell .agent-avatar.a5 { background: #1677ff; }
 
     /* ---------- 转接流向箭头 ---------- */
     .transfer-arrow {
@@ -68,6 +69,8 @@
     .t-tag.accepted::before   { background: var(--cs-primary); }
     .t-tag.cancelled  { background: var(--cs-border-lighter); color: var(--cs-text-tertiary); }
     .t-tag.cancelled::before  { background: #bfbfbf; }
+    .t-tag.timeout    { background: var(--cs-orange-bg); color: var(--cs-orange); }
+    .t-tag.timeout::before    { background: var(--cs-orange); }
 
     /* ---------- 转接原因 ---------- */
     .reason-text {
@@ -82,11 +85,11 @@
       border-radius: 3px;
       font-size: var(--cs-font-size-xs);
       margin-right: 4px;
-      background: #f0f5ff;
-      color: #2f54eb;
-      border: 1px solid #adc6ff;
+      background: #e6f4ff;
+      color: #1677ff;
+      border: 1px solid #91caff;
     }
-    .reason-tag.vip     { background: var(--cs-orange-bg); color: #d46b08; border-color: #ffd591; }
+    .reason-tag.vip     { background: var(--cs-orange-bg); color: #d48806; border-color: #ffe58f; }
     .reason-tag.skill   { background: var(--cs-success-bg); color: #389e0d; border-color: #b7eb8f; }
     .reason-tag.busy    { background: var(--cs-danger-bg); color: #cf1322; border-color: #ffa39e; }
     .reason-tag.timeout { background: var(--cs-warning-bg); color: #d48806; border-color: #ffe58f; }
@@ -197,8 +200,8 @@
       padding: 1px 6px;
       font-size: var(--cs-font-size-xs);
       border-radius: 3px;
-      background: #f0f5ff;
-      color: #2f54eb;
+      background: #e6f4ff;
+      color: #1677ff;
     }
     .agent-card .capacity-bar {
       height: 4px;
@@ -320,14 +323,11 @@
         </div>
       </div>
 
-      <!-- 原型交互说明 -->
-      <div class="prototype-note">本页演示已有能力 <strong>F-EX-02 会话转接</strong>：左侧为转接记录列表，支持按状态/原因/客服筛选；右侧展示当前在线客服及其实时会话负载，作为选择转接目标的依据。点击「发起转接」可从在线客服列表中选择目标。</div>
-
       <!-- 统计摘要 -->
       <div class="stat-summary">
         <div class="stat-item accent"><span class="num">326</span>累计转接</div>
         <div class="stat-item warn"><span class="num">4</span>待处理</div>
-        <div class="stat-item"><span class="num">312</span>已完成</div>
+        <div class="stat-item"><span class="num">312</span>已接受</div>
         <div class="stat-item danger"><span class="num">10</span>已拒绝</div>
         <div class="stat-item" style="margin-left:auto;"><span class="num" style="color:var(--cs-success);">95.7%</span>转接成功率</div>
       </div>
@@ -368,10 +368,12 @@
 
           <!-- 状态 Tab -->
           <div class="status-tabs" style="padding: 0 16px;">
-            <div class="status-tab active">全部 <span class="tab-count">326</span></div>
+            <div class="status-tab active">全部 <span class="tab-count">328</span></div>
             <div class="status-tab">待处理 <span class="tab-count">4</span></div>
             <div class="status-tab">已接受 <span class="tab-count">312</span></div>
-            <div class="status-tab">已拒绝 <span class="tab-count">10</span></div>
+            <div class="status-tab">已拒绝 <span class="tab-count">8</span></div>
+            <div class="status-tab">已取消 <span class="tab-count">2</span></div>
+            <div class="status-tab">超时 <span class="tab-count">2</span></div>
           </div>
 
           <!-- 表格 -->
@@ -413,7 +415,7 @@
                     </div>
                   </td>
                   <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">10:42:18</span></td>
-                  <td><span class="t-tag pending">待处理</span><span style="background:#fff7e6;color:#d46b08;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 3:42</span></td>
+                  <td><span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 3:42</span></td>
                   <td>
                     <span class="reason-tag vip">VIP</span>
                     <span class="reason-text">VIP客户，需高级客服处理</span>
@@ -448,7 +450,7 @@
                     </div>
                   </td>
                   <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">09:31:05</span></td>
-                  <td><span class="t-tag success">已完成</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag skill">技能</span>
                     <span class="reason-text">售后退款问题，需售后组</span>
@@ -482,7 +484,7 @@
                     </div>
                   </td>
                   <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">08:55:42</span></td>
-                  <td><span class="t-tag success">已完成</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag busy">繁忙</span>
                     <span class="reason-text">当前会话数超限，转出分流</span>
@@ -516,7 +518,7 @@
                     </div>
                   </td>
                   <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">08:12:37</span></td>
-                  <td><span class="t-tag rejected">已拒绝</span></td>
+                  <td><span class="t-tag timeout">超时</span></td>
                   <td>
                     <span class="reason-tag timeout">超时</span>
                     <span class="reason-text">响应超时，自动取消</span>
@@ -550,7 +552,7 @@
                     </div>
                   </td>
                   <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">19:48:11</span></td>
-                  <td><span class="t-tag success">已完成</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag vip">VIP</span>
                     <span class="reason-text">VIP客户指定客服</span>
@@ -584,7 +586,7 @@
                     </div>
                   </td>
                   <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">17:22:54</span></td>
-                  <td><span class="t-tag success">已完成</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag skill">技能</span>
                     <span class="reason-text">物流追踪，需物流专员</span>
@@ -651,7 +653,7 @@
                     </div>
                   </td>
                   <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">11:38:27</span></td>
-                  <td><span class="t-tag success">已完成</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag skill">技能</span>
                     <span class="reason-text">商品质量问题，需品控组</span>
@@ -685,7 +687,7 @@
                     </div>
                   </td>
                   <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">09:14:50</span></td>
-                  <td><span class="t-tag success">已完成</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag busy">繁忙</span>
                     <span class="reason-text">原客服需休息，交接</span>
@@ -719,7 +721,7 @@
                     </div>
                   </td>
                   <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">21:05:19</span></td>
-                  <td><span class="t-tag success">已完成</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag vip">VIP</span>
                     <span class="reason-text">VIP4高优客户升级处理</span>
@@ -765,10 +767,8 @@
             <span class="sort-item">按评分</span>
           </div>
 
-          <div class="prototype-note" style="margin:0 0 12px;">点击下方客服卡片可将其选为转接目标。容量进度条反映当前会话负载（绿=空闲 / 黄=较忙 / 红=满载）。</div>
-
           <!-- 转接超时设置 -->
-          <div style="background:#f0f5ff;border:1px solid #d6e4ff;border-radius:8px;padding:12px 16px;margin-bottom:16px;">
+          <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:8px;padding:12px 16px;margin-bottom:16px;">
             <div style="font-size:13px;font-weight:600;color:#1677ff;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               转接超时设置
@@ -790,7 +790,7 @@
             <!-- 客服 1 -->
             <div class="agent-card">
               <div class="agent-head">
-                <div class="agent-avatar-lg" style="background:var(--cs-orange);">
+                <div class="agent-avatar-lg" style="background:var(--cs-primary);">
                   李
                   <span class="online-dot"></span>
                 </div>
@@ -830,7 +830,7 @@
             <!-- 客服 2 -->
             <div class="agent-card">
               <div class="agent-head">
-                <div class="agent-avatar-lg" style="background:var(--cs-purple);">
+                <div class="agent-avatar-lg" style="background:var(--cs-primary);">
                   赵
                   <span class="online-dot"></span>
                 </div>
@@ -869,7 +869,7 @@
             <!-- 客服 3 -->
             <div class="agent-card">
               <div class="agent-head">
-                <div class="agent-avatar-lg busy" style="background:var(--cs-danger);">
+                <div class="agent-avatar-lg busy" style="background:var(--cs-primary);">
                   王
                   <span class="online-dot"></span>
                 </div>
@@ -908,7 +908,7 @@
             <!-- 客服 4 -->
             <div class="agent-card selected">
               <div class="agent-head">
-                <div class="agent-avatar-lg" style="background:#13c2c2;">
+                <div class="agent-avatar-lg" style="background:#1677ff;">
                   周
                   <span class="online-dot"></span>
                 </div>
@@ -947,7 +947,7 @@
             <!-- 客服 5 -->
             <div class="agent-card">
               <div class="agent-head">
-                <div class="agent-avatar-lg" style="background:var(--cs-success);">
+                <div class="agent-avatar-lg" style="background:var(--cs-primary);">
                   孙
                   <span class="online-dot"></span>
                 </div>
@@ -988,7 +988,7 @@
           <!-- 底部操作 -->
           <div style="margin-top:var(--cs-space-4); padding-top:var(--cs-space-4); border-top:1px solid var(--cs-border-light); display:flex; gap:var(--cs-space-2);">
             <button class="btn-default" style="flex:1;">取消</button>
-            <button class="btn-primary" style="flex:1;">确认转接至 周涛</button>
+            <button class="btn-primary" id="btnConfirmTransfer" style="flex:1;">确认转接至 周涛</button>
           </div>
         </div>
 
@@ -1001,13 +1001,13 @@
 
       <!-- 超时自动回退机制说明 -->
       <div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:8px;padding:12px 16px;margin-top:16px;">
-        <div style="font-size:13px;font-weight:600;color:#d46b08;margin-bottom:4px;">⏱ 超时自动回退机制</div>
+        <div style="font-size:13px;font-weight:600;color:#d48806;margin-bottom:4px;">⏱ 超时自动回退机制</div>
         <div style="font-size:12px;color:#8c8c8c;line-height:1.8;">
           转接请求发出后，目标客服需在设定时间内响应。超时未响应时系统自动触发回退策略：<br/>
           • <b>回退至原客服</b>：会话自动归还给原客服继续服务<br/>
           • <b>重新排队分配</b>：会话进入排队队列，由路由引擎重新分配<br/>
           • <b>自动取消并通知</b>：转接取消，原客服和用户均收到通知<br/>
-          <span style="color:#d46b08;">建议：高峰期使用「重新排队分配」，低峰期使用「回退至原客服」</span>
+          <span style="color:#d48806;">建议：高峰期使用「重新排队分配」，低峰期使用「回退至原客服」</span>
         </div>
       </div>
 
@@ -1017,5 +1017,16 @@
 </div>
 
 <script src="../nav.js"></script>
+<script>
+  // 确认转接 → 转接确认弹窗
+  (function () {
+    var b = document.getElementById('btnConfirmTransfer');
+    if (!b) return;
+    b.addEventListener('click', function () {
+      csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420 });
+    });
+  })();
+  </script>
+
 </body>
 </html>

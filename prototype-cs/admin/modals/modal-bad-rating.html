@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>差评追踪 · 弹窗</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 520px; max-width: 94vw; }
+    .br-body { padding: 18px 20px; }
+    .br-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; font-size: 13px; margin-bottom: 14px; }
+    .br-meta .k { color: var(--cs-text-tertiary); }
+    .br-meta .v { color: var(--cs-text); font-weight: 500; }
+    .br-comment {
+      background: #fff1f0; border: 1px solid #ffccc7; border-radius: 6px;
+      padding: 10px 12px; font-size: 13px; color: var(--cs-text-secondary); line-height: 1.6; margin-bottom: 16px;
+    }
+    .br-section-title { font-size: 13px; font-weight: 600; color: var(--cs-text); margin: 4px 0 10px; }
+    .timeline { position: relative; padding-left: 18px; }
+    .timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--cs-border-light); }
+    .tl-item { position: relative; padding-bottom: 14px; font-size: 13px; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item::before { content: ''; position: absolute; left: -16px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--cs-primary); border: 2px solid #fff; }
+    .tl-item.done::before { background: var(--cs-success); }
+    .tl-item.pending::before { background: var(--cs-warning); }
+    .tl-time { font-size: 12px; color: var(--cs-text-tertiary); }
+    .tl-text { color: var(--cs-text); margin-top: 2px; }
+    .stars { color: var(--cs-warning); letter-spacing: 1px; }
+    .stars .empty { color: #e8e8e8; }
+    .rtag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+    .rtag.negative { background: var(--cs-danger-bg); color: var(--cs-danger); }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span>差评追踪 · #RT20260610028</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="br-body">
+      <div class="br-meta">
+        <div><span class="k">用户：</span><span class="v">赵丽丽 · VIP4</span></div>
+        <div><span class="k">服务客服：</span><span class="v">李静</span></div>
+        <div><span class="k">评分：</span><span class="v"><span class="stars">★★<span class="empty">★★★</span></span> 2.0</span></div>
+        <div><span class="k">会话时长：</span><span class="v">10分24秒</span></div>
+      </div>
+      <div style="margin-bottom:8px;">
+        <span class="rtag negative">回复慢</span>
+        <span class="rtag negative">未解决</span>
+      </div>
+      <div class="br-comment">等了快十分钟才有人理，问题最后也没给解决，太差了。</div>
+
+      <div class="br-section-title">处理跟进</div>
+      <div class="timeline">
+        <div class="tl-item done">
+          <div class="tl-time">2026-06-10 18:41</div>
+          <div class="tl-text">用户提交差评</div>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-time">2026-06-10 19:05</div>
+          <div class="tl-text">系统自动触发差评预警，通知客服主管</div>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-time">2026-06-11 09:30</div>
+          <div class="tl-text">主管 王主管 已介入，回访用户核实情况</div>
+        </div>
+        <div class="tl-item pending">
+          <div class="tl-time">待处理</div>
+          <div class="tl-text">回访结果待录入 · 建议补偿方案待确认</div>
+        </div>
+      </div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">关闭</button>
+      <button class="btn-primary" id="followupBtn">录入回访结果</button>
+    </div>
+  </div>
+
+  <script src="../../js/cs-modal.js"></script>
+  <script>
+    document.getElementById('followupBtn').addEventListener('click', function () {
+      window.csModalBridge.confirm({ action: 'record-followup', ratingId: '#RT20260610028' });
+    });
+  </script>
+</body>
+</html>

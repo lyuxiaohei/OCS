@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>挂起会话 · 弹窗</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <style>
+    /* 挂起弹窗内部样式（自宿主，便于单独预览/维护） */
+    body { background: transparent; margin: 0; }
+    .suspend-modal { background: #fff; }
+    .suspend-modal .sm-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--cs-border-light);
+      font-size: 15px;
+      font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .suspend-modal .sm-head .sm-close { cursor: pointer; color: var(--cs-text-tertiary); font-size: 20px; line-height: 1; }
+    .suspend-modal .sm-body { padding: 18px 20px; }
+    .suspend-modal .sm-row { margin-bottom: 16px; }
+    .suspend-modal .sm-row:last-child { margin-bottom: 0; }
+    .suspend-modal .sm-label {
+      font-size: 13px; color: var(--cs-text); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .suspend-modal .sm-label .req { color: var(--cs-danger); }
+    .suspend-modal .sm-textarea {
+      width: 100%; min-height: 72px;
+      border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 8px 11px; font-size: 13px; font-family: inherit;
+      resize: vertical; outline: none; transition: border-color 0.15s;
+    }
+    .suspend-modal .sm-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .suspend-modal .sm-radio-row { display: flex; gap: 8px; }
+    .suspend-modal .sm-radio {
+      flex: 1; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 9px 8px; text-align: center; cursor: pointer;
+      font-size: 13px; transition: all 0.15s;
+    }
+    .suspend-modal .sm-radio:hover { border-color: var(--cs-primary); }
+    .suspend-modal .sm-radio.checked {
+      border-color: var(--cs-primary); background: #e6f4ff;
+      color: var(--cs-primary); font-weight: 600;
+    }
+    .suspend-modal .sm-radio .sm-sub { display: block; font-size: 11px; color: var(--cs-text-tertiary); font-weight: 400; margin-top: 2px; }
+    .suspend-modal .sm-radio.checked .sm-sub { color: var(--cs-primary); }
+    .suspend-modal .sm-foot {
+      padding: 12px 20px; border-top: 1px solid var(--cs-border-light);
+      display: flex; justify-content: flex-end; gap: 8px; background: #fafafa;
+    }
+    .suspend-modal .sm-tip {
+      font-size: 12px; color: var(--cs-text-tertiary);
+      background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px;
+      padding: 8px 11px; margin-bottom: 16px; line-height: 1.6;
+    }
+    .sm-btn { padding: 5px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; }
+    .sm-btn.primary { background: var(--cs-primary); border-color: var(--cs-primary); color: #fff; }
+    .sm-btn.primary:hover { background: var(--cs-primary-hover); }
+    .sm-btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+  </style>
+</head>
+<body>
+  <div class="suspend-modal csm-body">
+    <div class="sm-head">
+      <span>挂起会话</span>
+      <span class="sm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="sm-body">
+      <div class="sm-tip">⏸ 挂起后会话状态变为 <strong>pending</strong>，暂停无响应超时计时；恢复时间到期或用户发新消息时自动恢复为 <strong>accept</strong>。</div>
+      <div class="sm-row">
+        <div class="sm-label"><span class="req">*</span>挂起原因</div>
+        <textarea class="sm-textarea" id="suspendReason" placeholder="请填写挂起原因，如：等待用户提供退款凭证 / 协同仓库核实库存"></textarea>
+      </div>
+      <div class="sm-row">
+        <div class="sm-label">恢复时间（默认 30 分钟，对应系统设置 pending_resume_default）</div>
+        <div class="sm-radio-row" id="resumeRow">
+          <div class="sm-radio" data-resume="15">15 分钟<span class="sm-sub">快速</span></div>
+          <div class="sm-radio checked" data-resume="30">30 分钟<span class="sm-sub">默认</span></div>
+          <div class="sm-radio" data-resume="60">60 分钟<span class="sm-sub">长时间</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="sm-foot">
+      <button class="sm-btn" onclick="window.csModalBridge.close()">取消</button>
+      <button class="sm-btn primary" id="suspendConfirm">确认挂起</button>
+    </div>
+  </div>
+
+  <script src="../../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var selectedResume = 30;
+      var radios = document.querySelectorAll('.sm-radio');
+      radios.forEach(function (r) {
+        r.addEventListener('click', function () {
+          radios.forEach(function (x) { x.classList.remove('checked'); });
+          r.classList.add('checked');
+          selectedResume = parseInt(r.getAttribute('data-resume'), 10) || 30;
+        });
+      });
+
+      var reasonEl = document.getElementById('suspendReason');
+      document.getElementById('suspendConfirm').addEventListener('click', function () {
+        var reason = (reasonEl.value || '').trim();
+        if (!reason) {
+          reasonEl.style.borderColor = 'var(--cs-danger)';
+          reasonEl.focus();
+          setTimeout(function () { reasonEl.style.borderColor = ''; }, 1500);
+          return;
+        }
+        window.csModalBridge.confirm({ reason: reason, resume: selectedResume });
+      });
+    })();
+  </script>
+</body>
+</html>

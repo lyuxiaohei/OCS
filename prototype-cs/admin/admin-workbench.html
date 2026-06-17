@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>客服工作台 — CS 商城客服系统</title>
+  <title>客服工作台 — 供应链平台</title>
   <link rel="stylesheet" href="../styles.css" />
+  <script src="../js/cs-modal.js"></script>
   <style>
     /* ===== admin-workbench.html 专属样式 ===== */
 
@@ -16,73 +17,12 @@
     /* page-specific token not in shared CSS */
     :root { --cs-bg-chat: #f5f6f8; }
 
-    /* ===== Top Bar (slim global header) ===== */
-    .wb-topbar {
-      height: 48px;
-      background: #001529;
-      color: rgba(255,255,255,0.85);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      flex-shrink: 0;
-      gap: 24px;
-    }
-    .wb-topbar .brand {
-      font-size: 15px;
-      font-weight: 600;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .wb-topbar .brand .logo-box {
-      width: 26px; height: 26px;
-      background: #1677ff;
-      border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px;
-    }
-    .wb-topbar .nav {
-      display: flex;
-      gap: 4px;
-      flex: 1;
-    }
-    .wb-topbar .nav a {
-      color: rgba(255,255,255,0.65);
-      font-size: 13px;
-      padding: 6px 12px;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: all 0.15s;
-    }
-    .wb-topbar .nav a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-    .wb-topbar .nav a.active { color: #fff; background: #1677ff; }
-    .wb-topbar .top-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 13px;
-    }
-    .wb-topbar .top-right .status-pill {
-      background: rgba(82,196,26,0.18);
-      color: #52c41a;
-      padding: 2px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .wb-topbar .top-right .status-pill::before {
-      content: ''; width: 6px; height: 6px;
-      border-radius: 50%; background: #52c41a;
-    }
-    .wb-topbar .top-right .agent-name { color: rgba(255,255,255,0.85); }
-
     /* ===== Workbench shell: three columns ===== */
     .wb-shell {
       display: flex;
-      height: calc(100vh - 48px);
+      flex: 1;
+      min-height: 0;
+      min-width: 1200px;
       overflow: hidden;
     }
 
@@ -201,15 +141,16 @@
     .session-avatar {
       width: 40px; height: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      background: var(--cs-primary);
       color: #fff;
       display: flex; align-items: center; justify-content: center;
       font-size: 14px;
       font-weight: 600;
       flex-shrink: 0;
     }
-    .session-avatar.waiting { background: linear-gradient(135deg, var(--cs-warning), var(--cs-warning-hover)); }
-    .session-avatar.closed { background: linear-gradient(135deg, #bfbfbf, #d9d9d9); }
+    .session-avatar.waiting { background: var(--cs-primary); }
+    .session-avatar.closed { background: var(--cs-primary); }
+    .session-avatar.pending { background: var(--cs-primary); }
     .session-meta {
       flex: 1;
       min-width: 0;
@@ -271,6 +212,18 @@
     .s-tag.waiting { background: var(--cs-warning-bg); color: #d48806; border: 1px solid #ffe58f; }
     .s-tag.urgent { background: var(--cs-danger-bg); color: #cf1322; border: 1px solid #ffa39e; }
     .s-tag.transferred { background: var(--cs-purple-bg); color: #531dab; border: 1px solid #d3adf7; }
+    .s-tag.pending { background: var(--cs-purple-bg); color: #531dab; border: 1px solid #d3adf7; }
+
+    /* 挂起会话项视觉：整行淡紫底，左侧紫条 */
+    .session-item.is-pending { background: #faf5ff; }
+    .session-item.is-pending::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-purple);
+    }
+    .session-item.is-pending.active::before { background: var(--cs-primary); }
 
     /* ---------- MIDDLE: Chat conversation ---------- */
     .wb-middle {
@@ -367,8 +320,8 @@
       font-weight: 600;
       color: #fff;
     }
-    .msg-row.user .msg-avatar { background: linear-gradient(135deg, #722ed1, #9254de); }
-    .msg-row.agent .msg-avatar { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .msg-row.user .msg-avatar { background: #1677ff; }
+    .msg-row.agent .msg-avatar { background: #1677ff; }
     .msg-content {
       display: flex;
       flex-direction: column;
@@ -400,37 +353,60 @@
       padding: 4px;
       width: 160px;
       height: 110px;
-      background: linear-gradient(135deg, #d3adf7, #efdbff);
+      background: #d3adf7;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #722ed1;
+      color: #1677ff;
       font-size: 12px;
       border: 1px solid #eee;
     }
 
-    /* Order / product / coupon card in thread */
+    /* Order / product / coupon card in thread
+       统一中性卡：头部 [图标+类型标签]  [状态徽标]，颜色只用于状态 */
     .thread-card {
       width: 280px;
       background: #fff;
-      border: 1px solid #eee;
+      border: 1px solid var(--cs-border-light);
       border-radius: 8px;
       overflow: hidden;
       font-size: 13px;
     }
-    .thread-card .tc-banner {
-      height: 36px;
-      color: #fff;
+    .thread-card .tc-header {
       display: flex;
       align-items: center;
-      padding: 0 12px;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .thread-card .tc-header .tc-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 12px;
       font-weight: 600;
-      gap: 6px;
+      color: var(--cs-text);
     }
-    .thread-card.order .tc-banner { background: linear-gradient(90deg, #fa8c16, #ffa940); }
-    .thread-card.product .tc-banner { background: linear-gradient(90deg, #52c41a, #73d13d); }
-    .thread-card.coupon .tc-banner { background: linear-gradient(90deg, #f5222d, #ff7875); }
+    .thread-card .tc-header .tc-icon { color: var(--cs-text-tertiary); display: inline-flex; }
+    /* 状态徽标：圆点+文字，颜色编码【状态】 */
+    .thread-card .tc-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .thread-card .tc-state::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+    .thread-card .tc-state.s-warn::before { background: var(--cs-orange); }
+    .thread-card .tc-state.s-warn { color: var(--cs-orange); }
+    .thread-card .tc-state.s-proc::before { background: var(--cs-primary); }
+    .thread-card .tc-state.s-proc { color: var(--cs-primary); }
+    .thread-card .tc-state.s-done::before { background: var(--cs-success); }
+    .thread-card .tc-state.s-done { color: var(--cs-success); }
+    .thread-card .tc-state.s-danger::before { background: var(--cs-danger); }
+    .thread-card .tc-state.s-danger { color: var(--cs-danger); }
+    .thread-card .tc-state.s-closed::before { background: #bfbfbf; }
+    .thread-card .tc-state.s-closed { color: var(--cs-text-tertiary); }
     .thread-card .tc-body { padding: 10px 12px; }
     .thread-card .tc-row {
       display: flex;
@@ -440,6 +416,7 @@
     }
     .thread-card .tc-row .k { color: var(--cs-text-tertiary); }
     .thread-card .tc-row .v { color: var(--cs-text); font-weight: 500; }
+    .thread-card .tc-row .price { color: var(--cs-text); font-weight: 600; }
     .thread-card .tc-footer {
       display: flex;
       gap: 8px;
@@ -635,7 +612,7 @@
       width: 60px; height: 60px;
       border-radius: 50%;
       margin: 0 auto 8px;
-      background: linear-gradient(135deg, #722ed1, #9254de);
+      background: #1677ff;
       color: #fff;
       display: flex; align-items: center; justify-content: center;
       font-size: 22px;
@@ -655,7 +632,7 @@
     .info-row .k { color: var(--cs-text-tertiary); }
     .info-row .v { color: var(--cs-text); font-weight: 500; }
     .level-badge {
-      background: linear-gradient(90deg, #fa8c16, #faad14);
+      background: #faad14;
       color: #fff;
       padding: 1px 8px;
       border-radius: 4px;
@@ -680,7 +657,7 @@
     .behavior-item .bi-icon {
       width: 28px; height: 28px;
       border-radius: 6px;
-      background: #f0f5ff;
+      background: #e6f4ff;
       color: var(--cs-primary);
       display: flex; align-items: center; justify-content: center;
       font-size: 13px;
@@ -770,17 +747,6 @@
     .msg-thread::-webkit-scrollbar-thumb,
     .session-list::-webkit-scrollbar-thumb,
     .info-body::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
-
-    /* prototype note floating */
-    .wb-note-wrap {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(720px, 90vw);
-      z-index: 50;
-    }
-    .wb-note-wrap .prototype-note { margin: 0; }
 
     /* ===== Message Recall (消息撤回) ===== */
     .msg-row.agent .msg-content {
@@ -893,36 +859,55 @@
       color: rgba(255,255,255,0.65);
     }
     .back-home a { color: rgba(255,255,255,0.85); text-decoration: underline; }
+
+    /* 会话已恢复 系统提醒条 */
+    .resume-notice {
+      align-self: center;
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      color: #389e0d;
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .suspend-notice {
+      align-self: center;
+      background: #e6f4ff;
+      border: 1px solid #d3adf7;
+      color: #531dab;
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Hidden sidebar placeholder for nav.js compatibility -->
-  <aside class="admin-sidebar" id="sidebar-nav" data-active="workbench" style="display:none;"></aside>
+<div class="admin-layout">
 
-  <!-- ===== Global Top Bar ===== -->
-  <header class="wb-topbar">
-    <div class="brand">
-      <span class="logo-box">CS</span>
-      <span>商城客服系统</span>
-    </div>
-    <nav class="nav">
-      <a href="admin-workbench.html" class="active">客服工作台</a>
-      <a href="admin-todo.html">待办事项</a>
-      <a href="admin-session-list.html">会话记录</a>
-      <a href="admin-dashboard.html">数据看板</a>
-      <a href="admin-knowledge.html">知识库</a>
-      <a href="admin-settings.html">系统设置</a>
-    </nav>
-    <div class="top-right">
-      <span class="status-pill">在线接客中</span>
-      <span class="agent-name">王小明 · 客服A组</span>
-    </div>
-    <div class="back-home"><a href="../index.html">← 返回原型首页</a></div>
-  </header>
+  <!-- ===== 侧边栏（nav.js 渲染）===== -->
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="workbench"></aside>
 
-  <!-- ===== Workbench Shell (3 columns) ===== -->
-  <div class="wb-shell">
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+
+    <!-- 顶部 Header -->
+    <header class="admin-header">
+      <div class="breadcrumb">首页 / 工作台 / <span style="color:var(--cs-text);">客服工作台</span></div>
+      <div class="user-info">
+        <span class="status-badge online">在线接客中</span>
+        <span>客服A · 王小明</span>
+      </div>
+    </header>
+
+    <!-- ===== Workbench Shell (3 columns) ===== -->
+    <div class="wb-shell">
 
     <!-- ========== LEFT: Session List ========== -->
     <aside class="wb-left">
@@ -938,9 +923,10 @@
       </div>
 
       <div class="wb-tabs">
-        <div class="tab active">进行中 <span class="num">8</span></div>
-        <div class="tab">等待中 <span class="num">3</span></div>
-        <div class="tab">已关闭 <span class="num">13</span></div>
+        <div class="tab active" data-status="accept">进行中 <span class="num">8</span></div>
+        <div class="tab" data-status="wait">等待中 <span class="num">3</span></div>
+        <div class="tab" data-status="pending">挂起 <span class="num">2</span></div>
+        <div class="tab" data-status="close">已关闭 <span class="num">13</span></div>
       </div>
 
       <div class="session-list">
@@ -1069,6 +1055,35 @@
           </div>
         </div>
 
+        <!-- 挂起会话示例（status=pending，等待用户补资料/外部处理） -->
+        <div class="session-item" data-status="pending">
+          <div class="session-avatar pending">郑</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">郑丽华</span>
+              <span class="session-time">13:10</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">挂起中 · 等待用户提供退款凭证</span>
+              <span class="s-tag pending">挂起</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="session-item" data-status="pending">
+          <div class="session-avatar pending">何</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">何静</span>
+              <span class="session-time">12:45</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">挂起中 · 协同仓库核实库存</span>
+              <span class="s-tag pending">挂起</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </aside>
 
@@ -1083,9 +1098,10 @@
           <span class="tag-normal">VIP</span>
         </span>
         <div class="topbar-actions">
-          <button class="btn-sm primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转接</button>
+          <button class="btn-sm" id="btnSuspend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>挂起</button>
+          <button class="btn-sm primary" id="btnTransfer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转接</button>
           <button class="btn-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>更多</button>
-          <button class="btn-sm btn-icon-only" title="结束会话"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <button class="btn-sm btn-icon-only" id="btnEnd" title="结束会话"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
 
@@ -1150,12 +1166,15 @@
             </div>
             <div class="msg-sender">客服 王小明</div>
             <div class="thread-card order">
-              <div class="tc-banner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>订单卡片</div>
+              <div class="tc-header">
+                <div class="tc-left"><span class="tc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>订单</div>
+                <span class="tc-state s-warn">待发货</span>
+              </div>
               <div class="tc-body">
                 <div class="tc-row"><span class="k">订单号</span><span class="v">#20260611</span></div>
-                <div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机 ×1</span></div>
-                <div class="tc-row"><span class="k">金额</span><span class="v" style="color:#f5222d">¥299.00</span></div>
-                <div class="tc-row"><span class="k">状态</span><span class="v">待发货</span></div>
+                <div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机（白色） ×1</span></div>
+                <div class="tc-row"><span class="k">实付金额</span><span class="price">¥299.00</span></div>
+                <div class="tc-row"><span class="k">下单时间</span><span class="v">2026-06-11 09:12</span></div>
               </div>
               <div class="tc-footer">
                 <div class="tc-btn">查看详情</div>
@@ -1207,11 +1226,16 @@
             </div>
             <div class="msg-sender">客服 王小明</div>
             <div class="thread-card product">
-              <div class="tc-banner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>商品卡片</div>
+              <div class="tc-header">
+                <div class="tc-left"><span class="tc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>商品</div>
+                <span class="tc-state s-done">有货</span>
+              </div>
               <div class="tc-body">
                 <div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机（白色）</span></div>
                 <div class="tc-row"><span class="k">SKU</span><span class="v">BT-WHITE-001</span></div>
-                <div class="tc-row"><span class="k">库存</span><span class="v" style="color:#52c41a">有货</span></div>
+                <div class="tc-row"><span class="k">规格</span><span class="v">颜色:白 / 降噪款</span></div>
+                <div class="tc-row"><span class="k">售价</span><span class="price">¥299.00</span></div>
+                <div class="tc-row"><span class="k">库存</span><span class="v">128 件</span></div>
               </div>
               <div class="tc-footer">
                 <div class="tc-btn">查看商品</div>
@@ -1234,11 +1258,14 @@
             </div>
             <div class="msg-sender">客服 王小明</div>
             <div class="thread-card coupon">
-              <div class="tc-banner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M2 12h20"/><path d="M12 2v10"/><path d="M8 2h8l-4 6-4-6z"/></svg>优惠券卡片</div>
+              <div class="tc-header">
+                <div class="tc-left"><span class="tc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M2 12h20"/><path d="M12 2v10"/><path d="M8 2h8l-4 6-4-6z"/></svg></span>优惠券</div>
+                <span class="tc-state s-warn">可领取</span>
+              </div>
               <div class="tc-body">
-                <div class="tc-row"><span class="k">优惠券</span><span class="v" style="color:#f5222d">满 200 减 30</span></div>
+                <div class="tc-row"><span class="k">面额</span><span class="v">满 ¥200 减 ¥30</span></div>
+                <div class="tc-row"><span class="k">适用范围</span><span class="v">全品类</span></div>
                 <div class="tc-row"><span class="k">有效期</span><span class="v">2026-06-30 前</span></div>
-                <div class="tc-row"><span class="k">适用</span><span class="v">全品类</span></div>
               </div>
               <div class="tc-footer">
                 <div class="tc-btn solid">立即领取</div>
@@ -1247,10 +1274,10 @@
           </div>
         </div>
 
-        <!-- agent text latest -->
+        <!-- agent text latest（data-sent-ts 为当前秒级时间戳，2 分钟内可撤回） -->
         <div class="msg-row agent">
           <div class="msg-avatar">王</div>
-          <div class="msg-content">
+          <div class="msg-content" data-sent-ts="">
             <button class="msg-actions-trigger" title="更多操作"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
             <div class="msg-actions-menu">
               <div class="ma-item danger" data-action="recall">
@@ -1446,7 +1473,7 @@
 
           <div class="section-label">历史咨询记录</div>
           <div class="behavior-item">
-            <div class="bi-icon" style="background:#fff7e6;color:#d46b08;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="bi-icon" style="background:#fffbe6;color:#d48806;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
             <div class="bi-text">
               <div class="bi-title">物流催单咨询</div>
               <div class="bi-time">2026-06-05 · 客服 李娜 · 已解决</div>
@@ -1460,7 +1487,7 @@
             </div>
           </div>
           <div class="behavior-item">
-            <div class="bi-icon" style="background:#f0f5ff;color:#1677ff;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div class="bi-icon" style="background:#e6f4ff;color:#1677ff;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
             <div class="bi-text">
               <div class="bi-title">优惠券使用咨询</div>
               <div class="bi-time">2026-05-12 · 客服 陈静 · 已解决</div>
@@ -1473,19 +1500,139 @@
 
   </div>
 
-  <!-- ===== Prototype Note ===== -->
-  <div class="wb-note-wrap">
-    <div class="prototype-note">
-      本页是客服系统的<strong>核心工作空间</strong>——客服人员 90% 的工作时间都在此页完成。三栏布局：左侧<strong>会话列表</strong>（进行中/等待中/已关闭切换，每项显示用户名+最后消息+未读数+状态标签）；中间<strong>聊天会话区</strong>（顶部客户名+标签+转接按钮，消息流支持文字/图片/订单卡片/商品卡片/优惠券等富媒体，底部含快捷回复下拉、文字输入、发卡片按钮与发送按钮）；右侧<strong>客户信息面板</strong>（基础信息/行为数据/交易数据/服务数据四标签切换，聚合会员等级、近期浏览、订单、满意度等）。点击会话项、标签页、快捷回复均可交互。
-    </div>
-  </div>
+  </div><!-- /主区域 -->
+</div><!-- /admin-layout -->
 
   <script>
-    // Session list tab switching (visual only)
+    // ===== cs-modal 接线：挂起 / 转接 / 结束会话 =====
+    (function(){
+      // 挂起会话（弹窗抽离至 modals/modal-suspend.html）
+      var btnSuspend = document.getElementById('btnSuspend');
+      if (btnSuspend) {
+        btnSuspend.addEventListener('click', function () {
+          csModal.open('modals/modal-suspend.html', { variant: 'center', width: 440,
+            onConfirm: function (data) {
+              var reason = data.reason, resume = data.resume;
+              // status=accept→pending：当前会话移入「挂起」，暂停无响应超时计时
+              var activeItem = document.querySelector('.session-list .session-item.active');
+              if (activeItem) {
+                activeItem.setAttribute('data-status', 'pending');
+                activeItem.classList.add('is-pending');
+                var av = activeItem.querySelector('.session-avatar');
+                if (av) { av.classList.remove('waiting','closed'); av.classList.add('pending'); }
+                var tag = activeItem.querySelector('.s-tag');
+                if (tag) { tag.className = 's-tag pending'; tag.textContent = '挂起'; }
+                var lastMsg = activeItem.querySelector('.session-last-msg');
+                if (lastMsg) lastMsg.textContent = '挂起中 · ' + reason + '（' + resume + ' 分钟后恢复）';
+              }
+              var thread = document.querySelector('.msg-thread');
+              if (thread) {
+                var notice = document.createElement('div');
+                notice.className = 'suspend-notice';
+                notice.innerHTML = '⏸ 会话已挂起 · 原因：' + reason + ' · ' + resume + ' 分钟后自动恢复（或用户发新消息立即恢复）';
+                thread.appendChild(notice);
+                thread.scrollTop = thread.scrollHeight;
+              }
+            }
+          });
+        });
+      }
+      // 转接会话
+      var btnTransfer = document.getElementById('btnTransfer');
+      if (btnTransfer) {
+        btnTransfer.addEventListener('click', function () {
+          csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420,
+            onConfirm: function (data) {
+              var thread = document.querySelector('.msg-thread');
+              if (thread) {
+                var notice = document.createElement('div');
+                notice.className = 'suspend-notice';
+                notice.innerHTML = '🔁 会话已转接至 ' + data.target + '（原因：' + data.reason + '），等待目标客服响应';
+                thread.appendChild(notice);
+                thread.scrollTop = thread.scrollHeight;
+              }
+            }
+          });
+        });
+      }
+      // 结束会话
+      var btnEnd = document.getElementById('btnEnd');
+      if (btnEnd) {
+        btnEnd.addEventListener('click', function () {
+          csModal.open('modals/modal-end-session.html', { variant: 'center', width: 380,
+            onConfirm: function () {
+              var activeItem = document.querySelector('.session-list .session-item.active');
+              if (activeItem) {
+                activeItem.setAttribute('data-status', 'close');
+                var av = activeItem.querySelector('.session-avatar');
+                if (av) { av.classList.remove('waiting','pending'); av.classList.add('closed'); }
+                var tag = activeItem.querySelector('.s-tag');
+                if (tag) { tag.className = 's-tag transferred'; tag.textContent = '已结束'; }
+              }
+              var thread = document.querySelector('.msg-thread');
+              if (thread) {
+                var notice = document.createElement('div');
+                notice.className = 'resume-notice';
+                notice.innerHTML = '✓ 会话已结束 · 已向用户推送满意度评价邀请';
+                thread.appendChild(notice);
+                thread.scrollTop = thread.scrollHeight;
+              }
+            }
+          });
+        });
+      }
+      // 模拟「挂起会话点击恢复」：沿用原逻辑（pending 会话项点击恢复）
+      document.querySelectorAll('.session-item[data-status="pending"]').forEach(function (item) {
+        item.addEventListener('click', function () {
+          item.setAttribute('data-status', 'accept');
+          item.classList.remove('is-pending');
+          var av = item.querySelector('.session-avatar');
+          if (av) { av.classList.remove('pending'); av.classList.add('waiting'); }
+          var tag = item.querySelector('.s-tag');
+          if (tag) { tag.className = 's-tag transferred'; tag.textContent = '已恢复'; }
+          var thread = document.querySelector('.msg-thread');
+          if (thread) {
+            var resume = document.createElement('div');
+            resume.className = 'resume-notice';
+            resume.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>会话已恢复（用户发新消息 / 恢复时间到期）· 重新计入超时';
+            thread.appendChild(resume);
+            thread.scrollTop = thread.scrollHeight;
+          }
+        });
+      });
+    })();
+
+    // 初始化消息发送时间戳：模拟撤回 2 分钟时间窗
+    // - 最后一条 agent 文字消息：当前时间（可撤回）
+    // - 订单卡片消息：5 分钟前（演示超时拒绝撤回）
+    (function(){
+      var nowSec = Math.floor(Date.now()/1000);
+      var agentContents = document.querySelectorAll('.msg-row.agent .msg-content[data-sent-ts]');
+      if(agentContents.length){
+        // 最后一条 = 当前时间
+        agentContents[agentContents.length-1].setAttribute('data-sent-ts', nowSec);
+        // 倒数第二条（订单卡片）= 5 分钟前，演示超时
+        if(agentContents.length >= 2){
+          agentContents[agentContents.length-2].setAttribute('data-sent-ts', nowSec - 300);
+        }
+      }
+    })();
+
+    // Session list tab switching — filter by data-status
+    // accept = 进行中(默认显示，无 data-status 的进行中项 + accept 项)
+    // wait = 等待中(waiting 头像 / 等待标签)
+    // pending = 挂起
+    // close = 已关闭
     document.querySelectorAll('.wb-tabs .tab').forEach(function(t){
       t.addEventListener('click', function(){
         document.querySelectorAll('.wb-tabs .tab').forEach(function(x){x.classList.remove('active');});
         t.classList.add('active');
+        var status = t.getAttribute('data-status');
+        var items = document.querySelectorAll('.session-list .session-item');
+        items.forEach(function(item){
+          var itemStatus = item.getAttribute('data-status') || 'accept';
+          item.style.display = (status === 'accept') ? '' : (itemStatus === status ? '' : 'none');
+        });
       });
     });
 
@@ -1576,7 +1723,7 @@
           if(!msgContent) return;
           var bubble = msgContent.querySelector('.msg-bubble');
           if(bubble){
-            bubble.innerHTML = '<span class="msg-hidden">🔒 该消息已被管理员隐藏</span>';
+            bubble.innerHTML = '<span class="msg-hidden">该消息已被管理员隐藏</span>';
           }
           var trigger = msgContent.querySelector('.msg-actions-trigger');
           var menu = msgContent.querySelector('.msg-actions-menu');
@@ -1607,12 +1754,27 @@
       });
       // ===== End User Message Moderation =====
 
-      // Handle recall action
+
+      // Handle recall action — 2 分钟时间窗校验（AC-W-03 / W.2.3）
       document.querySelectorAll('.ma-item[data-action="recall"]').forEach(function(item2){
         item2.addEventListener('click', function(e){
           e.stopPropagation();
           var msgContent = item2.closest('.msg-content');
           if(!msgContent) return;
+
+          // 时间窗校验：超过 2 分钟（120 秒）拒绝撤回
+          // 原型用 data-sent-ts（秒级时间戳）记录发送时间，缺省视为已超时
+          var sentTs = parseInt(msgContent.getAttribute('data-sent-ts') || '0', 10);
+          var RECALL_WINDOW = 120; // 秒
+          if(sentTs){
+            var elapsed = Math.floor(Date.now()/1000) - sentTs;
+            if(elapsed > RECALL_WINDOW){
+              alert('撤回失败：消息发送已超过 2 分钟，无法撤回（仅允许 2 分钟内消息撤回）。');
+              var menu = msgContent.querySelector('.msg-actions-menu');
+              if(menu) menu.classList.remove('show');
+              return;
+            }
+          }
 
           // Find the bubble or card to replace
           var bubble = msgContent.querySelector('.msg-bubble');

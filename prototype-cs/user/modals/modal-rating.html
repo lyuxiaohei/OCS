@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>服务评价 · 弹窗</title>
+  <link rel="stylesheet"="../../styles.css" />
+  <link rel="stylesheet" href="../../mobile.css" />
+  <style>
+    body { background: #fff; margin: 0; }
+    .rating-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+      padding: 20px 16px 24px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .rating-handle { width: 36px; height: 4px; background: #e4e4e4; border-radius: 2px; margin: 0 auto 14px; }
+    .rating-hero { text-align: center; margin-bottom: 18px; }
+    .rating-hero .check-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
+      color: #fff; display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 10px; box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+    }
+    .rating-hero .rating-title { font-size: 16px; font-weight: 600; color: var(--cs-text); margin: 0 0 4px; }
+    .rating-hero .rating-subtitle { font-size: 13px; color: var(--cs-text-tertiary); }
+    .agent-bar { display: flex; align-items: center; gap: 10px; background: var(--cs-bg-header); border-radius: 10px; padding: 10px 12px; margin-bottom: 18px; }
+    .agent-bar .agent-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .agent-bar .agent-name { font-size: 14px; font-weight: 500; color: var(--cs-text); }
+    .agent-bar .agent-meta { font-size: 12px; color: var(--cs-text-tertiary); }
+    .dim-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+    .dim-row { display: flex; align-items: center; justify-content: space-between; }
+    .dim-label { font-size: 14px; color: var(--cs-text); font-weight: 500; flex-shrink: 0; }
+    .stars { display: flex; gap: 4px; }
+    .star { cursor: pointer; line-height: 1; transition: color 0.12s ease, transform 0.12s ease; user-select: none; color: #e0e0e0; }
+    .star:hover { transform: scale(1.12); }
+    .star.active { color: var(--cs-warning); }
+    .divider { height: 1px; background: var(--cs-border-light); margin: 4px 0 16px; }
+    .section-label { font-size: 14px; font-weight: 600; color: var(--cs-text); margin-bottom: 4px; }
+    .section-hint { font-size: 12px; color: var(--cs-text-tertiary); margin-bottom: 12px; }
+    .tag-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tag-chip { padding: 6px 12px; border-radius: 16px; background: var(--cs-border-lighter); color: var(--cs-text-secondary); font-size: 13px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; user-select: none; }
+    .tag-chip:hover { background: var(--cs-primary-bg); color: var(--cs-primary); }
+    .tag-chip.selected { background: var(--cs-primary-bg); color: var(--cs-primary); border-color: var(--cs-primary); }
+    .comment-wrap { margin-bottom: 16px; }
+    .comment-textarea { width: 100%; min-height: 84px; resize: vertical; border: 1px solid var(--cs-border); border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s; color: var(--cs-text); line-height: 1.5; }
+    .comment-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .comment-count { text-align: right; font-size: 11px; color: var(--cs-text-tertiary); margin-top: 4px; }
+    .submit-btn { width: 100%; height: 44px; background: var(--cs-primary); color: #fff; border: none; border-radius: 22px; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .submit-btn:hover { background: var(--cs-primary-hover); }
+    .skip-btn { width: 100%; height: 40px; background: none; color: var(--cs-text-tertiary); border: none; font-size: 13px; cursor: pointer; margin-top: 8px; }
+    /* 成功态 */
+    .rating-done { text-align: center; padding: 40px 0 30px; }
+    .rating-done .done-icon { margin-bottom: 14px; }
+    .rating-done .done-title { font-size: 17px; font-weight: 600; color: var(--cs-text); margin-bottom: 6px; }
+    .rating-done .done-desc { font-size: 13px; color: var(--cs-text-tertiary); }
+  </style>
+</head>
+<body>
+  <div class="rating-modal" id="ratingModal">
+    <div class="rating-handle"></div>
+
+    <div class="rating-hero">
+      <div class="check-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h2 class="rating-title">感谢您的服务，请为本次服务评分</h2>
+      <p class="rating-subtitle">您的评价是我们进步的动力</p>
+    </div>
+
+    <div class="agent-bar">
+      <div class="agent-avatar">夏</div>
+      <div>
+        <div class="agent-name">客服小夏</div>
+        <div class="agent-meta">工号 #A1024 · 服务时长 08:32</div>
+      </div>
+    </div>
+
+    <div class="dim-list" id="dimList"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">服务印象</div>
+    <div class="section-hint">可多选，选择您对本次服务的感受</div>
+    <div class="tag-group" id="tagGroup">
+      <span class="tag-chip">态度热情</span><span class="tag-chip">响应及时</span>
+      <span class="tag-chip">专业</span><span class="tag-chip">耐心</span>
+      <span class="tag-chip">解决问题</span><span class="tag-chip">沟通顺畅</span>
+      <span class="tag-chip">有礼貌</span><span class="tag-chip">回复慢</span>
+      <span class="tag-chip">态度一般</span><span class="tag-chip">未解决</span>
+    </div>
+
+    <div class="comment-wrap">
+      <div class="section-label">补充评价（选填）</div>
+      <textarea class="comment-textarea" id="commentInput" maxlength="200" placeholder="您的建议对我们很重要，帮助客服提供更好的服务～"></textarea>
+      <div class="comment-count"><span id="commentCount">0</span>/200</div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn">提交评价</button>
+    <button class="skip-btn" id="skipBtn">跳过</button>
+  </div>
+
+  <script src="../../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      // 生成四维度星级
+      var dims = [
+        { key: 'attitude', label: '服务态度' },
+        { key: 'speed', label: '响应速度' },
+        { key: 'professional', label: '专业能力' },
+        { key: 'solution', label: '解决问题能力' }
+      ];
+      var starSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+      var dimList = document.getElementById('dimList');
+      var ratings = {};
+      dims.forEach(function (d) {
+        var row = document.createElement('div');
+        row.className = 'dim-row';
+        row.innerHTML = '<span class="dim-label">' + d.label + '</span><div class="stars" data-dim="' + d.key + '"></div>';
+        dimList.appendChild(row);
+        var box = row.querySelector('.stars');
+        for (var v = 1; v <= 5; v++) {
+          var s = document.createElement('span');
+          s.className = 'star'; s.setAttribute('data-val', v); s.innerHTML = starSvg;
+          box.appendChild(s);
+        }
+      });
+
+      document.querySelectorAll('.stars').forEach(function (group) {
+        var stars = group.querySelectorAll('.star');
+        var current = 0;
+        group.addEventListener('click', function (e) {
+          if (!e.target.classList.contains('star') && !e.target.closest('.star')) return;
+          var st = e.target.closest('.star');
+          if (!st) return;
+          var val = parseInt(st.getAttribute('data-val'), 10);
+          if (val === current) val = 0; // 再点当前最高星 → 清零
+          current = val;
+          ratings[group.getAttribute('data-dim')] = val;
+          stars.forEach(function (s) {
+            s.classList.toggle('active', parseInt(s.getAttribute('data-val'), 10) <= val && val > 0);
+          });
+        });
+      });
+
+      document.querySelectorAll('.tag-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () { chip.classList.toggle('selected'); });
+      });
+
+      var commentInput = document.getElementById('commentInput');
+      var commentCount = document.getElementById('commentCount');
+      commentInput.addEventListener('input', function () { commentCount.textContent = commentInput.value.length; });
+
+      var modal = document.getElementById('ratingModal');
+      document.getElementById('submitBtn').addEventListener('click', function () {
+        try { sessionStorage.setItem('cs_rating_status', 'completed'); } catch (e) {}
+        var tags = [];
+        document.querySelectorAll('.tag-chip.selected').forEach(function (c) { tags.push(c.textContent); });
+        // 先通知宿主已提交（供插入"已评价"系统提醒），再展示成功态后关闭
+        window.csModalBridge.confirm({ status: 'completed', ratings: ratings, tags: tags, comment: commentInput.value.trim() });
+        modal.innerHTML =
+          '<div class="rating-done">' +
+            '<div class="done-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#faad14" stroke-width="2"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7"/></svg></div>' +
+            '<div class="done-title">评价提交成功</div>' +
+            '<div class="done-desc">感谢您的反馈，期待再次为您服务！</div>' +
+          '</div>';
+        setTimeout(function () { window.csModalBridge.close(); }, 1200);
+      });
+
+      document.getElementById('skipBtn').addEventListener('click', function () {
+        try { sessionStorage.setItem('cs_rating_status', 'skipped'); } catch (e) {}
+        window.csModalBridge.confirm({ status: 'skipped' });
+        window.csModalBridge.close();
+      });
+    })();
+  </script>
+</body>
+</html>

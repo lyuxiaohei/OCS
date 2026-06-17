@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>转接会话 · 弹窗</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 420px; max-width: 92vw; }
+    .tf-body { padding: 18px 20px; }
+    .tf-row { margin-bottom: 14px; }
+    .tf-label { font-size: 13px; color: var(--cs-text); margin-bottom: 6px; font-weight: 500; }
+    .tf-select, .tf-input {
+      width: 100%; height: 34px; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 0 11px; font-size: 13px; font-family: inherit; background: #fff;
+      outline: none; transition: border-color 0.15s;
+    }
+    .tf-select:focus, .tf-input:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .tf-textarea {
+      width: 100%; min-height: 60px; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 8px 11px; font-size: 13px; font-family: inherit; resize: vertical; outline: none;
+    }
+    .tf-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .tf-tip { font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.6; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span>转接会话</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="tf-body">
+      <div class="tf-row">
+        <div class="tf-label">转接至 <span style="color:var(--cs-danger);">*</span></div>
+        <select class="tf-select" id="targetAgent">
+          <option value="">请选择目标客服</option>
+          <option value="周涛">周涛（退款专员 · 空闲）</option>
+          <option value="陈静">陈静（售后客服 · 空闲）</option>
+          <option value="李娜">李娜（综合客服 · 服务中 6/10）</option>
+        </select>
+      </div>
+      <div class="tf-row">
+        <div class="tf-label">转接原因</div>
+        <select class="tf-select" id="reasonCat">
+          <option>VIP 用户</option>
+          <option>技能不匹配</option>
+          <option>当前繁忙</option>
+          <option>响应超时</option>
+        </select>
+      </div>
+      <div class="tf-row">
+        <div class="tf-label">转接备注（可选）</div>
+        <textarea class="tf-textarea" id="transferNote" placeholder="给目标客服的说明，如：用户咨询退款到账问题，建议由退款专员处理..."></textarea>
+      </div>
+      <div class="tf-tip">💡 转接后用户无感知，目标客服需在设定时间内响应，超时将触发回退策略。</div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn">确认转接</button>
+    </div>
+  </div>
+
+  <script src="../../js/cs-modal.js"></script>
+  <script>
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      var target = document.getElementById('targetAgent');
+      if (!target.value) {
+        target.style.borderColor = 'var(--cs-danger)';
+        target.focus();
+        setTimeout(function () { target.style.borderColor = ''; }, 1500);
+        return;
+      }
+      window.csModalBridge.confirm({
+        target: target.value,
+        reason: document.getElementById('reasonCat').value,
+        note: document.getElementById('transferNote').value.trim()
+      });
+    });
+  </script>
+</body>
+</html>

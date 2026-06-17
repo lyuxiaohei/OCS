@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>标记无效 · 弹窗</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 420px; max-width: 92vw; }
+    .mi-body { padding: 18px 20px; }
+    .mi-tip { font-size: 13px; color: var(--cs-text-secondary); line-height: 1.6; margin-bottom: 14px; }
+    .form-label { display: block; font-size: 13px; color: var(--cs-text); margin-bottom: 6px; font-weight: 500; }
+    .mi-select, .mi-textarea {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 8px 11px; font-size: 13px; font-family: inherit; background: #fff;
+      outline: none; transition: border-color 0.15s;
+    }
+    .mi-select { height: 36px; cursor: pointer; }
+    .mi-select:focus, .mi-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .mi-textarea { min-height: 70px; resize: vertical; }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span>标记留言为无效</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="mi-body">
+      <div class="mi-tip">⚠️ 标记后该留言将不再进入分配/回复流程，状态变为「无效」。此操作可在详情中撤销。</div>
+      <div style="margin-bottom:14px;">
+        <label class="form-label">无效原因 <span style="color:var(--cs-danger);">*</span></label>
+        <select class="mi-select" id="reason">
+          <option value="">请选择无效原因</option>
+          <option value="spam">垃圾/广告留言</option>
+          <option value="duplicate">重复提交</option>
+          <option value="test">测试/误提交</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">备注说明（可选）</label>
+        <textarea class="mi-textarea" id="note" placeholder="补充说明，便于后续核查..."></textarea>
+      </div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-danger" id="confirmBtn">确认标记无效</button>
+    </div>
+  </div>
+
+  <script src="../../js/cs-modal.js"></script>
+  <script>
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      var sel = document.getElementById('reason');
+      if (!sel.value) {
+        sel.style.borderColor = 'var(--cs-danger)'; sel.focus();
+        setTimeout(function () { sel.style.borderColor = ''; }, 1500);
+        return;
+      }
+      window.csModalBridge.confirm({
+        action: 'mark-invalid',
+        reason: sel.value,
+        note: document.getElementById('note').value.trim()
+      });
+    });
+  </script>
+</body>
+</html>
