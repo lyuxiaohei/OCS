@@ -51,3 +51,6 @@ service-user/dist/
 
 # Skills lock
 skills-lock.json
+
+# Prototype screenshot / QA workspace (local only)
+.shot_tmp/

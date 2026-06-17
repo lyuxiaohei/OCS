@@ -14,6 +14,14 @@
       background: var(--cs-bg-page);
       font-family: var(--cs-font-family);
     }
+
+    /* 修复：共享 .admin-layout 仅有 min-height:100vh、无固定高度，
+       导致 flex 高度链断裂，.msg-thread 的 overflow-y:auto 不触发（聊天记录无法滚动）。
+       这里锁定视口高度 + 补 min-height:0，让消息区/列表可正常滚动。 */
+    .admin-layout { height: 100vh; }
+    .wb-shell > * { min-height: 0; }
+    .wb-middle { min-height: 0; }
+    .msg-thread { min-height: 0; }
     /* page-specific token not in shared CSS */
     :root { --cs-bg-chat: #f5f6f8; }
 
@@ -1648,13 +1656,7 @@
       });
     });
 
-    // Session item selection
-    document.querySelectorAll('.session-list .session-item').forEach(function(item){
-      item.addEventListener('click', function(){
-        document.querySelectorAll('.session-list .session-item').forEach(function(x){x.classList.remove('active');});
-        item.classList.add('active');
-      });
-    });
+    // Session item selection → 客户切换逻辑（含顶栏/客户信息/聊天记录联动）已移至页面底部独立脚本
 
     // Close quick reply panel on outside click
     document.addEventListener('click', function(e){
@@ -1797,6 +1799,217 @@
           var menu = msgContent.querySelector('.msg-actions-menu');
           if(trigger) trigger.style.display = 'none';
           if(menu) menu.classList.remove('show');
+        });
+      });
+    })();
+  </script>
+
+  <!-- ===== 客户切换（数据驱动）：点击会话项联动顶栏 / 右侧客户信息 / 聊天记录 ===== -->
+  <script>
+    (function () {
+      var recallSvg = '<svg class="recall-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+      var triggerSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
+      var recallMenu = '<div class="msg-actions-menu"><div class="ma-item danger" data-action="recall"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h10a5 5 0 0 1 0 10H9"/><polyline points="7 6 3 10 7 14"/></svg>撤回</div></div>';
+      var moderateMenu = '<div class="msg-actions-menu"><div class="ma-item" data-action="hide"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>隐藏消息</div><div class="ma-item" data-action="redact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>脱敏处理</div></div>';
+
+      /* 绑定消息操作（撤回/隐藏/脱敏）—— 切换客户替换消息 DOM 后需重新调用 */
+      function bindMsgActions() {
+        document.querySelectorAll('.msg-actions-trigger').forEach(function (trigger) {
+          if (trigger.__csBound) return; trigger.__csBound = true;
+          trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var menu = trigger.nextElementSibling;
+            if (!menu || !menu.classList.contains('msg-actions-menu')) return;
+            var isOpen = menu.classList.contains('show');
+            document.querySelectorAll('.msg-actions-menu.show').forEach(function (m) { m.classList.remove('show'); });
+            if (!isOpen) menu.classList.add('show');
+          });
+        });
+        document.querySelectorAll('.msg-row.user .ma-item[data-action="hide"]').forEach(function (item) {
+          if (item.__csBound) return; item.__csBound = true;
+          item.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var mc = item.closest('.msg-content'); if (!mc) return;
+            var bubble = mc.querySelector('.msg-bubble');
+            if (bubble) bubble.innerHTML = '<span class="msg-hidden">该消息已被管理员隐藏</span>';
+            var tr = mc.querySelector('.msg-actions-trigger'); var mn = mc.querySelector('.msg-actions-menu');
+            if (tr) tr.style.display = 'none'; if (mn) mn.classList.remove('show');
+          });
+        });
+        document.querySelectorAll('.msg-row.user .ma-item[data-action="redact"]').forEach(function (item) {
+          if (item.__csBound) return; item.__csBound = true;
+          item.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var mc = item.closest('.msg-content'); if (!mc) return;
+            var bubble = mc.querySelector('.msg-bubble');
+            if (bubble) {
+              var t = bubble.textContent || '';
+              t = t.replace(/1[3-9]\d{9}/g, function (m) { return m.substring(0, 3) + '****' + m.substring(7); });
+              t = t.replace(/[一-龥]+[路街区园村号楼室][一-龥0-9]*\d+/g, '****');
+              bubble.innerHTML = '<span class="msg-redacted">消息已脱敏：' + t + '</span>';
+            }
+            var tr = mc.querySelector('.msg-actions-trigger'); var mn = mc.querySelector('.msg-actions-menu');
+            if (tr) tr.style.display = 'none'; if (mn) mn.classList.remove('show');
+          });
+        });
+        document.querySelectorAll('.ma-item[data-action="recall"]').forEach(function (item) {
+          if (item.__csBound) return; item.__csBound = true;
+          item.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var mc = item.closest('.msg-content'); if (!mc) return;
+            var bubble = mc.querySelector('.msg-bubble');
+            var card = mc.querySelector('.thread-card');
+            if (bubble && !card) {
+              bubble.innerHTML = '<span class="msg-recalled">' + recallSvg + '你撤回了一条消息</span>';
+            } else if (card) {
+              var nb = document.createElement('div'); nb.className = 'msg-bubble';
+              nb.innerHTML = '<span class="msg-recalled">' + recallSvg + '你撤回了一条消息</span>';
+              card.parentNode.replaceChild(nb, card);
+            }
+            mc.classList.add('is-recalled');
+            var tr = mc.querySelector('.msg-actions-trigger'); var mn = mc.querySelector('.msg-actions-menu');
+            if (tr) tr.style.display = 'none'; if (mn) mn.classList.remove('show');
+          });
+        });
+      }
+
+      /* 客户会话数据（与左侧 .session-item 顺序一一对应） */
+      var initialThread = document.querySelector('.msg-thread').innerHTML;
+      var initialBasic = document.querySelector('.info-pane[data-pane="basic"]').innerHTML;
+      var SESSIONS = [
+        { name: '李晓红', isDefault: true, topTags: '<span class="tag-urgent">紧急</span><span class="tag-normal">VIP</span>' },
+        { name: '张伟', av: '张', custId: 'U20240112', reg: '注册 1.5 年', phone: '137****8830', level: '白银会员', points: '860', channel: '微信小程序', region: '浙江 · 杭州', verified: true, custTags: [['高复购', 'tag-normal']], topTags: '', msgs: [
+          { k: 'time', v: '今天 14:10' },
+          { s: 'user', from: '张伟', text: '好的，谢谢客服，问题已经解决了' },
+          { s: 'agent', from: '客服 王小明', text: '不客气～后续有任何问题随时联系我，祝您生活愉快！' }
+        ]},
+        { name: '陈芳', av: '陈', custId: 'U20231220', reg: '注册 2.5 年', phone: '139****4471', level: '黄金会员', points: '5,120', channel: 'APP', region: '江苏 · 南京', verified: true, custTags: [['售后频繁', 'tag-urgent'], ['高价值', 'tag-normal']], topTags: '', msgs: [
+          { k: 'time', v: '今天 14:15' },
+          { s: 'user', from: '陈芳', text: '退款什么时候能到账？订单 #20260588 已经退款 3 天了，我手机号 13700004471' },
+          { s: 'agent', from: '客服 王小明', text: '陈女士您好，查到退款已审核通过，预计 1-3 个工作日原路退回，请留意账户变动。' },
+          { s: 'user', from: '陈芳', text: '好的，那我再等等，谢谢' }
+        ]},
+        { name: '刘强', av: '刘', custId: 'U20240807', reg: '注册 1 年', phone: '135****2298', level: '普通会员', points: '320', channel: '微信小程序', region: '北京 · 朝阳', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '', msgs: [
+          { k: 'time', v: '今天 13:50' },
+          { s: 'user', from: '刘强', text: '商品图片发你了，麻烦看下规格对不对' },
+          { s: 'user', from: '刘强', text: '[商品图片]' },
+          { s: 'agent', from: '客服 王小明', text: '收到，规格确认无误，是您下单的白色款，预计明天发出。' }
+        ]},
+        { name: '王丽娟', av: '王', custId: 'U20230518', reg: '注册 3 年', phone: '138****6612', level: '铂金会员', points: '12,400', channel: 'APP', region: '上海 · 浦东', verified: true, custTags: [['VIP', 'tag-normal'], ['高价值', 'tag-normal']], topTags: '<span class="tag-normal">VIP</span><span class="tag-transferred">转接入</span>', msgs: [
+          { k: 'time', v: '今天 13:42' },
+          { s: 'user', from: '王丽娟', text: '优惠券怎么用不了？满 200 减 30 那张' },
+          { s: 'agent', from: '客服 王小明', text: '您好，这张券需满足满 200 元门槛，当前订单 188 元，建议再加件小商品凑单～' },
+          { s: 'user', from: '王丽娟', text: '好的我再去挑挑，谢谢' }
+        ]},
+        { name: '赵敏', av: '赵', custId: 'U20240229', reg: '注册 1.5 年', phone: '136****0085', level: '黄金会员', points: '2,800', channel: '微信小程序', region: '广东 · 广州', verified: true, custTags: [['满意用户', 'tag-normal']], topTags: '', msgs: [
+          { k: 'time', v: '今天 12:30' },
+          { s: 'user', from: '赵敏', text: '已经收到货了，非常满意！包装也很好～' },
+          { s: 'agent', from: '客服 王小明', text: '感谢您的认可！欢迎为本次服务做个评价，您的反馈是我们进步的动力 ❤️' }
+        ]},
+        { name: '孙建国', av: '孙', custId: 'U20230901', reg: '注册 2.5 年', phone: '137****5566', level: '企业用户', points: '6,600', channel: 'APP', region: '四川 · 成都', verified: true, custTags: [['企业客户', 'tag-normal']], topTags: '', msgs: [
+          { k: 'time', v: '今天 11:58' },
+          { s: 'user', from: '孙建国', text: '发票能开企业抬头的吗？需要增值税专票' },
+          { s: 'agent', from: '客服 王小明', text: '可以的，请在订单详情页申请增值税专用发票，填写公司名称、税号、注册地址等，审核通过后 7 个工作日内开具并邮寄。' }
+        ]},
+        { name: '周婷婷', av: '周', custId: 'U20241115', reg: '注册 0.5 年', phone: '134****7788', level: '普通会员', points: '150', channel: '微信小程序', region: '湖北 · 武汉', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '', msgs: [
+          { k: 'time', v: '今天 11:20' },
+          { s: 'user', from: '周婷婷', text: '请问这个颜色还有货吗？蓝色款' },
+          { s: 'agent', from: '客服 王小明', text: '您好，蓝色款目前有货，库存 36 件，下单后 24 小时内发出～' }
+        ]},
+        { name: '吴鹏', av: '吴', custId: 'U20240330', reg: '注册 1 年', phone: '135****1234', level: '白银会员', points: '980', channel: '微信小程序', region: '福建 · 福州', verified: true, custTags: [['普通', 'tag-normal']], topTags: '<span class="tag-waiting">等待中</span>', msgs: [
+          { k: 'sys', v: '⏳ 用户正在排队等待客服接入…' },
+          { s: 'user', from: '吴鹏', text: '你好，想咨询一下物流问题' }
+        ]},
+        { name: '郑丽华', av: '郑', custId: 'U20230101', reg: '注册 3 年', phone: '138****9999', level: '黄金会员', points: '4,500', channel: 'APP', region: '山东 · 青岛', verified: true, custTags: [['退款中', 'tag-urgent']], topTags: '<span class="tag-pending">挂起</span>', msgs: [
+          { k: 'time', v: '今天 13:10' },
+          { s: 'user', from: '郑丽华', text: '我要申请退款，商品有质量问题' },
+          { s: 'agent', from: '客服 王小明', text: '已为您发起退款申请。为加快处理，麻烦补充上传商品问题的照片凭证。' },
+          { k: 'sys', v: '⏸ 会话已挂起 · 等待用户提供退款凭证' }
+        ]},
+        { name: '何静', av: '何', custId: 'U20240606', reg: '注册 1 年', phone: '139****3333', level: '白银会员', points: '1,200', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '<span class="tag-pending">挂起</span>', msgs: [
+          { k: 'time', v: '今天 12:45' },
+          { s: 'user', from: '何静', text: '这个商品什么时候能补货？急需' },
+          { s: 'agent', from: '客服 王小明', text: '正在协同仓库核实补货时间，请稍候。' },
+          { k: 'sys', v: '⏸ 会话已挂起 · 协同仓库核实库存中' }
+        ]}
+      ];
+
+      function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+      function buildThread(d) {
+        if (d.isDefault) return initialThread;
+        var html = '';
+        d.msgs.forEach(function (m) {
+          if (m.k === 'time' || m.k === 'sys') { html += '<div class="msg-time-divider">' + esc(m.v) + '</div>'; return; }
+          var side = m.s;
+          var avChar = side === 'user' ? esc(d.av) : '王';
+          var menu = side === 'agent' ? recallMenu : moderateMenu;
+          var title = side === 'agent' ? '更多操作' : '审核操作';
+          html += '<div class="msg-row ' + side + '">'
+            + '<div class="msg-avatar">' + avChar + '</div>'
+            + '<div class="msg-content">'
+            + '<button class="msg-actions-trigger" title="' + title + '">' + triggerSvg + '</button>'
+            + menu
+            + '<div class="msg-sender">' + esc(m.from) + '</div>'
+            + '<div class="msg-bubble">' + esc(m.text) + '</div>'
+            + '</div></div>';
+        });
+        return html;
+      }
+
+      function renderSession(d) {
+        // 顶栏：客户名 + 标签
+        var custName = document.querySelector('.chat-topbar .cust-name');
+        var custTags = document.querySelector('.chat-topbar .cust-tags');
+        if (custName) custName.textContent = d.name;
+        if (custTags) custTags.innerHTML = d.topTags || '';
+
+        // 右侧：基础信息（默认客户恢复初始，否则按数据生成）
+        var basicPane = document.querySelector('.info-pane[data-pane="basic"]');
+        if (basicPane) {
+          basicPane.innerHTML = d.isDefault ? initialBasic : (function () {
+            var vColor = d.verified ? 'color:#52c41a' : 'color:#8c8c8c';
+            var vText = d.verified ? '已认证' : '未认证';
+            var tagsHtml = (d.custTags || []).map(function (t) { return '<span class="' + t[1] + '">' + esc(t[0]) + '</span>'; }).join('');
+            return '<div class="cust-card">'
+              + '<div class="avatar-lg">' + esc(d.av) + '</div>'
+              + '<div class="cn">' + esc(d.name) + '</div>'
+              + '<div class="cs">用户ID: ' + esc(d.custId) + ' · ' + esc(d.reg) + '</div></div>'
+              + '<div class="info-row"><span class="k">手机号</span><span class="v">' + esc(d.phone) + '</span></div>'
+              + '<div class="info-row"><span class="k">会员等级</span><span class="v"><span class="level-badge">' + esc(d.level) + '</span></span></div>'
+              + '<div class="info-row"><span class="k">积分</span><span class="v">' + esc(d.points) + '</span></div>'
+              + '<div class="info-row"><span class="k">来源渠道</span><span class="v">' + esc(d.channel) + '</span></div>'
+              + '<div class="info-row"><span class="k">所在地区</span><span class="v">' + esc(d.region) + '</span></div>'
+              + '<div class="info-row"><span class="k">实名认证</span><span class="v" style="' + vColor + '">' + vText + '</span></div>'
+              + '<div class="section-label">客户标签</div>'
+              + '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + tagsHtml + '</div>';
+          })();
+          // 切到「基础信息」tab
+          document.querySelectorAll('.info-tabs .itab').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-pane') === 'basic'); });
+          document.querySelectorAll('.info-pane').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-pane') === 'basic'); });
+        }
+
+        // 中间：聊天记录
+        var thread = document.querySelector('.msg-thread');
+        if (thread) {
+          thread.innerHTML = buildThread(d);
+          bindMsgActions();
+          thread.scrollTop = thread.scrollHeight;
+        }
+      }
+
+      // 列表项点击 → 切换客户（联动顶栏 / 客户信息 / 聊天记录）
+      var items = document.querySelectorAll('.session-list .session-item');
+      items.forEach(function (item, idx) {
+        item.addEventListener('click', function () {
+          items.forEach(function (x) { x.classList.remove('active'); });
+          item.classList.add('active');
+          var data = SESSIONS[idx] || {
+            name: (item.querySelector('.session-name') || {}).textContent || '未知客户',
+            isDefault: false, av: (item.querySelector('.session-avatar') || {}).textContent || '?',
+            topTags: '', msgs: [{ k: 'sys', v: '暂无更多历史消息' }]
+          };
+          renderSession(data);
         });
       });
     })();
