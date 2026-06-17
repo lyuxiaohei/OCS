@@ -44,61 +44,53 @@
     }
     .page-head .back-link a { color: var(--cs-primary); }
 
-    /* ---- Header avatar + status（单一客服信息条，与导航栏连成一片白） ---- */
-    .chat-header {
-      padding: 0 10px 0 8px;
-      gap: 4px;
-      background: var(--cs-bg-card);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    }
-    .header-back {
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      border-radius: 50%;
-      transition: background .15s;
-    }
-    .header-back:hover { background: rgba(0,0,0,.06); }
-    .header-back svg { width: 22px; height: 22px; }
-
-    .header-center {
-      flex: 1;
+    /* ---- 会话头（合并进导航栏）：客服身份 + 在线状态 + 历史记录/更多 ----
+       导航栏骨架来自 mobile.css(.cs-nav-bar)；本页把通用标题替换为
+       「头像 + 名称 + 在线状态」的会话身份，操作图标置于胶囊左侧，
+       从而去掉原先与导航栏重复的第二条信息条。 */
+    .chat-nav .nav-peer {
+      position: absolute;
+      top: 44px;                 /* 紧贴状态栏下方，与返回键/胶囊同一基线 */
+      left: 56px;                /* 返回键 left:8 + 宽44 = 52，留 4px 间距 */
+      height: 44px;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 8px;
+      max-width: calc(100% - 200px); /* 避让右侧操作区与胶囊 */
       min-width: 0;
     }
-    .agent-avatar {
-      width: 32px; height: 32px;
+    .chat-nav .nav-peer .agent-avatar {
+      width: 30px; height: 30px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
       color: #fff;
       display: flex; align-items: center; justify-content: center;
-      font-size: var(--cs-font-size-md);
+      font-size: var(--cs-font-size-sm);
       font-weight: var(--cs-font-weight-semibold);
       flex-shrink: 0;
     }
-    .header-title-wrap {
+    .chat-nav .peer-info {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      line-height: 1.2;
+      line-height: 1.25;
       min-width: 0;
     }
-    .header-title-wrap .agent-name {
+    .chat-nav .peer-name {
       font-size: var(--cs-font-size-lg);
       font-weight: var(--cs-font-weight-semibold);
       color: var(--cs-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .header-title-wrap .agent-status {
+    .chat-nav .peer-status {
       font-size: var(--cs-font-size-xs);
-      color: var(--cs-success);
       display: flex;
       align-items: center;
       gap: 3px;
     }
-    .header-title-wrap .agent-status::before {
+    .chat-nav .peer-status.online { color: var(--cs-success); }
+    .chat-nav .peer-status.online::before {
       content: '';
       width: 6px; height: 6px;
       border-radius: 50%;
@@ -106,19 +98,51 @@
       display: inline-block;
     }
 
-    .header-action {
+    .chat-nav .nav-actions {
+      position: absolute;
+      top: 44px;
+      right: 95px;               /* 胶囊 right:4 + 宽87 = 91，留 4px 间距 */
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .chat-nav .nav-action {
       width: 32px; height: 32px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       border-radius: 50%;
+      transition: background .15s;
     }
-    .header-action:hover { background: rgba(0,0,0,.06); }
-    .header-action svg { width: 20px; height: 20px; }
+    .chat-nav .nav-action:hover { background: rgba(0,0,0,.06); }
+    .chat-nav .nav-action svg { width: 20px; height: 20px; }
 
     /* ---- Message rows ---- */
     .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
       padding: 14px 12px 18px;
+      scrollbar-width: none;            /* Firefox：隐藏滚动条 */
     }
+    .chat-messages::-webkit-scrollbar { width: 0; height: 0; }  /* WebKit：隐藏滚动条 */
+
+    /* 固定手机壳高度，消息区改为内部滚动，支撑「向上滚动加载更早消息」 */
+    .cs-phone { height: 720px; }
+    @media (max-width: 430px) {
+      .cs-phone { height: 100vh; }
+    }
+
+    /* 向上滚动加载历史的提示条（贴在消息列表最顶端） */
+    .history-loader {
+      text-align: center;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-placeholder);
+      padding: 4px 0 10px;
+      line-height: 1.6;
+    }
+    .history-loader.loading { color: var(--cs-primary); }
+    .history-loader.done { color: var(--cs-text-placeholder); }
     .msg-row {
       display: flex;
       gap: 8px;
@@ -159,6 +183,75 @@
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-placeholder);
       margin: 2px 4px 0;
+    }
+
+    /* ===== 会话内卡片统一规范（chat card spec）=====
+       消息流中所有"内容卡片"（订单/商品/优惠券、猜你想问、评价 CTA）共用同一画框，
+       差异只在内部内容；宽度/圆角/阴影/描边/内边距统一，避免各卡片自成一套。
+       字号层级：标题 md(14)/semibold · 正文 base(13) · 辅助 sm(12)/xs(11)。 */
+    .cs-phone {
+      --chat-card-width: 252px;
+      --chat-card-radius: var(--cs-radius-lg);   /* 10px */
+      --chat-card-shadow: var(--cs-shadow-md);   /* 0 2px 8px / .06 */
+      --chat-card-border: 1px solid var(--cs-border-light);
+      --chat-card-pad: var(--cs-space-3);        /* 12px */
+    }
+
+    /* ---- 猜你想问：会话内 FAQ 快捷卡片（US-MVP-24 / 猜你想问） ---- */
+    .qa-suggest {
+      width: var(--chat-card-width);
+      background: var(--cs-bg-card);
+      border: var(--chat-card-border);
+      border-radius: var(--chat-card-radius);
+      padding: var(--chat-card-pad);
+      box-shadow: var(--chat-card-shadow);
+    }
+    .qa-suggest-title {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .qa-suggest-title svg { flex-shrink: 0; }
+    .qa-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .qa-chip {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-primary);
+      background: var(--cs-primary-bg);
+      border: 1px solid #91caff;
+      border-radius: 14px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      line-height: 1.4;
+    }
+    .qa-chip:hover { background: var(--cs-primary); color: #fff; }
+    .qa-chip.active { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
+
+    /* 答案展开区（点击 chip 后填充） */
+    .qa-answer-slot {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--cs-border-light);
+    }
+    .qa-answer-slot.show { display: block; }
+    .qa-answer-slot .qa-q {
+      font-size: var(--cs-font-size-base);
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+      margin-bottom: 4px;
+    }
+    .qa-answer-slot .qa-a {
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text);
+      line-height: 1.6;
     }
 
     /* ---- System divider ---- */
@@ -218,17 +311,14 @@
     .msg-bubble-user .msg-voice .voice-duration { color: var(--cs-text); }
     .msg-bubble-user .msg-voice .voice-wave svg rect { fill: var(--cs-text); }
 
-    /* ---- Order/Product/Coupon cards (unified neutral card) ----
-       设计规则：卡片本体统一中性（白底 + 浅描边）。
-       卡片【类型】靠头部图标 + 标签传达；颜色只用于【状态徽标】（语义），
-       绝不靠卡片背景色/色块区分类型。 */
+    /* ---- 订单/商品/优惠券卡片（中性；遵循上方 chat card spec；类型靠头部图标+标签，颜色只给状态徽标） ---- */
     .msg-card {
-      width: 252px;
+      width: var(--chat-card-width);
       background: var(--cs-bg-card);
-      border: 1px solid var(--cs-border-light);
-      border-radius: var(--cs-radius-lg);
+      border: var(--chat-card-border);
+      border-radius: var(--chat-card-radius);
       overflow: hidden;
-      box-shadow: var(--cs-shadow-md);
+      box-shadow: var(--chat-card-shadow);
     }
     /* 头部：[图标 + 类型标签]                [状态徽标] */
     .msg-card .card-header {
@@ -379,67 +469,46 @@
     }
     .msg-card .card-action:hover { background: var(--cs-primary); color: #fff; }
 
-    /* ---- Rating request ---- */
-    .msg-rating {
-      width: 220px;
-      background: #fff;
-      border-radius: var(--cs-radius-md);
-      border: 1px solid var(--cs-border-light);
-      padding: 12px 14px;
-      box-shadow: var(--cs-shadow-md);
+    /* ---- Rating CTA（点击唤起评价 bottom-sheet，表单本体在 modals/modal-rating.html） ---- */
+    .msg-rating-cta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: var(--chat-card-width);
+      background: var(--cs-bg-card);
+      border-radius: var(--chat-card-radius);
+      border: var(--chat-card-border);
+      padding: var(--chat-card-pad);
+      box-shadow: var(--chat-card-shadow);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
-    .msg-rating .rating-title {
-      font-size: var(--cs-font-size-base);
+    .msg-rating-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+    .msg-rating-cta:active { transform: translateY(0); }
+    .msg-rating-cta .cta-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(250, 173, 20, 0.12);
+      color: var(--cs-warning);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-rating-cta .cta-body { flex: 1; min-width: 0; }
+    .msg-rating-cta .cta-title {
+      font-size: var(--cs-font-size-md);
       font-weight: var(--cs-font-weight-semibold);
       color: var(--cs-text);
-      margin-bottom: 6px;
     }
-    .msg-rating .rating-stars {
-      display: flex;
-      gap: 4px;
-      margin: 6px 0;
-    }
-    .msg-rating .rating-stars .star {
-      font-size: 22px;
-      color: var(--cs-warning);
-      cursor: pointer;
-    }
-    .msg-rating .rating-stars .star.empty {
-      color: #e8e8e8;
-    }
-    .msg-rating .rating-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin: 8px 0;
-    }
-    .msg-rating .rating-tag {
+    .msg-rating-cta .cta-sub {
       font-size: var(--cs-font-size-xs);
-      padding: 3px 8px;
-      background: var(--cs-border-lighter);
-      border-radius: 10px;
-      color: var(--cs-text-secondary);
-      cursor: pointer;
+      color: var(--cs-text-tertiary);
+      margin-top: 2px;
     }
-    .msg-rating .rating-tag.selected {
-      background: var(--cs-primary-bg);
-      color: var(--cs-primary);
-      border: 1px solid #91caff;
-      padding: 2px 7px;
+    .msg-rating-cta .cta-arrow {
+      color: var(--cs-text-tertiary);
+      font-size: 18px;
+      flex-shrink: 0;
     }
-    .msg-rating .rating-submit {
-      width: 100%;
-      padding: 8px;
-      background: var(--cs-primary);
-      color: #fff;
-      border: none;
-      border-radius: var(--cs-radius-sm);
-      font-size: var(--cs-font-size-base);
-      font-weight: var(--cs-font-weight-medium);
-      cursor: pointer;
-      margin-top: 6px;
-    }
-    .msg-rating .rating-submit:hover { background: var(--cs-primary-hover); }
 
     /* ---- Input area ---- */
     .chat-input-area {
@@ -524,18 +593,6 @@
       color: var(--cs-text-secondary);
     }
 
-    /* ---- Rating stars interactive (demo) ---- */
-    .msg-rating.interactive .star:hover ~ .star {
-      color: #e8e8e8;
-    }
-    .msg-rating.interactive:hover .star {
-      color: var(--cs-warning);
-    }
-
-    /* ---- Header status (offline) ---- */
-    .agent-status.offline { color: var(--cs-text-placeholder); }
-    .agent-status.offline::before { background: var(--cs-text-placeholder); }
-
     /* ---- Page footer note ---- */
     .page-footer {
       max-width: 480px;
@@ -546,152 +603,7 @@
     }
     .page-footer a { color: var(--cs-primary); }
 
-    /* ---- History panel ---- */
-    .history-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.35);
-      z-index: 900;
-      opacity: 0;
-      transition: opacity .25s ease;
-      pointer-events: none;
-    }
-    .history-backdrop.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .history-panel {
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 280px;
-      max-width: 85vw;
-      background: #fff;
-      z-index: 910;
-      transform: translateX(100%);
-      transition: transform .3s cubic-bezier(.4, 0, .2, 1);
-      display: flex;
-      flex-direction: column;
-      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.10);
-    }
-    .history-panel.show {
-      transform: translateX(0);
-    }
-
-    .history-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px;
-      border-bottom: 1px solid var(--cs-border-light);
-      flex-shrink: 0;
-    }
-    .history-panel-header h3 {
-      font-size: var(--cs-font-size-lg);
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin: 0;
-    }
-    .history-close-btn {
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border-radius: 50%;
-      transition: background .15s;
-    }
-    .history-close-btn:hover {
-      background: rgba(0, 0, 0, 0.06);
-    }
-    .history-close-btn svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .history-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px 0;
-    }
-
-    .history-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: background .15s;
-      border-bottom: 1px solid var(--cs-border-lighter);
-    }
-    .history-item:hover {
-      background: var(--cs-border-lighter);
-    }
-    .history-item:last-child {
-      border-bottom: none;
-    }
-
-    .history-item-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .history-item-time {
-      font-size: var(--cs-font-size-xs);
-      color: var(--cs-text-placeholder);
-      flex-shrink: 0;
-    }
-    .history-status {
-      display: inline-block;
-      font-size: 11px;
-      padding: 1px 6px;
-      border-radius: 8px;
-      font-weight: var(--cs-font-weight-medium);
-      line-height: 1.4;
-      flex-shrink: 0;
-    }
-    .history-status.ended {
-      background: #f0f0f0;
-      color: var(--cs-text-tertiary);
-    }
-    .history-status.rated {
-      background: #f6ffed;
-      color: var(--cs-success);
-    }
-
-    .history-item-agent {
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-text);
-      font-weight: var(--cs-font-weight-medium);
-    }
-
-    .history-item-preview {
-      font-size: var(--cs-font-size-xs);
-      color: var(--cs-text-tertiary);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .history-view-all {
-      padding: 14px 16px;
-      text-align: center;
-      border-top: 1px solid var(--cs-border-light);
-      flex-shrink: 0;
-    }
-    .history-view-all a {
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-primary);
-      text-decoration: none;
-      font-weight: var(--cs-font-weight-medium);
-    }
-    .history-view-all a:hover {
-      text-decoration: underline;
-    }
+    /* ---- (历史会话弹窗已移除：C 端历史消息改为向上滚动加载，见脚本) ---- */
   </style>
 </head>
 <body>
@@ -716,45 +628,42 @@
       </div>
     </div>
 
-    <!-- ---- 小程序导航栏 ---- -->
-    <div class="cs-nav-bar">
+    <!-- ---- 会话导航栏：返回 / 客服身份+在线状态 / 历史记录·更多 / 胶囊 ---- -->
+    <div class="cs-nav-bar chat-nav">
       <div class="cs-back" title="返回" onclick="location.href='../index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
-      <span class="cs-nav-title">在线客服</span>
+
+      <!-- 客服身份：头像 + 名称 + 在线状态 -->
+      <div class="nav-peer">
+        <div class="agent-avatar">李</div>
+        <div class="peer-info">
+          <span class="peer-name">客服 李小米</span>
+          <span class="peer-status online">在线</span>
+        </div>
+      </div>
+
+      <!-- 右侧操作：更多（历史消息改为向上滚动加载，不再用弹窗） -->
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
+
       <div class="cs-capsule" title="微信胶囊">
         <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
       </div>
     </div>
 
-    <!-- ---- 客服信息条（头像 / 名称 / 在线状态 / 历史记录入口） ---- -->
-    <div class="chat-header">
-      <div class="header-center">
-        <div class="agent-avatar">李</div>
-        <div class="header-title-wrap">
-          <span class="agent-name">客服 李小米</span>
-          <span class="agent-status">在线</span>
-        </div>
-      </div>
-      <div class="header-action" id="historyBtn" title="历史记录">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1f1f1f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"/>
-          <polyline points="12 7 12 12 15 15"/>
-          <path d="M3 12H1M12 3V1M21 12h2M12 21v2" stroke="none"/>
-          <polyline points="1 3 1 8 6 8" fill="none"/>
-        </svg>
-      </div>
-      <div class="header-action" title="更多">
-        <svg viewBox="0 0 24 24" fill="none">
-          <circle cx="5" cy="12" r="1.6" fill="#1f1f1f"/>
-          <circle cx="12" cy="12" r="1.6" fill="#1f1f1f"/>
-          <circle cx="19" cy="12" r="1.6" fill="#1f1f1f"/>
-        </svg>
-      </div>
-    </div>
+    <!-- ---- Message list（内部滚动；向上滚动加载更早的历史消息） ---- -->
+    <div class="chat-messages" id="chatMessages">
 
-    <!-- ---- Message list ---- -->
-    <div class="chat-messages">
+      <!-- 上拉加载提示条 -->
+      <div class="history-loader" id="historyLoader">↑ 向上滚动加载更早消息</div>
 
       <!-- System divider -->
       <div class="msg-system">— 您好，已为您接入在线客服 —</div>
@@ -764,6 +673,27 @@
         <div class="msg-avatar agent">李</div>
         <div class="msg-content">
           <div class="msg-bubble-agent">您好，我是客服李小米，很高兴为您服务！请问有什么可以帮您？<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="msg-meta">10:24</div>
+        </div>
+      </div>
+
+      <!-- 猜你想问：会话内 FAQ 快捷问题（US-MVP-24 / 猜你想问） -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="qa-suggest">
+            <div class="qa-suggest-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
+              猜你想问，点一下即可查看
+            </div>
+            <div class="qa-chips">
+              <span class="qa-chip" data-q="refund-time">退款多久到账？</span>
+              <span class="qa-chip" data-q="address">可以修改收货地址吗？</span>
+              <span class="qa-chip" data-q="logistics">查不到物流怎么办？</span>
+              <span class="qa-chip" data-q="pay">支持哪些支付方式？</span>
+            </div>
+            <div class="qa-answer-slot"></div>
+          </div>
           <div class="msg-meta">10:24</div>
         </div>
       </div>
@@ -957,29 +887,13 @@
       <div class="msg-row">
         <div class="msg-avatar agent">李</div>
         <div class="msg-content">
-          <div class="msg-rating interactive">
-            <div class="rating-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>服务评价</div>
-            <div style="font-size:12px;color:#8c8c8c;margin-bottom:4px;">感谢您的咨询，请为本次服务打分</div>
-            <div class="rating-stars" id="ratingStars">
-              <span class="star">★</span>
-              <span class="star">★</span>
-              <span class="star">★</span>
-              <span class="star">★</span>
-              <span class="star">★</span>
+          <div class="msg-rating-cta" id="ratingCta" title="点击评价本次服务">
+            <div class="cta-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+            <div class="cta-body">
+              <div class="cta-title">服务评价</div>
+              <div class="cta-sub">感谢您的咨询，请为本次服务打分</div>
             </div>
-            <div class="rating-tags">
-              <span class="rating-tag selected">态度热情</span>
-              <span class="rating-tag">响应及时</span>
-              <span class="rating-tag">专业</span>
-              <span class="rating-tag">耐心</span>
-              <span class="rating-tag">解决问题</span>
-              <span class="rating-tag">沟通顺畅</span>
-              <span class="rating-tag">有礼貌</span>
-              <span class="rating-tag">回复慢</span>
-              <span class="rating-tag">态度一般</span>
-              <span class="rating-tag">未解决</span>
-            </div>
-            <button class="rating-submit" id="ratingSubmitBtn">提交评价</button>
+            <div class="cta-arrow">›</div>
           </div>
           <div class="msg-meta">10:35</div>
         </div>
@@ -1063,73 +977,6 @@
 
 </div>
 
-<!-- ===== History panel (slide-in from right) ===== -->
-<div class="history-backdrop" id="historyBackdrop"></div>
-<div class="history-panel" id="historyPanel">
-  <div class="history-panel-header">
-    <h3>历史会话</h3>
-    <div class="history-close-btn" id="historyCloseBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#595959" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </div>
-  </div>
-  <div class="history-list">
-    <div class="history-item">
-      <div class="history-item-top">
-        <span class="history-item-time">2026-06-08 14:30</span>
-        <span class="history-status rated">已评价</span>
-      </div>
-      <div class="history-item-agent">客服 小李</div>
-      <div class="history-item-preview">您好，我的退款什么时候能到账？</div>
-    </div>
-    <div class="history-item">
-      <div class="history-item-top">
-        <span class="history-item-time">2026-06-05 10:12</span>
-        <span class="history-status ended">已结束</span>
-      </div>
-      <div class="history-item-agent">客服 李小米</div>
-      <div class="history-item-preview">请问这款耳机支持降噪功能吗？</div>
-    </div>
-    <div class="history-item">
-      <div class="history-item-top">
-        <span class="history-item-time">2026-06-01 16:45</span>
-        <span class="history-status rated">已评价</span>
-      </div>
-      <div class="history-item-agent">客服 王小张</div>
-      <div class="history-item-preview">商品已经收到，但是包装有破损，想申请换…</div>
-    </div>
-    <div class="history-item">
-      <div class="history-item-top">
-        <span class="history-item-time">2026-05-28 09:20</span>
-        <span class="history-status ended">已结束</span>
-      </div>
-      <div class="history-item-agent">客服 小李</div>
-      <div class="history-item-preview">想了解一下你们满减活动的规则</div>
-    </div>
-    <div class="history-item">
-      <div class="history-item-top">
-        <span class="history-item-time">2026-05-22 11:05</span>
-        <span class="history-status rated">已评价</span>
-      </div>
-      <div class="history-item-agent">客服 赵小明</div>
-      <div class="history-item-preview">配送地址填错了，能帮忙修改一下吗？</div>
-    </div>
-    <div class="history-item">
-      <div class="history-item-top">
-        <span class="history-item-time">2026-05-15 15:38</span>
-        <span class="history-status ended">已结束</span>
-      </div>
-      <div class="history-item-agent">客服 李小米</div>
-      <div class="history-item-preview">请问可以使用信用卡分期付款吗？</div>
-    </div>
-  </div>
-  <div class="history-view-all">
-    <a href="javascript:void(0)">查看全部</a>
-  </div>
-</div>
-
 <!-- ===== Demo interactions (prototype only) ===== -->
 <script>
   // Toggle "+" more panel
@@ -1143,47 +990,21 @@
     }
   })();
 
-  // Rating stars: click to fill
+  // ===== cs-modal 接线：评分 CTA → 评价弹窗（sheet）；+ 面板各图标 → toast =====
   (function () {
-    var stars = document.querySelectorAll('#ratingStars .star');
-    stars.forEach(function (star, idx) {
-      star.addEventListener('click', function () {
-        stars.forEach(function (s, i) {
-          if (i <= idx) {
-            s.classList.remove('empty');
-          } else {
-            s.classList.add('empty');
-          }
-        });
-      });
-    });
-  })();
-
-  // Rating tags: toggle selection
-  (function () {
-    var tags = document.querySelectorAll('.rating-tag');
-    tags.forEach(function (tag) {
-      tag.addEventListener('click', function () {
-        tag.classList.toggle('selected');
-      });
-    });
-  })();
-
-  // ===== cs-modal 接线：提交评价 → 评价弹窗（sheet）；+ 面板各图标 → toast =====
-  (function () {
-    // 提交评价：打开抽离的评价 bottom-sheet
-    var submitBtn = document.getElementById('ratingSubmitBtn');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', function () {
+    // 评分 CTA：打开抽离的评价 bottom-sheet
+    var cta = document.getElementById('ratingCta');
+    if (cta) {
+      cta.addEventListener('click', function () {
         csModal.open('modals/modal-rating.html', {
           variant: 'sheet', width: 375,
           onConfirm: function (data) {
-            // 评价完成/跳过 → 在消息流插入系统提醒条
+            // 评价完成/跳过 → 在消息流插入系统提醒条（复用 .msg-system 居中样式）
             if (!data) return;
-            var thread = document.querySelector('.msg-thread') || document.querySelector('.chat-body');
+            var thread = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
             if (!thread) return;
             var bar = document.createElement('div');
-            bar.style.cssText = 'text-align:center;padding:6px 10px;background:#f5f5f5;color:#999;font-size:12px;border-radius:6px;margin:8px 0;';
+            bar.className = 'msg-system';
             bar.textContent = data.status === 'completed' ? '✓ 评价已提交 · 感谢您的反馈' : '会话已结束 · 已跳过评价';
             thread.appendChild(bar);
             thread.scrollTop = thread.scrollHeight;
@@ -1204,42 +1025,146 @@
     });
   })();
 
-  // Header back button: return to index
+  // 向上滚动加载更早的历史消息（替代旧的「历史会话」弹窗）
   (function () {
-    var backBtn = document.querySelector('.header-back');
-    if (backBtn) {
-      backBtn.addEventListener('click', function () {
-        window.location.href = '../index.html';
+    var box = document.getElementById('chatMessages');
+    var loader = document.getElementById('historyLoader');
+    if (!box || !loader) return;
+
+    var loading = false;
+    var allLoaded = false;
+    var batch = 0;
+    var MAX_BATCH = 3;
+
+    // 历史消息样本：每批次一段对话 + 日期分割条
+    var SAMPLE = [
+      {
+        date: '昨天 18:30',
+        msgs: [
+          { who: 'agent', text: '您好，我是客服李小米，请问有什么可以帮您？', time: '18:30' },
+          { who: 'user', text: '想了解一下这款耳机的保修政策', time: '18:31' },
+          { who: 'agent', text: '这款耳机整机保修一年，保修期内非人为损坏可免费维修～', time: '18:32' }
+        ]
+      },
+      {
+        date: '06-15 周日',
+        msgs: [
+          { who: 'user', text: '请问你们周末发货吗？', time: '15:02' },
+          { who: 'agent', text: '周末正常发货哦，下午 4 点前的订单当天发出～', time: '15:03' }
+        ]
+      },
+      {
+        date: '06-12 周四',
+        msgs: [
+          { who: 'user', text: '可以用花呗分期吗？', time: '20:11' },
+          { who: 'agent', text: '支持的，满 200 元可选 3 / 6 / 12 期免息～', time: '20:12' }
+        ]
+      }
+    ];
+
+    function avatarText(who) { return who === 'agent' ? '李' : '我'; }
+
+    function makeRow(who, text, time) {
+      var row = document.createElement('div');
+      row.className = 'msg-row' + (who === 'user' ? ' user' : '');
+      row.innerHTML =
+        '<div class="msg-avatar ' + who + '">' + avatarText(who) + '</div>' +
+        '<div class="msg-content">' +
+          '<div class="msg-bubble-' + (who === 'user' ? 'user' : 'agent') + '">' + text + '</div>' +
+          '<div class="msg-meta">' + time + '</div>' +
+        '</div>';
+      return row;
+    }
+
+    function makeDivider(text) {
+      var d = document.createElement('div');
+      d.className = 'msg-system';
+      d.textContent = '— ' + text + ' —';
+      return d;
+    }
+
+    function loadMore() {
+      if (loading || allLoaded) return;
+      loading = true;
+      loader.textContent = '正在加载更早的消息…';
+      loader.classList.add('loading');
+
+      setTimeout(function () {
+        var data = SAMPLE[batch];
+        var prevHeight = box.scrollHeight;   // 插入前高度，用于保持滚动锚点
+        var prevTop = box.scrollTop;
+
+        if (!data) {
+          allLoaded = true;
+          loader.textContent = '没有更早的消息了';
+          loader.classList.remove('loading');
+          loader.classList.add('done');
+          loading = false;
+          return;
+        }
+
+        var frag = document.createDocumentFragment();
+        frag.appendChild(makeDivider(data.date));
+        data.msgs.forEach(function (m) { frag.appendChild(makeRow(m.who, m.text, m.time)); });
+        loader.insertAdjacentElement('afterend', frag);   // 新消息插在 loader 之后（即旧消息之前）
+        batch++;
+
+        // 内容增高多少，scrollTop 同步下移多少，保证视图不跳动
+        box.scrollTop = prevTop + (box.scrollHeight - prevHeight);
+
+        if (batch >= MAX_BATCH) {
+          allLoaded = true;
+          loader.textContent = '没有更早的消息了';
+          loader.classList.add('done');
+        } else {
+          loader.textContent = '↑ 继续向上滚动加载更早消息';
+        }
+        loader.classList.remove('loading');
+        loading = false;
+      }, 600);
+    }
+
+    box.addEventListener('scroll', function () {
+      if (box.scrollTop < 50) loadMore();
+    });
+
+    // 初始定位到最新消息（底部），向上滚动才会触发加载历史
+    box.scrollTop = box.scrollHeight;
+  })();
+
+  // 顶栏「更多」按钮：功能说明轻提示
+  (function () {
+    var btn = document.getElementById('moreHeaderBtn');
+    if (btn && window.csModal) {
+      btn.addEventListener('click', function () {
+        csModal.toast('更多：转人工 · 结束会话 · 投诉建议');
       });
     }
   })();
 
-  // History panel: toggle
+  // 猜你想问：点击快捷问题，在卡片内展开答案（再次点击同一条则收起）
   (function () {
-    var historyBtn = document.getElementById('historyBtn');
-    var historyPanel = document.getElementById('historyPanel');
-    var historyBackdrop = document.getElementById('historyBackdrop');
-    var historyCloseBtn = document.getElementById('historyCloseBtn');
-
-    function openHistory() {
-      historyPanel.classList.add('show');
-      historyBackdrop.classList.add('show');
-    }
-
-    function closeHistory() {
-      historyPanel.classList.remove('show');
-      historyBackdrop.classList.remove('show');
-    }
-
-    if (historyBtn) {
-      historyBtn.addEventListener('click', openHistory);
-    }
-    if (historyCloseBtn) {
-      historyCloseBtn.addEventListener('click', closeHistory);
-    }
-    if (historyBackdrop) {
-      historyBackdrop.addEventListener('click', closeHistory);
-    }
+    var ANSWERS = {
+      'refund-time': { q: '退款多久到账？', a: '退款审核通过后：支付宝/微信原路退回 1-3 个工作日；银行卡 3-7 个工作日；余额即时到账。节假日可能顺延。' },
+      'address':     { q: '可以修改收货地址吗？', a: '订单未发货前，可在订单详情页点击「修改地址」更新收货信息。已发货订单无法修改，建议联系收件人或快递员沟通改派。' },
+      'logistics':   { q: '查不到物流怎么办？', a: '物流单号一般在发货后 2-4 小时内更新。超过 24 小时仍无更新多为系统延迟，可耐心等待；急需处理可点「转人工」。' },
+      'pay':         { q: '支持哪些支付方式？', a: '目前支持微信支付、支付宝、银联云闪付、信用卡分期及商城余额支付，部分商品支持花呗与白条。' }
+    };
+    document.querySelectorAll('.qa-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var key = chip.getAttribute('data-q');
+        var data = ANSWERS[key];
+        if (!data) return;
+        var suggest = chip.closest('.qa-suggest');
+        var slot = suggest.querySelector('.qa-answer-slot');
+        var isSame = chip.classList.contains('active');
+        suggest.querySelectorAll('.qa-chip').forEach(function (c) { c.classList.remove('active'); });
+        if (isSame) { slot.classList.remove('show'); return; }
+        chip.classList.add('active');
+        slot.innerHTML = '<div class="qa-q">' + data.q + '</div><div class="qa-a">' + data.a + '</div>';
+        slot.classList.add('show');
+      });
+    });
   })();
 </script>
 

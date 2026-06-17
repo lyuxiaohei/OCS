@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FAQ 常见问题 — CS 商城客服系统</title>
+  <title>帮助中心 — CS 商城客服系统</title>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../mobile.css" />
   <style>
@@ -193,18 +193,7 @@
     }
     .faq-answer-actions .useful:hover { background: var(--cs-primary-hover); }
 
-    /* 热门标签 */
-    .faq-hot-tag {
-      display: inline-block;
-      font-size: 10px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover));
-      padding: 1px 5px;
-      border-radius: 3px;
-      margin-left: 6px;
-      vertical-align: middle;
-      font-weight: var(--cs-font-weight-medium);
-    }
+    /* （HOT 角标已移除：热度统一用右侧热度数字表达） */
 
     /* 底部提示 */
     .faq-footer-tip {
@@ -226,40 +215,7 @@
       letter-spacing: 0.5px;
     }
 
-    /* ===== Top-level Tab Switcher: 常见问题 | 服务指南 ===== */
-    .top-tabs {
-      display: flex;
-      background: var(--cs-bg-card);
-      border-bottom: 1px solid var(--cs-border-light);
-      flex-shrink: 0;
-    }
-    .top-tab {
-      flex: 1;
-      text-align: center;
-      padding: 10px 0;
-      font-size: var(--cs-font-size-md);
-      color: var(--cs-text-secondary);
-      cursor: pointer;
-      position: relative;
-      transition: var(--cs-transition-normal);
-      font-weight: var(--cs-font-weight-medium);
-    }
-    .top-tab:hover { color: var(--cs-primary); }
-    .top-tab.active {
-      color: var(--cs-primary);
-      font-weight: var(--cs-font-weight-semibold);
-    }
-    .top-tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 3px;
-      border-radius: 2px;
-      background: var(--cs-primary);
-    }
+    /* （顶部「常见问题 | 服务指南」Tab 已移除：合并进下方分类导航） */
 
     /* ===== Content Panels ===== */
     .content-panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
@@ -279,31 +235,23 @@
     .guide-card {
       background: var(--cs-bg-card);
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid var(--cs-border-light);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       overflow: hidden;
-      border-left: 4px solid var(--cs-primary);
     }
-    .guide-card.card-refund { border-left-color: var(--cs-danger); }
-    .guide-card.card-pay    { border-left-color: var(--cs-primary); }
-    .guide-card.card-delivery { border-left-color: var(--cs-success); }
-    .guide-card.card-invoice { border-left-color: var(--cs-orange); }
 
     .guide-header {
       display: flex;
       align-items: center;
       gap: var(--cs-space-2);
-      padding: var(--cs-space-3) var(--cs-space-3);
-      color: #fff;
+      padding: 12px var(--cs-space-3);
+      border-bottom: 1px solid var(--cs-border-lighter);
     }
-    .guide-card.card-refund .guide-header  { background: linear-gradient(135deg, #f5222d, #ff7875); }
-    .guide-card.card-pay .guide-header      { background: linear-gradient(135deg, #1677ff, #4096ff); }
-    .guide-card.card-delivery .guide-header { background: linear-gradient(135deg, #52c41a, #73d13d); }
-    .guide-card.card-invoice .guide-header  { background: linear-gradient(135deg, #fa8c16, #ffa940); }
-
-    .guide-header svg { flex-shrink: 0; }
+    .guide-header svg { flex-shrink: 0; stroke: var(--cs-primary); }   /* 覆盖原 #fff，统一主色 */
     .guide-header-title {
       font-size: var(--cs-font-size-md);
       font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
     }
 
     .guide-body {
@@ -346,10 +294,7 @@
       color: #fff;
       flex-shrink: 0;
     }
-    .card-refund .step-num { background: var(--cs-danger); }
-    .card-pay .step-num    { background: var(--cs-primary); }
-    .card-delivery .step-num { background: var(--cs-success); }
-    .card-invoice .step-num  { background: var(--cs-orange); }
+    .guide-card .step-num { background: var(--cs-primary); }
 
     .step-line {
       width: 2px;
@@ -381,10 +326,8 @@
       justify-content: center;
       flex-shrink: 0;
     }
-    .card-refund .step-icon-wrap  { background: var(--cs-danger-bg); }
-    .card-pay .step-icon-wrap     { background: var(--cs-primary-bg); }
-    .card-delivery .step-icon-wrap { background: var(--cs-success-bg); }
-    .card-invoice .step-icon-wrap  { background: var(--cs-orange-bg); }
+    .guide-card .step-icon-wrap { background: var(--cs-bg-header); }
+    .step-icon-wrap svg { stroke: var(--cs-text-secondary); }
 
     /* Payment options row */
     .pay-options {
@@ -486,8 +429,8 @@
 <body>
 
   <div class="page-wrap">
-    <h1 class="page-title">FAQ 常见问题</h1>
-    <p class="page-subtitle">用户端 · 移动端原型 · 演示 US-MVP-24 FAQ快捷问题</p>
+    <h1 class="page-title">帮助中心</h1>
+    <p class="page-subtitle">用户端 · FAQ 自助 + 转人工 · US-MVP-24</p>
 
     <!-- ===== Mobile Container (375px) ===== -->
     <div class="cs-phone">
@@ -506,7 +449,7 @@
         <div class="cs-back" title="返回" onclick="location.href='../index.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </div>
-        <span class="cs-nav-title">常见问题</span>
+        <span class="cs-nav-title">帮助中心</span>
         <div class="cs-capsule" title="微信胶囊">
           <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
         </div>
@@ -520,16 +463,7 @@
         </div>
       </div>
 
-      <!-- Top-level Tab Switcher -->
-      <div class="top-tabs">
-        <div class="top-tab active" data-panel="faq">常见问题</div>
-        <div class="top-tab" data-panel="guide">服务指南</div>
-      </div>
-
-      <!-- ===== FAQ Panel ===== -->
-      <div class="content-panel active" id="panelFaq">
-
-      <!-- Category Tabs -->
+      <!-- 分类导航（常驻：FAQ 分类筛选 + 服务指南入口） -->
       <div class="faq-tabs">
         <span class="faq-tab active" data-cat="all">全部</span>
         <span class="faq-tab" data-cat="order">订单问题</span>
@@ -537,7 +471,11 @@
         <span class="faq-tab" data-cat="pay">支付</span>
         <span class="faq-tab" data-cat="logistics">物流</span>
         <span class="faq-tab" data-cat="account">账户</span>
+        <span class="faq-tab" data-cat="guide">服务指南</span>
       </div>
+
+      <!-- ===== FAQ Panel ===== -->
+      <div class="content-panel active" id="panelFaq">
 
       <!-- FAQ List -->
       <div class="faq-list" id="faqList">
@@ -547,7 +485,7 @@
         <!-- FAQ Item 1 -->
         <div class="faq-item" data-cat="refund">
           <div class="faq-item-row" onclick="toggleFaq(this)">
-            <div class="faq-question">如何申请七天无理由退货？<span class="faq-hot-tag">HOT</span></div>
+            <div class="faq-question">如何申请七天无理由退货？</div>
             <span class="faq-hit"><span class="fire"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f5222d" stroke-width="2" style="vertical-align:-1px;"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></span>2.3w</span>
           </div>
           <div class="faq-answer">
@@ -565,7 +503,7 @@
         <!-- FAQ Item 2 -->
         <div class="faq-item" data-cat="order">
           <div class="faq-item-row" onclick="toggleFaq(this)">
-            <div class="faq-question">订单显示“已发货”但查不到物流信息？<span class="faq-hot-tag">HOT</span></div>
+            <div class="faq-question">订单显示“已发货”但查不到物流信息？</div>
             <span class="faq-hit"><span class="fire"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f5222d" stroke-width="2" style="vertical-align:-1px;"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></span>1.8w</span>
           </div>
           <div class="faq-answer">
@@ -897,12 +835,9 @@
         </div><!-- /guide-list -->
       </div><!-- /content-panel#panelGuide -->
 
-      <!-- Footer Tip -->
-      <div class="faq-footer-tip" id="faqFooterTip">
+      <!-- 底部兜底入口（FAQ / 服务指南 共用） -->
+      <div class="faq-footer-tip">
         没找到答案？<a href="user-chat.html">转人工客服 ›</a>
-      </div>
-      <div class="faq-footer-tip" id="guideFooterTip" style="display:none;">
-        如需进一步帮助，<a href="user-chat.html">联系在线客服 ›</a>
       </div>
 
     </div>
@@ -919,35 +854,28 @@
       item.classList.toggle('expanded');
     }
 
-    // 分类筛选
+    // 分类切换（FAQ 分类筛选 + 「服务指南」切换到指南面板）
     document.querySelectorAll('.faq-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
         document.querySelectorAll('.faq-tab').forEach(function(t) { t.classList.remove('active'); });
         tab.classList.add('active');
         var cat = tab.getAttribute('data-cat');
-        document.querySelectorAll('.faq-item').forEach(function(item) {
-          var itemCat = item.getAttribute('data-cat');
-          var show = (cat === 'all') || (itemCat === cat);
-          item.style.display = show ? '' : 'none';
-        });
-      });
-    });
+        var panelFaq = document.getElementById('panelFaq');
+        var panelGuide = document.getElementById('panelGuide');
 
-    // Top-level tab switcher (常见问题 / 服务指南)
-    document.querySelectorAll('.top-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        // Update tab active state
-        document.querySelectorAll('.top-tab').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-
-        var panel = tab.getAttribute('data-panel');
-        // Toggle panels
-        document.getElementById('panelFaq').classList.toggle('active', panel === 'faq');
-        document.getElementById('panelGuide').classList.toggle('active', panel === 'guide');
-
-        // Toggle footer tips
-        document.getElementById('faqFooterTip').style.display = panel === 'faq' ? '' : 'none';
-        document.getElementById('guideFooterTip').style.display = panel === 'guide' ? '' : 'none';
+        if (cat === 'guide') {
+          // 切换到服务指南面板
+          panelFaq.classList.remove('active');
+          panelGuide.classList.add('active');
+        } else {
+          // FAQ 列表按分类筛选
+          panelGuide.classList.remove('active');
+          panelFaq.classList.add('active');
+          document.querySelectorAll('.faq-item').forEach(function(item) {
+            var itemCat = item.getAttribute('data-cat');
+            item.style.display = (cat === 'all' || itemCat === cat) ? '' : 'none';
+          });
+        }
       });
     });
   </script>

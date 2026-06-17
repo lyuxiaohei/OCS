@@ -6,8 +6,9 @@
   <title>服务评价 — CS 商城客服系统</title>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../mobile.css" />
+  <script src="../js/cs-modal.js"></script>
   <style>
-    /* ===== user-rating.html 专属样式 ===== */
+    /* ===== user-rating.html 专属样式（薄壳：仅展示「会话已结束」背景 + 自动弹出评价 sheet） ===== */
     body {
       background: var(--cs-bg-page);
       display: flex;
@@ -24,266 +25,14 @@
     }
     .page-caption strong { color: var(--cs-text); font-size: var(--cs-font-size-lg); font-weight: var(--cs-font-weight-semibold); }
 
-    /* ---------- 模态遮罩 ---------- */
-    .rating-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      z-index: 50;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      animation: fade-in 0.25s ease;
-    }
-    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-
-    /* ---------- 评分弹层（底部弹出） ---------- */
-    .rating-modal {
-      width: 100%;
-      max-height: 88%;
-      overflow-y: auto;
-      background: var(--cs-bg-card);
-      border-radius: 20px 20px 0 0;
-      padding: var(--cs-space-5) var(--cs-space-4) var(--cs-space-6);
-      animation: slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-      -webkit-overflow-scrolling: touch;
-    }
-    @keyframes slide-up {
-      from { transform: translateY(100%); }
-      to   { transform: translateY(0); }
-    }
-
-    /* 拖拽指示条 */
-    .rating-handle {
-      width: 36px;
-      height: 4px;
-      background: #e4e4e4;
-      border-radius: 2px;
-      margin: 0 auto 14px;
-    }
-
-    /* 顶部图标 + 标题 */
-    .rating-hero { text-align: center; margin-bottom: 18px; }
-    .rating-hero .check-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
-    }
-    .rating-hero .rating-title {
-      font-size: var(--cs-font-size-xl);
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin: 0 0 var(--cs-space-1);
-    }
-    .rating-hero .rating-subtitle {
-      font-size: var(--cs-font-size-base);
-      color: var(--cs-text-tertiary);
-    }
-
-    /* 客服信息条 */
-    .agent-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--cs-bg-header);
-      border-radius: var(--cs-radius-lg);
-      padding: 10px var(--cs-space-3);
-      margin-bottom: 18px;
-    }
-    .agent-bar .agent-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--cs-font-size-md);
-      flex-shrink: 0;
-    }
-    .agent-bar .agent-name { font-size: var(--cs-font-size-md); font-weight: var(--cs-font-weight-medium); color: var(--cs-text); }
-    .agent-bar .agent-meta { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); }
-
-    /* 维度评分 */
-    .dim-list {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      margin-bottom: var(--cs-space-5);
-    }
-    .dim-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .dim-label {
-      font-size: var(--cs-font-size-md);
-      color: var(--cs-text);
-      font-weight: var(--cs-font-weight-medium);
-      flex-shrink: 0;
-    }
-    .stars {
-      display: flex;
-      gap: 4px;
-    }
-    .star {
-      cursor: pointer;
-      line-height: 1;
-      transition: color 0.12s ease, transform 0.12s ease;
-      user-select: none;
-      color: #e0e0e0;
-    }
-    .star:hover { transform: scale(1.12); }
-    .star.active { color: var(--cs-warning); }
-
-    /* 分割线 */
-    .divider {
-      height: 1px;
-      background: var(--cs-border-light);
-      margin: 4px 0 var(--cs-space-4);
-    }
-
-    /* 标签选择 */
-    .section-label {
-      font-size: var(--cs-font-size-md);
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin-bottom: var(--cs-space-1);
-    }
-    .section-hint {
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-text-tertiary);
-      margin-bottom: var(--cs-space-3);
-    }
-    .tag-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--cs-space-2);
-      margin-bottom: var(--cs-space-5);
-    }
-    .tag-chip {
-      padding: 6px var(--cs-space-3);
-      border-radius: 16px;
-      background: var(--cs-border-lighter);
-      color: var(--cs-text-secondary);
-      font-size: var(--cs-font-size-base);
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: var(--cs-transition-fast);
-      user-select: none;
-    }
-    .tag-chip:hover { background: var(--cs-primary-bg); color: var(--cs-primary); }
-    .tag-chip.selected {
-      background: var(--cs-primary-bg);
-      color: var(--cs-primary);
-      border-color: var(--cs-primary);
-    }
-
-    /* 文字评价 */
-    .comment-wrap { margin-bottom: var(--cs-space-4); }
-    .comment-textarea {
-      width: 100%;
-      min-height: 84px;
-      resize: vertical;
-      border: 1px solid var(--cs-border);
-      border-radius: var(--cs-radius-md);
-      padding: 10px var(--cs-space-3);
-      font-size: var(--cs-font-size-base);
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
-      color: var(--cs-text);
-      line-height: 1.5;
-    }
-    .comment-textarea::placeholder { color: var(--cs-text-placeholder); }
-    .comment-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
-    .comment-count {
-      text-align: right;
-      font-size: var(--cs-font-size-xs);
-      color: var(--cs-text-tertiary);
-      margin-top: var(--cs-space-1);
-    }
-
-    /* 提交按钮 */
-    .submit-btn {
-      width: 100%;
-      height: 44px;
-      background: var(--cs-primary);
-      color: #fff;
-      border: none;
-      border-radius: 22px;
-      font-size: var(--cs-font-size-lg);
-      font-weight: var(--cs-font-weight-medium);
-      cursor: pointer;
-      transition: background 0.2s, box-shadow 0.2s;
-      margin-top: var(--cs-space-1);
-    }
-    .submit-btn:hover { background: var(--cs-primary-hover); box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3); }
-    .submit-btn:active { background: var(--cs-primary-active); }
-    .skip-btn {
-      width: 100%;
-      height: 40px;
-      background: transparent;
-      color: var(--cs-text-tertiary);
-      border: none;
-      font-size: var(--cs-font-size-base);
-      cursor: pointer;
-      margin-top: var(--cs-space-2);
-    }
-
-    /* 跳过提示 toast */
-    .rating-toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #f0f0f0;
-      color: #666;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 13px;
-      z-index: 10001;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .rating-toast.show {
-      opacity: 1;
-    }
-
-    /* 提交成功态 */
-    .rating-done {
-      text-align: center;
-      padding: 48px var(--cs-space-5);
-      animation: fade-in 0.3s ease;
-    }
-    .rating-done .done-icon {
-      margin-bottom: var(--cs-space-3);
-    }
-    .rating-done .done-title {
-      font-size: var(--cs-font-size-xl);
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin-bottom: 6px;
-    }
-    .rating-done .done-desc {
-      font-size: var(--cs-font-size-base);
-      color: var(--cs-text-tertiary);
-    }
+    /* 评价完成/跳过后插入消息流的系统提醒条（复用 .msg-bubble-system 样式） */
   </style>
 </head>
 <body>
 
   <p class="page-caption"><strong>用户端 · 服务评价</strong> &nbsp;|&nbsp; US-MVP-21 服务评价 UI</p>
 
-  <!-- ===== 移动端聊天容器（背景） ===== -->
+  <!-- ===== 移动端聊天容器（背景：已结束的会话） ===== -->
   <div class="cs-phone">
     <!-- 小程序状态栏 -->
     <div class="cs-status-bar">
@@ -306,7 +55,7 @@
     </div>
 
     <!-- 消息区（会话已结束背景） -->
-    <div class="chat-messages">
+    <div class="chat-messages" id="chatMessages">
       <div class="msg-bubble-system">会话已结束</div>
       <div class="msg-bubble-agent">您好，很高兴为您服务，请问还有什么可以帮您的吗？</div>
       <div class="msg-bubble-user">没有了，问题已经解决，谢谢！</div>
@@ -319,180 +68,30 @@
       <input type="text" placeholder="会话已结束" disabled style="background:#f0f0f0;" />
     </div>
 
-    <!-- 跳过评价提示 -->
-    <div class="rating-toast" id="ratingToast">已跳过评价</div>
-
-    <!-- ===== 服务评价弹层 ===== -->
-    <div class="rating-overlay" id="ratingOverlay">
-      <div class="rating-modal">
-
-        <div class="rating-handle"></div>
-
-        <!-- 顶部 -->
-        <div class="rating-hero">
-          <div class="check-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <h2 class="rating-title">感谢您的服务，请为本次服务评分</h2>
-          <p class="rating-subtitle">您的评价是我们进步的动力</p>
-        </div>
-
-        <!-- 客服信息条 -->
-        <div class="agent-bar">
-          <div class="agent-avatar">夏</div>
-          <div>
-            <div class="agent-name">客服小夏</div>
-            <div class="agent-meta">工号 #A1024 · 服务时长 08:32</div>
-          </div>
-        </div>
-
-        <!-- 维度评分 -->
-        <div class="dim-list">
-          <div class="dim-row">
-            <span class="dim-label">服务态度</span>
-            <div class="stars" data-dim="attitude">
-              <span class="star" data-val="1"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="2"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="3"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="4"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="5"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            </div>
-          </div>
-          <div class="dim-row">
-            <span class="dim-label">响应速度</span>
-            <div class="stars" data-dim="speed">
-              <span class="star" data-val="1"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="2"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="3"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="4"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="5"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            </div>
-          </div>
-          <div class="dim-row">
-            <span class="dim-label">专业能力</span>
-            <div class="stars" data-dim="professional">
-              <span class="star" data-val="1"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="2"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="3"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="4"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="5"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            </div>
-          </div>
-          <div class="dim-row">
-            <span class="dim-label">解决问题能力</span>
-            <div class="stars" data-dim="solution">
-              <span class="star" data-val="1"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="2"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="3"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="4"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-              <span class="star" data-val="5"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- 标签选择（多选） -->
-        <div class="section-label">服务印象</div>
-        <div class="section-hint">可多选，选择您对本次服务的感受</div>
-        <div class="tag-group" id="tagGroup">
-          <span class="tag-chip">态度热情</span>
-          <span class="tag-chip">响应及时</span>
-          <span class="tag-chip">专业</span>
-          <span class="tag-chip">耐心</span>
-          <span class="tag-chip">解决问题</span>
-          <span class="tag-chip">沟通顺畅</span>
-          <span class="tag-chip">有礼貌</span>
-          <span class="tag-chip">回复慢</span>
-          <span class="tag-chip">态度一般</span>
-          <span class="tag-chip">未解决</span>
-        </div>
-
-        <!-- 文字评价 -->
-        <div class="comment-wrap">
-          <div class="section-label">补充评价（选填）</div>
-          <div class="section-hint">说说您对本次服务的具体感受</div>
-          <textarea
-            class="comment-textarea"
-            id="commentInput"
-            maxlength="200"
-            placeholder="您的建议对我们很重要，帮助客服提供更好的服务～"
-          ></textarea>
-          <div class="comment-count"><span id="commentCount">0</span>/200</div>
-        </div>
-
-        <!-- 按钮 -->
-        <button class="submit-btn" id="submitBtn">提交评价</button>
-        <button class="skip-btn" id="skipBtn">跳过</button>
-
-      </div>
-    </div>
-
   </div>
 
   <script>
-    /* ---------- 星级评分交互 ---------- */
-    document.querySelectorAll('.stars').forEach(function (group) {
-      var stars = group.querySelectorAll('.star');
-      var current = 0;
-      group.addEventListener('click', function (e) {
-        var target = e.target;
-        if (!target.classList.contains('star')) return;
-        var val = parseInt(target.getAttribute('data-val'), 10);
-        // AC-F-06：已是 1 星再点 → 清零（再次点击当前最高星可清零）
-        if (val === current) {
-          val = 0;
+    /* ---------- 进入页面即弹出服务评价 bottom-sheet（复用抽离组件，单一真相源） ----------
+       评价表单的 HTML/CSS/JS 全部集中在 modals/modal-rating.html，
+       本页只是展示壳：会话已结束背景 + 自动唤起评价 sheet。 */
+    window.addEventListener('DOMContentLoaded', function () {
+      csModal.open('modals/modal-rating.html', {
+        variant: 'sheet',
+        width: 375,
+        onConfirm: function (data) {
+          // 评价完成/跳过 → 在消息流插入系统提醒条
+          if (!data) return;
+          var thread = document.getElementById('chatMessages');
+          if (!thread) return;
+          var bar = document.createElement('div');
+          bar.className = 'msg-bubble-system';
+          bar.textContent = data.status === 'completed'
+            ? '✓ 评价已提交 · 感谢您的反馈'
+            : '会话已结束 · 已跳过评价';
+          thread.appendChild(bar);
+          thread.scrollTop = thread.scrollHeight;
         }
-        current = val;
-        stars.forEach(function (s) {
-          var sv = parseInt(s.getAttribute('data-val'), 10);
-          s.classList.toggle('active', sv <= val && val > 0);
-        });
       });
-    });
-
-    /* ---------- 标签多选 ---------- */
-    document.querySelectorAll('.tag-chip').forEach(function (chip) {
-      chip.addEventListener('click', function () {
-        chip.classList.toggle('selected');
-      });
-    });
-
-    /* ---------- 字数统计 ---------- */
-    var commentInput = document.getElementById('commentInput');
-    var commentCount = document.getElementById('commentCount');
-    commentInput.addEventListener('input', function () {
-      commentCount.textContent = commentInput.value.length;
-    });
-
-    /* ---------- 提交 → 成功态 ---------- */
-    var submitBtn = document.getElementById('submitBtn');
-    var modal = document.querySelector('.rating-modal');
-    submitBtn.addEventListener('click', function () {
-      sessionStorage.setItem('cs_rating_status', 'completed');
-      modal.innerHTML =
-        '<div class="rating-done">' +
-          '<div class="done-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#faad14" stroke-width="2"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7"/></svg></div>' +
-          '<div class="done-title">评价提交成功</div>' +
-          '<div class="done-desc">感谢您的反馈，期待再次为您服务！</div>' +
-        '</div>';
-    });
-
-    /* ---------- 跳过 → 提示 + 关闭弹层 ---------- */
-    document.getElementById('skipBtn').addEventListener('click', function () {
-      sessionStorage.setItem('cs_rating_status', 'skipped');
-      var toast = document.getElementById('ratingToast');
-      toast.classList.add('show');
-      setTimeout(function () {
-        document.getElementById('ratingOverlay').style.display = 'none';
-        // Add ended status bar after overlay is hidden
-        var container = document.querySelector('.cs-phone');
-        var statusBar = document.createElement('div');
-        statusBar.style.cssText = 'text-align:center;padding:8px;background:#f5f5f5;color:#999;font-size:12px;';
-        statusBar.textContent = '会话已结束 · 已跳过评价';
-        container.appendChild(statusBar);
-        setTimeout(function () {
-          toast.classList.remove('show');
-        }, 1000);
-      }, 1000);
     });
   </script>
 
