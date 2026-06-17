@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS 商城客服系统 — 交互原型</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--cs-bg-page); color: var(--cs-text); font-size: var(--cs-font-size-base, 13px); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 48px; }
+    .head { padding-bottom: 14px; border-bottom: 1px solid var(--cs-border-light); margin-bottom: 20px; }
+    .head h1 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
+    .head .sub { font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.6; }
+    .head .src { margin-top: 4px; font-size: 11px; color: var(--cs-text-placeholder); }
+    .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; padding: 10px 12px; background: var(--cs-bg-card); border: 1px solid var(--cs-border-light); border-radius: 6px; font-size: 12px; }
+    .legend .lg { display: inline-flex; align-items: center; gap: 5px; color: var(--cs-text-secondary); }
+    .legend .sw { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .groups2 { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .grp2 { background: var(--cs-bg-card); border: 1px solid var(--cs-border-light); border-radius: 6px; padding: 0; overflow: hidden; }
+    .grp2-head { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-bottom: 1px solid var(--cs-border-lighter); background: var(--cs-bg-page); }
+    .grp2-head .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dot-ok { background: var(--cs-success); }
+    .dot-no { background: var(--cs-text-placeholder); }
+    .grp2-file { font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; color: var(--cs-primary); text-decoration: none; font-weight: 600; }
+    .grp2-file:hover { text-decoration: underline; }
+    .grp2-head .cnt { font-size: 12px; color: var(--cs-text-tertiary); margin-left: auto; }
+    .grp2-head .cnt b { color: var(--cs-text-secondary); }
+    .grp2-menus { padding: 4px 0; }
+    .mrow { display: grid; grid-template-columns: 44px 50px 1.3fr 1.3fr 1.2fr; align-items: center; gap: 8px; padding: 4px 14px; font-size: 12px; }
+    .mhead { color: var(--cs-text-placeholder); font-size: 11px; border-bottom: 1px solid var(--cs-border-lighter); padding-bottom: 6px; margin-bottom: 2px; }
+    .mrow:not(.mhead):hover { background: var(--cs-bg-page); }
+    .mtag { font-size: 11px; font-weight: 500; }
+    .mtag.p1 { color: var(--cs-orange); }
+    .mtag.p2 { color: var(--cs-primary); opacity: 0.5; }
+    .mtag.p3 { color: var(--cs-purple); opacity: 0.5; }
+    .m-role { color: var(--cs-text-secondary); }
+    .m-l1 { color: var(--cs-text); font-weight: 500; }
+    .m-l2 { color: var(--cs-text); }
+    .m-sub { color: var(--cs-text-tertiary); }
+    .mrow.future .m-role, .mrow.future .m-l1, .mrow.future .m-l2, .mrow.future .m-sub { color: var(--cs-text-placeholder); }
+    .foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--cs-border-light); font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.7; }
+    @media (max-width: 640px) { .wrap { padding: 20px 16px 32px; } .mrow { grid-template-columns: 40px 1fr; gap: 4px; } .mrow .m-l1, .mrow .m-l2, .mrow .m-sub { grid-column: 2; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="margin:0 0 14px;"><a href="../index.html" style="font-size:13px;color:var(--cs-primary);text-decoration:none;">← 返回原型总览</a></div>
+    <header class="head">
+      <h1>CS 商城客服系统 · 用户端（移动）原型</h1>
+      <div class="sub">移动端原型 · 共 <b>5</b> 个页面（均为 1 期 MVP）。对应真实代码库 service-user（Taro）。</div>
+      <div class="src">数据来源：线上客服排期_20260610.xlsx（T2）· 更新于 2026-06-15</div>
+      <div class="legend">
+        <span class="lg"><span class="sw" style="background:var(--cs-success)"></span>已完成(绿)</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-text-placeholder)"></span>未完成(灰)</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-orange)"></span>V1</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-primary)"></span>V2</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-purple)"></span>V3</span>
+      </div>
+    </header>
+
+    <ul class="groups2">
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="user-entry.html">user-entry.html</a>
+          <span class="cnt">9 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">在线客服</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">电话呼叫</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">咨询入口</span><span class="m-sub">商品详情页</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">咨询入口</span><span class="m-sub">订单详情页</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">咨询入口</span><span class="m-sub">个人中心/我的</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">咨询入口</span><span class="m-sub">购物车页</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">咨询入口</span><span class="m-sub">物流详情页</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">咨询入口</span><span class="m-sub">退换货入口</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">客服入口</span><span class="m-l2">全站悬浮窗</span><span class="m-sub">首页</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="user-chat.html">user-chat.html</a>
+          <span class="cnt">8 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">会话体验</span><span class="m-l2">断线重连</span><span class="m-sub">咨询记录</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">消息与交互</span><span class="m-l2">订单卡片交互</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">消息与交互</span><span class="m-l2">商品卡片交互</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">消息与交互</span><span class="m-l2">富媒体消息</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">会话管理</span><span class="m-l2">历史会话</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">会话体验</span><span class="m-l2">消息已读/未读</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">人工客服</span><span class="m-l2">输入状态提示</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">人工客服</span><span class="m-l2">排队等待提示</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="user-faq.html">user-faq.html</a>
+          <span class="cnt">6 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">快捷问题</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">服务指南</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">智能客服</span><span class="m-l2">基于大模型的智能客服-基础版</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">多轮引导</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">智能自助服务</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">智能自助服务</span><span class="m-l2">猜你想问</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">智能自助服务</span><span class="m-l2">自助办理</span><span class="m-sub">对话框上方卡片</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="user-offline.html">user-offline.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">人工客服</span><span class="m-l2">留言与离线反馈</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="user-rating.html">user-rating.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">人工客服</span><span class="m-l2">服务评价</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+    </ul>
+
+    <footer class="foot">
+      页面总数：23（绿点=已有原型，灰点=占位待开发）· 1 期 MVP 16 页（管理端 11 + 用户端 5）· 版本信息统一在表内「版本」列<br>2/3 期排除页（不在 1 期导航，对应 PRD V1.0 Out of Scope）：工单 admin-ticket.html（2 期）、客服管理 admin-staff.html / 渠道接入 admin-channel.html / 机器人配置 ai-bot-config.html / 智能客服场景 ai-scene.html / 质检分析 ai-quality.html / 报表看板 ai-report.html（均为 3 期）<br>
+      菜单数据来源：线上客服排期 T2 + 竞品调研（B9/B10/B12 归类）<br>
+      技术栈：Go / React (Umi) / Taro
+    </footer>
+  </div>
+</body>
+</html>

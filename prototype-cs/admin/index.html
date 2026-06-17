@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS 商城客服系统 — 交互原型</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--cs-bg-page); color: var(--cs-text); font-size: var(--cs-font-size-base, 13px); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 48px; }
+    .head { padding-bottom: 14px; border-bottom: 1px solid var(--cs-border-light); margin-bottom: 20px; }
+    .head h1 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
+    .head .sub { font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.6; }
+    .head .src { margin-top: 4px; font-size: 11px; color: var(--cs-text-placeholder); }
+    .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; padding: 10px 12px; background: var(--cs-bg-card); border: 1px solid var(--cs-border-light); border-radius: 6px; font-size: 12px; }
+    .legend .lg { display: inline-flex; align-items: center; gap: 5px; color: var(--cs-text-secondary); }
+    .legend .sw { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .groups2 { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .grp2 { background: var(--cs-bg-card); border: 1px solid var(--cs-border-light); border-radius: 6px; padding: 0; overflow: hidden; }
+    .grp2-head { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-bottom: 1px solid var(--cs-border-lighter); background: var(--cs-bg-page); }
+    .grp2-head .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dot-ok { background: var(--cs-success); }
+    .dot-no { background: var(--cs-text-placeholder); }
+    .grp2-file { font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; color: var(--cs-primary); text-decoration: none; font-weight: 600; }
+    .grp2-file:hover { text-decoration: underline; }
+    .grp2-head .cnt { font-size: 12px; color: var(--cs-text-tertiary); margin-left: auto; }
+    .grp2-head .cnt b { color: var(--cs-text-secondary); }
+    .grp2-menus { padding: 4px 0; }
+    .mrow { display: grid; grid-template-columns: 44px 50px 1.3fr 1.3fr 1.2fr; align-items: center; gap: 8px; padding: 4px 14px; font-size: 12px; }
+    .mhead { color: var(--cs-text-placeholder); font-size: 11px; border-bottom: 1px solid var(--cs-border-lighter); padding-bottom: 6px; margin-bottom: 2px; }
+    .mrow:not(.mhead):hover { background: var(--cs-bg-page); }
+    .mtag { font-size: 11px; font-weight: 500; }
+    .mtag.p1 { color: var(--cs-orange); }
+    .mtag.p2 { color: var(--cs-primary); opacity: 0.5; }
+    .mtag.p3 { color: var(--cs-purple); opacity: 0.5; }
+    .m-role { color: var(--cs-text-secondary); }
+    .m-l1 { color: var(--cs-text); font-weight: 500; }
+    .m-l2 { color: var(--cs-text); }
+    .m-sub { color: var(--cs-text-tertiary); }
+    .mrow.future .m-role, .mrow.future .m-l1, .mrow.future .m-l2, .mrow.future .m-sub { color: var(--cs-text-placeholder); }
+    .foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--cs-border-light); font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.7; }
+    @media (max-width: 640px) { .wrap { padding: 20px 16px 32px; } .mrow { grid-template-columns: 40px 1fr; gap: 4px; } .mrow .m-l1, .mrow .m-l2, .mrow .m-sub { grid-column: 2; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="margin:0 0 14px;"><a href="../index.html" style="font-size:13px;color:var(--cs-primary);text-decoration:none;">← 返回原型总览</a></div>
+    <header class="head">
+      <h1>CS 商城客服系统 · 管理端（PC）原型</h1>
+      <div class="sub">PC / 管理端原型 · 共 <b>18</b> 个页面（其中 <b>11</b> 个为 1 期 MVP；其余 7 个为 2/3 期占位页，已从 1 期侧边栏隐藏）。</div>
+      <div class="src">数据来源：线上客服排期_20260610.xlsx（T2）· 更新于 2026-06-15</div>
+      <div class="legend">
+        <span class="lg"><span class="sw" style="background:var(--cs-success)"></span>已完成(绿)</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-text-placeholder)"></span>未完成(灰)</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-orange)"></span>V1</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-primary)"></span>V2</span>
+        <span class="lg"><span class="sw" style="background:var(--cs-purple)"></span>V3</span>
+      </div>
+    </header>
+
+    <ul class="groups2">
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-dashboard.html">admin-dashboard.html</a>
+          <span class="cnt">7 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">工作台</span><span class="m-l2">数据仪表盘</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">数据监控</span><span class="m-l2">实时监控面板</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">数据监控</span><span class="m-l2">个人绩效看板</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">数据监控</span><span class="m-l2">预警机制</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">统计报表</span><span class="m-l2">会话量统计</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">统计报表</span><span class="m-l2">渠道统计</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-workbench.html">admin-workbench.html</a>
+          <span class="cnt">10 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">工作台</span><span class="m-l2">多渠道工作台</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">消息撤回</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">会话协作</span><span class="m-sub">会话转接</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">智能辅助</span><span class="m-l2">AI话术推荐</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">智能辅助</span><span class="m-l2">商品推荐</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">智能辅助</span><span class="m-l2">订单上下文提醒</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">智能辅助</span><span class="m-l2">转人工意图提示</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">消息预显</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">三方会话</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">拉黑/屏蔽</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-todo.html">admin-todo.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">工作台</span><span class="m-l2">待处理事项</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-session-list.html">admin-session-list.html</a>
+          <span class="cnt">2 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">历史服务记录</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">历史会话</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-customer-info.html">admin-customer-info.html</a>
+          <span class="cnt">5 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">客户信息模块</span><span class="m-l2">360度客户视图-基础信息</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">客户信息模块</span><span class="m-l2">360度客户视图-行为数据</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">客户信息模块</span><span class="m-l2">360度客户视图-交易数据</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">客户信息模块</span><span class="m-l2">360度客户视图-服务数据</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">客户信息模块</span><span class="m-l2">360度客户视图-标签体系</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-transfer.html">admin-transfer.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">会话协作</span><span class="m-sub">会话转接</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-rating-mgmt.html">admin-rating-mgmt.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">评价管理</span><span class="m-l2">客服评价</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-leave-mgmt.html">admin-leave-mgmt.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">留言与离线反馈</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-knowledge.html">admin-knowledge.html</a>
+          <span class="cnt">3 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">知识库管理</span><span class="m-l2">知识库</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">知识库管理</span><span class="m-l2">快捷回复</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">知识库管理</span><span class="m-l2">关键词联想</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-scripts.html">admin-scripts.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">知识库管理</span><span class="m-l2">话术库</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-settings.html">admin-settings.html</a>
+          <span class="cnt">7 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">智能路由与分流</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">敏感词过滤</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">会话超时设置</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">转人工</span><span class="m-l2">关键词转人工</span><span class="m-sub">—</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">自动化配置</span><span class="m-l2">欢迎语设置</span><span class="m-sub">对话配置页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">平台端</span><span class="m-l1">自动化配置</span><span class="m-l2">离线自动回复</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">会话管理</span><span class="m-l2">主动推送消息</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-no"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-ticket.html">admin-ticket.html</a>
+          <span class="cnt">6 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">工单系统</span><span class="m-l2">工单字段</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">工单系统</span><span class="m-l2">状态流转</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">工单系统</span><span class="m-l2">工单操作</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">工单系统</span><span class="m-l2">与我相关</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">工单系统</span><span class="m-l2">消息联动</span><span class="m-sub">自动生成</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">平台端</span><span class="m-l1">工单系统</span><span class="m-l2">消息联动</span><span class="m-sub">一键生成</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="ai-bot-config.html">ai-bot-config.html</a>
+          <span class="cnt">11 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">机器人配置</span><span class="m-l2">商品知识库</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">机器人配置</span><span class="m-l2">活动知识库</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">机器人配置</span><span class="m-l2">物流/售后知识库</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">机器人配置</span><span class="m-l2">转人工触发条件配置</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">机器人配置</span><span class="m-l2">知识库匹配率监控</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">机器人配置</span><span class="m-l2">对话树可视化编辑</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-核心能力</span><span class="m-l2">意图识别</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-核心能力</span><span class="m-l2">知识图谱</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-核心能力</span><span class="m-l2">NLP多模态</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-核心能力</span><span class="m-l2">文档解析</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-核心能力</span><span class="m-l2">上下文记忆</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="ai-quality.html">ai-quality.html</a>
+          <span class="cnt">3 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">人机协同机制</span><span class="m-l2">无缝转人工</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">人机协同机制</span><span class="m-l2">辅助模式</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">人机协同机制</span><span class="m-l2">AI质检与会话摘要</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="ai-report.html">ai-report.html</a>
+          <span class="cnt">4 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">数据报表</span><span class="m-l2">机器人报表</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">数据报表</span><span class="m-l2">服务质量报告</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">数据报表</span><span class="m-l2">工单报表</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">数据报表</span><span class="m-l2">客户分析</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-no"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="ai-scene.html">ai-scene.html</a>
+          <span class="cnt">10 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售前场景</span><span class="m-l2">商品参数对比</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售前场景</span><span class="m-l2">促销活动解读</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售前场景</span><span class="m-l2">尺码/规格推荐</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售前场景</span><span class="m-l2">个性化商品推荐</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售前场景</span><span class="m-l2">热点问题预测</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售中售后</span><span class="m-l2">物流跟踪</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售中售后</span><span class="m-l2">订单状态查询</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售中售后</span><span class="m-l2">退换货引导</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售中售后</span><span class="m-l2">退差价/改地址</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">智能客服-售中售后</span><span class="m-l2">延期发货检测</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-no"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-staff.html">admin-staff.html</a>
+          <span class="cnt">6 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">客服管理</span><span class="m-l2">客服账号管理</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">客服管理</span><span class="m-l2">分流设置(详细)</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">客服管理</span><span class="m-l2">默认客服组</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">客服管理</span><span class="m-l2">组间切换</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">客服管理</span><span class="m-l2">离线留言管理(详细)</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">角色权限体系</span><span class="m-l2">角色权限配置</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-no"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="admin-channel.html">admin-channel.html</a>
+          <span class="cnt">3 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">渠道接入</span><span class="m-l2">客服热线电话(IVR)</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">渠道接入</span><span class="m-l2">邮件渠道</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p3">V3</span><span class="m-role">平台端</span><span class="m-l1">渠道接入</span><span class="m-l2">抖音/小红书私信</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+    </ul>
+
+    <footer class="foot">
+      页面总数：23（绿点=已有原型，灰点=占位待开发）· 1 期 MVP 16 页（管理端 11 + 用户端 5）· 版本信息统一在表内「版本」列<br>2/3 期排除页（不在 1 期导航，对应 PRD V1.0 Out of Scope）：工单 admin-ticket.html（2 期）、客服管理 admin-staff.html / 渠道接入 admin-channel.html / 机器人配置 ai-bot-config.html / 智能客服场景 ai-scene.html / 质检分析 ai-quality.html / 报表看板 ai-report.html（均为 3 期）<br>
+      菜单数据来源：线上客服排期 T2 + 竞品调研（B9/B10/B12 归类）<br>
+      技术栈：Go / React (Umi) / Taro
+    </footer>
+  </div>
+</body>
+</html>
