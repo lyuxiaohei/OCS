@@ -14,7 +14,7 @@ const MENU_DATA = [
     group: '工作台',
     items: [
       { id: 'dashboard',  label: '数据仪表盘', href: 'admin-dashboard.html',    icon: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>' },
-      { id: 'workbench',  label: '客服工作台', href: 'admin-workbench.html',    icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+      { id: 'workbench',  label: '客服工作台', href: 'admin-workbench.html',    external: true, icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
       { id: 'todo',        label: '待办事项',   href: 'admin-todo.html',          icon: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
     ]
   },
@@ -73,6 +73,8 @@ function renderSidebar() {
   if (!el) return;
 
   const activeId = el.getAttribute('data-active') || '';
+  // 工作台页是常驻全屏工作页签：在里面点任何菜单都新开页签，避免离开工作台
+  const isWorkbenchPage = activeId === 'workbench';
 
   let html = '<div class="logo">供应链平台</div>';
 
@@ -81,7 +83,10 @@ function renderSidebar() {
     group.items.forEach(item => {
       const isActive = item.id === activeId ? ' active' : '';
       const svgIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;">${item.icon}</svg>`;
-      html += `<a href="${item.href}" class="menu-item${isActive}">${svgIcon}${item.label}</a>`;
+      // 新开页签判定：菜单项 external（客服工作台，任何页都新开）；或当前就在工作台页（里面点任何菜单都新开，不离开工作台）
+      const openNew = item.external || isWorkbenchPage;
+      const targetAttr = openNew ? ' target="_blank"' : '';
+      html += `<a href="${item.href}" class="menu-item${isActive}"${targetAttr}>${svgIcon}${item.label}</a>`;
     });
   });
 
