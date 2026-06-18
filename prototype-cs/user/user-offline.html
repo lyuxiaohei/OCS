@@ -3,291 +3,346 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>离线留言 — CS 商城客服系统</title>
+  <title>离线留言（用户端） — CS 商城客服系统</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="mobile.css" />
   <style>
-    /* ===== user-offline.html 专属样式 ===== */
+    /* ===== user-offline.html 专属样式（复用 user-chat-basic 外壳） ===== */
     body {
-      background: var(--cs-bg-page);
-      padding: var(--cs-space-6) 0;
+      background: #ededed;
+      min-height: 100vh;
+      padding: 24px 0;
     }
 
-    /* 页面标题（容器外，与各页统一的低调说明） */
-    .page-caption {
+    .page-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .cs-phone {
+      margin: 0 auto 16px;
+      height: 720px;
+      --chat-card-width: 252px;
+    }
+    @media (max-width: 430px) {
+      .cs-phone { height: 100vh; }
+    }
+
+    .page-head {
+      max-width: 480px;
+      margin: 0 auto 18px;
       text-align: center;
-      margin: 0 auto var(--cs-space-3);
-      color: var(--cs-text-tertiary);
+    }
+    .page-head h1 {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin: 0 0 3px;
+    }
+    .page-head .back-link {
       font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
     }
-    .page-caption strong { color: var(--cs-text); font-size: var(--cs-font-size-lg); font-weight: var(--cs-font-weight-semibold); }
+    .page-head .back-link a { color: var(--cs-primary); }
 
-    /* 离线提示横幅 */
-    .offline-banner {
-      margin: 0;
-      padding: var(--cs-space-4) var(--cs-space-4) 18px;
-      background: linear-gradient(135deg, var(--cs-warning-bg) 0%, var(--cs-danger-bg) 100%);
-      border-bottom: 1px solid #ffe7d6;
-      text-align: center;
+    /* ---- 会话头（合并进导航栏） ---- */
+    .chat-nav .nav-peer {
+      position: absolute;
+      top: 44px;
+      left: 56px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: calc(100% - 200px);
+      min-width: 0;
+    }
+    .chat-nav .nav-peer .agent-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-text-tertiary), #bfbfbf);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-semibold);
       flex-shrink: 0;
     }
-    .offline-banner .moon-icon {
-      width: 48px;
-      height: 48px;
-      margin: 0 auto var(--cs-space-2);
-      border-radius: 50%;
-      background: var(--cs-warning);
-      color: #fff;
+    .chat-nav .peer-info {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(250, 173, 20, 0.35);
+      flex-direction: column;
+      line-height: 1.25;
+      min-width: 0;
     }
-    .offline-banner .banner-title {
+    .chat-nav .peer-name {
       font-size: var(--cs-font-size-lg);
       font-weight: var(--cs-font-weight-semibold);
-      color: #874d00;
-      margin-bottom: var(--cs-space-1);
+      color: var(--cs-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .offline-banner .banner-sub {
-      font-size: var(--cs-font-size-sm);
-      color: #ad6800;
-      line-height: 1.6;
-    }
-    .offline-banner .worktime {
-      margin-top: var(--cs-space-2);
-      display: inline-flex;
+    .chat-nav .peer-status {
+      font-size: var(--cs-font-size-xs);
+      display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
+    }
+    .chat-nav .peer-status.offline { color: var(--cs-text-tertiary); }
+    .chat-nav .peer-status.offline::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cs-text-tertiary);
+      display: inline-block;
+    }
+    .chat-nav .nav-actions {
+      position: absolute;
+      top: 44px;
+      right: 95px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .chat-nav .nav-action {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background .15s;
+    }
+    .chat-nav .nav-action:hover { background: rgba(0,0,0,.06); }
+    .chat-nav .nav-action svg { width: 20px; height: 20px; }
+
+    /* ---- Message rows ---- */
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px 12px 18px;
+      scrollbar-width: none;
+      background: #ededed;
+    }
+    .chat-messages::-webkit-scrollbar { width: 0; height: 0; }
+
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-end;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: #fff;
+    }
+    .msg-avatar.agent {
+      background: linear-gradient(135deg, var(--cs-text-tertiary), #bfbfbf);
+    }
+    .msg-avatar.user {
+      background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
+    }
+    .msg-content {
+      max-width: var(--chat-card-width, 252px);
+      display: flex;
+      flex-direction: column;
+    }
+    .msg-row.user .msg-content { align-items: flex-end; }
+    .msg-content .msg-bubble-user,
+    .msg-content .msg-bubble-agent {
+      box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    }
+    .msg-meta {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-placeholder);
+      margin: 2px 4px 0;
+    }
+
+    /* ---- System divider ---- */
+    .msg-system {
+      align-self: center;
+      background: rgba(0,0,0,0.10);
+      color: #fff;
+      font-size: var(--cs-font-size-xs);
+      padding: 3px 10px;
+      border-radius: var(--cs-radius-xs);
+      margin: 4px auto;
+      text-align: center;
+      max-width: 90%;
+      line-height: 1.5;
+    }
+
+    /* ---- 离线顶部提示条 ---- */
+    .offline-notice-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff7e6;
+      border: 1px solid #ffe0a3;
+      color: #874d00;
+      padding: 8px 12px;
+      margin: 0 0 10px;
+      border-radius: var(--cs-radius-md);
+      font-size: var(--cs-font-size-sm);
+      line-height: 1.5;
+    }
+    .offline-notice-bar svg { flex-shrink: 0; }
+    .offline-notice-bar .notice-text { flex: 1; }
+    .offline-notice-bar .worktime {
+      color: var(--cs-text-tertiary);
+      font-size: var(--cs-font-size-xs);
+      margin-top: 2px;
+    }
+
+    /* ---- 快捷问题模板（消息流内嵌） ---- */
+    .quick-tpl-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: var(--cs-radius-md);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .quick-tpl-bar .tpl-title {
+      width: 100%;
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-tertiary);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .quick-tpl {
+      font-size: var(--cs-font-size-sm);
+      padding: 5px 10px;
+      border-radius: 14px;
       background: var(--cs-bg-card);
-      padding: 2px 10px;
-      border-radius: 10px;
+      color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border-light);
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+      user-select: none;
+    }
+    .quick-tpl:hover {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      border-color: #d6e4ff;
+    }
+
+    /* ---- 卡片消息（商品/订单，entry_tag 联动） ---- */
+    .msg-card {
+      width: var(--chat-card-width, 252px);
+      background: #fff;
+      border-radius: var(--cs-radius-md);
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
       border: 1px solid var(--cs-border-light);
     }
-
-    /* 留言表单区域 */
-    .leave-form-wrap {
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--cs-space-4);
-      background: var(--cs-border-lighter);
-    }
-    .leave-form-card {
-      background: var(--cs-bg-card);
-      border-radius: var(--cs-radius-xl);
-      padding: 18px var(--cs-space-4);
-      box-shadow: var(--cs-shadow-sm);
-    }
-    .leave-form-card .form-heading {
-      font-size: var(--cs-font-size-lg);
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin-bottom: var(--cs-space-1);
-      display: flex;
-      align-items: center;
-      gap: var(--cs-space-2);
-    }
-    .leave-form-card .form-desc {
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-text-tertiary);
-      margin-bottom: var(--cs-space-4);
-    }
-
-    .form-field {
-      margin-bottom: 14px;
-    }
-    .form-field label {
-      display: block;
-      font-size: var(--cs-font-size-base);
-      color: var(--cs-text-secondary);
-      margin-bottom: 6px;
-      font-weight: var(--cs-font-weight-medium);
-    }
-    .form-field label .req {
-      color: var(--cs-danger);
-      margin-left: 2px;
-    }
-    .form-field input,
-    .form-field textarea {
+    .msg-card .card-thumb {
       width: 100%;
-      border: 1px solid var(--cs-border);
-      border-radius: var(--cs-radius-md);
-      padding: 10px var(--cs-space-3);
-      font-size: var(--cs-font-size-md);
-      color: var(--cs-text);
-      outline: none;
-      transition: var(--cs-transition-normal);
-      font-family: inherit;
-      background: var(--cs-bg-card);
-      resize: none;
-    }
-    .form-field input::placeholder,
-    .form-field textarea::placeholder {
-      color: var(--cs-text-placeholder);
-    }
-    .form-field input:focus,
-    .form-field textarea:focus {
-      border-color: var(--cs-primary);
-      box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
-    }
-    .form-field textarea {
-      min-height: 96px;
-      line-height: 1.6;
-    }
-    .form-field .field-hint {
-      font-size: var(--cs-font-size-xs);
-      color: var(--cs-text-placeholder);
-      margin-top: var(--cs-space-1);
-    }
-
-    /* 联系方式类型切换 */
-    .contact-type {
-      display: flex;
-      gap: 6px;
-      margin-bottom: var(--cs-space-2);
-    }
-    .contact-type .type-chip {
-      flex: 1;
-      text-align: center;
-      padding: 6px 0;
-      font-size: var(--cs-font-size-sm);
-      border: 1px solid var(--cs-border);
-      border-radius: var(--cs-radius-sm);
-      cursor: pointer;
-      color: var(--cs-text-secondary);
-      background: var(--cs-bg-card);
-      transition: var(--cs-transition-normal);
+      height: 100px;
+      background: linear-gradient(135deg, #ffe7ba, #ffd591);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      color: #ad6800;
+      font-size: var(--cs-font-size-sm);
     }
-    .contact-type .type-chip.active {
-      border-color: var(--cs-primary);
-      color: var(--cs-primary);
-      background: var(--cs-primary-bg);
+    .msg-card .card-body {
+      padding: 8px 10px;
+    }
+    .msg-card .card-title {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text);
+      font-weight: var(--cs-font-weight-medium);
+      line-height: 1.4;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .msg-card .card-meta {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      margin-bottom: 4px;
+    }
+    .msg-card .card-price {
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-danger);
+      font-weight: var(--cs-font-weight-semibold);
     }
 
-    /* 提交按钮 */
-    .submit-btn {
-      width: 100%;
-      height: 44px;
+    /* ---- Input area ---- */
+    .chat-input-area {
+      height: 54px;
+      padding: 0 10px;
+      gap: 4px;
+    }
+    .input-icon {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: var(--cs-radius-sm);
+      transition: background .15s;
+    }
+    .input-icon:hover { background: rgba(0,0,0,.06); }
+    .input-icon svg { width: 22px; height: 22px; }
+    .input-icon svg path { fill: var(--cs-text-secondary); }
+    .chat-input-area input {
+      flex: 1;
+      height: 34px;
+      border-radius: var(--cs-radius-sm);
+      border: 1px solid #e0e0e0;
+      padding: 0 12px;
+      font-size: var(--cs-font-size-md);
+      background: #fff;
+    }
+    .chat-input-area input:focus { border-color: var(--cs-primary); }
+    .chat-input-area .send-btn {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
       background: var(--cs-primary);
       color: #fff;
-      border: none;
-      border-radius: var(--cs-radius-md);
-      font-size: var(--cs-font-size-lg);
-      font-weight: var(--cs-font-weight-medium);
+      border-radius: var(--cs-radius-sm);
       cursor: pointer;
-      transition: var(--cs-transition-normal);
-      margin-top: 6px;
+      transition: background .15s;
     }
-    .submit-btn:hover {
-      background: var(--cs-primary-hover);
-    }
-    .submit-btn:active {
-      transform: scale(0.99);
-    }
-    .submit-btn:disabled {
+    .chat-input-area .send-btn:hover { background: var(--cs-primary-hover); }
+    .chat-input-area .send-btn:disabled {
       background: var(--cs-border);
       cursor: not-allowed;
     }
+    .chat-input-area .send-btn svg { width: 18px; height: 18px; }
 
-    .form-footer {
-      margin-top: 14px;
+    .page-footer {
+      max-width: 480px;
+      margin: 0 auto;
       text-align: center;
-      font-size: var(--cs-font-size-xs);
-      color: var(--cs-text-placeholder);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    /* 成功页 */
-    .success-view {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 32px var(--cs-space-6);
-      background: var(--cs-bg-card);
-      text-align: center;
-    }
-    .success-view .check-circle {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: var(--cs-success);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 18px;
-      box-shadow: 0 8px 24px rgba(82, 196, 26, 0.3);
-      animation: pop 0.4s ease;
-    }
-    @keyframes pop {
-      0% { transform: scale(0.6); opacity: 0; }
-      60% { transform: scale(1.08); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-    .success-view .success-title {
-      font-size: 17px;
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin-bottom: var(--cs-space-2);
-    }
-    .success-view .success-desc {
-      font-size: var(--cs-font-size-base);
-      color: var(--cs-text-tertiary);
-      line-height: 1.7;
-      max-width: 240px;
-      margin-bottom: var(--cs-space-6);
-    }
-    .success-view .success-meta {
-      background: var(--cs-success-bg);
-      border: 1px solid #d9f7be;
-      border-radius: var(--cs-radius-md);
-      padding: 10px 14px;
       font-size: var(--cs-font-size-sm);
-      color: #389e0d;
-      margin-bottom: var(--cs-space-6);
-      width: 100%;
-      max-width: 260px;
+      color: var(--cs-text-tertiary);
     }
-    .success-view .success-meta .meta-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 2px 0;
-    }
-    .success-view .back-btn {
-      width: 100%;
-      max-width: 260px;
-      height: 42px;
-      background: var(--cs-bg-card);
-      color: var(--cs-primary);
-      border: 1px solid var(--cs-primary);
-      border-radius: var(--cs-radius-md);
-      font-size: var(--cs-font-size-md);
-      cursor: pointer;
-      transition: var(--cs-transition-normal);
-    }
-    .success-view .back-btn:hover {
-      background: var(--cs-primary-bg);
-    }
-
-    .hidden { display: none !important; }
+    .page-footer a { color: var(--cs-primary); }
   </style>
 </head>
 <body>
 
-  <p class="page-caption"><strong>用户端 · 离线留言</strong> &nbsp;|&nbsp; US-MVP-20 离线留言提交 · US-MVP-22 离线自动回复</p>
+<div class="page-wrap">
 
-  <!-- ===== 移动端容器 (375px) ===== -->
+  <!-- Page heading -->
+  <div class="page-head">
+    <h1>离线留言（用户端）</h1>
+    <div class="back-link"><a href="javascript:history.back()">← 返回上一页</a> · 移动端 375px · US-MVP-20 / 22</div>
+  </div>
+
+  <!-- ===== Mobile chat container ===== -->
   <div class="cs-phone">
 
     <!-- 小程序状态栏 -->
@@ -299,172 +354,280 @@
       </div>
     </div>
 
-    <!-- 小程序导航栏 -->
-    <div class="cs-nav-bar">
-      <div class="cs-back" title="返回" onclick="location.href='index.html'">
+    <!-- 会话导航栏（与其他 user-chat-*.html 一致，状态显示离线） -->
+    <div class="cs-nav-bar chat-nav">
+      <div class="cs-back" title="返回" onclick="history.back()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
-      <span class="cs-nav-title">在线客服</span>
+
+      <div class="nav-peer">
+        <div class="agent-avatar">夏</div>
+        <div class="peer-info">
+          <span class="peer-name">客服小夏</span>
+          <span class="peer-status offline">离线</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
+
       <div class="cs-capsule" title="微信胶囊">
         <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
       </div>
     </div>
 
-    <!-- ============ 视图 1: 离线 + 留言表单 ============ -->
-    <div id="formView" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+    <!-- Message list -->
+    <div class="chat-messages" id="chatMessages">
 
-      <!-- 离线提示横幅 -->
-      <div class="offline-banner">
-        <div class="moon-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
-        <div class="banner-title">客服已离线</div>
-        <div class="banner-sub">当前没有客服在线，您可以先提交留言<br/>我们会在客服上线后第一时间回复您</div>
-        <div class="worktime"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 客服工作时间 09:00 - 21:00</div>
-      </div>
-
-      <!-- 留言表单 -->
-      <div class="leave-form-wrap">
-        <div class="leave-form-card">
-          <div class="form-heading"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg> 给我们留言</div>
-          <div class="form-desc">填写下方信息，客服上线后将主动与您联系</div>
-
-          <!-- 姓名 -->
-          <div class="form-field">
-            <label>您的称呼<span class="req">*</span></label>
-            <input type="text" id="leaveName" placeholder="请输入您的称呼或昵称" />
-          </div>
-
-          <!-- 联系方式类型 -->
-          <div class="form-field">
-            <label>联系方式<span class="req">*</span></label>
-            <div class="contact-type">
-              <div class="type-chip active" data-type="phone" onclick="switchContactType('phone')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> 手机</div>
-              <div class="type-chip" data-type="wechat" onclick="switchContactType('wechat')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 微信</div>
-              <div class="type-chip" data-type="email" onclick="switchContactType('email')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> 邮箱</div>
-            </div>
-            <input type="text" id="leaveContact" placeholder="请输入手机号码" />
-          </div>
-
-          <!-- 留言内容 -->
-          <div class="form-field">
-            <label>留言内容<span class="req">*</span></label>
-            <textarea id="leaveMessage" placeholder="请描述您遇到的问题或需要咨询的内容…"></textarea>
-            <div class="field-hint">建议附带订单号、商品链接等信息，便于客服快速处理</div>
-          </div>
-
-          <button class="submit-btn" onclick="submitLeaveMessage()">提交留言</button>
-
-          <div style="font-size:11px;color:#999;text-align:center;margin-top:12px;">同一问题请勿重复提交，客服上线后将尽快回复</div>
-
-          <div class="form-footer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 您的信息将被严格保密，仅用于本次客服沟通</div>
+      <!-- 离线顶部提示条 -->
+      <div class="offline-notice-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <div class="notice-text">
+          <div>客服已离线，您可以照常留言，客服上线后将回复您</div>
+          <div class="worktime">工作时间 09:00 - 21:00</div>
         </div>
       </div>
+
+      <!-- System divider -->
+      <div class="msg-system">— 客服当前离线，留言将在客服上线后回复 —</div>
+
+      <!-- Agent welcome text -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">夏</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">您好，我是客服小夏。当前为非工作时间，我暂时无法实时回复，但您可以照常留言，我会在上线后第一时间为您处理～</div>
+          <div class="msg-meta">昨天 22:15</div>
+        </div>
+      </div>
+
+      <!-- 场景联动卡片消息（entry_tag 触发，演示商品咨询场景） -->
+      <div class="msg-row user" id="sceneCardMsg" style="display:none;">
+        <div class="msg-avatar user">我</div>
+        <div class="msg-content">
+          <div class="msg-card">
+            <div class="card-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg></div>
+            <div class="card-body">
+              <div class="card-title" id="sceneCardTitle">商品咨询</div>
+              <div class="card-meta" id="sceneCardMeta">来自商品详情页</div>
+              <div class="card-price" id="sceneCardPrice"></div>
+            </div>
+          </div>
+          <div class="msg-meta" id="sceneCardTime">09:41</div>
+        </div>
+      </div>
+
+      <!-- 快捷问题模板（消息流内嵌） -->
+      <div class="quick-tpl-bar">
+        <div class="tpl-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          常见问题快捷模板（点击发送）
+        </div>
+        <span class="quick-tpl" data-tpl="refund">退款进度咨询</span>
+        <span class="quick-tpl" data-tpl="logistics">物流状态查询</span>
+        <span class="quick-tpl" data-tpl="product">商品质量咨询</span>
+        <span class="quick-tpl" data-tpl="invoice">发票开具咨询</span>
+        <span class="quick-tpl" data-tpl="cancel">取消订单申请</span>
+        <span class="quick-tpl" data-tpl="coupon">优惠券使用问题</span>
+      </div>
+
     </div>
 
-    <!-- ============ 视图 2: 提交成功 ============ -->
-    <div id="successView" class="success-view hidden">
-      <div class="check-circle"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div class="success-title">留言成功</div>
-      <div class="success-desc">客服上线后将回复您<br/>请保持联系方式畅通，我们会尽快与您联系</div>
-      <div class="success-meta">
-        <div class="meta-row"><span>留言编号</span><span>#LM20260611-0042</span></div>
-        <div class="meta-row"><span>预计回复</span><span>客服上线后 30 分钟内</span></div>
+    <!-- Input area（与其他聊天页一致，可正常发送） -->
+    <div class="chat-input-area">
+      <div class="input-icon" title="语音输入">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/>
+          <path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        </svg>
       </div>
-      <button class="back-btn" onclick="resetForm()">返回</button>
-
-      <div id="cooldownArea" style="text-align:center;margin-top:16px;display:none;">
-        <div style="font-size:12px;color:#999;margin-bottom:8px;">为避免重复提交，请在冷却后再提交新留言</div>
-        <div id="cooldownTimer" style="font-size:24px;font-weight:600;color:#1677ff;">60</div>
-        <div style="font-size:12px;color:#999;margin-top:4px;">秒后可再次提交</div>
+      <input type="text" id="msgInput" placeholder="客服离线，留言即可..." />
+      <div class="input-icon" title="发送图片">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="2" stroke="#595959" stroke-width="1.8" fill="none"/>
+          <circle cx="8.5" cy="9.5" r="1.5" fill="#595959"/>
+          <path d="M4 16l4.5-4.5 4 4 3-3L20 17" stroke="#595959" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="send-btn" id="sendBtn" title="发送">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </div>
     </div>
 
   </div>
 
-  <script>
-    // 联系方式类型切换
-    function switchContactType(type) {
-      document.querySelectorAll('.contact-type .type-chip').forEach(function (el) {
-        el.classList.toggle('active', el.dataset.type === type);
-      });
-      var input = document.getElementById('leaveContact');
-      var placeholders = {
-        phone: '请输入手机号码',
-        wechat: '请输入微信号',
-        email: '请输入邮箱地址'
-      };
-      input.value = '';
-      input.placeholder = placeholders[type] || '';
-    }
+  <!-- Page footer -->
+  <div class="page-footer">
+    对应需求：US-MVP-20（离线留言提交）· US-MVP-22（离线自动回复）· 支持 entry_tag 场景联动
+    <br />
+    <a href="javascript:history.back()">← 返回上一页</a>
+  </div>
 
-    // 提交留言
-    function submitLeaveMessage() {
-      var name = document.getElementById('leaveName').value.trim();
-      var contact = document.getElementById('leaveContact').value.trim();
-      var message = document.getElementById('leaveMessage').value.trim();
+</div>
 
-      if (!name) { alert('请输入您的称呼'); return; }
-      if (!contact) { alert('请输入联系方式'); return; }
-      if (!message) { alert('请输入留言内容'); return; }
+<script>
+  /* ---------- 场景联动：解析 entry_tag，自动发送卡片消息 ---------- */
+  var SCENE_TEMPLATES = {
+    product: { label: '商品咨询', title: '无线降噪耳机 H9', meta: '来自商品详情页', price: '¥899' },
+    order:   { label: '订单咨询', title: '订单 #20260611042', meta: '来自订单列表', price: '¥1,299' },
+    cart:    { label: '购物车咨询', title: '购物车 3 件商品', meta: '来自购物车页面', price: '¥1,599' },
+    refund:  { label: '退款咨询', title: '退款申请 #RF20260611', meta: '来自退款详情页', price: '¥299' },
+    help:    { label: '帮助中心', title: '帮助中心咨询', meta: '来自帮助中心', price: '' },
+    home:    { label: '首页咨询', title: '首页咨询', meta: '来自首页', price: '' },
+    profile: { label: '个人中心', title: '账户咨询', meta: '来自个人中心', price: '' }
+  };
 
-      // 模拟提交：切换到成功视图
-      document.getElementById('formView').classList.add('hidden');
-      document.getElementById('successView').classList.remove('hidden');
-
-      // 启动冷却倒计时
-      startCooldown();
-    }
-
-    // 冷却倒计时
-    var cooldownSeconds = 60;
-    var cooldownInterval = null;
-
-    function startCooldown() {
-      cooldownSeconds = 60;
-      document.getElementById('cooldownArea').style.display = 'block';
-      var returnBtn = document.querySelector('.success-view .back-btn');
-      returnBtn.disabled = true;
-      returnBtn.textContent = '请等待 (' + cooldownSeconds + 's)';
-      returnBtn.style.opacity = '0.5';
-      returnBtn.style.cursor = 'not-allowed';
-
-      cooldownInterval = setInterval(function() {
-        cooldownSeconds--;
-        returnBtn.textContent = '请等待 (' + cooldownSeconds + 's)';
-        document.getElementById('cooldownTimer').textContent = cooldownSeconds;
-        if (cooldownSeconds <= 0) {
-          clearInterval(cooldownInterval);
-          cooldownInterval = null;
-          returnBtn.disabled = false;
-          returnBtn.textContent = '提交新留言';
-          returnBtn.style.opacity = '1';
-          returnBtn.style.cursor = 'pointer';
-          document.getElementById('cooldownArea').style.display = 'none';
-        }
-      }, 1000);
-    }
-
-    // 重置返回
-    function resetForm() {
-      // 清除冷却计时器（如果还在运行）
-      if (cooldownInterval) {
-        clearInterval(cooldownInterval);
-        cooldownInterval = null;
+  function getQueryParams() {
+    var params = {};
+    var search = window.location.search.substring(1);
+    if (!search) return params;
+    search.split('&').forEach(function (pair) {
+      var idx = pair.indexOf('=');
+      if (idx > -1) {
+        params[decodeURIComponent(pair.substring(0, idx))] = decodeURIComponent(pair.substring(idx + 1));
       }
-      document.getElementById('leaveName').value = '';
-      document.getElementById('leaveContact').value = '';
-      document.getElementById('leaveMessage').value = '';
-      document.getElementById('formView').classList.remove('hidden');
-      document.getElementById('successView').classList.add('hidden');
-      // 重置返回按钮状态
-      var returnBtn = document.querySelector('.success-view .back-btn');
-      returnBtn.textContent = '返回';
-      returnBtn.disabled = false;
-      returnBtn.style.opacity = '1';
-      returnBtn.style.cursor = 'pointer';
-      document.getElementById('cooldownArea').style.display = 'none';
-      document.getElementById('cooldownTimer').textContent = '60';
+    });
+    return params;
+  }
+
+  function applySceneContext() {
+    var params = getQueryParams();
+    var tag = params.entry_tag;
+    if (!tag || !SCENE_TEMPLATES[tag]) return;
+
+    var tpl = SCENE_TEMPLATES[tag];
+    var cardMsg = document.getElementById('sceneCardMsg');
+
+    // 填充卡片内容
+    document.getElementById('sceneCardTitle').textContent = tpl.title;
+    var metaParts = [tpl.meta];
+    if (params.product_id) metaParts.push('商品 #' + params.product_id);
+    if (params.order_id) metaParts.push('订单 #' + params.order_id);
+    document.getElementById('sceneCardMeta').textContent = metaParts.join(' · ');
+    document.getElementById('sceneCardPrice').textContent = tpl.price;
+    document.getElementById('sceneCardTime').textContent = currentTime();
+
+    // 显示卡片消息
+    cardMsg.style.display = 'flex';
+  }
+
+  /* ---------- 快捷问题模板 ---------- */
+  var QUICK_TPL_TEXT = {
+    refund:    '退款进度咨询：我于近期申请了退款，想了解退款进度及预计到账时间。',
+    logistics: '物流状态查询：我的订单物流长时间未更新，请帮忙查询当前物流状态。',
+    product:   '商品质量咨询：收到的商品与描述不符/存在质量问题，需要处理。',
+    invoice:   '发票开具咨询：需要为本次订单开具发票，请协助处理发票抬头及税号信息。',
+    cancel:    '取消订单申请：因个人原因需要取消订单，请协助处理取消及退款事宜。',
+    coupon:    '优惠券使用问题：下单时优惠券无法使用/未生效，请帮忙核实。'
+  };
+
+  function bindQuickTemplates() {
+    var list = document.querySelector('.quick-tpl-bar');
+    list.addEventListener('click', function (e) {
+      var tpl = e.target.closest('.quick-tpl');
+      if (!tpl) return;
+      var key = tpl.getAttribute('data-tpl');
+      var text = QUICK_TPL_TEXT[key];
+      if (text) {
+        sendMessage(text);
+      }
+    });
+  }
+
+  /* ---------- 发送消息 ---------- */
+  function currentTime() {
+    var d = new Date();
+    var h = String(d.getHours()).padStart(2, '0');
+    var m = String(d.getMinutes()).padStart(2, '0');
+    return h + ':' + m;
+  }
+
+  function sendMessage(text) {
+    text = (text || '').trim();
+    if (!text) return;
+
+    var box = document.getElementById('chatMessages');
+    var row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML =
+      '<div class="msg-avatar user">我</div>' +
+      '<div class="msg-content">' +
+        '<div class="msg-bubble-user"></div>' +
+        '<div class="msg-meta">' + currentTime() + '</div>' +
+      '</div>';
+    row.querySelector('.msg-bubble-user').textContent = text;
+    box.appendChild(row);
+    scrollToBottom();
+
+    // 清空输入框
+    var input = document.getElementById('msgInput');
+    if (input) input.value = '';
+
+    // 插入系统提示（首次留言）
+    if (!firstLeaveAck) {
+      firstLeaveAck = true;
+      setTimeout(function () {
+        insertSystemMsg('留言已提交，客服将在上线后回复您（预计 09:00 上线后 30 分钟内）');
+      }, 300);
     }
-  </script>
+  }
+
+  function insertSystemMsg(text) {
+    var box = document.getElementById('chatMessages');
+    var sys = document.createElement('div');
+    sys.className = 'msg-system';
+    sys.textContent = text;
+    box.appendChild(sys);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    var box = document.getElementById('chatMessages');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  /* ---------- 输入框 + 发送按钮 ---------- */
+  function bindInput() {
+    var input = document.getElementById('msgInput');
+    var sendBtn = document.getElementById('sendBtn');
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage(input.value);
+      }
+    });
+
+    sendBtn.addEventListener('click', function () {
+      sendMessage(input.value);
+    });
+  }
+
+  /* ---------- 顶栏「更多」按钮 ---------- */
+  (function () {
+    var btn = document.getElementById('moreHeaderBtn');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        alert('更多：查看留言记录 · 切换联系方式 · 投诉建议');
+      });
+    }
+  })();
+
+  /* ---------- 初始化 ---------- */
+  var firstLeaveAck = false;
+  window.addEventListener('DOMContentLoaded', function () {
+    applySceneContext();
+    bindQuickTemplates();
+    bindInput();
+    scrollToBottom();
+  });
+</script>
 
 </body>
 </html>

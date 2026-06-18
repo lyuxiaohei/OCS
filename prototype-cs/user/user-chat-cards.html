@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>富媒体卡片 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    /* ===== user-chat-cards.html 专属样式 ===== */
+    body {
+      background: #ededed;
+      min-height: 100vh;
+      padding: 24px 0;
+    }
+
+    .page-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .cs-phone {
+      margin: 0 auto 16px;
+      height: 720px;
+    }
+    @media (max-width: 430px) {
+      .cs-phone { height: 100vh; }
+    }
+
+    .page-head {
+      max-width: 480px;
+      margin: 0 auto 18px;
+      text-align: center;
+    }
+    .page-head h1 {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin: 0 0 3px;
+    }
+    .page-head .back-link {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+    }
+    .page-head .back-link a { color: var(--cs-primary); }
+
+    /* 会话头 */
+    .chat-nav .nav-peer {
+      position: absolute;
+      top: 44px;
+      left: 56px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: calc(100% - 200px);
+      min-width: 0;
+    }
+    .chat-nav .nav-peer .agent-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-semibold);
+      flex-shrink: 0;
+    }
+    .chat-nav .peer-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+      min-width: 0;
+    }
+    .chat-nav .peer-name {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .chat-nav .peer-status {
+      font-size: var(--cs-font-size-xs);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .chat-nav .peer-status.online { color: var(--cs-success); }
+    .chat-nav .peer-status.online::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cs-success);
+      display: inline-block;
+    }
+    .chat-nav .nav-actions {
+      position: absolute;
+      top: 44px;
+      right: 95px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .chat-nav .nav-action {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background .15s;
+    }
+    .chat-nav .nav-action:hover { background: rgba(0,0,0,.06); }
+    .chat-nav .nav-action svg { width: 20px; height: 20px; }
+
+    /* Message rows */
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px 12px 18px;
+      scrollbar-width: none;
+    }
+    .chat-messages::-webkit-scrollbar { width: 0; height: 0; }
+
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-end;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: #fff;
+    }
+    .msg-avatar.agent {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+    }
+    .msg-avatar.user {
+      background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
+    }
+    .msg-content {
+      max-width: var(--chat-card-width, 252px);
+      display: flex;
+      flex-direction: column;
+    }
+    .msg-row.user .msg-content { align-items: flex-end; }
+    .msg-content .msg-bubble-user,
+    .msg-content .msg-bubble-agent {
+      box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    }
+    .msg-meta {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-placeholder);
+      margin: 2px 4px 0;
+    }
+
+    .cs-phone {
+      --chat-card-width: 252px;
+      --chat-card-radius: var(--cs-radius-lg);
+      --chat-card-shadow: var(--cs-shadow-md);
+      --chat-card-border: 1px solid var(--cs-border-light);
+      --chat-card-pad: var(--cs-space-3);
+    }
+
+    .msg-system {
+      align-self: center;
+      background: rgba(0,0,0,0.10);
+      color: #fff;
+      font-size: var(--cs-font-size-xs);
+      padding: 3px 10px;
+      border-radius: var(--cs-radius-xs);
+      margin: 4px auto;
+      text-align: center;
+    }
+
+    /* ---- 富媒体卡片（从 user-chat.html 完整复用） ---- */
+    .msg-card {
+      width: var(--chat-card-width);
+      background: var(--cs-bg-card);
+      border: var(--chat-card-border);
+      border-radius: var(--chat-card-radius);
+      overflow: hidden;
+      box-shadow: var(--chat-card-shadow);
+    }
+    .msg-card .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .msg-card .card-header .h-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+    }
+    .msg-card .card-header .h-icon {
+      color: var(--cs-text-tertiary);
+      display: inline-flex;
+    }
+    .msg-card .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--cs-font-size-xs);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .msg-card .status-badge::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .msg-card .status-badge.s-warn::before { background: var(--cs-orange); }
+    .msg-card .status-badge.s-warn { color: var(--cs-orange); }
+    .msg-card .status-badge.s-proc::before { background: var(--cs-primary); }
+    .msg-card .status-badge.s-proc { color: var(--cs-primary); }
+    .msg-card .status-badge.s-done::before { background: var(--cs-success); }
+    .msg-card .status-badge.s-done { color: var(--cs-success); }
+    .msg-card .status-badge.s-danger::before { background: var(--cs-danger); }
+    .msg-card .status-badge.s-danger { color: var(--cs-danger); }
+    .msg-card .status-badge.s-closed::before { background: #bfbfbf; }
+    .msg-card .status-badge.s-closed { color: var(--cs-text-tertiary); }
+    .msg-card .card-body { padding: 10px 12px; }
+    .msg-card .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 0;
+      font-size: var(--cs-font-size-sm);
+    }
+    .msg-card .card-row .label { color: var(--cs-text-tertiary); }
+    .msg-card .card-row .value { color: var(--cs-text); font-weight: var(--cs-font-weight-medium); }
+    .msg-card .card-row .price { color: var(--cs-text); font-weight: var(--cs-font-weight-semibold); }
+
+    .msg-card .product-info {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .msg-card .product-thumb {
+      width: 56px; height: 56px;
+      border-radius: var(--cs-radius-sm);
+      background: var(--cs-bg-header);
+      border: 1px solid var(--cs-border-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-card .product-detail { flex: 1; min-width: 0; }
+    .msg-card .product-name {
+      font-size: var(--cs-font-size-base);
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+      margin-bottom: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .msg-card .product-desc {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      margin: 3px 0;
+    }
+    .msg-card .product-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 4px 0;
+    }
+    .msg-card .product-tags .ptag {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--cs-border-lighter);
+      color: var(--cs-text-secondary);
+    }
+    .msg-card .price-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .msg-card .price-line .now {
+      font-size: var(--cs-font-size-md);
+      color: var(--cs-text);
+      font-weight: var(--cs-font-weight-semibold);
+    }
+    .msg-card .price-line .origin {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      text-decoration: line-through;
+    }
+    .msg-card .meta-line {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      margin-top: 3px;
+    }
+    .msg-card .coupon-value {
+      font-size: 22px;
+      font-weight: var(--cs-font-weight-bold);
+      color: var(--cs-text);
+    }
+    .msg-card .coupon-value .unit {
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .msg-card .card-action {
+      text-align: center;
+      padding: 8px;
+      background: var(--cs-bg-card);
+      color: var(--cs-primary);
+      border: 1px solid var(--cs-primary);
+      font-size: var(--cs-font-size-base);
+      font-weight: var(--cs-font-weight-medium);
+      cursor: pointer;
+      margin-top: 10px;
+      border-radius: var(--cs-radius-xs);
+      transition: background .15s, color .15s;
+    }
+    .msg-card .card-action:hover { background: var(--cs-primary); color: #fff; }
+
+    /* ---- 场景提示条（带 entry_tag 时显示） ---- */
+    .scene-hint {
+      background: var(--cs-primary-bg);
+      border: 1px dashed #91caff;
+      color: var(--cs-primary);
+      font-size: var(--cs-font-size-xs);
+      padding: 6px 10px;
+      border-radius: var(--cs-radius-sm);
+      margin: 0 auto 12px;
+      text-align: center;
+      max-width: 320px;
+    }
+    .scene-hint code {
+      background: #fff;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    /* Input area */
+    .chat-input-area {
+      height: 54px;
+      padding: 0 10px;
+      gap: 4px;
+    }
+    .input-icon {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: var(--cs-radius-sm);
+      transition: background .15s;
+    }
+    .input-icon:hover { background: rgba(0,0,0,.06); }
+    .input-icon svg { width: 22px; height: 22px; }
+    .input-icon svg path { fill: var(--cs-text-secondary); }
+    .chat-input-area input {
+      flex: 1;
+      height: 34px;
+      border-radius: var(--cs-radius-sm);
+      border: 1px solid #e0e0e0;
+      padding: 0 12px;
+      font-size: var(--cs-font-size-md);
+      background: #fff;
+    }
+    .chat-input-area input:focus { border-color: var(--cs-primary); }
+
+    /* 发送按钮（输入内容后显示） */
+    .send-btn {
+      height: 30px;
+      padding: 0 12px;
+      border-radius: var(--cs-radius-sm);
+      background: var(--cs-primary);
+      color: #fff;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-medium);
+      display: none;
+      align-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .send-btn.show { display: flex; }
+
+    /* ---- 更多面板 ---- */
+    .more-panel {
+      display: none;
+      background: #f7f7f7;
+      border-top: 1px solid var(--cs-border-lighter);
+      padding: 14px 12px 18px;
+    }
+    .more-panel.show { display: block; }
+    .more-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px 8px;
+    }
+    .more-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px 0;
+      border-radius: var(--cs-radius-sm);
+      transition: background .15s;
+    }
+    .more-item:hover { background: rgba(0,0,0,.04); }
+    .more-item .mi-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid var(--cs-border-lighter);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--cs-text-secondary);
+    }
+    .more-item .mi-icon svg { width: 24px; height: 24px; }
+    .more-item .mi-label {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-secondary);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* 语音录制浮层 */
+    .voice-recording {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: 70px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.75);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: var(--cs-radius-md);
+      font-size: var(--cs-font-size-sm);
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .voice-recording.show { display: flex; }
+    .voice-recording .vr-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--cs-danger);
+      animation: vr-pulse 1s infinite;
+    }
+    @keyframes vr-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .page-footer {
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+    }
+    .page-footer a { color: var(--cs-primary); }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- Page heading -->
+  <div class="page-head">
+    <h1>富媒体卡片（用户端）</h1>
+    <div class="back-link"><a href="javascript:history.back()">← 返回上一页</a> · 移动端 375px · US-MVP-17 / 18 / 19</div>
+  </div>
+
+  <!-- ===== Mobile chat container ===== -->
+  <div class="cs-phone">
+
+    <!-- 小程序状态栏 -->
+    <div class="cs-status-bar">
+      <span class="sb-time">09:41</span>
+      <div class="sb-icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+
+    <!-- 会话导航栏 -->
+    <div class="cs-nav-bar chat-nav">
+      <div class="cs-back" title="返回" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+
+      <div class="nav-peer">
+        <div class="agent-avatar">李</div>
+        <div class="peer-info">
+          <span class="peer-name">客服 李小米</span>
+          <span class="peer-status online">在线</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="cs-capsule" title="微信胶囊">
+        <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
+      </div>
+    </div>
+
+    <!-- Message list -->
+    <div class="chat-messages" id="chatMessages">
+
+      <!-- 场景提示条（带 entry_tag 时显示） -->
+      <div class="scene-hint" id="sceneHint" style="display:none;">
+        当前场景：<code id="sceneTag"></code> · 已自动携带上下文生成卡片
+      </div>
+
+      <!-- System divider -->
+      <div class="msg-system">— 您好，已为您接入在线客服 —</div>
+
+      <!-- Agent welcome text -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">您好，我是客服李小米，很高兴为您服务！请问有什么可以帮您？</div>
+          <div class="msg-meta">10:24</div>
+        </div>
+      </div>
+
+      <!-- 动态卡片插入点（带 entry_tag 时，用户侧场景卡片插在这里） -->
+      <div id="dynamicInsert"></div>
+
+      <!-- ===== 静态演示卡片（无 entry_tag 时显示） ===== -->
+
+      <!-- Agent: Order card (US-MVP-17) -->
+      <div class="msg-row" id="staticOrder">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card order">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>
+                <span>订单</span>
+              </div>
+              <span class="status-badge s-warn">待发货</span>
+            </div>
+            <div class="card-body">
+              <div class="product-info">
+                <div class="product-thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
+                <div class="product-detail">
+                  <div class="product-name">无线蓝牙耳机 降噪款</div>
+                  <div class="product-desc">颜色：白色；规格：标准款 &nbsp;x1</div>
+                </div>
+              </div>
+              <div class="card-row"><span class="label">订单编号</span><span class="value">CS2026061109</span></div>
+              <div class="card-row"><span class="label">实付金额</span><span class="price">¥299.00</span></div>
+              <div class="meta-line">下单时间 2026-06-10 09:12</div>
+              <div class="card-action">查看订单详情</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:26</div>
+        </div>
+      </div>
+
+      <!-- Agent text -->
+      <div class="msg-row" id="staticText1">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">查询到您的订单已在打包中，预计今天下午发出，明天即可送达，请耐心等候～</div>
+          <div class="msg-meta">10:26</div>
+        </div>
+      </div>
+
+      <!-- Agent: Product card (US-MVP-18) -->
+      <div class="msg-row" id="staticProduct">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card product">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+                <span>商品</span>
+              </div>
+              <span class="status-badge s-done">在售</span>
+            </div>
+            <div class="card-body">
+              <div class="product-info">
+                <div class="product-thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
+                <div class="product-detail">
+                  <div class="product-name">无线蓝牙耳机 降噪款 白色</div>
+                  <div class="product-desc">主动降噪 · 蓝牙5.3 · 续航24h</div>
+                </div>
+              </div>
+              <div class="product-tags">
+                <span class="ptag">包邮</span>
+                <span class="ptag">七天无理由</span>
+                <span class="ptag">正品保障</span>
+              </div>
+              <div class="price-line">
+                <span class="now">¥299.00</span>
+                <span class="origin">¥399.00</span>
+              </div>
+              <div class="meta-line">已售 1280+ · 好评 98%</div>
+              <div class="card-action">查看商品</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:30</div>
+        </div>
+      </div>
+
+      <!-- Agent text -->
+      <div class="msg-row" id="staticText2">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">规格确认无误，是您下单的白色降噪款。为表歉意，送您一张优惠券可用于下次购物 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+          <div class="msg-meta">10:30</div>
+        </div>
+      </div>
+
+      <!-- Agent: Coupon card (US-MVP-19) -->
+      <div class="msg-row" id="staticCoupon">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card coupon">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M2 12h20"/><path d="M12 2v10"/><path d="M8 2h8l-4 6-4-6z"/></svg></span>
+                <span>优惠券</span>
+              </div>
+              <span class="status-badge s-warn">可领取</span>
+            </div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="label">面额</span>
+                <span class="coupon-value">¥20<span class="unit">.00</span></span>
+              </div>
+              <div class="card-row"><span class="label">使用门槛</span><span class="value">满 ¥99 可用</span></div>
+              <div class="card-row"><span class="label">有效期</span><span class="value">2026.06.11 - 06.30</span></div>
+              <div class="meta-line">适用范围：全品类商品</div>
+              <div class="card-action">立即领取</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:31</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 语音录制浮层 -->
+    <div class="voice-recording" id="voiceRecording">
+      <span class="vr-dot"></span>
+      <span>正在录音... 00:0<span id="vrSec">0</span></span>
+    </div>
+
+    <!-- 更多面板 -->
+    <div class="more-panel" id="morePanel">
+      <div class="more-grid">
+        <div class="more-item" data-action="album">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="mi-label">相册</div>
+        </div>
+        <div class="more-item" data-action="camera">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="mi-label">拍摄</div>
+        </div>
+        <div class="more-item" data-action="order">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+          <div class="mi-label">订单</div>
+        </div>
+        <div class="more-item" data-action="product">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+          <div class="mi-label">商品</div>
+        </div>
+        <div class="more-item" data-action="file">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="mi-label">文件</div>
+        </div>
+        <div class="more-item" data-action="location">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="mi-label">位置</div>
+        </div>
+        <div class="more-item" data-action="transfer">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+          <div class="mi-label">转人工</div>
+        </div>
+        <div class="more-item" data-action="end">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/><line x1="23" y1="1" x2="1" y2="23"/></svg></div>
+          <div class="mi-label">结束会话</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 输入工具栏 -->
+    <div class="chat-input-area">
+      <div class="input-icon" id="voiceIcon" title="切换语音">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/>
+          <path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <input type="text" id="msgInput" placeholder="请输入消息..." />
+      <div class="input-icon" id="emojiIcon" title="表情">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
+          <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <line x1="9" y1="9" x2="9.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
+          <line x1="15" y1="9" x2="15.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="input-icon" id="moreIcon" title="更多">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
+          <path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="send-btn" id="sendBtn">发送</div>
+    </div>
+
+  </div>
+
+  <!-- Page footer -->
+  <div class="page-footer">
+    对应需求：US-MVP-17（订单卡片）· US-MVP-18（商品卡片）· US-MVP-19（优惠券卡片）· entry_tag 场景透传
+    <br />
+    <a href="javascript:history.back()">← 返回上一页</a>
+  </div>
+
+</div>
+
+<!-- ===== Demo interactions ===== -->
+<script>
+  // 顶栏「更多」按钮
+  (function () {
+    var btn = document.getElementById('moreHeaderBtn');
+    if (btn && window.csModal) {
+      btn.addEventListener('click', function () {
+        csModal.toast('更多：转人工 · 结束会话 · 投诉建议');
+      });
+    }
+  })();
+
+  // ===== 入口联动：解析 URL 参数 → 自动插入用户侧场景卡片 =====
+  (function () {
+    var params = {};
+    location.search.replace(/^\?/, '').split('&').forEach(function (pair) {
+      if (!pair) return;
+      var kv = pair.split('=');
+      params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
+    });
+
+    var tag = params.entry_tag;
+    if (!tag) return; // 无入口参数 → 保持静态演示卡片
+
+    // 显示场景提示条
+    var hint = document.getElementById('sceneHint');
+    var tagEl = document.getElementById('sceneTag');
+    if (hint && tagEl) {
+      tagEl.textContent = tag;
+      hint.style.display = 'block';
+    }
+
+    // 隐藏静态演示卡片（避免与动态卡片重复）
+    ['staticOrder', 'staticText1', 'staticProduct', 'staticText2', 'staticCoupon'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    // ---- mock 卡片数据（按 entry_tag 映射）----
+    var CARD_DATA = {
+      product: {
+        type: 'product',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+        title: '商品',
+        status: 's-done', statusText: '在售',
+        productName: params.product_name || '未知商品',
+        productDesc: params.product_desc || '商品咨询',
+        price: '¥' + (params.price || '0'),
+        originPrice: params.origin_price ? '¥' + params.origin_price : '',
+        meta: params.product_meta || '',
+        tags: ['包邮', '七天无理由', '正品保障'],
+        action: '查看商品'
+      },
+      order: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+        title: '订单',
+        status: 's-warn', statusText: params.order_status || '未知',
+        productName: params.product_name || '订单商品',
+        productDesc: params.product_spec ? '规格：' + params.product_spec : '',
+        orderId: params.order_id || '',
+        amount: '¥' + (params.amount || '0'),
+        meta: params.order_time ? '下单时间 ' + params.order_time : '',
+        action: '查看订单详情'
+      },
+      logistics: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+        title: '物流',
+        status: 's-proc', statusText: '运输中',
+        productName: '物流单号: ' + (params.tracking_no || ''),
+        productDesc: '快递公司: ' + (params.carrier || ''),
+        orderId: params.order_id || '',
+        amount: '',
+        action: '查看物流详情'
+      },
+      refund: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><path d="M10 9V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v5"/></svg>',
+        title: '退换货',
+        status: 's-danger', statusText: '处理中',
+        productName: '退款类型: ' + (params.refund_type || ''),
+        productDesc: params.reason ? '退款原因：' + params.reason : '',
+        orderId: params.order_id || '',
+        amount: '',
+        action: '查看退款进度'
+      },
+      cart: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+        title: '购物车',
+        status: 's-proc', statusText: '待咨询',
+        productName: '购物车共 ' + (params.cart_items || '0') + ' 件商品',
+        productDesc: '合计金额: ¥' + (params.total_amount || '0'),
+        orderId: '',
+        amount: '¥' + (params.total_amount || '0'),
+        action: '查看购物车'
+      }
+    };
+
+    var TEXT_ONLY = {
+      home:    '你好，我想咨询一下',
+      help:    '我在帮助中心看了「' + (params.faq_category || '') + '」相关内容，还有疑问想问客服',
+      profile: '你好，我有账户相关的问题需要咨询',
+      phone:   '您好，我想通过语音咨询问题'
+    };
+
+    function buildCardHTML(data) {
+      var tagsHTML = (data.tags || []).map(function (t) {
+        return '<span class="ptag">' + t + '</span>';
+      }).join('');
+
+      var priceBlock = '';
+      if (data.type === 'product' && data.price) {
+        priceBlock = '<div class="price-line">' +
+          '<span class="now">' + data.price + '</span>' +
+          (data.originPrice ? '<span class="origin">' + data.originPrice + '</span>' : '') +
+        '</div>';
+      } else if (data.amount) {
+        priceBlock = '<div class="card-row"><span class="label">' + (data.type === 'order' && data.orderId ? '实付金额' : '金额') + '</span><span class="price">' + data.amount + '</span></div>';
+      }
+
+      var orderIdRow = data.orderId
+        ? '<div class="card-row"><span class="label">订单编号</span><span class="value">' + data.orderId + '</span></div>'
+        : '';
+
+      var metaRow = data.meta
+        ? '<div class="meta-line">' + data.meta + '</div>'
+        : '';
+
+      return '<div class="msg-card ' + data.type + '">' +
+        '<div class="card-header">' +
+          '<div class="h-left"><span class="h-icon">' + data.icon + '</span><span>' + data.title + '</span></div>' +
+          '<span class="status-badge ' + data.status + '">' + data.statusText + '</span>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<div class="product-info">' +
+            '<div class="product-thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>' +
+            '<div class="product-detail">' +
+              '<div class="product-name">' + data.productName + '</div>' +
+              (data.productDesc ? '<div class="product-desc">' + data.productDesc + '</div>' : '') +
+            '</div>' +
+          '</div>' +
+          (tagsHTML ? '<div class="product-tags">' + tagsHTML + '</div>' : '') +
+          orderIdRow +
+          priceBlock +
+          metaRow +
+          '<div class="card-action">' + data.action + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function buildUserRow(innerHTML) {
+      var row = document.createElement('div');
+      row.className = 'msg-row user';
+      row.innerHTML =
+        '<div class="msg-avatar user">我</div>' +
+        '<div class="msg-content">' + innerHTML +
+          '<div class="msg-meta">' + new Date().toTimeString().slice(0, 5) + '</div>' +
+        '</div>';
+      return row;
+    }
+
+    var insertPoint = document.getElementById('dynamicInsert');
+    if (!insertPoint) return;
+
+    var sceneRow;
+    var cardData = CARD_DATA[tag];
+    if (cardData) {
+      sceneRow = buildUserRow(buildCardHTML(cardData));
+    } else if (TEXT_ONLY[tag]) {
+      sceneRow = buildUserRow('<div class="msg-bubble-user">' + TEXT_ONLY[tag] + '</div>');
+    }
+
+    if (sceneRow) {
+      insertPoint.appendChild(sceneRow);
+      var thread = document.getElementById('chatMessages');
+      if (thread) thread.scrollTop = thread.scrollHeight;
+    }
+  })();
+
+  // 输入框：有内容时显示「发送」按钮，隐藏「+」和表情
+  (function () {
+    var input = document.getElementById('msgInput');
+    var sendBtn = document.getElementById('sendBtn');
+    var moreIcon = document.getElementById('moreIcon');
+    var emojiIcon = document.getElementById('emojiIcon');
+    if (!input || !sendBtn) return;
+    input.addEventListener('input', function () {
+      var has = input.value.trim().length > 0;
+      sendBtn.classList.toggle('show', has);
+      moreIcon.style.display = has ? 'none' : '';
+      emojiIcon.style.display = has ? 'none' : '';
+    });
+    sendBtn.addEventListener('click', function () {
+      var val = input.value.trim();
+      if (!val) return;
+      var thread = document.getElementById('chatMessages');
+      var row = document.createElement('div');
+      row.className = 'msg-row user';
+      row.innerHTML =
+        '<div class="msg-avatar user">我</div>' +
+        '<div class="msg-content">' +
+          '<div class="msg-bubble-user">' + val.replace(/</g, '&lt;') + '</div>' +
+          '<div class="msg-meta">' + new Date().toTimeString().slice(0, 5) + '</div>' +
+        '</div>';
+      thread.appendChild(row);
+      thread.scrollTop = thread.scrollHeight;
+      input.value = '';
+      sendBtn.classList.remove('show');
+      moreIcon.style.display = '';
+      emojiIcon.style.display = '';
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); sendBtn.click(); }
+    });
+  })();
+
+  // 「+」按钮：展开/收起更多面板
+  (function () {
+    var moreIcon = document.getElementById('moreIcon');
+    var panel = document.getElementById('morePanel');
+    if (!moreIcon || !panel) return;
+    moreIcon.addEventListener('click', function () {
+      panel.classList.toggle('show');
+    });
+  })();
+
+  // 更多面板：各功能项交互
+  (function () {
+    var ACTIONS = {
+      album:     '已打开相册（演示）',
+      camera:    '已打开相机（演示）',
+      order:     '已选择订单卡片（演示）',
+      product:   '已选择商品卡片（演示）',
+      file:      '已打开文件选择（演示）',
+      location:  '已发送位置（演示）',
+      transfer:  '已为您转接人工客服（演示）',
+      end:       '确认结束本次会话？（演示）'
+    };
+    document.querySelectorAll('.more-item').forEach(function (item) {
+      item.addEventListener('click', function () {
+        var key = item.getAttribute('data-action');
+        var msg = ACTIONS[key] || '功能演示';
+        if (window.csModal) {
+          if (key === 'end') {
+            csModal.confirm(msg, function () {
+              csModal.toast('会话已结束');
+              setTimeout(function () { history.back(); }, 800);
+            });
+          } else {
+            csModal.toast(msg);
+          }
+        } else {
+          alert(msg);
+        }
+        document.getElementById('morePanel').classList.remove('show');
+      });
+    });
+  })();
+
+  // 语音按钮：模拟录音浮层
+  (function () {
+    var voiceIcon = document.getElementById('voiceIcon');
+    var overlay = document.getElementById('voiceRecording');
+    var secEl = document.getElementById('vrSec');
+    if (!voiceIcon || !overlay) return;
+    var timer = null, sec = 0;
+    voiceIcon.addEventListener('click', function () {
+      if (overlay.classList.contains('show')) {
+        overlay.classList.remove('show');
+        clearInterval(timer);
+        if (window.csModal) csModal.toast('录音结束（演示），时长 00:0' + sec + '"');
+        sec = 0; secEl.textContent = '0';
+      } else {
+        overlay.classList.add('show');
+        sec = 0; secEl.textContent = '0';
+        timer = setInterval(function () {
+          sec++;
+          secEl.textContent = sec;
+        }, 1000);
+      }
+    });
+  })();
+
+  // 表情按钮：演示
+  (function () {
+    var emojiIcon = document.getElementById('emojiIcon');
+    if (!emojiIcon) return;
+    emojiIcon.addEventListener('click', function () {
+      if (window.csModal) csModal.toast('表情面板（演示）');
+    });
+  })();
+</script>
+
+</body>
+</html>

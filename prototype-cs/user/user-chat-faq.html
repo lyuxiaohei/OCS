@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>猜你想问 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    /* ===== user-chat-faq.html 专属样式 ===== */
+    body {
+      background: #ededed;
+      min-height: 100vh;
+      padding: 24px 0;
+    }
+
+    .page-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .cs-phone {
+      margin: 0 auto 16px;
+      height: 720px;
+    }
+    @media (max-width: 430px) {
+      .cs-phone { height: 100vh; }
+    }
+
+    .page-head {
+      max-width: 480px;
+      margin: 0 auto 18px;
+      text-align: center;
+    }
+    .page-head h1 {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin: 0 0 3px;
+    }
+    .page-head .back-link {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+    }
+    .page-head .back-link a { color: var(--cs-primary); }
+
+    .chat-nav .nav-peer {
+      position: absolute;
+      top: 44px;
+      left: 56px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: calc(100% - 200px);
+      min-width: 0;
+    }
+    .chat-nav .nav-peer .agent-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-semibold);
+      flex-shrink: 0;
+    }
+    .chat-nav .peer-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+      min-width: 0;
+    }
+    .chat-nav .peer-name {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .chat-nav .peer-status {
+      font-size: var(--cs-font-size-xs);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .chat-nav .peer-status.online { color: var(--cs-success); }
+    .chat-nav .peer-status.online::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cs-success);
+      display: inline-block;
+    }
+    .chat-nav .nav-actions {
+      position: absolute;
+      top: 44px;
+      right: 95px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .chat-nav .nav-action {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background .15s;
+    }
+    .chat-nav .nav-action:hover { background: rgba(0,0,0,.06); }
+    .chat-nav .nav-action svg { width: 20px; height: 20px; }
+
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px 12px 18px;
+      scrollbar-width: none;
+    }
+    .chat-messages::-webkit-scrollbar { width: 0; height: 0; }
+
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-end;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: #fff;
+    }
+    .msg-avatar.agent {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+    }
+    .msg-avatar.user {
+      background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
+    }
+    .msg-content {
+      max-width: var(--chat-card-width, 252px);
+      display: flex;
+      flex-direction: column;
+    }
+    .msg-row.user .msg-content { align-items: flex-end; }
+    .msg-content .msg-bubble-user,
+    .msg-content .msg-bubble-agent {
+      box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    }
+    .msg-meta {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-placeholder);
+      margin: 2px 4px 0;
+    }
+
+    .cs-phone {
+      --chat-card-width: 252px;
+      --chat-card-radius: var(--cs-radius-lg);
+      --chat-card-shadow: var(--cs-shadow-md);
+      --chat-card-border: 1px solid var(--cs-border-light);
+      --chat-card-pad: var(--cs-space-3);
+    }
+
+    .msg-system {
+      align-self: center;
+      background: rgba(0,0,0,0.10);
+      color: #fff;
+      font-size: var(--cs-font-size-xs);
+      padding: 3px 10px;
+      border-radius: var(--cs-radius-xs);
+      margin: 4px auto;
+      text-align: center;
+    }
+
+    /* ---- 猜你想问卡片（核心） ---- */
+    .qa-suggest {
+      width: var(--chat-card-width);
+      background: var(--cs-bg-card);
+      border: var(--chat-card-border);
+      border-radius: var(--chat-card-radius);
+      padding: var(--chat-card-pad);
+      box-shadow: var(--chat-card-shadow);
+    }
+    .qa-suggest-title {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .qa-suggest-title svg { flex-shrink: 0; }
+    .qa-suggest-title .qa-title-text { flex: 1; }
+
+    /* 换一批按钮 */
+    .qa-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-primary);
+      background: var(--cs-primary-bg);
+      border: 1px solid #d6e4ff;
+      border-radius: 10px;
+      padding: 2px 8px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+    .qa-refresh:hover { background: var(--cs-primary); color: #fff; }
+    .qa-refresh svg {
+      width: 12px; height: 12px;
+      transition: transform .5s ease;
+    }
+    .qa-refresh.spinning svg {
+      transform: rotate(360deg);
+    }
+    .qa-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .qa-chip {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-primary);
+      background: var(--cs-primary-bg);
+      border: 1px solid #91caff;
+      border-radius: 14px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      line-height: 1.4;
+    }
+    .qa-chip:hover { background: var(--cs-primary); color: #fff; }
+    .qa-chip.active { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
+
+    .qa-answer-slot {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--cs-border-light);
+    }
+    .qa-answer-slot.show { display: block; }
+    .qa-answer-slot .qa-q {
+      font-size: var(--cs-font-size-base);
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+      margin-bottom: 4px;
+    }
+    .qa-answer-slot .qa-a {
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text);
+      line-height: 1.6;
+    }
+
+    .chat-input-area {
+      height: 54px;
+      padding: 0 10px;
+      gap: 4px;
+    }
+    .input-icon {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: var(--cs-radius-sm);
+      transition: background .15s;
+    }
+    .input-icon:hover { background: rgba(0,0,0,.06); }
+    .input-icon svg { width: 22px; height: 22px; }
+    .input-icon svg path { fill: var(--cs-text-secondary); }
+    .chat-input-area input {
+      flex: 1;
+      height: 34px;
+      border-radius: var(--cs-radius-sm);
+      border: 1px solid #e0e0e0;
+      padding: 0 12px;
+      font-size: var(--cs-font-size-md);
+      background: #fff;
+    }
+    .chat-input-area input:focus { border-color: var(--cs-primary); }
+
+    /* 发送按钮（输入内容后显示） */
+    .send-btn {
+      height: 30px;
+      padding: 0 12px;
+      border-radius: var(--cs-radius-sm);
+      background: var(--cs-primary);
+      color: #fff;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-medium);
+      display: none;
+      align-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .send-btn.show { display: flex; }
+
+    /* ---- 更多面板 ---- */
+    .more-panel {
+      display: none;
+      background: #f7f7f7;
+      border-top: 1px solid var(--cs-border-lighter);
+      padding: 14px 12px 18px;
+    }
+    .more-panel.show { display: block; }
+    .more-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px 8px;
+    }
+    .more-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px 0;
+      border-radius: var(--cs-radius-sm);
+      transition: background .15s;
+    }
+    .more-item:hover { background: rgba(0,0,0,.04); }
+    .more-item .mi-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid var(--cs-border-lighter);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--cs-text-secondary);
+    }
+    .more-item .mi-icon svg { width: 24px; height: 24px; }
+    .more-item .mi-label {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-secondary);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* 语音录制浮层 */
+    .voice-recording {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: 70px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.75);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: var(--cs-radius-md);
+      font-size: var(--cs-font-size-sm);
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .voice-recording.show { display: flex; }
+    .voice-recording .vr-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--cs-danger);
+      animation: vr-pulse 1s infinite;
+    }
+    @keyframes vr-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .page-footer {
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+    }
+    .page-footer a { color: var(--cs-primary); }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- Page heading -->
+  <div class="page-head">
+    <h1>猜你想问（用户端）</h1>
+    <div class="back-link"><a href="javascript:history.back()">← 返回上一页</a> · 移动端 375px · US-MVP-24</div>
+  </div>
+
+  <!-- ===== Mobile chat container ===== -->
+  <div class="cs-phone">
+
+    <!-- 小程序状态栏 -->
+    <div class="cs-status-bar">
+      <span class="sb-time">09:41</span>
+      <div class="sb-icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+
+    <!-- 会话导航栏 -->
+    <div class="cs-nav-bar chat-nav">
+      <div class="cs-back" title="返回" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+
+      <div class="nav-peer">
+        <div class="agent-avatar">李</div>
+        <div class="peer-info">
+          <span class="peer-name">客服 李小米</span>
+          <span class="peer-status online">在线</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="cs-capsule" title="微信胶囊">
+        <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
+      </div>
+    </div>
+
+    <!-- Message list -->
+    <div class="chat-messages" id="chatMessages">
+
+      <!-- System divider -->
+      <div class="msg-system">— 您好，已为您接入在线客服 —</div>
+
+      <!-- Agent welcome text -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">您好，我是客服李小米，很高兴为您服务！请问有什么可以帮您？</div>
+          <div class="msg-meta">10:24</div>
+        </div>
+      </div>
+
+      <!-- 猜你想问：会话内 FAQ 快捷问题（US-MVP-24） -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="qa-suggest">
+            <div class="qa-suggest-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>
+              <span class="qa-title-text"></span>猜你想问，点一下即可查看</span>
+              <span class="qa-refresh" id="qaRefresh" title="换一批">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                换一批
+              </span>
+            </div>
+            <div class="qa-chips" id="qaChips">
+              <span class="qa-chip" data-q="refund-time">退款多久到账？</span>
+              <span class="qa-chip" data-q="address">可以修改收货地址吗？</span>
+              <span class="qa-chip" data-q="logistics">查不到物流怎么办？</span>
+              <span class="qa-chip" data-q="pay">支持哪些支付方式？</span>
+            </div>
+            <div class="qa-answer-slot"></div>
+          </div>
+          <div class="msg-meta">10:24</div>
+        </div>
+      </div>
+
+      <!-- Agent text -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">您也可以直接输入问题，或点击上方快捷问题查看答案～</div>
+          <div class="msg-meta">10:25</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 语音录制浮层 -->
+    <div class="voice-recording" id="voiceRecording">
+      <span class="vr-dot"></span>
+      <span>正在录音... 00:0<span id="vrSec">0</span></span>
+    </div>
+
+    <!-- 更多面板 -->
+    <div class="more-panel" id="morePanel">
+      <div class="more-grid">
+        <div class="more-item" data-action="album">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="mi-label">相册</div>
+        </div>
+        <div class="more-item" data-action="camera">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="mi-label">拍摄</div>
+        </div>
+        <div class="more-item" data-action="order">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+          <div class="mi-label">订单</div>
+        </div>
+        <div class="more-item" data-action="product">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+          <div class="mi-label">商品</div>
+        </div>
+        <div class="more-item" data-action="file">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="mi-label">文件</div>
+        </div>
+        <div class="more-item" data-action="location">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="mi-label">位置</div>
+        </div>
+        <div class="more-item" data-action="transfer">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+          <div class="mi-label">转人工</div>
+        </div>
+        <div class="more-item" data-action="end">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/><line x1="23" y1="1" x2="1" y2="23"/></svg></div>
+          <div class="mi-label">结束会话</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 输入工具栏 -->
+    <div class="chat-input-area">
+      <div class="input-icon" id="voiceIcon" title="切换语音">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/>
+          <path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <input type="text" id="msgInput" placeholder="请输入消息..." />
+      <div class="input-icon" id="emojiIcon" title="表情">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
+          <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <line x1="9" y1="9" x2="9.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
+          <line x1="15" y1="9" x2="15.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="input-icon" id="moreIcon" title="更多">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
+          <path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="send-btn" id="sendBtn">发送</div>
+    </div>
+
+  </div>
+
+  <!-- Page footer -->
+  <div class="page-footer">
+    对应需求：US-MVP-24（猜你想问）· 会话内 FAQ 快捷卡片 · 点击展开答案
+    <br />
+    <a href="javascript:history.back()">← 返回上一页</a>
+  </div>
+
+</div>
+
+<!-- ===== Demo interactions ===== -->
+<script>
+  // 顶栏「更多」按钮
+  (function () {
+    var btn = document.getElementById('moreHeaderBtn');
+    if (btn && window.csModal) {
+      btn.addEventListener('click', function () {
+        csModal.toast('更多：转人工 · 结束会话 · 投诉建议');
+      });
+    }
+  })();
+
+  // 猜你想问：点击快捷问题，在卡片内展开答案；换一批切换问题组
+  (function () {
+    // 问题分组（每组 4 个），点击「换一批」循环切换
+    var GROUPS = [
+      [
+        { key: 'refund-time', label: '退款多久到账？', q: '退款多久到账？', a: '退款审核通过后：支付宝/微信原路退回 1-3 个工作日；银行卡 3-7 个工作日；余额即时到账。节假日可能顺延。' },
+        { key: 'address',     label: '可以修改收货地址吗？', q: '可以修改收货地址吗？', a: '订单未发货前，可在订单详情页点击「修改地址」更新收货信息。已发货订单无法修改，建议联系收件人或快递员沟通改派。' },
+        { key: 'logistics',   label: '查不到物流怎么办？', q: '查不到物流怎么办？', a: '物流单号一般在发货后 2-4 小时内更新。超过 24 小时仍无更新多为系统延迟，可耐心等待；急需处理可点「转人工」。' },
+        { key: 'pay',         label: '支持哪些支付方式？', q: '支持哪些支付方式？', a: '目前支持微信支付、支付宝、银联云闪付、信用卡分期及商城余额支付，部分商品支持花呗与白条。' }
+      ],
+      [
+        { key: 'invoice',     label: '如何开发票？', q: '如何开发票？', a: '下单时可在结算页填写发票抬头，或订单完成后在「订单详情 - 申请开票」中补开电子发票，1 个工作日内推送。' },
+        { key: 'coupon',      label: '优惠券怎么用？', q: '优惠券怎么用？', a: '结算时在「优惠券」栏选择可用券，系统自动抵扣。每笔订单仅可使用一张，与满减活动不叠加。' },
+        { key: 'warranty',    label: '商品保修期多久？', q: '商品保修期多久？', a: '电子产品默认 1 年质保，服饰鞋包 30 天质保。保修期内非人为损坏可免费维修，详情见商品页「售后政策」。' },
+        { key: 'membership',  label: '会员等级权益？', q: '会员等级权益？', a: '会员分普通/银/金/钻石四级，等级越高享有的折扣、生日礼券、专属客服、免邮次数越多，详见「我的 - 会员中心」。' }
+      ],
+      [
+        { key: 'cancel',      label: '订单如何取消？', q: '订单如何取消？', a: '未付款订单可直接取消；已付款未发货订单可在订单详情点「申请取消」，客服审核后退款；已发货订单需走退货流程。' },
+        { key: 'return',      label: '七天无理由退货？', q: '七天无理由退货？', a: '签收后 7 天内可申请无理由退货，商品需保持全新未使用、配件齐全。生鲜、定制、贴身衣物等特殊商品不支持。' },
+        { key: 'points',      label: '积分怎么获取？', q: '积分怎么获取？', a: '消费按 1 元=1 积分累计，评价商品/晒单可获额外积分。积分可在「积分商城」兑换优惠券或实物礼品，有效期 1 年。' },
+        { key: 'delivery',    label: '支持哪些快递？', q: '支持哪些快递？', a: '默认顺丰/中通/圆通，大件商品走德邦/京东物流。偏远地区可能加收运费或改用邮政，以下单页提示为准。' }
+      ]
+    ];
+
+    var chipsBox = document.getElementById('qaChips');
+    var refreshBtn = document.getElementById('qaRefresh');
+    var groupIdx = 0;
+
+    function renderGroup(idx) {
+      var group = GROUPS[idx];
+      chipsBox.innerHTML = group.map(function (item) {
+        return '<span class="qa-chip" data-q="' + item.key + '">' + item.label + '</span>';
+      }).join('');
+      bindChipEvents();
+    }
+
+    function findAnswer(key) {
+      for (var i = 0; i < GROUPS.length; i++) {
+        for (var j = 0; j < GROUPS[i].length; j++) {
+          if (GROUPS[i][j].key === key) return GROUPS[i][j];
+        }
+      }
+      return null;
+    }
+
+    function bindChipEvents() {
+      document.querySelectorAll('.qa-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var key = chip.getAttribute('data-q');
+          var data = findAnswer(key);
+          if (!data) return;
+          var suggest = chip.closest('.qa-suggest');
+          var slot = suggest.querySelector('.qa-answer-slot');
+          var isSame = chip.classList.contains('active');
+          suggest.querySelectorAll('.qa-chip').forEach(function (c) { c.classList.remove('active'); });
+          if (isSame) { slot.classList.remove('show'); return; }
+          chip.classList.add('active');
+          slot.innerHTML = '<div class="qa-q">' + data.q + '</div><div class="qa-a">' + data.a + '</div>';
+          slot.classList.add('show');
+        });
+      });
+    }
+
+    // 换一批：旋转动画 + 切换问题组
+    refreshBtn.addEventListener('click', function () {
+      if (refreshBtn.classList.contains('spinning')) return; // 防止重复点击
+      refreshBtn.classList.add('spinning');
+      // 清空已展开的答案
+      var suggest = refreshBtn.closest('.qa-suggest');
+      var slot = suggest.querySelector('.qa-answer-slot');
+      slot.classList.remove('show');
+      slot.innerHTML = '';
+      // 动画过半时切换内容
+      setTimeout(function () {
+        groupIdx = (groupIdx + 1) % GROUPS.length;
+        renderGroup(groupIdx);
+      }, 250);
+      // 动画结束后移除 spinning 类，便于下次触发
+      setTimeout(function () {
+        refreshBtn.classList.remove('spinning');
+      }, 500);
+    });
+
+    // 初始绑定
+    bindChipEvents();
+  })();
+
+  // 输入框：有内容时显示「发送」按钮，隐藏「+」和表情
+  (function () {
+    var input = document.getElementById('msgInput');
+    var sendBtn = document.getElementById('sendBtn');
+    var moreIcon = document.getElementById('moreIcon');
+    var emojiIcon = document.getElementById('emojiIcon');
+    if (!input || !sendBtn) return;
+    input.addEventListener('input', function () {
+      var has = input.value.trim().length > 0;
+      sendBtn.classList.toggle('show', has);
+      moreIcon.style.display = has ? 'none' : '';
+      emojiIcon.style.display = has ? 'none' : '';
+    });
+    sendBtn.addEventListener('click', function () {
+      var val = input.value.trim();
+      if (!val) return;
+      var thread = document.getElementById('chatMessages');
+      var row = document.createElement('div');
+      row.className = 'msg-row user';
+      row.innerHTML =
+        '<div class="msg-avatar user">我</div>' +
+        '<div class="msg-content">' +
+          '<div class="msg-bubble-user">' + val.replace(/</g, '&lt;') + '</div>' +
+          '<div class="msg-meta">' + new Date().toTimeString().slice(0, 5) + '</div>' +
+        '</div>';
+      thread.appendChild(row);
+      thread.scrollTop = thread.scrollHeight;
+      input.value = '';
+      sendBtn.classList.remove('show');
+      moreIcon.style.display = '';
+      emojiIcon.style.display = '';
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); sendBtn.click(); }
+    });
+  })();
+
+  // 「+」按钮：展开/收起更多面板
+  (function () {
+    var moreIcon = document.getElementById('moreIcon');
+    var panel = document.getElementById('morePanel');
+    if (!moreIcon || !panel) return;
+    moreIcon.addEventListener('click', function () {
+      panel.classList.toggle('show');
+    });
+  })();
+
+  // 更多面板：各功能项交互
+  (function () {
+    var ACTIONS = {
+      album:     '已打开相册（演示）',
+      camera:    '已打开相机（演示）',
+      order:     '已选择订单卡片（演示）',
+      product:   '已选择商品卡片（演示）',
+      file:      '已打开文件选择（演示）',
+      location:  '已发送位置（演示）',
+      transfer:  '已为您转接人工客服（演示）',
+      end:       '确认结束本次会话？（演示）'
+    };
+    document.querySelectorAll('.more-item').forEach(function (item) {
+      item.addEventListener('click', function () {
+        var key = item.getAttribute('data-action');
+        var msg = ACTIONS[key] || '功能演示';
+        if (window.csModal) {
+          if (key === 'end') {
+            csModal.confirm(msg, function () {
+              csModal.toast('会话已结束');
+              setTimeout(function () { history.back(); }, 800);
+            });
+          } else {
+            csModal.toast(msg);
+          }
+        } else {
+          alert(msg);
+        }
+        document.getElementById('morePanel').classList.remove('show');
+      });
+    });
+  })();
+
+  // 语音按钮：模拟录音浮层
+  (function () {
+    var voiceIcon = document.getElementById('voiceIcon');
+    var overlay = document.getElementById('voiceRecording');
+    var secEl = document.getElementById('vrSec');
+    if (!voiceIcon || !overlay) return;
+    var timer = null, sec = 0;
+    voiceIcon.addEventListener('click', function () {
+      if (overlay.classList.contains('show')) {
+        overlay.classList.remove('show');
+        clearInterval(timer);
+        if (window.csModal) csModal.toast('录音结束（演示），时长 00:0' + sec + '"');
+        sec = 0; secEl.textContent = '0';
+      } else {
+        overlay.classList.add('show');
+        sec = 0; secEl.textContent = '0';
+        timer = setInterval(function () {
+          sec++;
+          secEl.textContent = sec;
+        }, 1000);
+      }
+    });
+  })();
+
+  // 表情按钮：演示
+  (function () {
+    var emojiIcon = document.getElementById('emojiIcon');
+    if (!emojiIcon) return;
+    emojiIcon.addEventListener('click', function () {
+      if (window.csModal) csModal.toast('表情面板（演示）');
+    });
+  })();
+</script>
+
+</body>
+</html>
