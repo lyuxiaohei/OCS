@@ -331,6 +331,84 @@
     }
     .msg-card .card-action:hover { background: var(--cs-primary); color: #fff; }
 
+    /* ---- 物流轨迹 ---- */
+    .msg-card .track-step {
+      display: flex; align-items: flex-start; gap: 8px; padding: 4px 0;
+      font-size: var(--cs-font-size-xs);
+    }
+    .msg-card .track-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+    }
+    .msg-card .track-dot.active { background: var(--cs-primary); }
+    .msg-card .track-dot.done { background: var(--cs-success); }
+    .msg-card .track-dot.pending { background: #d9d9d9; }
+    .msg-card .track-line { flex: 1; }
+    .msg-card .track-line .track-time { color: var(--cs-text-tertiary); font-size: 10px; margin-left: 6px; }
+
+    /* ---- FAQ 列表 ---- */
+    .msg-card .faq-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 10px; background: #fafafa; border-radius: var(--cs-radius-xs);
+      margin-bottom: 6px; font-size: var(--cs-font-size-sm); color: var(--cs-text);
+      cursor: pointer;
+    }
+    .msg-card .faq-item:hover { background: var(--cs-primary-bg); }
+    .msg-card .faq-item .q-arrow { color: var(--cs-text-tertiary); }
+
+    /* ---- 图片消息 ---- */
+    .msg-media {
+      max-width: 200px; border-radius: var(--cs-radius-md); overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .msg-media img { display: block; width: 100%; height: auto; }
+    .msg-media .media-placeholder {
+      width: 200px; height: 150px;
+      background: linear-gradient(135deg, #f0f5ff, #d6e4ff);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--cs-text-tertiary);
+    }
+
+    /* ---- 语音消息 ---- */
+    .msg-voice {
+      display: flex; align-items: center; gap: 8px;
+      min-width: 100px; padding: 10px 14px;
+      background: var(--cs-bg-card); border-radius: var(--cs-radius-md);
+      border-top-left-radius: 2px; border: 1px solid #eee;
+    }
+    .msg-voice .voice-icon { color: var(--cs-primary); display: inline-flex; }
+    .msg-voice .voice-wave { display: flex; align-items: center; gap: 2px; flex: 1; }
+    .msg-voice .voice-wave span {
+      display: inline-block; width: 3px; background: var(--cs-primary);
+      border-radius: 2px; opacity: 0.4;
+    }
+    .msg-voice .voice-wave span:nth-child(1) { height: 8px; }
+    .msg-voice .voice-wave span:nth-child(2) { height: 14px; }
+    .msg-voice .voice-wave span:nth-child(3) { height: 18px; }
+    .msg-voice .voice-wave span:nth-child(4) { height: 12px; }
+    .msg-voice .voice-wave span:nth-child(5) { height: 16px; }
+    .msg-voice .voice-wave span:nth-child(6) { height: 10px; }
+    .msg-voice .voice-duration { font-size: var(--cs-font-size-xs); color: var(--cs-text-tertiary); }
+
+    /* ---- 文件卡片 ---- */
+    .msg-file {
+      display: flex; align-items: center; gap: 10px;
+      max-width: 240px; padding: 10px 12px;
+      background: var(--cs-bg-card); border-radius: var(--cs-radius-md);
+      border-top-left-radius: 2px; border: 1px solid #eee;
+    }
+    .msg-file .file-icon {
+      width: 40px; height: 40px; border-radius: var(--cs-radius-sm);
+      background: #fff1f0; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--cs-danger);
+    }
+    .msg-file .file-info { flex: 1; min-width: 0; }
+    .msg-file .file-name {
+      font-size: var(--cs-font-size-sm); color: var(--cs-text);
+      font-weight: var(--cs-font-weight-medium);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .msg-file .file-size { font-size: var(--cs-font-size-xs); color: var(--cs-text-tertiary); margin-top: 2px; }
+
     /* ---- 场景提示条（带 entry_tag 时显示） ---- */
     .scene-hint {
       background: var(--cs-primary-bg);
@@ -508,6 +586,11 @@
       </div>
 
       <div class="nav-actions">
+        <div class="nav-action" id="phoneCallBtn" title="拨打客服电话">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </div>
         <div class="nav-action" id="moreHeaderBtn" title="更多">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="1.8"/>
@@ -659,6 +742,199 @@
         </div>
       </div>
 
+      <!-- Agent text -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">另外为您查询到购物车、物流、退款等信息，请查看以下卡片：</div>
+          <div class="msg-meta">10:32</div>
+        </div>
+      </div>
+
+      <!-- Agent: Cart card -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card cart">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+                <span>购物车</span>
+              </div>
+              <span class="status-badge s-proc">3 件商品</span>
+            </div>
+            <div class="card-body">
+              <div class="product-info">
+                <div class="product-thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
+                <div class="product-detail">
+                  <div class="product-name">购物车共 3 件商品</div>
+                  <div class="product-desc">含运动装备、配件等</div>
+                </div>
+              </div>
+              <div class="card-row"><span class="label">商品数量</span><span class="value">3 件</span></div>
+              <div class="card-row"><span class="label">合计金额</span><span class="price">¥1,800.00</span></div>
+              <div class="card-action">查看购物车</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:33</div>
+        </div>
+      </div>
+
+      <!-- Agent: Logistics card -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card logistics">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+                <span>物流</span>
+              </div>
+              <span class="status-badge s-proc">运输中</span>
+            </div>
+            <div class="card-body">
+              <div class="card-row"><span class="label">运单号</span><span class="value">SF1234567890</span></div>
+              <div class="card-row"><span class="label">承运商</span><span class="value">顺丰速运</span></div>
+              <div class="track-step"><span class="track-dot done"></span><div class="track-line">已揽收<span class="track-time">06-10 09:00</span></div></div>
+              <div class="track-step"><span class="track-dot done"></span><div class="track-line">运输中<span class="track-time">06-11 14:20</span></div></div>
+              <div class="track-step"><span class="track-dot active"></span><div class="track-line">派送中<span class="track-time">06-12 08:30</span></div></div>
+              <div class="card-action">查看物流详情</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:34</div>
+        </div>
+      </div>
+
+      <!-- Agent: Refund card -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card refund">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span>
+                <span>退款</span>
+              </div>
+              <span class="status-badge s-danger">退货退款</span>
+            </div>
+            <div class="card-body">
+              <div class="product-info">
+                <div class="product-thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
+                <div class="product-detail">
+                  <div class="product-name">无线蓝牙耳机 降噪款</div>
+                  <div class="product-desc">退款原因：商品与描述不符</div>
+                </div>
+              </div>
+              <div class="card-row"><span class="label">订单号</span><span class="value">CS2026061109</span></div>
+              <div class="card-row"><span class="label">退款类型</span><span class="value">退货退款</span></div>
+              <div class="card-row"><span class="label">退款金额</span><span class="price">¥299.00</span></div>
+              <div class="meta-line">申请时间 2026-06-11 10:00</div>
+              <div class="card-action">查看退款进度</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:35</div>
+        </div>
+      </div>
+
+      <!-- Agent: FAQ card -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card faq">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+                <span>常见问题</span>
+              </div>
+              <span class="status-badge s-proc">推荐</span>
+            </div>
+            <div class="card-body">
+              <div class="faq-item">物流什么时候到？<span class="q-arrow">›</span></div>
+              <div class="faq-item">如何申请退换货？<span class="q-arrow">›</span></div>
+              <div class="faq-item">发票怎么开具？<span class="q-arrow">›</span></div>
+              <div class="faq-item">优惠券怎么使用？<span class="q-arrow">›</span></div>
+            </div>
+          </div>
+          <div class="msg-meta">10:36</div>
+        </div>
+      </div>
+
+      <!-- Agent: Profile card -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-card profile">
+            <div class="card-header">
+              <div class="h-left">
+                <span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <span>账户</span>
+              </div>
+              <span class="status-badge s-warn">黄金会员</span>
+            </div>
+            <div class="card-body">
+              <div class="card-row"><span class="label">会员等级</span><span class="value">黄金会员</span></div>
+              <div class="card-row"><span class="label">账户积分</span><span class="value">2,580</span></div>
+              <div class="card-row"><span class="label">优惠券</span><span class="value">5 张</span></div>
+              <div class="meta-line">注册时间 2024-03-15</div>
+              <div class="card-action">查看我的账户</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:37</div>
+        </div>
+      </div>
+
+      <!-- Agent text -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">李</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">您也可以发送图片、语音、文件或位置信息，方便我更好地为您服务：</div>
+          <div class="msg-meta">10:38</div>
+        </div>
+      </div>
+
+      <!-- User: Image message -->
+      <div class="msg-row user">
+        <div class="msg-avatar user">我</div>
+        <div class="msg-content">
+          <div class="msg-media">
+            <div class="media-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </div>
+          </div>
+          <div class="msg-meta">10:39</div>
+        </div>
+      </div>
+
+      <!-- User: Voice message -->
+      <div class="msg-row user">
+        <div class="msg-avatar user">我</div>
+        <div class="msg-content">
+          <div class="msg-voice">
+            <span class="voice-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z"/><path d="M19 11a7 7 0 01-14 0M12 18v3"/></svg></span>
+            <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <span class="voice-duration">12"</span>
+          </div>
+          <div class="msg-meta">10:40</div>
+        </div>
+      </div>
+
+      <!-- User: File card -->
+      <div class="msg-row user">
+        <div class="msg-avatar user">我</div>
+        <div class="msg-content">
+          <div class="msg-file">
+            <div class="file-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="file-info">
+              <div class="file-name">订单截图.pdf</div>
+              <div class="file-size">248 KB</div>
+            </div>
+          </div>
+          <div class="msg-meta">10:41</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- 语音录制浮层 -->
@@ -690,9 +966,9 @@
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
           <div class="mi-label">文件</div>
         </div>
-        <div class="more-item" data-action="location">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <div class="mi-label">位置</div>
+        <div class="more-item" data-action="phone">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+          <div class="mi-label">电话客服</div>
         </div>
         <div class="more-item" data-action="transfer">
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
@@ -735,7 +1011,7 @@
 
   <!-- Page footer -->
   <div class="page-footer">
-    对应需求：US-MVP-17（订单卡片）· US-MVP-18（商品卡片）· US-MVP-19（优惠券卡片）· entry_tag 场景透传
+    对应需求：US-MVP-17（订单卡片）· US-MVP-18（商品卡片）· US-MVP-19（优惠券卡片）· 购物车/物流/退款/FAQ/账户卡片 · 图片/语音/文件消息 · entry_tag 场景透传
     <br />
     <a href="javascript:history.back()">← 返回上一页</a>
   </div>
@@ -752,6 +1028,18 @@
         csModal.toast('更多：转人工 · 结束会话 · 投诉建议');
       });
     }
+  })();
+
+  // 顶栏「电话」按钮：一键拨打客服热线
+  (function () {
+    var btn = document.getElementById('phoneCallBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      if (window.confirm('是否拨打客服热线 400-888-8888？')) {
+        if (window.csModal) csModal.toast('正在拨打 400-888-8888…');
+        else alert('正在拨打 400-888-8888…');
+      }
+    });
   })();
 
   // ===== 入口联动：解析 URL 参数 → 自动插入用户侧场景卡片 =====
@@ -978,7 +1266,7 @@
       order:     '已选择订单卡片（演示）',
       product:   '已选择商品卡片（演示）',
       file:      '已打开文件选择（演示）',
-      location:  '已发送位置（演示）',
+      phone:     '是否拨打客服热线 400-888-8888？',
       transfer:  '已为您转接人工客服（演示）',
       end:       '确认结束本次会话？（演示）'
     };
@@ -986,17 +1274,19 @@
       item.addEventListener('click', function () {
         var key = item.getAttribute('data-action');
         var msg = ACTIONS[key] || '功能演示';
-        if (window.csModal) {
-          if (key === 'end') {
-            csModal.confirm(msg, function () {
-              csModal.toast('会话已结束');
-              setTimeout(function () { history.back(); }, 800);
-            });
-          } else {
-            csModal.toast(msg);
+        if (key === 'phone') {
+          if (window.confirm(msg)) {
+            if (window.csModal) csModal.toast('正在拨打 400-888-8888…');
+            else alert('正在拨打 400-888-8888…');
+          }
+        } else if (key === 'end') {
+          if (window.confirm(msg)) {
+            if (window.csModal) csModal.toast('会话已结束');
+            setTimeout(function () { history.back(); }, 800);
           }
         } else {
-          alert(msg);
+          if (window.csModal) csModal.toast(msg);
+          else alert(msg);
         }
         document.getElementById('morePanel').classList.remove('show');
       });

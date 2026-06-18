@@ -898,26 +898,6 @@
       align-items: center;
       gap: 5px;
     }
-    /* ===== 工作台页：侧边栏默认收起（新页签打开后），点 trigger 浮层展开，不挤压三栏 ===== */
-    .admin-layout { position: relative; }
-    .admin-sidebar {
-      position: absolute; top: 0; left: 0; bottom: 0;
-      width: 208px; z-index: 100;
-      transform: translateX(-208px);            /* 默认收起：整体左移出视口 */
-      transition: transform .25s ease;
-    }
-    .admin-sidebar.open { transform: translateX(0); box-shadow: 2px 0 12px rgba(0,0,0,.18); }
-    .sidebar-trigger {
-      position: fixed; left: 0; top: 14px; z-index: 101;
-      width: 22px; height: 44px;
-      background: #001529; color: #fff;
-      border-radius: 0 6px 6px 0;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 18px; line-height: 1;
-      box-shadow: 2px 0 8px rgba(0,0,0,.12);
-      transition: left .25s ease;
-    }
-    .sidebar-trigger.open { left: 208px; }
   </style>
 </head>
 <body>
@@ -926,8 +906,6 @@
 
   <!-- ===== 侧边栏（nav.js 渲染）===== -->
   <aside class="admin-sidebar" id="sidebar-nav" data-active="workbench"></aside>
-  <!-- 工作台页：侧边栏默认收起，点此浮层展开 -->
-  <div class="sidebar-trigger" id="sidebar-trigger" title="展开/收起菜单">›</div>
 
   <!-- ===== 主区域 ===== -->
   <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
@@ -2043,22 +2021,5 @@
   </script>
 
   <script src="nav.js"></script>
-  <!-- 工作台页：侧边栏收起/展开（默认收起） -->
-  <script>
-    (function () {
-      var sb = document.getElementById('sidebar-nav');
-      var trig = document.getElementById('sidebar-trigger');
-      if (!sb || !trig) return;
-      function bind() {
-        trig.addEventListener('click', function () {
-          var open = sb.classList.toggle('open');
-          trig.classList.toggle('open', open);
-          trig.textContent = open ? '‹' : '›';
-        });
-      }
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
-      else bind();
-    })();
-  </script>
 </body>
 </html>

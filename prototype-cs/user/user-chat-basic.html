@@ -166,6 +166,15 @@
     .msg-content .msg-bubble-agent {
       box-shadow: 0 1px 1px rgba(0,0,0,0.04);
     }
+    /* 卡片消息：去除气泡白底/内边距/边框，让卡片自身样式直接展示 */
+    .msg-content .msg-bubble-agent:has(.msg-card),
+    .msg-content .msg-bubble-user:has(.msg-card) {
+      background: transparent;
+      padding: 0;
+      border: 0;
+      box-shadow: none;
+      max-width: var(--chat-card-width, 252px);
+    }
     .msg-meta {
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-placeholder);
@@ -349,6 +358,185 @@
       color: var(--cs-text-tertiary);
     }
     .page-footer a { color: var(--cs-primary); }
+
+    /* ===== 场景卡片样式（与 user-chat-cards.html 富媒体卡片完全统一） ===== */
+    .cs-phone {
+      --chat-card-width: 252px;
+      --chat-card-radius: var(--cs-radius-lg);
+      --chat-card-shadow: var(--cs-shadow-md);
+      --chat-card-border: 1px solid var(--cs-border-light);
+    }
+    .msg-card {
+      width: var(--chat-card-width);
+      background: var(--cs-bg-card);
+      border: var(--chat-card-border);
+      border-radius: var(--chat-card-radius);
+      overflow: hidden;
+      box-shadow: var(--chat-card-shadow);
+    }
+    .msg-card .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .msg-card .card-header .h-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+    }
+    .msg-card .card-header .h-icon {
+      color: var(--cs-text-tertiary);
+      display: inline-flex;
+    }
+    .msg-card .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--cs-font-size-xs);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .msg-card .status-badge::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .msg-card .status-badge.s-warn::before { background: var(--cs-orange); }
+    .msg-card .status-badge.s-warn { color: var(--cs-orange); }
+    .msg-card .status-badge.s-proc::before { background: var(--cs-primary); }
+    .msg-card .status-badge.s-proc { color: var(--cs-primary); }
+    .msg-card .status-badge.s-done::before { background: var(--cs-success); }
+    .msg-card .status-badge.s-done { color: var(--cs-success); }
+    .msg-card .status-badge.s-danger::before { background: var(--cs-danger); }
+    .msg-card .status-badge.s-danger { color: var(--cs-danger); }
+    .msg-card .status-badge.s-closed::before { background: #bfbfbf; }
+    .msg-card .status-badge.s-closed { color: var(--cs-text-tertiary); }
+    .msg-card .card-body { padding: 10px 12px; }
+    .msg-card .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 0;
+      font-size: var(--cs-font-size-sm);
+    }
+    .msg-card .card-row .label { color: var(--cs-text-tertiary); }
+    .msg-card .card-row .value { color: var(--cs-text); font-weight: var(--cs-font-weight-medium); }
+    .msg-card .card-row .price { color: var(--cs-text); font-weight: var(--cs-font-weight-semibold); }
+
+    .msg-card .product-info {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .msg-card .product-thumb {
+      width: 56px; height: 56px;
+      border-radius: var(--cs-radius-sm);
+      background: var(--cs-bg-header);
+      border: 1px solid var(--cs-border-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-card .product-detail { flex: 1; min-width: 0; }
+    .msg-card .product-name {
+      font-size: var(--cs-font-size-base);
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+      margin-bottom: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .msg-card .product-desc {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      margin: 3px 0;
+    }
+    .msg-card .product-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 4px 0;
+    }
+    .msg-card .product-tags .ptag {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--cs-border-lighter);
+      color: var(--cs-text-secondary);
+    }
+    .msg-card .price-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .msg-card .price-line .now {
+      font-size: var(--cs-font-size-md);
+      color: var(--cs-text);
+      font-weight: var(--cs-font-weight-semibold);
+    }
+    .msg-card .price-line .origin {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      text-decoration: line-through;
+    }
+    .msg-card .meta-line {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      margin-top: 3px;
+    }
+    .msg-card .coupon-value {
+      font-size: 22px;
+      font-weight: var(--cs-font-weight-bold);
+      color: var(--cs-text);
+    }
+    .msg-card .coupon-value .unit {
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .msg-card .card-action {
+      text-align: center;
+      padding: 8px;
+      background: var(--cs-bg-card);
+      color: var(--cs-primary);
+      border: 1px solid var(--cs-primary);
+      font-size: var(--cs-font-size-base);
+      font-weight: var(--cs-font-weight-medium);
+      cursor: pointer;
+      margin-top: 10px;
+      border-radius: var(--cs-radius-xs);
+      transition: background .15s, color .15s;
+    }
+    .msg-card .card-action:hover { background: var(--cs-primary); color: #fff; }
+
+    /* 物流轨迹（cards.html 无此场景，沿用统一风格） */
+    .msg-card .track-step {
+      display: flex; align-items: flex-start; gap: 8px; padding: 4px 0;
+      font-size: var(--cs-font-size-xs);
+    }
+    .msg-card .track-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+    }
+    .msg-card .track-dot.active { background: var(--cs-primary); }
+    .msg-card .track-dot.done { background: var(--cs-success); }
+    .msg-card .track-dot.pending { background: #d9d9d9; }
+    .msg-card .track-line { flex: 1; }
+    .msg-card .track-line .track-time { color: var(--cs-text-tertiary); font-size: 10px; }
+
+    /* FAQ 列表（cards.html 无此场景，沿用统一风格） */
+    .msg-card .faq-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 10px; background: #fafafa; border-radius: var(--cs-radius-xs);
+      margin-bottom: 6px; font-size: var(--cs-font-size-sm); color: var(--cs-text);
+      cursor: pointer;
+    }
+    .msg-card .faq-item:hover { background: var(--cs-primary-bg); }
+    .msg-card .faq-item .q-arrow { color: var(--cs-text-tertiary); }
   </style>
 </head>
 <body>
@@ -388,6 +576,11 @@
       </div>
 
       <div class="nav-actions">
+        <div class="nav-action" id="phoneCallBtn" title="拨打客服电话">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </div>
         <div class="nav-action" id="moreHeaderBtn" title="更多">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="1.8"/>
@@ -539,9 +732,9 @@
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
           <div class="mi-label">文件</div>
         </div>
-        <div class="more-item" data-action="location">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <div class="mi-label">位置</div>
+        <div class="more-item" data-action="phone">
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+          <div class="mi-label">电话客服</div>
         </div>
         <div class="more-item" data-action="transfer">
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
@@ -593,7 +786,7 @@
 
 <!-- ===== Demo interactions ===== -->
 <script>
-  // 顶栏「更多」按钮：功能说明轻提示
+  // 顶栏「更多」按钮
   (function () {
     var btn = document.getElementById('moreHeaderBtn');
     if (btn && window.csModal) {
@@ -601,6 +794,18 @@
         csModal.toast('更多：转人工 · 结束会话 · 投诉建议');
       });
     }
+  })();
+
+  // 顶栏「电话」按钮：一键拨打客服热线
+  (function () {
+    var btn = document.getElementById('phoneCallBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      if (window.confirm('是否拨打客服热线 400-888-8888？')) {
+        if (window.csModal) csModal.toast('正在拨打 400-888-8888…');
+        else alert('正在拨打 400-888-8888…');
+      }
+    });
   })();
 
   // 向上滚动加载更早的历史消息
@@ -762,7 +967,7 @@
       order:     '已选择订单卡片（演示）',
       product:   '已选择商品卡片（演示）',
       file:      '已打开文件选择（演示）',
-      location:  '已发送位置（演示）',
+      phone:     '是否拨打客服热线 400-888-8888？',
       transfer:  '已为您转接人工客服（演示）',
       end:       '确认结束本次会话？（演示）'
     };
@@ -770,17 +975,19 @@
       item.addEventListener('click', function () {
         var key = item.getAttribute('data-action');
         var msg = ACTIONS[key] || '功能演示';
-        if (window.csModal) {
-          if (key === 'end') {
-            csModal.confirm(msg, function () {
-              csModal.toast('会话已结束');
-              setTimeout(function () { history.back(); }, 800);
-            });
-          } else {
-            csModal.toast(msg);
+        if (key === 'phone') {
+          if (window.confirm(msg)) {
+            if (window.csModal) csModal.toast('正在拨打 400-888-8888…');
+            else alert('正在拨打 400-888-8888…');
+          }
+        } else if (key === 'end') {
+          if (window.confirm(msg)) {
+            if (window.csModal) csModal.toast('会话已结束');
+            setTimeout(function () { history.back(); }, 800);
           }
         } else {
-          alert(msg);
+          if (window.csModal) csModal.toast(msg);
+          else alert(msg);
         }
         document.getElementById('morePanel').classList.remove('show');
       });
@@ -818,6 +1025,164 @@
     emojiIcon.addEventListener('click', function () {
       if (window.csModal) csModal.toast('表情面板（演示）');
     });
+  })();
+
+  // ===== 场景化自动发送：读取 entry_tag，自动发问候语 + 场景卡片 =====
+  (function () {
+    var params = {};
+    location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
+      var p = kv.split('=');
+      params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+    });
+    var tag = params.entry_tag;
+    if (!tag) return; // 无场景参数，保持原预设对话
+
+    var box = document.getElementById('chatMessages');
+    var loader = document.getElementById('historyLoader');
+    if (!box || !loader) return;
+
+    // 清空 loader 之后的所有预设对话
+    while (loader.nextSibling) box.removeChild(loader.nextSibling);
+
+    function now() { return new Date().toTimeString().slice(0, 5); }
+    function esc(s) { return String(s).replace(/</g, '&lt;'); }
+
+    // 生成消息行
+    function row(who, html) {
+      var el = document.createElement('div');
+      el.className = 'msg-row' + (who === 'user' ? ' user' : '');
+      el.innerHTML =
+        '<div class="msg-avatar ' + who + '">' + (who === 'agent' ? '李' : '我') + '</div>' +
+        '<div class="msg-content">' +
+          '<div class="msg-bubble-' + (who === 'user' ? 'user' : 'agent') + '">' + html + '</div>' +
+          '<div class="msg-meta">' + now() + '</div>' +
+        '</div>';
+      return el;
+    }
+    function system(text) {
+      var el = document.createElement('div');
+      el.className = 'msg-system';
+      el.textContent = '— ' + text + ' —';
+      return el;
+    }
+
+    // 场景配置：问候语 + 卡片类型
+    var SCENES = {
+      home:      { label: '首页咨询',     greeting: '您好，请问有什么可以帮您？',                                 card: null },
+      product:   { label: '商品咨询',     greeting: '您好，关于这款商品有什么可以帮您？',                         card: 'product' },
+      order:     { label: '订单咨询',     greeting: '您好，关于这笔订单有什么可以帮您？',                         card: 'order' },
+      cart:      { label: '购物车咨询',   greeting: '您好，关于购物车里的商品有什么可以帮您？',                   card: 'cart' },
+      help:      { label: '常见问题',     greeting: '您好，为您推荐以下常见问题，点击即可查看：',                 card: 'faq' },
+      profile:   { label: '账户咨询',     greeting: '您好，关于您的账户有什么可以帮您？',                         card: 'profile' },
+      logistics: { label: '物流查询',     greeting: '您好，您的包裹正在运输中，物流信息如下：',                   card: 'logistics' },
+      refund:    { label: '退款咨询',     greeting: '您好，关于这笔退款申请有什么可以帮您？',                     card: 'refund' },
+      phone:     { label: '电话客服',     greeting: '您好，已为您接通电话客服，请稍候…',                          card: null }
+    };
+    var s = SCENES[tag] || SCENES.home;
+
+    // 卡片 HTML 生成（结构与 user-chat-cards.html 富媒体卡片一致）
+    function cardHtml(type, p) {
+      var ICON = {
+        product: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+        order:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+        cart:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+        logistics: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+        refund:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',
+        faq:     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        profile: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+      };
+      var THUMB_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>';
+      var h = '<div class="msg-card ' + type + '">' +
+        '<div class="card-header"><div class="h-left"><span class="h-icon">' + (ICON[type] || '') + '</span>';
+      var body = '<div class="card-body">';
+      var action = '';
+
+      if (type === 'product') {
+        h += '<span>商品</span></div><span class="status-badge s-done">在售</span></div>';
+        body += '<div class="product-info">' +
+            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
+            '<div class="product-detail">' +
+              '<div class="product-name">' + esc(p.product_name || 'YONEX 天斧100ZZ 碳纤维羽毛球拍') + '</div>' +
+              '<div class="product-desc">碳纤维拍框 · 重量 89g · 头重进攻型</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="product-tags"><span class="ptag">包邮</span><span class="ptag">七天无理由</span><span class="ptag">正品保障</span></div>' +
+          '<div class="price-line"><span class="now">¥' + esc(p.price || '1580') + '.00</span><span class="origin">¥1880.00</span></div>' +
+          '<div class="meta-line">已售 580+ · 好评 97%</div>';
+        action = '<div class="card-action">查看商品</div>';
+      } else if (type === 'order') {
+        h += '<span>订单</span></div><span class="status-badge s-warn">' + esc(p.order_status || '待发货') + '</span></div>';
+        body += '<div class="product-info">' +
+            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
+            '<div class="product-detail">' +
+              '<div class="product-name">' + esc(p.product_name || 'YONEX 天斧100ZZ 碳纤维羽毛球拍') + '</div>' +
+              '<div class="product-desc">规格：标准款 &nbsp;x1</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-row"><span class="label">订单编号</span><span class="value">' + esc(p.order_id || '202606110001') + '</span></div>' +
+          '<div class="card-row"><span class="label">实付金额</span><span class="price">¥' + esc(p.amount || '1580') + '.00</span></div>' +
+          '<div class="meta-line">下单时间 2026-06-10 09:12</div>';
+        action = '<div class="card-action">查看订单详情</div>';
+      } else if (type === 'cart') {
+        h += '<span>购物车</span></div><span class="status-badge s-proc">' + esc(p.cart_items || '3') + ' 件商品</span></div>';
+        body += '<div class="product-info">' +
+            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
+            '<div class="product-detail">' +
+              '<div class="product-name">购物车共 ' + esc(p.cart_items || '3') + ' 件商品</div>' +
+              '<div class="product-desc">含运动装备、配件等</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-row"><span class="label">商品数量</span><span class="value">' + esc(p.cart_items || '3') + ' 件</span></div>' +
+          '<div class="card-row"><span class="label">合计金额</span><span class="price">¥' + esc(p.total_amount || '1800') + '.00</span></div>';
+        action = '<div class="card-action">查看购物车</div>';
+      } else if (type === 'logistics') {
+        h += '<span>物流</span></div><span class="status-badge s-proc">运输中</span></div>';
+        body += '<div class="card-row"><span class="label">运单号</span><span class="value">' + esc(p.tracking_no || 'SF1234567890') + '</span></div>' +
+          '<div class="card-row"><span class="label">承运商</span><span class="value">' + esc(p.carrier || '顺丰速运') + '</span></div>' +
+          '<div class="track-step"><span class="track-dot done"></span><div class="track-line">已揽收<span class="track-time">06-10 09:00</span></div></div>' +
+          '<div class="track-step"><span class="track-dot done"></span><div class="track-line">运输中<span class="track-time">06-11 14:20</span></div></div>' +
+          '<div class="track-step"><span class="track-dot active"></span><div class="track-line">派送中<span class="track-time">06-12 08:30</span></div></div>';
+        action = '<div class="card-action">查看物流详情</div>';
+      } else if (type === 'refund') {
+        h += '<span>退款</span></div><span class="status-badge s-danger">' + esc(p.refund_type || '退货退款') + '</span></div>';
+        body += '<div class="product-info">' +
+            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
+            '<div class="product-detail">' +
+              '<div class="product-name">' + esc(p.product_name || 'YONEX 天斧100ZZ 碳纤维羽毛球拍') + '</div>' +
+              '<div class="product-desc">退款原因：商品与描述不符</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-row"><span class="label">订单号</span><span class="value">' + esc(p.order_id || '202606110001') + '</span></div>' +
+          '<div class="card-row"><span class="label">退款类型</span><span class="value">' + esc(p.refund_type || '退货退款') + '</span></div>' +
+          '<div class="card-row"><span class="label">退款金额</span><span class="price">¥1580.00</span></div>' +
+          '<div class="meta-line">申请时间 2026-06-11 10:00</div>';
+        action = '<div class="card-action">查看退款进度</div>';
+      } else if (type === 'faq') {
+        h += '<span>常见问题</span></div><span class="status-badge s-proc">推荐</span></div>';
+        body += '<div class="faq-item">物流什么时候到？<span class="q-arrow">›</span></div>' +
+          '<div class="faq-item">如何申请退换货？<span class="q-arrow">›</span></div>' +
+          '<div class="faq-item">发票怎么开具？<span class="q-arrow">›</span></div>' +
+          '<div class="faq-item">优惠券怎么使用？<span class="q-arrow">›</span></div>';
+      } else if (type === 'profile') {
+        h += '<span>账户</span></div><span class="status-badge s-warn">' + esc(p.member_level || '黄金会员') + '</span></div>';
+        body += '<div class="card-row"><span class="label">会员等级</span><span class="value">' + esc(p.member_level || '黄金会员') + '</span></div>' +
+          '<div class="card-row"><span class="label">账户积分</span><span class="value">2,580</span></div>' +
+          '<div class="card-row"><span class="label">优惠券</span><span class="value">5 张</span></div>' +
+          '<div class="meta-line">注册时间 2024-03-15</div>';
+        action = '<div class="card-action">查看我的账户</div>';
+      }
+      body += '</div>';
+      return h + body + action + '</div>';
+    }
+
+    // 插入场景化会话
+    box.appendChild(system('已为您接入在线客服 · 场景：' + s.label));
+    box.appendChild(row('agent', esc(s.greeting)));
+    if (s.card) {
+      box.appendChild(row('agent', cardHtml(s.card, params)));
+    }
+    // 滚动到底部
+    box.scrollTop = box.scrollHeight;
   })();
 </script>
 
