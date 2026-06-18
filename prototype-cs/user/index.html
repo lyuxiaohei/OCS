@@ -47,7 +47,7 @@
     <div style="margin:0 0 14px;"><a href="../index.html" style="font-size:13px;color:var(--cs-primary);text-decoration:none;">← 返回原型总览</a></div>
     <header class="head">
       <h1>CS 商城客服系统 · 用户端（移动）原型</h1>
-      <div class="sub">移动端原型 · 共 <b>5</b> 个页面（均为 1 期 MVP）。对应真实代码库 service-user（Taro）。</div>
+      <div class="sub">移动端原型 · 共 <b>6</b> 个页面（均为 1 期 MVP）。对应真实代码库 service-user（Taro）。</div>
       <div class="src">数据来源：线上客服排期_20260610.xlsx（T2）· 更新于 2026-06-15</div>
       <div class="legend">
         <span class="lg"><span class="sw" style="background:var(--cs-success)"></span>已完成(绿)</span>
@@ -94,7 +94,18 @@
         <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">会话管理</span><span class="m-l2">历史会话</span><span class="m-sub">—</span></div>
         <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">会话体验</span><span class="m-l2">消息已读/未读</span><span class="m-sub">—</span></div>
         <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">人工客服</span><span class="m-l2">输入状态提示</span><span class="m-sub">—</span></div>
-        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">人工客服</span><span class="m-l2">排队等待提示</span><span class="m-sub">—</span></div>
+        </div>
+      </li>
+
+      <li class="grp2">
+        <span class="dot dot-ok"></span>
+        <div class="grp2-head">
+          <a class="grp2-file" href="user-queue.html">user-queue.html</a>
+          <span class="cnt">1 项</span>
+        </div>
+        <div class="grp2-menus">
+          <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
+        <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">人工客服</span><span class="m-l2">排队等待提示</span><span class="m-sub">—</span></div>
         </div>
       </li>
 
@@ -108,11 +119,10 @@
           <div class="mrow mhead"><span class="mtag">版本</span><span class="m-role">使用角色</span><span class="m-l1">一级菜单</span><span class="m-l2">二级菜单</span><span class="m-sub">子页面</span></div>
         <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">快捷问题</span><span class="m-sub">—</span></div>
         <div class="mrow"><span class="mtag p1">V1</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">服务指南</span><span class="m-sub">—</span></div>
-        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">智能客服</span><span class="m-l2">基于大模型的智能客服-基础版</span><span class="m-sub">—</span></div>
         <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">多轮引导</span><span class="m-sub">—</span></div>
         <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">智能自助服务</span><span class="m-sub">—</span></div>
-        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">智能自助服务</span><span class="m-l2">猜你想问</span><span class="m-sub">—</span></div>
-        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">智能自助服务</span><span class="m-l2">自助办理</span><span class="m-sub">对话框上方卡片</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">猜你想问</span><span class="m-sub">—</span></div>
+        <div class="mrow future"><span class="mtag p2">V2</span><span class="m-role">小程序端</span><span class="m-l1">FAQ机器人客服</span><span class="m-l2">自助办理</span><span class="m-sub">对话框上方卡片</span></div>
         </div>
       </li>
 
@@ -143,7 +153,7 @@
     </ul>
 
     <footer class="foot">
-      页面总数：23（绿点=已有原型，灰点=占位待开发）· 1 期 MVP 16 页（管理端 11 + 用户端 5）· 版本信息统一在表内「版本」列<br>2/3 期排除页（不在 1 期导航，对应 PRD V1.0 Out of Scope）：工单 admin-ticket.html（2 期）、客服管理 admin-staff.html / 渠道接入 admin-channel.html / 机器人配置 ai-bot-config.html / 智能客服场景 ai-scene.html / 质检分析 ai-quality.html / 报表看板 ai-report.html（均为 3 期）<br>
+      页面总数：24（绿点=已有原型，灰点=占位待开发）· 1 期 MVP 17 页（管理端 11 + 用户端 6）· 版本信息统一在表内「版本」列<br>2/3 期排除页（不在 1 期导航，对应 PRD V1.0 Out of Scope）：工单 admin-ticket.html（2 期）、客服管理 admin-staff.html / 渠道接入 admin-channel.html / 机器人配置 ai-bot-config.html / 智能客服场景 ai-scene.html / 质检分析 ai-quality.html / 报表看板 ai-report.html（均为 3 期）<br>
       菜单数据来源：线上客服排期 T2 + 竞品调研（B9/B10/B12 归类）<br>
       技术栈：Go / React (Umi) / Taro
     </footer>

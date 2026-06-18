@@ -213,7 +213,7 @@
    ============================================================ */
 .msg-bubble-user {
   align-self: flex-end;
-  max-width: 72%;
+  max-width: var(--chat-card-width);
   background: #95ec69;
   color: var(--cs-text);
   padding: 9px 14px;

@@ -1187,6 +1187,61 @@
   }
 </style>
 <script>
+  // ===== 入口卡片点击 → 跳转聊天页并携带 entry_tag + 业务参数 =====
+  (function () {
+    // 每个场景对应的 mock 业务参数（与卡片内展示内容一致）
+    var ENTRY_PARAMS = {
+      home:      {},
+      product:   { product_id: '10086', product_name: 'YONEX 天斧100ZZ 碳纤维羽毛球拍', price: '1580' },
+      order:     { order_id: '202606110001', order_status: '待发货', amount: '1580' },
+      cart:      { cart_items: '3', total_amount: '1800' },
+      help:      { faq_category: '物流查询' },
+      profile:   { member_level: '黄金会员' },
+      logistics: { tracking_no: 'SF1234567890', carrier: '顺丰速运', order_id: '202606110001' },
+      refund:    { order_id: '202606110001', refund_type: '退货退款' },
+      phone:     { session_id: 'CS2026061109' }
+    };
+
+    function buildUrl(tag) {
+      var params = ENTRY_PARAMS[tag] || {};
+      var qs = ['entry_tag=' + encodeURIComponent(tag)];
+      for (var k in params) {
+        if (params.hasOwnProperty(k)) qs.push(k + '=' + encodeURIComponent(params[k]));
+      }
+      return 'user-chat.html?' + qs.join('&');
+    }
+
+    // 遍历每张入口卡片，解析 entry_tag，让卡片内 cs-fab 可点击跳转
+    document.querySelectorAll('.entry-card').forEach(function (card) {
+      var chip = card.querySelector('.entry-tag-chip');
+      if (!chip) return;
+      var tag = chip.textContent.replace('entry_tag:', '').trim();
+      var url = buildUrl(tag);
+
+      // 卡片内的 mock 悬浮按钮 → 改为可点击链接
+      var fab = card.querySelector('.cs-fab');
+      if (fab) {
+        fab.style.cursor = 'pointer';
+        fab.addEventListener('click', function (e) {
+          e.preventDefault();
+          location.href = url;
+        });
+      }
+
+      // 电话咨询卡片里的 phone-call-btn 也跳转
+      var phoneBtn = card.querySelector('.phone-call-btn');
+      if (phoneBtn) {
+        phoneBtn.style.cursor = 'pointer';
+        phoneBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          location.href = url;
+        });
+      }
+    });
+  })();
+</script>
+
+<script>
   (function () {
     var fab = document.getElementById('csFab');
     if (!fab) return;

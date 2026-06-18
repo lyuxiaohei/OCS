@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>排队等待 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <style>
+    /* ===== user-queue.html 专属样式 ===== */
+    body {
+      background: var(--cs-bg-page);
+      padding: var(--cs-space-6) 0;
+    }
+
+    .page-caption {
+      text-align: center;
+      margin: 0 auto var(--cs-space-3);
+      color: var(--cs-text-tertiary);
+      font-size: var(--cs-font-size-sm);
+    }
+    .page-caption strong { color: var(--cs-text); font-size: var(--cs-font-size-lg); font-weight: var(--cs-font-weight-semibold); }
+
+    .hidden { display: none !important; }
+
+    /* ============ 视图 1: 排队等待 ============ */
+    #queueView {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* 排队主视觉区 */
+    .queue-hero {
+      padding: 36px var(--cs-space-5) 24px;
+      background: linear-gradient(135deg, var(--cs-primary-bg) 0%, #e8f1ff 100%);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .queue-hero .hero-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto var(--cs-space-3);
+      border-radius: 50%;
+      background: var(--cs-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(22, 119, 255, 0.3);
+      position: relative;
+    }
+    .queue-hero .hero-icon::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(22, 119, 255, 0.25);
+      animation: pulse-ring 1.8s ease-out infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      100% { transform: scale(1.25); opacity: 0; }
+    }
+    .queue-hero .hero-title {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin-bottom: var(--cs-space-1);
+    }
+    .queue-hero .hero-sub {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      line-height: 1.6;
+    }
+
+    /* 排队序号卡片 */
+    .queue-number-card {
+      margin: var(--cs-space-4) var(--cs-space-4) 0;
+      background: var(--cs-bg-card);
+      border-radius: var(--cs-radius-xl);
+      padding: 20px var(--cs-space-4);
+      box-shadow: var(--cs-shadow-sm);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .queue-number-card .ahead-label {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      margin-bottom: 6px;
+    }
+    .queue-number-card .ahead-number {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--cs-primary);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+      transition: all 0.3s ease;
+    }
+    .queue-number-card .ahead-number.bump {
+      animation: number-bump 0.4s ease;
+    }
+    @keyframes number-bump {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); color: var(--cs-success); }
+      100% { transform: scale(1); }
+    }
+    .queue-number-card .ahead-unit {
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text-secondary);
+      margin-left: 4px;
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .queue-number-card .divider {
+      height: 1px;
+      background: var(--cs-border-lighter);
+      margin: 14px 0;
+    }
+    .queue-number-card .eta-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text-secondary);
+    }
+    .queue-number-card .eta-row .eta-value {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 进度条 */
+    .progress-wrap {
+      margin: var(--cs-space-3) var(--cs-space-4) 0;
+      flex-shrink: 0;
+    }
+    .progress-bar {
+      height: 6px;
+      background: var(--cs-border-lighter);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cs-primary) 0%, #4d9fff 100%);
+      border-radius: 3px;
+      transition: width 0.6s ease;
+      width: 43%;
+    }
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+    }
+
+    /* 提示信息区 */
+    .queue-tips {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--cs-space-4);
+    }
+    .tip-banner {
+      background: var(--cs-primary-bg);
+      border: 1px solid #bae0ff;
+      border-radius: var(--cs-radius-md);
+      padding: 10px var(--cs-space-3);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: var(--cs-font-size-sm);
+      color: #0958d9;
+      line-height: 1.6;
+      margin-bottom: var(--cs-space-3);
+    }
+    .tip-banner svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* 等待动画 */
+    .waiting-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: var(--cs-space-4) 0;
+    }
+    .waiting-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cs-primary);
+      opacity: 0.4;
+      animation: dot-bounce 1.4s ease-in-out infinite;
+    }
+    .waiting-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .waiting-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 底部操作区 */
+    .queue-actions {
+      padding: var(--cs-space-3) var(--cs-space-4) calc(var(--cs-space-4) + env(safe-area-inset-bottom));
+      background: var(--cs-bg-card);
+      border-top: 1px solid var(--cs-border-lighter);
+      flex-shrink: 0;
+    }
+    .btn-continue {
+      width: 100%;
+      height: 44px;
+      border: none;
+      border-radius: var(--cs-radius-md);
+      background: var(--cs-primary);
+      color: #fff;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-continue:active { opacity: 0.85; }
+    .btn-leave {
+      width: 100%;
+      height: 40px;
+      border: none;
+      background: transparent;
+      color: var(--cs-text-tertiary);
+      font-size: var(--cs-font-size-sm);
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn-leave:active { color: var(--cs-text-secondary); }
+
+    /* ============ 视图 2: 接通成功 ============ */
+    .connect-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px var(--cs-space-6);
+      background: var(--cs-bg-card);
+      text-align: center;
+    }
+    .connect-view .check-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--cs-success);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(82, 196, 26, 0.3);
+      animation: pop 0.4s ease;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.6); opacity: 0; }
+      60% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .connect-view .connect-title {
+      font-size: 17px;
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin-bottom: var(--cs-space-2);
+    }
+    .connect-view .connect-desc {
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text-tertiary);
+      line-height: 1.7;
+      max-width: 240px;
+      margin-bottom: var(--cs-space-6);
+    }
+    .connect-view .connect-btn {
+      padding: 10px 28px;
+      border: none;
+      border-radius: var(--cs-radius-md);
+      background: var(--cs-primary);
+      color: #fff;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .cs-toast {
+      position: absolute;
+      left: 50%;
+      bottom: 120px;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: var(--cs-radius-md);
+      font-size: var(--cs-font-size-sm);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s;
+      z-index: 99;
+      white-space: nowrap;
+    }
+    .cs-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <p class="page-caption"><strong>用户端 · 排队等待</strong> &nbsp;|&nbsp; US-MVP-21 排队等待提示</p>
+
+  <!-- ===== 移动端容器 (375px) ===== -->
+  <div class="cs-phone">
+
+    <!-- 小程序状态栏 -->
+    <div class="cs-status-bar">
+      <span class="sb-time">09:41</span>
+      <div class="sb-icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+
+    <!-- 小程序导航栏 -->
+    <div class="cs-nav-bar">
+      <div class="cs-back" title="返回" onclick="location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="cs-nav-title">排队等待</span>
+      <div class="cs-capsule" title="微信胶囊">
+        <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
+      </div>
+    </div>
+
+    <!-- ============ 视图 1: 排队等待 ============ -->
+    <div id="queueView">
+
+      <!-- 排队主视觉区 -->
+      <div class="queue-hero">
+        <div class="hero-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="hero-title">客服全忙，正在为您排队</div>
+        <div class="hero-sub">客服上线后将自动为您接通<br/>请保持页面打开，不要离开</div>
+      </div>
+
+      <!-- 排队序号卡片 -->
+      <div class="queue-number-card">
+        <div class="ahead-label">您前面还有</div>
+        <div>
+          <span class="ahead-number" id="aheadNumber">3</span>
+          <span class="ahead-unit">位用户</span>
+        </div>
+        <div class="divider"></div>
+        <div class="eta-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>预计等待</span>
+          <span class="eta-value" id="etaTime">02:30</span>
+        </div>
+      </div>
+
+      <!-- 进度条 -->
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text">
+          <span>当前排队 <span id="currentPos">4</span>/<span id="totalQueue">7</span></span>
+          <span id="waitTime">已等待 00:00</span>
+        </div>
+      </div>
+
+      <!-- 提示信息区 -->
+      <div class="queue-tips">
+        <div class="tip-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>当前咨询人数较多，感谢您的耐心等待。客服上线后将自动为您接通，请勿关闭页面。</span>
+        </div>
+
+        <div class="waiting-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- 底部操作区 -->
+      <div class="queue-actions">
+        <button class="btn-continue" onclick="continueWait()">继续等待</button>
+        <button class="btn-leave" onclick="location.href='user-offline.html'">转留言，稍后回复</button>
+      </div>
+    </div>
+
+    <!-- ============ 视图 2: 接通成功 ============ -->
+    <div id="connectView" class="connect-view hidden">
+      <div class="check-circle">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="connect-title">客服已接通</div>
+      <div class="connect-desc">正在为您跳转到会话界面<br/>请稍候…</div>
+      <button class="connect-btn" onclick="location.href='user-chat.html'">立即进入会话</button>
+    </div>
+
+    <!-- Toast -->
+    <div class="cs-toast" id="csToast"></div>
+
+  </div>
+
+  <script>
+    // ===== 排队状态 =====
+    var state = {
+      ahead: 3,           // 前面还有几人
+      total: 7,           // 总排队人数（含自己）
+      etaSeconds: 150,    // 预计等待秒数
+      waitedSeconds: 0,   // 已等待秒数
+      intervalId: null,   // 排队递减定时器
+      waitIntervalId: null, // 已等待计时器
+      etaIntervalId: null,  // 预计等待倒计时
+      speedUp: false      // 是否加速（点击继续等待后）
+    };
+
+    // 初始化
+    function init() {
+      updateUI();
+      // 每 2 秒前面减少 1 人（模拟前面用户被接通）
+      state.intervalId = setInterval(decreaseQueue, 2000);
+      // 已等待时间每秒 +1
+      state.waitIntervalId = setInterval(tickWaited, 1000);
+      // 预计等待时间每秒 -1
+      state.etaIntervalId = setInterval(tickEta, 1000);
+    }
+
+    // 前面人数递减
+    function decreaseQueue() {
+      if (state.ahead <= 0) {
+        connectAgent();
+        return;
+      }
+      state.ahead--;
+      // 加速模式下额外减 1
+      if (state.speedUp && state.ahead > 0) {
+        state.ahead--;
+      }
+      // 触发数字弹跳动画
+      var numEl = document.getElementById('aheadNumber');
+      numEl.classList.remove('bump');
+      void numEl.offsetWidth;
+      numEl.classList.add('bump');
+      updateUI();
+      if (state.ahead <= 0) {
+        connectAgent();
+      }
+    }
+
+    // 已等待时间 +1s
+    function tickWaited() {
+      state.waitedSeconds++;
+      document.getElementById('waitTime').textContent = '已等待 ' + formatTime(state.waitedSeconds);
+    }
+
+    // 预计等待时间 -1s
+    function tickEta() {
+      if (state.etaSeconds > 0) {
+        state.etaSeconds--;
+      }
+      document.getElementById('etaTime').textContent = formatTime(state.etaSeconds);
+    }
+
+    // 更新 UI
+    function updateUI() {
+      document.getElementById('aheadNumber').textContent = state.ahead;
+      var currentPos = state.total - state.ahead;
+      document.getElementById('currentPos').textContent = currentPos;
+      document.getElementById('totalQueue').textContent = state.total;
+      // 进度条
+      var percent = (currentPos / state.total) * 100;
+      document.getElementById('progressFill').style.width = percent + '%';
+    }
+
+    // 格式化时间 mm:ss
+    function formatTime(sec) {
+      var m = Math.floor(sec / 60);
+      var s = sec % 60;
+      return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    // 继续等待
+    function continueWait() {
+      state.speedUp = true;
+      showToast('已为您保留排队位置，正在加速接通…');
+      // 禁用按钮 3 秒避免重复点击
+      var btn = document.querySelector('.btn-continue');
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.textContent = '加速中…';
+      setTimeout(function() {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.textContent = '继续等待';
+        state.speedUp = false;
+      }, 3000);
+    }
+
+    // 接通客服
+    function connectAgent() {
+      clearInterval(state.intervalId);
+      clearInterval(state.waitIntervalId);
+      clearInterval(state.etaIntervalId);
+      document.getElementById('queueView').classList.add('hidden');
+      document.getElementById('connectView').classList.remove('hidden');
+      // 3 秒后自动跳转
+      setTimeout(function() {
+        location.href = 'user-chat.html';
+      }, 3000);
+    }
+
+    // Toast 提示
+    var toastTimer = null;
+    function showToast(msg) {
+      var toast = document.getElementById('csToast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // 启动
+    init();
+  </script>
+
+</body>
+</html>

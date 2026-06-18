@@ -168,7 +168,7 @@
       background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
     }
     .msg-content {
-      max-width: 72%;
+      max-width: var(--chat-card-width);
       display: flex;
       flex-direction: column;
     }
@@ -979,6 +979,171 @@
 
 <!-- ===== Demo interactions (prototype only) ===== -->
 <script>
+  // ===== 入口联动：解析 URL 参数 → 自动插入用户侧场景卡片 =====
+  (function () {
+    // 解析 URL query
+    var params = {};
+    location.search.replace(/^\?/, '').split('&').forEach(function (pair) {
+      if (!pair) return;
+      var kv = pair.split('=');
+      params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
+    });
+
+    var tag = params.entry_tag;
+    if (!tag) return; // 无入口参数 → 保持原静态演示内容
+
+    // ---- mock 卡片数据（按 entry_tag 映射）----
+    var CARD_DATA = {
+      product: {
+        type: 'product',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+        title: '商品',
+        status: 's-done', statusText: '在售',
+        productName: params.product_name || '未知商品',
+        productDesc: '商品ID: ' + (params.product_id || ''),
+        price: '¥' + (params.price || '0'),
+        tags: ['包邮', '七天无理由', '正品保障'],
+        action: '查看商品'
+      },
+      order: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+        title: '订单',
+        status: 's-warn', statusText: params.order_status || '未知',
+        productName: '订单商品',
+        productDesc: '订单编号: ' + (params.order_id || ''),
+        orderId: params.order_id || '',
+        amount: '¥' + (params.amount || '0'),
+        action: '查看订单详情'
+      },
+      logistics: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+        title: '物流',
+        status: 's-proc', statusText: '运输中',
+        productName: '物流单号: ' + (params.tracking_no || ''),
+        productDesc: '快递公司: ' + (params.carrier || ''),
+        orderId: params.order_id || '',
+        amount: '',
+        action: '查看物流详情'
+      },
+      refund: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><path d="M10 9V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v5"/></svg>',
+        title: '退换货',
+        status: 's-danger', statusText: '处理中',
+        productName: '退款类型: ' + (params.refund_type || ''),
+        productDesc: '订单编号: ' + (params.order_id || ''),
+        orderId: params.order_id || '',
+        amount: '',
+        action: '查看退款进度'
+      },
+      cart: {
+        type: 'order',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+        title: '购物车',
+        status: 's-proc', statusText: '待咨询',
+        productName: '购物车共 ' + (params.cart_items || '0') + ' 件商品',
+        productDesc: '合计金额: ¥' + (params.total_amount || '0'),
+        orderId: '',
+        amount: '¥' + (params.total_amount || '0'),
+        action: '查看购物车'
+      }
+    };
+
+    // 无卡片的场景 → 纯文本消息
+    var TEXT_ONLY = {
+      home:    '你好，我想咨询一下',
+      help:    '我在帮助中心看了「' + (params.faq_category || '') + '」相关内容，还有疑问想问客服',
+      profile: '你好，我有账户相关的问题需要咨询',
+      phone:   '您好，我想通过语音咨询问题'
+    };
+
+    // ---- 构建卡片 HTML ----
+    function buildCardHTML(data) {
+      var tagsHTML = (data.tags || []).map(function (t) {
+        return '<span class="ptag">' + t + '</span>';
+      }).join('');
+
+      var amountRow = data.amount
+        ? '<div class="card-row"><span class="label">' + (data.type === 'order' && data.orderId ? '实付金额' : '金额') + '</span><span class="price">' + data.amount + '</span></div>'
+        : '';
+
+      var orderIdRow = data.orderId
+        ? '<div class="card-row"><span class="label">订单编号</span><span class="value">' + data.orderId + '</span></div>'
+        : '';
+
+      return '<div class="msg-card ' + data.type + '">' +
+        '<div class="card-header">' +
+          '<div class="h-left"><span class="h-icon">' + data.icon + '</span><span>' + data.title + '</span></div>' +
+          '<span class="status-badge ' + data.status + '">' + data.statusText + '</span>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<div class="product-info">' +
+            '<div class="product-thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>' +
+            '<div class="product-detail">' +
+              '<div class="product-name">' + data.productName + '</div>' +
+              '<div class="product-desc">' + data.productDesc + '</div>' +
+            '</div>' +
+          '</div>' +
+          (tagsHTML ? '<div class="product-tags">' + tagsHTML + '</div>' : '') +
+          orderIdRow +
+          amountRow +
+          '<div class="card-action">' + data.action + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // ---- 构建用户侧消息行 ----
+    function buildUserRow(innerHTML) {
+      var row = document.createElement('div');
+      row.className = 'msg-row user';
+      row.innerHTML =
+        '<div class="msg-avatar user">我</div>' +
+        '<div class="msg-content">' + innerHTML +
+          '<div class="msg-meta">' + new Date().toTimeString().slice(0, 5) + '</div>' +
+        '</div>';
+      return row;
+    }
+
+    // ---- 插入到消息流 ----
+    var thread = document.getElementById('chatMessages');
+    if (!thread) return;
+
+    // B 方案：带入口参数时，清空静态演示内容，只保留
+    // history-loader + 系统分割条 + 客服欢迎语 + 猜你想问
+    var qaSuggestRow = thread.querySelector('.qa-suggest');
+    if (qaSuggestRow) {
+      var anchorRow = qaSuggestRow.closest('.msg-row');
+      var node = anchorRow ? anchorRow.nextSibling : null;
+      while (node) {
+        var next = node.nextSibling;
+        if (node.nodeType === 1 && node.classList.contains('msg-row')) {
+          thread.removeChild(node);
+        }
+        node = next;
+      }
+    }
+
+    // 插入点：系统分割条之后、客服欢迎语之前
+    var systemDivider = thread.querySelector('.msg-system');
+    var insertBefore = systemDivider ? systemDivider.nextSibling : thread.firstChild;
+
+    var sceneRow;
+    var cardData = CARD_DATA[tag];
+    if (cardData) {
+      sceneRow = buildUserRow(buildCardHTML(cardData));
+    } else if (TEXT_ONLY[tag]) {
+      sceneRow = buildUserRow('<div class="msg-bubble-user">' + TEXT_ONLY[tag] + '</div>');
+    }
+
+    if (sceneRow) {
+      thread.insertBefore(sceneRow, insertBefore);
+      // 滚动到最新
+      thread.scrollTop = thread.scrollHeight;
+    }
+  })();
+
   // Toggle "+" more panel
   (function () {
     var moreBtn = document.getElementById('moreBtn');
