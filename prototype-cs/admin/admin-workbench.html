@@ -6,6 +6,7 @@
   <title>客服工作台 — 供应链平台</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
+  <script src="js/notify.js"></script>
   <style>
     /* ===== admin-workbench.html 专属样式 ===== */
 
@@ -221,6 +222,7 @@
     .s-tag.urgent { background: var(--cs-danger-bg); color: #cf1322; border: 1px solid #ffa39e; }
     .s-tag.transferred { background: var(--cs-purple-bg); color: #531dab; border: 1px solid #d3adf7; }
     .s-tag.pending { background: var(--cs-purple-bg); color: #531dab; border: 1px solid #d3adf7; }
+    .s-tag.channel { background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; }
 
     /* 挂起会话项视觉：整行淡紫底，左侧紫条 */
     .session-item.is-pending { background: #faf5ff; }
@@ -933,6 +935,7 @@
           <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" stroke-width="2" style="vertical-align:-2px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           <input type="text" placeholder="搜索用户 / 订单号" />
         </div>
+        <button id="btnSimulateMsg" style="margin:8px 12px 0;padding:6px 10px;border:1px solid var(--cs-primary);background:var(--cs-primary-bg);color:var(--cs-primary);border-radius:4px;cursor:pointer;font-size:12px;">🔔 模拟新消息</button>
       </div>
 
       <div class="wb-tabs">
@@ -949,6 +952,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">李晓红</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">14:32</span>
             </div>
             <div class="session-bottom-row">
@@ -963,6 +967,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">张伟</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">14:28</span>
             </div>
             <div class="session-bottom-row">
@@ -977,6 +982,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">陈芳</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">14:15</span>
             </div>
             <div class="session-bottom-row">
@@ -991,6 +997,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">刘强</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">13:50</span>
             </div>
             <div class="session-bottom-row">
@@ -1004,6 +1011,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">王丽娟</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">13:42</span>
             </div>
             <div class="session-bottom-row">
@@ -1018,6 +1026,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">赵敏</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">12:30</span>
             </div>
             <div class="session-bottom-row">
@@ -1031,6 +1040,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">孙建国</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">11:58</span>
             </div>
             <div class="session-bottom-row">
@@ -1045,6 +1055,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">周婷婷</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">11:20</span>
             </div>
             <div class="session-bottom-row">
@@ -1059,6 +1070,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">吴鹏</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">排队中</span>
             </div>
             <div class="session-bottom-row">
@@ -1074,6 +1086,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">郑丽华</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">13:10</span>
             </div>
             <div class="session-bottom-row">
@@ -1088,6 +1101,7 @@
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">何静</span>
+              <span class="s-tag channel">H5</span>
               <span class="session-time">12:45</span>
             </div>
             <div class="session-bottom-row">
@@ -1322,10 +1336,13 @@
             </div>
           </div>
           <div class="tool-divider"></div>
-          <button class="card-btn" title="发送订单卡片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></button>
-          <button class="card-btn" title="发送商品卡片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>
-          <button class="card-btn" title="发送优惠券"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M2 12h20"/><path d="M12 2v10"/><path d="M8 2h8l-4 6-4-6z"/></svg></button>
-          <button class="card-btn" title="发送图片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg></button>
+          <button class="card-btn" data-card="order" title="发送订单卡片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></button>
+          <button class="card-btn" data-card="product" title="发送商品卡片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>
+          <button class="card-btn" data-card="coupon" title="发送优惠券"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M2 12h20"/><path d="M12 2v10"/><path d="M8 2h8l-4 6-4-6z"/></svg></button>
+          <button class="card-btn" data-card="image" title="发送图片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg></button>
+          <button class="card-btn" data-card="cart" title="发送购物车"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>
+          <button class="card-btn" data-card="logistic" title="发送物流"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></button>
+          <button class="card-btn" data-card="refund" title="发送售后"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
           <div class="input-actions-right">
             <span>Shift + Enter 换行</span>
           </div>
@@ -2017,6 +2034,104 @@
           renderSession(data);
         });
       });
+
+      /* ===== V2.2：富媒体卡片插入（7 类）+ 新消息弹窗/提示音（免打扰）===== */
+      // 7 类卡片模板（order/product/coupon 复用静态页既有 .thread-card 结构；新增 cart/logistic/refund）
+      var CARD_TEMPLATES = {
+        order: '<div class="thread-card order"><div class="tc-header"><div class="tc-left"><span class="tc-icon">📦</span>订单</div><span class="tc-state s-warn">待发货</span></div><div class="tc-body"><div class="tc-row"><span class="k">订单号</span><span class="v">#20260611</span></div><div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机（白色） ×1</span></div><div class="tc-row"><span class="k">实付金额</span><span class="price">¥299.00</span></div></div><div class="tc-footer"><div class="tc-btn">查看详情</div><div class="tc-btn solid">催发货</div></div></div>',
+        product: '<div class="thread-card product"><div class="tc-header"><div class="tc-left"><span class="tc-icon">🛍</span>商品</div><span class="tc-state s-done">有货</span></div><div class="tc-body"><div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机（白色）</span></div><div class="tc-row"><span class="k">SKU</span><span class="v">BT-WHITE-001</span></div><div class="tc-row"><span class="k">售价</span><span class="price">¥299.00</span></div><div class="tc-row"><span class="k">库存</span><span class="v">128 件</span></div></div><div class="tc-footer"><div class="tc-btn">查看商品</div><div class="tc-btn solid">安排换货</div></div></div>',
+        coupon: '<div class="thread-card coupon"><div class="tc-header"><div class="tc-left"><span class="tc-icon">🎟</span>优惠券</div><span class="tc-state s-warn">可领取</span></div><div class="tc-body"><div class="tc-row"><span class="k">面额</span><span class="v">满 ¥200 减 ¥30</span></div><div class="tc-row"><span class="k">适用范围</span><span class="v">全品类</span></div><div class="tc-row"><span class="k">有效期</span><span class="v">2026-06-30 前</span></div></div><div class="tc-footer"><div class="tc-btn solid">立即领取</div></div></div>',
+        image: '<div class="msg-bubble image-bubble">[商品图片]</div>',
+        cart: '<div class="thread-card cart"><div class="tc-header"><div class="tc-left"><span class="tc-icon">🛒</span>购物车</div><span class="tc-state s-warn">3 件待结算</span></div><div class="tc-body"><div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机 ×1、手机壳 ×1、数据线 ×1</span></div><div class="tc-row"><span class="k">商品总数</span><span class="v">3 件</span></div><div class="tc-row"><span class="k">小计</span><span class="price">¥358.00</span></div></div><div class="tc-footer"><div class="tc-btn">查看购物车</div><div class="tc-btn solid">催下单</div></div></div>',
+        logistic: '<div class="thread-card logistic"><div class="tc-header"><div class="tc-left"><span class="tc-icon">🚚</span>物流</div><span class="tc-state s-proc">运送中</span></div><div class="tc-body"><div class="tc-row"><span class="k">运单号</span><span class="v">SF1234567890</span></div><div class="tc-row"><span class="k">承运</span><span class="v">顺丰速运</span></div><div class="tc-row"><span class="k">当前节点</span><span class="v">深圳转运中心 已发出</span></div><div class="tc-row"><span class="k">预计送达</span><span class="v">2026-06-13 18:00 前</span></div></div><div class="tc-footer"><div class="tc-btn">查看物流</div></div></div>',
+        refund: '<div class="thread-card refund"><div class="tc-header"><div class="tc-left"><span class="tc-icon">↩️</span>售后</div><span class="tc-state s-danger">处理中</span></div><div class="tc-body"><div class="tc-row"><span class="k">服务单号</span><span class="v">AS20260611001</span></div><div class="tc-row"><span class="k">类型</span><span class="v">退货退款</span></div><div class="tc-row"><span class="k">原因</span><span class="v">商品有色差</span></div><div class="tc-row"><span class="k">状态</span><span class="v">待买家退货</span></div></div><div class="tc-footer"><div class="tc-btn">查看详情</div><div class="tc-btn solid">跟进</div></div></div>'
+      };
+
+      // 插入一条客服卡片消息（含撤回菜单），append 到当前对话流并滚动
+      function insertAgentCard(cardHtml) {
+        var thread = document.querySelector('.msg-thread');
+        if (!thread || !cardHtml) return;
+        var row = document.createElement('div');
+        row.className = 'msg-row agent';
+        row.innerHTML = '<div class="msg-avatar">王</div>'
+          + '<div class="msg-content" data-sent-ts="' + Math.floor(Date.now() / 1000) + '">'
+          + '<button class="msg-actions-trigger" title="更多操作">' + triggerSvg + '</button>'
+          + recallMenu
+          + '<div class="msg-sender">客服 王小明</div>'
+          + cardHtml
+          + '</div>';
+        thread.appendChild(row);
+        thread.scrollTop = thread.scrollHeight;
+        bindMsgActions();
+      }
+
+      // 工具栏单监听：7 个 card-btn 统一委派
+      var toolbar = document.querySelector('.input-toolbar');
+      if (toolbar) {
+        toolbar.addEventListener('click', function (e) {
+          var b = e.target.closest('.card-btn[data-card]');
+          if (!b) return;
+          insertAgentCard(CARD_TEMPLATES[b.getAttribute('data-card')] || '');
+        });
+      }
+
+      // —— 新消息提醒（UC-工作台-15 / AC-工作台-10）——
+      var pageVisible = !document.hidden;
+      document.addEventListener('visibilitychange', function () { pageVisible = !document.hidden; });
+
+      function bumpUnread(sessionItem) {
+        if (!sessionItem) return;
+        var badge = sessionItem.querySelector('.unread-badge');
+        if (badge) {
+          badge.textContent = (parseInt(badge.textContent, 10) || 0) + 1;
+        } else {
+          var bottomRow = sessionItem.querySelector('.session-bottom-row');
+          if (bottomRow) {
+            badge = document.createElement('span');
+            badge.className = 'unread-badge';
+            badge.textContent = '1';
+            bottomRow.appendChild(badge);
+          }
+        }
+      }
+
+      var PREVIEW_MSGS = [
+        { name: '张伟', preview: '请问我的订单什么时候发货？' },
+        { name: '陈芳', preview: '退款还没到账，麻烦帮我看下' },
+        { name: '刘强', preview: '商品图片发你了，麻烦看下规格' },
+        { name: '孙建国', preview: '发票可以再开一张企业抬头的吗' },
+        { name: '周婷婷', preview: '请问这个颜色还有货吗？' }
+      ];
+      var simIdx = 0;
+      var simAllItems = Array.prototype.slice.call(document.querySelectorAll('.session-list .session-item'));
+      var simBtn = document.getElementById('btnSimulateMsg');
+      if (simBtn) {
+        simBtn.addEventListener('click', function () {
+          if (!simAllItems.length) return;
+          if (window.csNotify) csNotify.unlockAudio();
+          var active = document.querySelector('.session-list .session-item.active');
+          // 仅在非焦点会话上模拟新消息 → 每次必弹窗+提示音（焦点会话「免打扰」分支保留在代码中以保证 PRD 完整）
+          var candidates = simAllItems.filter(function (it) { return it !== active; });
+          if (!candidates.length) return;
+          var target = candidates[simIdx % candidates.length];
+          simIdx += 1;
+          var meta = PREVIEW_MSGS[(simIdx - 1) % PREVIEW_MSGS.length];
+          bumpUnread(target);
+          var isFocused = target === active;
+          if (isFocused && pageVisible) {
+            // 免打扰：当前焦点会话 + 页面可见 → 仅徽标 +1
+            if (window.csModal && csModal.toast) csModal.toast('焦点会话「' + meta.name + '」新消息：仅徽标提醒（免打扰）');
+          } else if (window.csNotify) {
+            // 非焦点 或 页面不可见 → 弹窗 + 提示音（立即查看 → 切到该会话）
+            csNotify.playBeep();
+            csNotify.popup({
+              name: meta.name,
+              preview: meta.preview,
+              onOpen: function () { target.click(); }
+            });
+          }
+        });
+      }
     })();
   </script>
 
