@@ -954,7 +954,10 @@
 
     <!-- 顶部 Header -->
     <header class="admin-header">
-      <div class="breadcrumb">首页 / 工作台 / <span style="color:var(--cs-text);">客服工作台</span></div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="breadcrumb">首页 / 工作台 / <span style="color:var(--cs-text);">客服工作台</span></div>
+        <button id="btnSimulateMsg" style="padding:5px 12px;border:1px solid var(--cs-primary);background:var(--cs-primary-bg);color:var(--cs-primary);border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;">🔔 模拟新消息</button>
+      </div>
       <div class="user-info">
         <span class="status-badge online">在线接客中</span>
         <span>客服A · 王小明</span>
@@ -975,7 +978,6 @@
           <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" stroke-width="2" style="vertical-align:-2px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           <input type="text" placeholder="搜索用户 / 订单号" />
         </div>
-        <button id="btnSimulateMsg" style="margin:8px 12px 0;padding:6px 10px;border:1px solid var(--cs-primary);background:var(--cs-primary-bg);color:var(--cs-primary);border-radius:4px;cursor:pointer;font-size:12px;">🔔 模拟新消息</button>
       </div>
 
       <div class="wb-tabs">
