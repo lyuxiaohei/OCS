@@ -900,6 +900,46 @@
       align-items: center;
       gap: 5px;
     }
+
+    /* ===== 工作台专属：侧边栏默认收起（不挤压三栏聊天布局）=====
+       公共 .admin-sidebar 是 208px flex 项；工作台改成 fixed 浮层，默认左移出视口，
+       点左缘按钮浮层展开。仅本页 <style> 生效，不影响其他页。 */
+    .admin-sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1200;
+      transform: translateX(-208px);
+      box-shadow: none;
+      transition: transform var(--cs-transition-normal);
+    }
+    .admin-sidebar.open {
+      transform: translateX(0);
+      box-shadow: 2px 0 12px rgba(0,0,0,0.25);
+    }
+    .sidebar-trigger {
+      position: fixed;
+      top: 16px;
+      left: 0;
+      z-index: 1201;
+      width: 18px;
+      height: 48px;
+      background: #001529;
+      color: rgba(255,255,255,0.85);
+      border: none;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+      transition: left var(--cs-transition-normal);
+    }
+    .sidebar-trigger:hover { color: #fff; }
+    .sidebar-trigger.is-open { left: 208px; }
   </style>
 </head>
 <body>
@@ -2136,5 +2176,34 @@
   </script>
 
   <script src="nav.js"></script>
+  <script>
+  /* 工作台：侧边栏默认收起，左缘按钮浮层展开。
+     nav.js 在 DOMContentLoaded 渲染 #sidebar-nav；这里轮询等渲染完再挂触发钮。 */
+  (function () {
+    function initSidebarToggle() {
+      var sb = document.getElementById('sidebar-nav');
+      if (!sb || sb.getAttribute('data-toggle-bound') === '1') return;
+      if (!sb.querySelector('.menu-item')) { setTimeout(initSidebarToggle, 60); return; }
+      sb.setAttribute('data-toggle-bound', '1');
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sidebar-trigger';
+      btn.innerHTML = '›';
+      btn.setAttribute('aria-label', '展开侧边栏');
+      document.body.appendChild(btn);
+      btn.addEventListener('click', function () {
+        var opened = sb.classList.toggle('open');
+        btn.classList.toggle('is-open', opened);
+        btn.innerHTML = opened ? '‹' : '›';
+        btn.setAttribute('aria-label', opened ? '收起侧边栏' : '展开侧边栏');
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSidebarToggle);
+    } else {
+      initSidebarToggle();
+    }
+  })();
+  </script>
 </body>
 </html>
