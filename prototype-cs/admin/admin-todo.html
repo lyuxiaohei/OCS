@@ -6,6 +6,7 @@
   <title>待办事项 — 供应链平台</title>
   <link rel="stylesheet" href="styles.css" />
 <script src="js/cs-modal.js"></script>
+<script src="js/notify.js"></script>
   <style>
     /* ===== admin-todo.html 专属样式 ===== */
 
@@ -325,7 +326,7 @@
         <section class="card section-card">
           <div class="section-head">
             <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>超时预警 <span class="count-pill danger">3</span></div>
-            <div class="head-actions"><a href="#">设置规则 ›</a></div>
+            <div class="head-actions"><button class="todo-btn-sm" id="btnPlayTimeoutBeep" style="margin-right:8px;">🔊 播放提示音</button><a href="#">设置规则 ›</a></div>
           </div>
           <div class="section-body">
 
@@ -603,6 +604,36 @@
       toast((nm ? nm.textContent.trim() : '') + '：' + (num ? num.textContent.trim() : '') + '，点击下方列处理');
     });
   });
+
+  /* ---------- V2.2：超时提示音（手动按钮 + 首次手势后自动响一声）---------- */
+  function readTimeoutCount() {
+    var sec = $$('.section-card').filter(function (s) {
+      var t = $('.title', s);
+      return t && t.textContent.indexOf('超时预警') >= 0;
+    })[0];
+    if (!sec) return 0;
+    var pill = $('.count-pill', sec);
+    return pill ? (parseInt(pill.textContent, 10) || 0) : 0;
+  }
+  var beepedOnce = false;
+  function maybeBeep() {
+    if (beepedOnce) return;
+    if (readTimeoutCount() > 0 && window.csNotify) {
+      csNotify.unlockAudio();
+      csNotify.playBeep();
+      beepedOnce = true;
+    }
+  }
+  document.addEventListener('click', maybeBeep);
+  document.addEventListener('keydown', maybeBeep);
+  // 超时预警头「播放提示音」按钮：手动试听（同步置 beepedOnce，避免与 document 级 maybeBeep 双响）
+  var btnBeep = $('#btnPlayTimeoutBeep');
+  if (btnBeep) {
+    btnBeep.addEventListener('click', function () {
+      if (window.csNotify) { csNotify.unlockAudio(); csNotify.playBeep(); beepedOnce = true; }
+      toast('已播放超时提示音');
+    });
+  }
 })();
 </script>
 </body>
