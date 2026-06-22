@@ -81,7 +81,11 @@ function renderSidebar() {
     group.items.forEach(item => {
       const isActive = item.id === activeId ? ' active' : '';
       const svgIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;">${item.icon}</svg>`;
-      html += `<a href="${item.href}" class="menu-item${isActive}">${svgIcon}${item.label}</a>`;
+      // 跨「工作台边界」才新开页签：点的菜单与当前页分处工作台/非工作台两侧 → target="_blank"（异或）
+      // 即：非工作台页点工作台、工作台页点其他菜单 → 新开；两边同侧（非工作台↔非工作台、工作台↔工作台）→ 同页跳转
+      const openNew = (item.id === 'workbench') !== (activeId === 'workbench');
+      const targetAttr = openNew ? ' target="_blank"' : '';
+      html += `<a href="${item.href}" class="menu-item${isActive}"${targetAttr}>${svgIcon}${item.label}</a>`;
     });
   });
 
