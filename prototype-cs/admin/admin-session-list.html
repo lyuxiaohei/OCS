@@ -31,6 +31,28 @@
 
     /* 兼容旧 .s-tag 类名 → 映射到 .status-tag */
     .s-tag { /* 委托给 styles.css .status-tag */ }
+
+    /* ===== V2.2：渠道列 + 按用户归集视图 ===== */
+    .s-tag.channel { background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+    .status-tabs.view-toggle { border-top: 1px solid var(--cs-border-light); }
+    .status-tabs.view-toggle .status-tab { cursor: pointer; }
+    #user-view { padding: 8px 16px; }
+    .user-group { border: 1px solid var(--cs-border-light); border-radius: 6px; margin-bottom: 8px; overflow: hidden; }
+    .user-group-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; background: #fafafa; }
+    .user-group-head:hover { background: #f0f0f0; }
+    .user-group .ug-info { flex: 1; min-width: 0; }
+    .user-group .ug-name { font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); }
+    .user-group .ug-sub { font-size: 12px; color: var(--cs-text-tertiary); margin-top: 2px; }
+    .user-group .user-session-count { background: var(--cs-primary-bg); color: var(--cs-primary); font-size: 11px; padding: 1px 8px; border-radius: 10px; font-weight: normal; margin-left: 6px; }
+    .user-group .ug-time { font-size: 12px; color: var(--cs-text-tertiary); }
+    .user-group .ug-chevron { color: var(--cs-text-tertiary); font-size: 18px; }
+    .user-group-sessions { display: none; }
+    .user-group.open .user-group-sessions { display: block; }
+    .ug-session { display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 54px; border-top: 1px solid var(--cs-border-lighter); font-size: 13px; }
+    .ug-session .ug-sid { color: var(--cs-text-secondary); width: 130px; }
+    .ug-session .ug-sagent { width: 130px; color: var(--cs-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ug-session .ug-sdur { width: 80px; color: var(--cs-text-tertiary); }
+    .ug-session .sl-recontact { margin-left: auto; color: var(--cs-primary); cursor: pointer; }
   </style>
 </head>
 <body>
@@ -267,10 +289,10 @@
                 <td class="col-id">#CS20260609088</td>
                 <td>
                   <div class="col-user">
-                    <div class="mini-avatar purple">周</div>
+                    <div class="mini-avatar purple">陈</div>
                     <div>
-                      <div>周晓彤</div>
-                      <div style="font-size:12px;color:#8c8c8c;">VIP1 · 150****3344</div>
+                      <div>陈思雨</div>
+                      <div style="font-size:12px;color:#8c8c8c;">VIP2 · 186****0452</div>
                     </div>
                   </div>
                 </td>
@@ -289,10 +311,10 @@
                 <td class="col-id">#CS20260609076</td>
                 <td>
                   <div class="col-user">
-                    <div class="mini-avatar green">吴</div>
+                    <div class="mini-avatar orange">王</div>
                     <div>
-                      <div>吴婷婷</div>
-                      <div style="font-size:12px;color:#8c8c8c;">VIP3 · 199****0098</div>
+                      <div>王志强</div>
+                      <div style="font-size:12px;color:#8c8c8c;">普通会员 · 159****6601</div>
                     </div>
                   </div>
                 </td>
@@ -412,6 +434,150 @@
   var rows = refreshRows();
   rows.forEach(annotateRow);
 
+  /* ---------- V2.2：渠道列 / 再次联系 / 按用户归集视图 ---------- */
+  function rowUserName(tr) {
+    var uc = $('.col-user', tr);
+    if (uc && uc.children[1] && uc.children[1].children[0]) return uc.children[1].children[0].textContent.trim();
+    return '';
+  }
+  // (a) 渠道列：thead 增 <th>渠道</th>；每行在客服 td 后插 <td>H5</td>；同时捕获开始时间(data-time) + data-user-id + 再次联系
+  var UID_BY_SESSION = {
+    '#CS20260611001': 'U1', '#CS20260611002': 'U2', '#CS20260611003': 'U3',
+    '#CS20260610024': 'U4', '#CS20260610019': 'U5', '#CS20260610015': 'U6',
+    '#CS20260609088': 'U3', '#CS20260609076': 'U2',
+    '#CS20260609061': 'U7', '#CS20260608052': 'U8'
+  };
+  var headThs = $$('.data-table thead th');
+  if (headThs.length >= 3 && headThs[2].textContent.trim() === '客服') {
+    var chTh = document.createElement('th'); chTh.textContent = '渠道';
+    headThs[2].parentNode.insertBefore(chTh, headThs[2].nextSibling);
+  }
+  rows.forEach(function (tr) {
+    var cells = $$('td', tr);
+    // 开始时间此时仍是 cells[3]（渠道列尚未插入）→ 存 data-time
+    if (cells[3] && cells[3].firstChild) tr.setAttribute('data-time', cells[3].firstChild.nodeValue.trim());
+    // 渠道 td 插在客服 cells[2] 之后
+    if (cells[2]) {
+      var chTd = document.createElement('td');
+      chTd.innerHTML = '<span class="s-tag channel">H5</span>';
+      cells[2].parentNode.insertBefore(chTd, cells[2].nextSibling);
+    }
+    // data-user-id（按会话 ID 映射；U2/U3 各对应两行 → 演示按用户归集）
+    var idEl = $('.col-id', tr);
+    var sid = idEl ? idEl.textContent.trim() : '';
+    tr.setAttribute('data-user-id', UID_BY_SESSION[sid] || ('U-' + sid.replace(/[^0-9]/g, '')));
+    // 行操作追加「再次联系」
+    var actions = $('.row-actions', tr);
+    if (actions) {
+      var divider = document.createElement('span'); divider.className = 'divider'; divider.textContent = '|';
+      actions.appendChild(divider);
+      var link = document.createElement('a');
+      link.className = 'sl-recontact'; link.textContent = '再次联系';
+      link.setAttribute('data-name', rowUserName(tr));
+      actions.appendChild(link);
+    }
+  });
+
+  // (b) 视图切换 markup（按会话 / 按用户），复用 .status-tabs 样式
+  var statusTabsBar = $('.status-tabs');
+  var viewBar = null;
+  if (statusTabsBar && statusTabsBar.parentNode) {
+    viewBar = document.createElement('div');
+    viewBar.className = 'status-tabs view-toggle';
+    viewBar.innerHTML =
+      '<div class="status-tab active" data-view="session">按会话</div>' +
+      '<div class="status-tab" data-view="user">按用户</div>';
+    statusTabsBar.parentNode.insertBefore(viewBar, statusTabsBar.nextSibling);
+  }
+  // 用户视图容器（与 .table-wrap 并列）
+  var tableWrap = $('.table-wrap');
+  var userView = document.createElement('div');
+  userView.id = 'user-view';
+  userView.style.display = 'none';
+  if (tableWrap && tableWrap.parentNode) tableWrap.parentNode.insertBefore(userView, tableWrap.nextSibling);
+
+  var currentView = 'session';
+  function statusInfo(tr) {
+    var tag = $('.s-tag', tr);
+    var cls = tag ? (['ongoing', 'closed', 'transferred', 'cancelled'].filter(function (c) { return tag.classList.contains(c); })[0] || '') : '';
+    return { cls: cls, text: tag ? tag.textContent.trim() : '' };
+  }
+  function renderUserView() {
+    var visible = rows.filter(function (r) { return r.style.display !== 'none'; });
+    var groups = {}, order = [];
+    visible.forEach(function (tr) {
+      var uid = tr.getAttribute('data-user-id') || 'other';
+      if (!groups[uid]) { groups[uid] = []; order.push(uid); }
+      groups[uid].push(tr);
+    });
+    var html = '';
+    order.forEach(function (uid) {
+      var group = groups[uid];
+      var first = group[0];
+      var uc = $('.col-user', first);
+      var avatarEl = uc ? uc.children[0] : null;
+      var avatarCls = avatarEl ? avatarEl.className : 'mini-avatar';
+      var avatar = avatarEl ? avatarEl.textContent.trim() : '?';
+      var name = rowUserName(first);
+      var phone = (uc && uc.children[1] && uc.children[1].children[1]) ? uc.children[1].children[1].textContent.trim() : '';
+      var time = first.getAttribute('data-time') || '';
+      html += '<div class="user-group">'
+        + '<div class="user-group-head">'
+        + '<div class="' + avatarCls + '">' + avatar + '</div>'
+        + '<div class="ug-info"><div class="ug-name">' + name + ' <span class="user-session-count">' + group.length + ' 会话</span></div>'
+        + '<div class="ug-sub">' + phone + '</div></div>'
+        + '<div class="ug-time">最近：' + time + '</div>'
+        + '<div class="ug-chevron">›</div>'
+        + '</div><div class="user-group-sessions">';
+      group.forEach(function (tr) {
+        var sidEl = $('.col-id', tr);
+        var sid = sidEl ? sidEl.textContent.trim() : '';
+        var cs = $$('td', tr);
+        var agent = cs[2] ? cs[2].textContent.trim() : '';
+        var dur = cs[5] ? cs[5].textContent.trim() : '';
+        var st = statusInfo(tr);
+        html += '<div class="ug-session">'
+          + '<span class="ug-sid">' + sid + '</span>'
+          + '<span class="ug-sagent">' + agent + '</span>'
+          + '<span class="ug-sdur">' + dur + '</span>'
+          + '<span class="s-tag ' + st.cls + '">' + st.text + '</span>'
+          + '<a class="sl-recontact" data-name="' + name + '">再次联系</a>'
+          + '</div>';
+      });
+      html += '</div></div>';
+    });
+    userView.innerHTML = html;
+    // 分组展开/折叠
+    $$('.user-group-head', userView).forEach(function (head) {
+      head.addEventListener('click', function () {
+        var g = head.parentNode;
+        g.classList.toggle('open');
+        var chev = head.querySelector('.ug-chevron');
+        if (chev) chev.textContent = g.classList.contains('open') ? '⌄' : '›';
+      });
+    });
+  }
+  function renderView() {
+    if (currentView === 'user') {
+      if (tableWrap) tableWrap.style.display = 'none';
+      userView.style.display = '';
+      renderUserView();
+    } else {
+      if (tableWrap) tableWrap.style.display = '';
+      userView.style.display = 'none';
+    }
+  }
+  if (viewBar) {
+    $$('.status-tab', viewBar).forEach(function (t) {
+      t.addEventListener('click', function () {
+        $$('.status-tab', viewBar).forEach(function (x) { x.classList.remove('active'); });
+        t.classList.add('active');
+        currentView = t.getAttribute('data-view') || 'session';
+        renderView();
+      });
+    });
+  }
+
   /* ---------- 1. 状态 Tab 过滤 ---------- */
   var TABByText = { '全部': 'all', '进行中': 'ongoing', '已关闭': 'closed', '已转接': 'transferred' };
   var statusTabs = $$('.status-tab');
@@ -439,6 +605,7 @@
         && (!kw || tr.textContent.toLowerCase().indexOf(kw) >= 0);
       tr.style.display = ok ? '' : 'none';
     });
+    if (currentView === 'user') renderUserView();
   }
   if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
   if (btnReset) btnReset.addEventListener('click', function () {
@@ -458,7 +625,7 @@
 
   /* ---------- 4. 行操作（按文案委派） ---------- */
   document.addEventListener('click', function (e) {
-    var a = e.target.closest('.row-actions a');
+    var a = e.target.closest('.row-actions a, .ug-session .sl-recontact');
     if (!a) return;
     e.preventDefault();
     var txt = (a.textContent || '').trim();
@@ -470,6 +637,11 @@
       csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 });
     } else if (txt === '差评追踪') {
       csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 });
+    } else if (txt === '再次联系') {
+      var rcName = (a.getAttribute('data-name') || '').trim();
+      if (!rcName) { var rcTr = a.closest('tr'); if (rcTr) rcName = rowUserName(rcTr); }
+      toast('正在跳转工作台，向「' + (rcName || '用户') + '」发起会话…');
+      setTimeout(function () { window.open('admin-workbench.html', '_blank'); }, 800);
     }
   });
 
