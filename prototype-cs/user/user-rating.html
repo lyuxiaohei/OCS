@@ -46,7 +46,7 @@
     <!-- 小程序导航栏 -->
     <div class="cs-nav-bar">
       <div class="cs-back" title="返回" onclick="history.back()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        &lt;
       </div>
       <span class="cs-nav-title">客服小夏</span>
       <div class="cs-capsule" title="微信胶囊">
@@ -79,7 +79,7 @@
         variant: 'sheet',
         width: 375,
         onConfirm: function (data) {
-          // 评价完成/跳过 → 在消息流插入系统提醒条
+          // 评价完成/跳过 > 在消息流插入系统提醒条
           if (!data) return;
           var thread = document.getElementById('chatMessages');
           if (!thread) return;

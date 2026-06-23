@@ -133,7 +133,7 @@
           var st = e.target.closest('.star');
           if (!st) return;
           var val = parseInt(st.getAttribute('data-val'), 10);
-          if (val === current) val = 0; // 再点当前最高星 → 清零
+          if (val === current) val = 0; // 再点当前最高星 > 清零
           current = val;
           ratings[group.getAttribute('data-dim')] = val;
           stars.forEach(function (s) {

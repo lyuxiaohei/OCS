@@ -698,7 +698,7 @@
           <div class="flex-between" style="padding:14px 18px; border-bottom:1px solid #f0f0f0;">
             <div>
               <div style="font-size:15px; font-weight:600;">对话流程设计器</div>
-              <div style="font-size:12px; color:#8c8c8c; margin-top:2px;">拖拽左侧节点到画布，串联触发 → 意图识别 → 回复/动作 → 转人工 的多轮对话流</div>
+              <div style="font-size:12px; color:#8c8c8c; margin-top:2px;">拖拽左侧节点到画布，串联触发 &gt; 意图识别 &gt; 回复/动作 &gt; 转人工 的多轮对话流</div>
             </div>
             <div class="flex gap-8">
               <button class="btn-default">版本历史</button>
@@ -764,15 +764,15 @@
             <div class="flow-canvas">
               <!-- 连线层 -->
               <svg class="flow-edges" xmlns="http://www.w3.org/2000/svg">
-                <!-- trigger(180,40) → intent(180,180) -->
+                <!-- trigger(180,40) &gt; intent(180,180) -->
                 <path d="M 268 90 C 268 130, 268 140, 268 180" />
-                <!-- intent(180,180) → cond(180,320) -->
+                <!-- intent(180,180) &gt; cond(180,320) -->
                 <path d="M 268 240 C 268 280, 268 290, 268 330" />
-                <!-- cond(180,320) → reply(440,320) -->
+                <!-- cond(180,320) &gt; reply(440,320) -->
                 <path d="M 356 380 C 420 380, 440 380, 440 380" />
-                <!-- cond(180,320) → transfer(440,200) -->
+                <!-- cond(180,320) &gt; transfer(440,200) -->
                 <path d="M 268 330 C 320 330, 440 260, 440 260" />
-                <!-- reply(440,320) → action(440,460) -->
+                <!-- reply(440,320) &gt; action(440,460) -->
                 <path d="M 528 440 C 528 460, 528 470, 528 470" />
               </svg>
 
@@ -809,8 +809,8 @@
                   <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="12 2 22 12 12 22 2 12"/></svg></span><span class="fn-title">置信度判断</span><span class="fn-menu">⋯</span>
                 </div>
                 <div class="fn-body">
-                  <div class="row">≥ 0.65 → AI 直接回复</div>
-                  <div class="row">&lt; 0.65 → 转人工</div>
+                  <div class="row">≥ 0.65 &gt; AI 直接回复</div>
+                  <div class="row">&lt; 0.65 &gt; 转人工</div>
                 </div>
                 <span class="port out"></span>
               </div>

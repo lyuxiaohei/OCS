@@ -556,7 +556,7 @@
   <!-- Page heading -->
   <div class="page-head">
     <h1>富媒体卡片（用户端）</h1>
-    <div class="back-link"><a href="javascript:history.back()">← 返回上一页</a> · 移动端 375px · US-MVP-17 / 18 / 19</div>
+    <div class="back-link"><a href="javascript:history.back()">&lt; 返回上一页</a> · 移动端 375px · US-MVP-17 / 18 / 19</div>
   </div>
 
   <!-- ===== Mobile chat container ===== -->
@@ -574,7 +574,7 @@
     <!-- 会话导航栏 -->
     <div class="cs-nav-bar chat-nav">
       <div class="cs-back" title="返回" onclick="history.back()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        &lt;
       </div>
 
       <div class="nav-peer">
@@ -849,10 +849,10 @@
               <span class="status-badge s-proc">推荐</span>
             </div>
             <div class="card-body">
-              <div class="faq-item">物流什么时候到？<span class="q-arrow">›</span></div>
-              <div class="faq-item">如何申请退换货？<span class="q-arrow">›</span></div>
-              <div class="faq-item">发票怎么开具？<span class="q-arrow">›</span></div>
-              <div class="faq-item">优惠券怎么使用？<span class="q-arrow">›</span></div>
+              <div class="faq-item">物流什么时候到？<span class="q-arrow">&gt;</span></div>
+              <div class="faq-item">如何申请退换货？<span class="q-arrow">&gt;</span></div>
+              <div class="faq-item">发票怎么开具？<span class="q-arrow">&gt;</span></div>
+              <div class="faq-item">优惠券怎么使用？<span class="q-arrow">&gt;</span></div>
             </div>
           </div>
           <div class="msg-meta">10:36</div>
@@ -1013,7 +1013,7 @@
   <div class="page-footer">
     对应需求：US-MVP-17（订单卡片）· US-MVP-18（商品卡片）· US-MVP-19（优惠券卡片）· 购物车/物流/退款/FAQ/账户卡片 · 图片/语音/文件消息 · entry_tag 场景透传
     <br />
-    <a href="javascript:history.back()">← 返回上一页</a>
+    <a href="javascript:history.back()">&lt; 返回上一页</a>
   </div>
 
 </div>
@@ -1042,7 +1042,7 @@
     });
   })();
 
-  // ===== 入口联动：解析 URL 参数 → 自动插入用户侧场景卡片 =====
+  // ===== 入口联动：解析 URL 参数 > 自动插入用户侧场景卡片 =====
   (function () {
     var params = {};
     location.search.replace(/^\?/, '').split('&').forEach(function (pair) {
@@ -1052,7 +1052,7 @@
     });
 
     var tag = params.entry_tag;
-    if (!tag) return; // 无入口参数 → 保持静态演示卡片
+    if (!tag) return; // 无入口参数 > 保持静态演示卡片
 
     // 显示场景提示条
     var hint = document.getElementById('sceneHint');

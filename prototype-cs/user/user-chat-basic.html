@@ -546,7 +546,7 @@
   <!-- Page heading -->
   <div class="page-head">
     <h1>基础消息交互（用户端）</h1>
-    <div class="back-link"><a href="javascript:history.back()">← 返回上一页</a> · 移动端 375px · US-MVP-14</div>
+    <div class="back-link"><a href="javascript:history.back()">&lt; 返回上一页</a> · 移动端 375px · US-MVP-14</div>
   </div>
 
   <!-- ===== Mobile chat container ===== -->
@@ -564,7 +564,7 @@
     <!-- 会话导航栏 -->
     <div class="cs-nav-bar chat-nav">
       <div class="cs-back" title="返回" onclick="history.back()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        &lt;
       </div>
 
       <div class="nav-peer">
@@ -779,7 +779,7 @@
   <div class="page-footer">
     对应需求：US-MVP-14（语音消息）· 文本/图片/语音基础消息交互 · 历史消息向上滚动加载
     <br />
-    <a href="javascript:history.back()">← 返回上一页</a>
+    <a href="javascript:history.back()">&lt; 返回上一页</a>
   </div>
 
 </div>
@@ -1159,10 +1159,10 @@
         action = '<div class="card-action">查看退款进度</div>';
       } else if (type === 'faq') {
         h += '<span>常见问题</span></div><span class="status-badge s-proc">推荐</span></div>';
-        body += '<div class="faq-item">物流什么时候到？<span class="q-arrow">›</span></div>' +
-          '<div class="faq-item">如何申请退换货？<span class="q-arrow">›</span></div>' +
-          '<div class="faq-item">发票怎么开具？<span class="q-arrow">›</span></div>' +
-          '<div class="faq-item">优惠券怎么使用？<span class="q-arrow">›</span></div>';
+        body += '<div class="faq-item">物流什么时候到？<span class="q-arrow">></span></div>' +
+          '<div class="faq-item">如何申请退换货？<span class="q-arrow">></span></div>' +
+          '<div class="faq-item">发票怎么开具？<span class="q-arrow">></span></div>' +
+          '<div class="faq-item">优惠券怎么使用？<span class="q-arrow">></span></div>';
       } else if (type === 'profile') {
         h += '<span>账户</span></div><span class="status-badge s-warn">' + esc(p.member_level || '黄金会员') + '</span></div>';
         body += '<div class="card-row"><span class="label">会员等级</span><span class="value">' + esc(p.member_level || '黄金会员') + '</span></div>' +

@@ -484,7 +484,7 @@
               <div class="script-item-head">
                 <div class="script-index hot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></div>
                 <div class="script-body">
-                  <div class="script-content">关于您的退款申请，一般会在 1-3 个工作日内审核完成，审核通过后退款将原路返回至您的支付账户，请耐心等待。查询退款进度可点击「我的订单 → 退款详情」。</div>
+                  <div class="script-content">关于您的退款申请，一般会在 1-3 个工作日内审核完成，审核通过后退款将原路返回至您的支付账户，请耐心等待。查询退款进度可点击「我的订单 &gt; 退款详情」。</div>
                   <div class="script-meta">
                     <span class="scene-badge scene-keyword"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配</span>
                     <span class="scene-badge biz-aftersale">售后</span>
@@ -553,7 +553,7 @@
               <div class="script-item-head">
                 <div class="script-index">5</div>
                 <div class="script-body">
-                  <div class="script-content">您的订单已发货，物流单号 SF1234567890（顺丰速运）。正常情况下 2-3 天送达，您可点击「我的订单 → 查看物流」实时追踪。如超时未送达请联系我处理。</div>
+                  <div class="script-content">您的订单已发货，物流单号 SF1234567890（顺丰速运）。正常情况下 2-3 天送达，您可点击「我的订单 &gt; 查看物流」实时追踪。如超时未送达请联系我处理。</div>
                   <div class="script-meta">
                     <span class="scene-badge scene-keyword"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配</span>
                     <span class="scene-badge biz-aftersale">售后</span>
@@ -679,7 +679,7 @@
               <div class="script-item-head">
                 <div class="script-index">11</div>
                 <div class="script-body">
-                  <div class="script-content">电子发票将在订单完成后 24 小时内自动开具，您可在「我的订单 → 发票管理」中查看和下载。如需修改发票抬头，请在订单确认页提前设置。</div>
+                  <div class="script-content">电子发票将在订单完成后 24 小时内自动开具，您可在「我的订单 &gt; 发票管理」中查看和下载。如需修改发票抬头，请在订单确认页提前设置。</div>
                   <div class="script-meta">
                     <span class="scene-badge scene-keyword"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配</span>
                     <span class="scene-badge biz-aftersale">售后</span>
@@ -862,7 +862,7 @@
 
       <!-- 返回导航 -->
       <div style="text-align:center; margin-top:24px;">
-        <a href="index.html" style="font-size:13px;">← 返回原型导航首页</a>
+        <a href="index.html" style="font-size:13px;">&lt; 返回原型导航首页</a>
       </div>
 
     </main>
@@ -886,9 +886,9 @@
   var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
 
   /* ---------- 0. 卡片 data-* 标记（从 scene-badge / biz-* class 推断） ---------- */
-  // 场景 class → scene key（与 scene-tag 的 onclick 入参一致）
+  // 场景 class > scene key（与 scene-tag 的 onclick 入参一致）
   var SCENE_BYClass = { 'scene-enter': 'enter', 'scene-offline': 'offline', 'scene-keyword': 'keyword', 'scene-transfer': 'transfer', 'scene-general': 'general' };
-  // 业务 class → biz key（与 biz-tag 的 onclick 入参一致）
+  // 业务 class > biz key（与 biz-tag 的 onclick 入参一致）
   var BIZ_BYClass = { 'biz-presale': 'presale', 'biz-aftersale': 'aftersale', 'biz-complaint': 'complaint', 'biz-general': 'general' };
 
   var items = $$('.script-item');

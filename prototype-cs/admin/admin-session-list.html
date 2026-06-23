@@ -29,7 +29,7 @@
     }
     .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
 
-    /* 兼容旧 .s-tag 类名 → 映射到 .status-tag */
+    /* 兼容旧 .s-tag 类名 > 映射到 .status-tag */
     .s-tag { /* 委托给 styles.css .status-tag */ }
 
     /* ===== V2.2：渠道列 + 按用户归集视图 ===== */
@@ -209,7 +209,7 @@
                     </div>
                   </div>
                 </td>
-                <td>张小明 → 李静</td>
+                <td>张小明 &gt; 李静</td>
                 <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:18:45</span></td>
                 <td class="duration">23分04秒</td>
                 <td><span class="s-tag transferred">已转接</span></td>
@@ -296,7 +296,7 @@
                     </div>
                   </div>
                 </td>
-                <td>王磊 → 张小明</td>
+                <td>王磊 &gt; 张小明</td>
                 <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">19:55:31</span></td>
                 <td class="duration">18分42秒</td>
                 <td><span class="s-tag transferred">已转接</span></td>
@@ -378,7 +378,7 @@
         <!-- 分页 -->
         <div class="pagination" style="padding: 16px;">
           <span class="pg-info">共 1,284 条</span>
-          <span class="pg-btn disabled">‹</span>
+          <span class="pg-btn disabled">&lt;</span>
           <span class="pg-num active">1</span>
           <span class="pg-num">2</span>
           <span class="pg-num">3</span>
@@ -386,7 +386,7 @@
           <span class="pg-num">5</span>
           <span style="color:#bfbfbf;">...</span>
           <span class="pg-num">129</span>
-          <span class="pg-btn">›</span>
+          <span class="pg-btn">&gt;</span>
           <span class="pg-jump">跳至<input value="1" />页</span>
         </div>
 
@@ -394,7 +394,7 @@
 
       <!-- 底部说明 -->
       <p style="margin-top:16px; font-size:12px; color:#bfbfbf;">
-        数据来源：customer_chat_sessions 表 · 状态流转：wait → accept → close / cancel · 转接记录见 customer_chat_transfers
+        数据来源：customer_chat_sessions 表 · 状态流转：wait &gt; accept &gt; close / cancel · 转接记录见 customer_chat_transfers
       </p>
 
     </main>
@@ -407,7 +407,7 @@
 /* ============================================================
    admin-session-list.html 交互（F-EX-03 / F-EX-04 历史会话）
    约定对齐 admin-transfer：状态 Tab 过滤、伪控件改真控件、
-   行操作按文案委派 → csModal、csModal.toast 反馈。
+   行操作按文案委派 > csModal、csModal.toast 反馈。
    ============================================================ */
 (function () {
   'use strict';
@@ -427,7 +427,7 @@
     var cells = $$('td', tr);
     var agentTd = cells[2];
     if (agentTd) {
-      var a = agentTd.textContent.trim().split('→')[0].trim();
+      var a = agentTd.textContent.trim().split('>')[0].trim();
       if (a) tr.setAttribute('data-agent', a);
     }
   }
@@ -454,7 +454,7 @@
   }
   rows.forEach(function (tr) {
     var cells = $$('td', tr);
-    // 开始时间此时仍是 cells[3]（渠道列尚未插入）→ 存 data-time
+    // 开始时间此时仍是 cells[3]（渠道列尚未插入）> 存 data-time
     if (cells[3] && cells[3].firstChild) tr.setAttribute('data-time', cells[3].firstChild.nodeValue.trim());
     // 渠道 td 插在客服 cells[2] 之后
     if (cells[2]) {
@@ -462,7 +462,7 @@
       chTd.innerHTML = '<span class="s-tag channel">H5</span>';
       cells[2].parentNode.insertBefore(chTd, cells[2].nextSibling);
     }
-    // data-user-id（按会话 ID 映射；U2/U3 各对应两行 → 演示按用户归集）
+    // data-user-id（按会话 ID 映射；U2/U3 各对应两行 > 演示按用户归集）
     var idEl = $('.col-id', tr);
     var sid = idEl ? idEl.textContent.trim() : '';
     tr.setAttribute('data-user-id', UID_BY_SESSION[sid] || ('U-' + sid.replace(/[^0-9]/g, '')));
@@ -527,7 +527,7 @@
         + '<div class="ug-info"><div class="ug-name">' + name + ' <span class="user-session-count">' + group.length + ' 会话</span></div>'
         + '<div class="ug-sub">' + phone + '</div></div>'
         + '<div class="ug-time">最近：' + time + '</div>'
-        + '<div class="ug-chevron">›</div>'
+        + '<div class="ug-chevron">></div>'
         + '</div><div class="user-group-sessions">';
       group.forEach(function (tr) {
         var sidEl = $('.col-id', tr);
@@ -553,7 +553,7 @@
         var g = head.parentNode;
         g.classList.toggle('open');
         var chev = head.querySelector('.ug-chevron');
-        if (chev) chev.textContent = g.classList.contains('open') ? '⌄' : '›';
+        if (chev) chev.textContent = g.classList.contains('open') ? '⌄' : '>';
       });
     });
   }

@@ -314,7 +314,7 @@
       gap: 10px;
       max-width: 78%;
     }
-    /* 客服(agent)=当前登录者 → 右侧；客户(user) → 左侧
+    /* 客服(agent)=当前登录者 > 右侧；客户(user) > 左侧
        与用户端「我（登录者）的消息在右」保持一致 */
     .msg-row.agent {
       align-self: flex-end;
@@ -1585,7 +1585,7 @@
           csModal.open('modals/modal-suspend.html', { variant: 'center', width: 440,
             onConfirm: function (data) {
               var reason = data.reason, resume = data.resume;
-              // status=accept→pending：当前会话移入「挂起」，暂停无响应超时计时
+              // status=accept>pending：当前会话移入「挂起」，暂停无响应超时计时
               var activeItem = document.querySelector('.session-list .session-item.active');
               if (activeItem) {
                 activeItem.setAttribute('data-status', 'pending');
@@ -1720,7 +1720,7 @@
       });
     });
 
-    // Session item selection → 客户切换逻辑（含顶栏/客户信息/聊天记录联动）已移至页面底部独立脚本
+    // Session item selection > 客户切换逻辑（含顶栏/客户信息/聊天记录联动）已移至页面底部独立脚本
 
     // Close quick reply panel on outside click
     document.addEventListener('click', function(e){
@@ -2062,7 +2062,7 @@
         }
       }
 
-      // 列表项点击 → 切换客户（联动顶栏 / 客户信息 / 聊天记录）
+      // 列表项点击 > 切换客户（联动顶栏 / 客户信息 / 聊天记录）
       var items = document.querySelectorAll('.session-list .session-item');
       items.forEach(function (item, idx) {
         item.addEventListener('click', function () {
@@ -2152,7 +2152,7 @@
           if (!simAllItems.length) return;
           if (window.csNotify) csNotify.unlockAudio();
           var active = document.querySelector('.session-list .session-item.active');
-          // 仅在非焦点会话上模拟新消息 → 每次必弹窗+提示音（焦点会话「免打扰」分支保留在代码中以保证 PRD 完整）
+          // 仅在非焦点会话上模拟新消息 > 每次必弹窗+提示音（焦点会话「免打扰」分支保留在代码中以保证 PRD 完整）
           var candidates = simAllItems.filter(function (it) { return it !== active; });
           if (!candidates.length) return;
           var target = candidates[simIdx % candidates.length];
@@ -2161,10 +2161,10 @@
           bumpUnread(target);
           var isFocused = target === active;
           if (isFocused && pageVisible) {
-            // 免打扰：当前焦点会话 + 页面可见 → 仅徽标 +1
+            // 免打扰：当前焦点会话 + 页面可见 > 仅徽标 +1
             if (window.csModal && csModal.toast) csModal.toast('焦点会话「' + meta.name + '」新消息：仅徽标提醒（免打扰）');
           } else if (window.csNotify) {
-            // 非焦点 或 页面不可见 → 弹窗 + 提示音（立即查看 → 切到该会话）
+            // 非焦点 或 页面不可见 > 弹窗 + 提示音（立即查看 > 切到该会话）
             csNotify.playBeep();
             csNotify.popup({
               name: meta.name,
@@ -2190,13 +2190,13 @@
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'sidebar-trigger';
-      btn.innerHTML = '›';
+      btn.innerHTML = '>';
       btn.setAttribute('aria-label', '展开侧边栏');
       document.body.appendChild(btn);
       btn.addEventListener('click', function () {
         var opened = sb.classList.toggle('open');
         btn.classList.toggle('is-open', opened);
-        btn.innerHTML = opened ? '‹' : '›';
+        btn.innerHTML = opened ? '<' : '>';
         btn.setAttribute('aria-label', opened ? '收起侧边栏' : '展开侧边栏');
       });
     }

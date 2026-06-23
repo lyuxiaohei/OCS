@@ -1363,7 +1363,7 @@
     ['#kbSearch', '#kbCategory', '#kbStatus', '#kbTime'].forEach(function (id) { var el = $k(id); if (el) el.value = ''; });
     applyKbFilters(); toast('已重置筛选');
   });
-  // 分类树点击 → 按分类过滤
+  // 分类树点击 > 按分类过滤
   $$k('.tree-node[data-cat]').forEach(function (node) {
     node.addEventListener('click', function () {
       $$k('.tree-node').forEach(function (n) { n.classList.remove('active'); });

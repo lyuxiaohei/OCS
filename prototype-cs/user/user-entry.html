@@ -581,7 +581,7 @@
       </div>
     </div>
 
-    <span class="back-link" onclick="history.back()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="15 18 9 12 15 6"/></svg> 返回上一页</span>
+    <span class="back-link" onclick="history.back()">&lt; 返回上一页</span>
 
     <!-- ===== Entry Grid ===== -->
     <div class="entry-grid">
@@ -788,15 +788,15 @@
             <div class="mock-banner help">帮助中心 · 常见问题</div>
             <div class="help-item">
               <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> 物流查询</span>
-              <span style="color:#bfbfbf;">›</span>
+              <span style="color:#bfbfbf;">&gt;</span>
             </div>
             <div class="help-item">
               <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> 退换货政策</span>
-              <span style="color:#bfbfbf;">›</span>
+              <span style="color:#bfbfbf;">&gt;</span>
             </div>
             <div class="help-item">
               <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> 支付问题</span>
-              <span style="color:#bfbfbf;">›</span>
+              <span style="color:#bfbfbf;">&gt;</span>
             </div>
             <!-- Floating CS button -->
             <div class="cs-fab pos-br">
@@ -836,17 +836,17 @@
             <div class="profile-cell">
               <span class="pico"></span>
               <span style="flex:1;">我的订单</span>
-              <span style="color:#bfbfbf;">›</span>
+              <span style="color:#bfbfbf;">&gt;</span>
             </div>
             <div class="profile-cell">
               <span class="pico"></span>
               <span style="flex:1;">优惠券 · 5 张</span>
-              <span style="color:#bfbfbf;">›</span>
+              <span style="color:#bfbfbf;">&gt;</span>
             </div>
             <div class="profile-cell">
               <span class="pico"></span>
               <span style="flex:1;">收货地址</span>
-              <span style="color:#bfbfbf;">›</span>
+              <span style="color:#bfbfbf;">&gt;</span>
             </div>
             <!-- Floating CS button -->
             <div class="cs-fab pos-br">
@@ -1236,7 +1236,7 @@
 
     <!-- ===== Footer ===== -->
     <div style="text-align:center; padding:32px 0 16px; color:#8c8c8c; font-size:12px;">
-      <a href="javascript:history.back()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="15 18 9 12 15 6"/></svg> 返回上一页</a>
+      <a href="javascript:history.back()">&lt; 返回上一页</a>
       <span style="margin:0 8px; opacity:.5;">|</span>
       CS 商城客服系统 · 用户端原型 · US-MVP-16（9页面入口嵌入）
     </div>
@@ -1301,7 +1301,7 @@
   }
 </style>
 <script>
-  // ===== 入口卡片点击 → 弹出咨询方式选择面板（在线咨询 / 电话客服） =====
+  // ===== 入口卡片点击 > 弹出咨询方式选择面板（在线咨询 / 电话客服） =====
   (function () {
     // 每个场景对应的 mock 业务参数（与卡片内展示内容一致）
     var ENTRY_PARAMS = {
@@ -1351,14 +1351,14 @@
     sheet.addEventListener('click', function (e) { e.stopPropagation(); });
     closeBtn.addEventListener('click', closeSheet);
 
-    // 在线咨询 → 跳转聊天页（先取 url 再关闭，避免被 closeSheet 清空）
+    // 在线咨询 > 跳转聊天页（先取 url 再关闭，避免被 closeSheet 清空）
     onlineBtn.addEventListener('click', function () {
       var url = pendingUrl;
       closeSheet();
       if (url) location.href = url;
     });
 
-    // 电话客服 → 确认拨打
+    // 电话客服 > 确认拨打
     phoneBtn.addEventListener('click', function () {
       closeSheet();
       if (window.confirm('是否拨打客服热线 400-888-8888？')) {
@@ -1373,7 +1373,7 @@
       var tag = chip.textContent.replace('entry_tag:', '').trim();
       var url = buildUrl(tag);
 
-      // 卡片内的 mock 悬浮按钮 → 点击弹出选择面板
+      // 卡片内的 mock 悬浮按钮 > 点击弹出选择面板
       var fab = card.querySelector('.cs-fab');
       if (fab) {
         fab.style.cursor = 'pointer';
@@ -1451,7 +1451,7 @@
       if (snapLeft) { fab.style.left = MARGIN + 'px'; }
       else { fab.style.right = MARGIN + 'px'; }
       fab.style.top = y + 'px';
-      // 若未真正拖动，则视为点击 → 弹出咨询方式选择面板
+      // 若未真正拖动，则视为点击 > 弹出咨询方式选择面板
       if (!moved) {
         if (window.csEntrySheet) csEntrySheet.open('user-chat-basic.html?entry_tag=floating');
         return;
