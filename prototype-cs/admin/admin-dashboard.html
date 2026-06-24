@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>数据仪表盘 — 供应链平台</title>
+  <title>数据仪表盘 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <style>
@@ -154,17 +154,14 @@
       align-items: center;
       gap: var(--cs-space-1);
       font-size: var(--cs-font-size-sm);
-      color: var(--cs-success);
-      background: var(--cs-success-bg);
-      border: 1px solid #b7eb8f;
-      padding: 2px var(--cs-space-2);
-      border-radius: var(--cs-radius-xs);
+      color: var(--cs-text);
     }
     .live-tag::before {
       content: '';
       width: 6px; height: 6px;
       border-radius: 50%;
       background: var(--cs-success);
+      flex-shrink: 0;
       animation: pulse 1.5s infinite;
     }
     @keyframes pulse {
@@ -184,6 +181,13 @@
       font-weight: var(--cs-font-weight-semibold);
       color: var(--cs-text);
       margin: 0;
+    }
+
+    /* 评价管理迁入：满意度排名表格的评分数字 */
+    .score-num {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      margin-left: 4px;
     }
 
     /* avatar in header */
@@ -215,10 +219,7 @@
 
       <!-- Header -->
       <header class="admin-header">
-        <div>
-          <div style="font-size:var(--cs-font-size-xl); font-weight:600;">数据仪表盘</div>
-          <div class="breadcrumb">首页 / 数据仪表盘</div>
-        </div>
+        <div class="breadcrumb">工作台 / <span style="color:var(--cs-text);font-weight:600;">数据仪表盘</span></div>
         <div class="user-info">
           <span class="live-tag">实时</span>
           <div class="header-avatar">张</div>
@@ -233,7 +234,6 @@
         <div class="grid grid-4 mb-24">
 
           <div class="metric-card">
-            <div class="metric-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">1,286<span class="unit">次</span></div>
               <div class="metric-label">今日会话数</div>
@@ -242,7 +242,6 @@
           </div>
 
           <div class="metric-card">
-            <div class="metric-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">18<span class="unit">/ 24</span></div>
               <div class="metric-label">在线客服数</div>
@@ -251,7 +250,6 @@
           </div>
 
           <div class="metric-card">
-            <div class="metric-icon orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">42<span class="unit">秒</span></div>
               <div class="metric-label">平均响应时长</div>
@@ -260,7 +258,6 @@
           </div>
 
           <div class="metric-card">
-            <div class="metric-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">4.82<span class="unit">/ 5.0</span></div>
               <div class="metric-label">满意度评分</div>
@@ -326,59 +323,43 @@
               <h3>客服满意度排行</h3>
               <button class="btn-default" style="padding:2px 10px; font-size:var(--cs-font-size-sm);">本月</button>
             </div>
-            <div class="rank-list">
-
-              <div class="rank-item">
-                <div class="rank-no top1">1</div>
-                <div class="rank-avatar">李</div>
-                <div class="rank-info">
-                  <div class="rank-name">李明 · 328 单</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:99%;"></div></div>
-                </div>
-                <div class="rank-score">99%</div>
-              </div>
-
-              <div class="rank-item">
-                <div class="rank-no top2">2</div>
-                <div class="rank-avatar">王</div>
-                <div class="rank-info">
-                  <div class="rank-name">王芳 · 301 单</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:97%;"></div></div>
-                </div>
-                <div class="rank-score">97%</div>
-              </div>
-
-              <div class="rank-item">
-                <div class="rank-no top3">3</div>
-                <div class="rank-avatar">赵</div>
-                <div class="rank-info">
-                  <div class="rank-name">赵磊 · 276 单</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:95%;"></div></div>
-                </div>
-                <div class="rank-score">95%</div>
-              </div>
-
-              <div class="rank-item">
-                <div class="rank-no">4</div>
-                <div class="rank-avatar">陈</div>
-                <div class="rank-info">
-                  <div class="rank-name">陈静 · 248 单</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:94%;"></div></div>
-                </div>
-                <div class="rank-score">94%</div>
-              </div>
-
-              <div class="rank-item">
-                <div class="rank-no">5</div>
-                <div class="rank-avatar">刘</div>
-                <div class="rank-info">
-                  <div class="rank-name">刘洋 · 221 单</div>
-                  <div class="rank-bar"><div class="rank-bar-fill" style="width:92%;"></div></div>
-                </div>
-                <div class="rank-score">92%</div>
-              </div>
-
-            </div>
+            <table class="data-table" style="font-size:var(--cs-font-size-base);">
+              <thead>
+                <tr><th>客服</th><th>评价数</th><th>平均分</th><th>差评数</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="col-user"><div class="mini-avatar green">李</div><div>李静</div></div></td>
+                  <td>286</td>
+                  <td><span class="stars">★★★★★</span></td>
+                  <td><span style="color:var(--cs-text-tertiary);">3</span></td>
+                </tr>
+                <tr>
+                  <td><div class="col-user"><div class="mini-avatar">张</div><div>张小明</div></div></td>
+                  <td>342</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.7</span></td>
+                  <td><span style="color:var(--cs-warning);">9</span></td>
+                </tr>
+                <tr>
+                  <td><div class="col-user"><div class="mini-avatar orange">王</div><div>王磊</div></div></td>
+                  <td>198</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.4</span></td>
+                  <td><span style="color:var(--cs-danger);">12</span></td>
+                </tr>
+                <tr>
+                  <td><div class="col-user"><div class="mini-avatar purple">赵</div><div>赵丽</div></div></td>
+                  <td>151</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.2</span></td>
+                  <td><span style="color:var(--cs-danger);">10</span></td>
+                </tr>
+                <tr>
+                  <td><div class="col-user"><div class="mini-avatar green">陈</div><div>陈昊</div></div></td>
+                  <td>106</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.0</span></td>
+                  <td><span style="color:var(--cs-danger);">8</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
         </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>知识库管理 — 供应链平台</title>
+  <title>知识库管理 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <style>
@@ -13,7 +13,7 @@
     .kb-layout {
       display: flex;
       gap: var(--cs-space-4);
-      align-items: flex-start;
+      align-items: stretch;
     }
     .kb-sidebar {
       width: 240px;
@@ -29,7 +29,10 @@
       background: var(--cs-bg-card);
       border-radius: var(--cs-radius-md);
       border: 1px solid var(--cs-border-light);
+      box-shadow: var(--cs-shadow-card);
       padding: var(--cs-space-3) 0;
+      height: 100%;
+      overflow-y: auto;
     }
     .category-tree .tree-header {
       display: flex;
@@ -146,47 +149,33 @@
       text-overflow: ellipsis;
     }
 
-    /* 分类行内标签 */
+    /* 分类行内标签（纯文本，无配色无图标） */
     .cat-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 2px 8px;
-      border-radius: var(--cs-radius-xs);
       font-size: var(--cs-font-size-sm);
-      line-height: 1.5;
+      color: var(--cs-text-secondary);
     }
-    .cat-tag.order    { background: var(--cs-orange-bg); color: var(--cs-orange); }
-    .cat-tag.return   { background: var(--cs-danger-bg); color: var(--cs-danger); }
-    .cat-tag.pay      { background: var(--cs-primary-bg); color: var(--cs-primary); }
-    .cat-tag.logistic { background: var(--cs-success-bg); color: var(--cs-success); }
-    .cat-tag.account  { background: var(--cs-purple-bg); color: var(--cs-purple); }
+    .cat-tag svg { display: none; }
 
-    /* 状态标签 */
+    /* 状态标签（彩色圆点 + 黑色字，无彩色底） */
     .s-tag {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 2px 8px;
-      border-radius: var(--cs-radius-xs);
       font-size: var(--cs-font-size-sm);
       line-height: 1.5;
+      color: var(--cs-text);
     }
     .s-tag::before {
       content: "";
       width: 6px; height: 6px;
       border-radius: 50%;
+      flex-shrink: 0;
     }
-    .s-tag.published { background: var(--cs-success-bg); color: var(--cs-success); }
     .s-tag.published::before { background: var(--cs-success); }
-    .s-tag.draft     { background: var(--cs-border-lighter); color: var(--cs-text-tertiary); }
-    .s-tag.draft::before { background: #bfbfbf; }
-    .s-tag.review    { background: var(--cs-warning-bg); color: var(--cs-warning); }
-    .s-tag.review::before { background: var(--cs-warning); }
-    .s-tag.offline   { background: var(--cs-danger-bg); color: var(--cs-danger); }
-    .s-tag.offline::before { background: var(--cs-danger); }
-    .s-tag.rejected { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
-    .s-tag.rejected::before { background: #cf1322; }
+    .s-tag.draft::before     { background: #bfbfbf; }
+    .s-tag.review::before    { background: var(--cs-warning); }
+    .s-tag.offline::before   { background: var(--cs-danger); }
+    .s-tag.rejected::before  { background: var(--cs-danger); }
 
     /* 操作列扩展 */
     .row-actions a.danger { color: var(--cs-danger); }
@@ -258,41 +247,6 @@
     /* Tab panels */
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
-
-    /* ===== Quick Reply Tab ===== */
-    .qr-category-tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: var(--cs-radius-xs);
-      font-size: var(--cs-font-size-sm);
-      line-height: 1.5;
-    }
-    .qr-category-tag.general  { background: var(--cs-primary-bg); color: var(--cs-primary); }
-    .qr-category-tag.greeting { background: var(--cs-success-bg); color: var(--cs-success); }
-    .qr-category-tag.presale  { background: var(--cs-purple-bg); color: var(--cs-purple); }
-    .qr-category-tag.aftersale { background: var(--cs-orange-bg); color: var(--cs-orange); }
-    .qr-category-tag.complaint { background: var(--cs-danger-bg); color: var(--cs-danger); }
-    .qr-category-tag.logistic { background: var(--cs-warning-bg); color: var(--cs-orange); }
-
-    .qr-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 2px 8px;
-      border-radius: var(--cs-radius-xs);
-      font-size: var(--cs-font-size-sm);
-      line-height: 1.5;
-    }
-    .qr-status::before {
-      content: "";
-      width: 6px; height: 6px;
-      border-radius: 50%;
-    }
-    .qr-status.on  { background: var(--cs-success-bg); color: var(--cs-success); }
-    .qr-status.on::before  { background: var(--cs-success); }
-    .qr-status.off { background: var(--cs-border-lighter); color: var(--cs-text-tertiary); }
-    .qr-status.off::before { background: #bfbfbf; }
 
     /* ===== Modal Overlay ===== */
     .modal-overlay {
@@ -482,7 +436,7 @@
 
     <!-- 顶栏 -->
     <header class="admin-header">
-      <div class="breadcrumb">配置 / 知识库</div>
+      <div class="breadcrumb">配置 / <span style="color:var(--cs-text);font-weight:600;">知识库</span></div>
       <div class="user-info">
         <span class="status-badge online">客服A 在线</span>
         <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
@@ -495,19 +449,12 @@
       <!-- 页面标题 -->
       <div class="flex-between mb-16">
         <div>
-          <h2 style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-semibold); margin-bottom:4px;">知识库管理</h2>
-          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">维护 FAQ / 帮助文档与快捷回复话术，按分类组织，供客服查阅与用户端自助查询</p>
+          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">维护 FAQ / 帮助文档，按分类组织，供客服查阅与用户端自助查询</p>
         </div>
       </div>
 
-      <!-- ===== 顶级 Tabs ===== -->
-      <div class="top-tabs">
-        <div class="top-tab active" data-tab="knowledge">知识库</div>
-        <div class="top-tab" data-tab="quickreply">快捷回复 <span class="tab-badge">86</span></div>
-      </div>
-
       <!-- ============================================ -->
-      <!-- Tab 1: 知识库（原有内容）                      -->
+      <!-- 知识库内容                                    -->
       <!-- ============================================ -->
       <div class="tab-panel active" id="panel-knowledge">
 
@@ -1025,200 +972,6 @@
         </div><!-- /kb-layout -->
 
       </div><!-- /panel-knowledge -->
-
-      <!-- ============================================ -->
-      <!-- Tab 2: 快捷回复管理                            -->
-      <!-- ============================================ -->
-      <div class="tab-panel" id="panel-quickreply">
-
-        <!-- 筛选栏 -->
-        <div class="card" style="padding:16px; margin-bottom:var(--cs-space-4);">
-          <div class="filter-bar" style="margin-bottom:0;">
-            <input type="text" id="qrSearch" class="ipt input-search" placeholder="搜索快捷回复内容" style="min-width:240px;color:var(--cs-text);" />
-            <select id="qrCategory" class="select" style="min-width:110px;">
-              <option value="">全部分类</option>
-              <option value="general">通用</option>
-              <option value="greeting">问候</option>
-              <option value="presale">售前</option>
-              <option value="aftersale">售后</option>
-              <option value="complaint">投诉</option>
-              <option value="logistic">物流</option>
-            </select>
-            <select id="qrStatus" class="select" style="min-width:110px;">
-              <option value="">全部状态</option>
-              <option value="on">启用</option>
-              <option value="off">停用</option>
-            </select>
-            <div style="margin-left:auto;" class="flex gap-8">
-              <button id="qrBtnReset" class="btn-default">重置</button>
-              <button id="qrBtnQuery" class="btn-primary">查询</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 操作栏 -->
-        <div class="flex-between mb-16">
-          <div style="font-size:var(--cs-font-size-base); color:var(--cs-text-secondary);">
-            共 <strong style="color:var(--cs-text);">86</strong> 条快捷回复
-          </div>
-          <button class="btn-primary" id="btnAddQuickReply">+ 新增快捷回复</button>
-        </div>
-
-        <!-- 数据表格 -->
-        <div class="card" style="padding:0;">
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th style="width:50px;">序号</th>
-                  <th>快捷回复内容</th>
-                  <th style="width:100px;">分类</th>
-                  <th style="width:90px;">使用次数</th>
-                  <th style="width:90px;">状态</th>
-                  <th style="width:150px;">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="col-id">1</td>
-                  <td>您好，请问有什么可以帮您？</td>
-                  <td><span class="qr-category-tag greeting">问候</span></td>
-                  <td>2,341</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">2</td>
-                  <td>您的订单已发货，预计X天到达，物流单号：XXXXXX，请注意查收。</td>
-                  <td><span class="qr-category-tag logistic">物流</span></td>
-                  <td>1,856</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">3</td>
-                  <td>退换货申请已提交，预计3-5个工作日处理，请耐心等待。</td>
-                  <td><span class="qr-category-tag aftersale">售后</span></td>
-                  <td>1,432</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">4</td>
-                  <td>感谢您的咨询，祝您购物愉快！如有其他问题随时联系我们。</td>
-                  <td><span class="qr-category-tag greeting">问候</span></td>
-                  <td>1,198</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">5</td>
-                  <td>您的退款已受理，预计1-3个工作日原路退回，请注意查收。</td>
-                  <td><span class="qr-category-tag aftersale">售后</span></td>
-                  <td>1,024</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">6</td>
-                  <td>很抱歉给您带来不便，我已将您的问题升级处理，会有专员在24小时内联系您。</td>
-                  <td><span class="qr-category-tag complaint">投诉</span></td>
-                  <td>876</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">7</td>
-                  <td>这款商品目前有货，您可以直接下单。如有尺码疑问，可以参考商品详情页的尺码表。</td>
-                  <td><span class="qr-category-tag presale">售前</span></td>
-                  <td>743</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">8</td>
-                  <td>满99元包邮，偏远地区可能需要额外运费，具体以下单页面显示为准。</td>
-                  <td><span class="qr-category-tag general">通用</span></td>
-                  <td>698</td>
-                  <td><span class="qr-status on">启用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>停用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">9</td>
-                  <td>您反馈的商品质量问题已记录，我们会尽快核实并处理。如需退货可在线申请。</td>
-                  <td><span class="qr-category-tag complaint">投诉</span></td>
-                  <td>512</td>
-                  <td><span class="qr-status off">停用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>启用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-id">10</td>
-                  <td>当前咨询人数较多，请您稍等，我们会尽快为您服务。预计等待时间不超过3分钟。</td>
-                  <td><span class="qr-category-tag general">通用</span></td>
-                  <td>467</td>
-                  <td><span class="qr-status off">停用</span></td>
-                  <td class="row-actions">
-                    <a>编辑</a><span class="divider">|</span>
-                    <a>启用</a><span class="divider">|</span>
-                    <a class="danger">删除</a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- 分页 -->
-          <div class="pagination" style="padding: 16px;">
-            <span class="pg-info">共 86 条</span>
-            <span class="pg-btn disabled">&#8249;</span>
-            <span class="pg-num active">1</span>
-            <span class="pg-num">2</span>
-            <span class="pg-num">3</span>
-            <span class="pg-num">4</span>
-            <span style="color:var(--cs-text-placeholder);">...</span>
-            <span class="pg-num">9</span>
-            <span class="pg-btn">&#8250;</span>
-          </div>
-        </div>
-
-      </div><!-- /panel-quickreply -->
-
       <!-- 底部说明 -->
       <p style="margin-top:16px; font-size:12px; color:var(--cs-text-placeholder);">
         数据模型：customer_chat_knowledge_base（文章）+ customer_chat_kb_categories（分类树）+ customer_chat_auto_messages（快捷回复）· 快捷回复分类：通用/问候/售前/售后/投诉/物流
@@ -1242,14 +995,6 @@
           '&desc=' + encodeURIComponent(articleTitle ? ('文章《' + articleTitle + '》删除后不可恢复。') : '删除后不可恢复，请谨慎操作。'),
           { variant: 'center', width: 380,
             onConfirm: function () { /* 原型：删除即时反馈 */ } });
-      }
-
-      // 快捷回复新增
-      var btnAdd = document.getElementById('btnAddQuickReply');
-      if (btnAdd) {
-        btnAdd.addEventListener('click', function () {
-          csModal.open('modals/modal-quick-reply.html', { variant: 'center', width: 480 });
-        });
       }
 
       // 审核链接（含动态生成的）
@@ -1292,19 +1037,6 @@
     })();
 
 (function() {
-  // ===== Tab switching =====
-  var tabs = document.querySelectorAll('.top-tab');
-  var panels = document.querySelectorAll('.tab-panel');
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      panels.forEach(function(p) { p.classList.remove('active'); });
-      tab.classList.add('active');
-      var target = tab.getAttribute('data-tab');
-      document.getElementById('panel-' + target).classList.add('active');
-    });
-  });
-
   // ===== Knowledge base edit buttons open editor =====
   var editBtns = document.querySelectorAll('.kb-edit-btn');
   var editorSection = document.getElementById('editor-section');
@@ -1374,41 +1106,7 @@
     });
   });
 
-  // ===== 快捷回复列表：筛选 + 查询/重置 =====
-  var QRByCls = { 'general': 'general', 'greeting': 'greeting', 'presale': 'presale', 'aftersale': 'aftersale', 'complaint': 'complaint', 'logistic': 'logistic' };
-  function qrRows() { return $$k('#panel-quickreply .data-table tbody tr'); }
-  qrRows().forEach(function (tr) {
-    var tag = $k('.qr-category-tag', tr);
-    var key = '';
-    if (tag) { for (var k in QRByCls) { if (tag.classList.contains(k)) { key = QRByCls[k]; break; } } }
-    tr.setAttribute('data-qrcat', key);
-    var st = $k('.qr-status', tr);
-    tr.setAttribute('data-qrstatus', st && st.classList.contains('on') ? 'on' : 'off');
-  });
-  function applyQrFilters() {
-    var kw = ($k('#qrSearch') ? $k('#qrSearch').value : '').trim().toLowerCase();
-    var cat = $k('#qrCategory') ? $k('#qrCategory').value : '';
-    var st = $k('#qrStatus') ? $k('#qrStatus').value : '';
-    qrRows().forEach(function (tr) {
-      var ok = (!cat || tr.getAttribute('data-qrcat') === cat)
-        && (!st || tr.getAttribute('data-qrstatus') === st);
-      if (ok && kw) { ok = (tr.textContent || '').toLowerCase().indexOf(kw) !== -1; }
-      tr.style.display = ok ? '' : 'none';
-    });
-  }
-  [$k('#qrSearch'), $k('#qrCategory'), $k('#qrStatus')].forEach(function (el) {
-    if (!el) return;
-    el.addEventListener('change', applyQrFilters);
-    if (el.id === 'qrSearch') el.addEventListener('input', applyQrFilters);
-  });
-  var qrQuery = $k('#qrBtnQuery'), qrReset = $k('#qrBtnReset');
-  if (qrQuery) qrQuery.addEventListener('click', function () { applyQrFilters(); toast('已应用筛选条件'); });
-  if (qrReset) qrReset.addEventListener('click', function () {
-    ['#qrSearch', '#qrCategory', '#qrStatus'].forEach(function (id) { var el = $k(id); if (el) el.value = ''; });
-    applyQrFilters(); toast('已重置筛选');
-  });
-
-  // ===== 分页 active（两个列表通用 .pg-num） =====
+  // ===== 分页 active =====
   $$k('.pg-num').forEach(function (n) {
     n.addEventListener('click', function () {
       var panel = n.closest('.tab-panel'); if (!panel) return;
@@ -1448,28 +1146,126 @@
     }
   });
 
-  // ===== 快捷回复行操作委派（编辑/停用/启用） =====
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest('#panel-quickreply .row-actions a');
-    if (!a) return;
-    if (a.classList.contains('danger')) return; // 删除走原逻辑
-    var txt = (a.textContent || '').trim();
-    var tr = a.closest('tr');
-    e.preventDefault();
-    if (txt === '编辑') { toast('编辑快捷回复'); }
-    else if (txt === '停用') {
-      var s1 = $k('.qr-status', tr);
-      if (s1) { s1.className = 'qr-status off'; s1.textContent = '停用'; if (tr) tr.setAttribute('data-qrstatus', 'off'); }
-      a.textContent = '启用'; toast('已停用该快捷回复');
-    } else if (txt === '启用') {
-      var s2 = $k('.qr-status', tr);
-      if (s2) { s2.className = 'qr-status on'; s2.textContent = '启用'; if (tr) tr.setAttribute('data-qrstatus', 'on'); }
-      a.textContent = '停用'; toast('已启用该快捷回复');
-    }
-  });
 })();
 
 // ===== Review modal functions =====
+
+/* ============================================================
+   分类树 增/删/改（CRUD）
+   - 头部「+」新增一级分类；节点 hover 显示 编辑/新增子类/删除
+   - 新增/编辑走 modals/modal-category.html；删除走 modal-delete-confirm.html
+   - 动作点击用捕获阶段拦截，避免触发既有节点筛选 handler
+   ============================================================ */
+(function () {
+  if (!window.csModal) return;
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (csModal.toast) csModal.toast(t); };
+  var tree = document.querySelector('.category-tree');
+  if (!tree) return;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  var seq = 1000;
+  function folderIcon() {
+    return '<span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>';
+  }
+  function buildNode(name, count, isChild) {
+    var icon = isChild ? '<span class="tree-icon">&#8629;</span>' : folderIcon();
+    var div = document.createElement('div');
+    div.className = 'tree-node';
+    div.setAttribute('data-cat', 'custom-' + (++seq));
+    if (isChild) div.style.paddingLeft = '38px';
+    div.innerHTML = icon +
+      '<span class="tree-label">' + esc(name) + '</span>' +
+      '<span class="tree-count">' + (count || 0) + '</span>' +
+      '<span class="tree-actions">' +
+        '<a title="编辑">&#9998;</a>' +
+        '<a title="新增子类">+</a>' +
+        '<a title="删除" class="cat-del">&#10006;</a>' +
+      '</span>';
+    return div;
+  }
+
+  // 1. 给既有业务分类节点补「删除」动作
+  $$('.tree-node .tree-actions', tree).forEach(function (act) {
+    if (act.querySelector('.cat-del')) return;
+    var del = document.createElement('a');
+    del.title = '删除'; del.className = 'cat-del'; del.innerHTML = '&#10006;';
+    act.appendChild(del);
+  });
+
+  function openCategoryModal(opts) {
+    csModal.open('modals/modal-category.html?mode=' + (opts.mode || 'add') +
+      '&title=' + encodeURIComponent(opts.title || '') +
+      '&name=' + encodeURIComponent(opts.name || '') +
+      '&parent=' + encodeURIComponent(opts.parent || '业务分类'),
+      { variant: 'center', width: 440,
+        onConfirm: function (d) { if (d && d.name) opts.onConfirm(d.name); } });
+  }
+  function deleteCategory(node) {
+    var name = $('.tree-label', node).textContent.trim();
+    var cnt = $('.tree-count', node);
+    var n = cnt ? (parseInt(cnt.textContent, 10) || 0) : 0;
+    csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该分类？') +
+      '&desc=' + encodeURIComponent(n > 0
+        ? '分类「' + name + '」下有 ' + n + ' 条内容，删除后内容将归入「全部」，且不可恢复。'
+        : '分类「' + name + '」删除后不可恢复。'),
+      { variant: 'center', width: 380,
+        onConfirm: function () { node.remove(); toast('已删除分类：' + name); } });
+  }
+
+  // 2. 头部「+」新增一级分类（插入到「其他」分组前）
+  var headerAdd = $('.tree-add', tree);
+  if (headerAdd) {
+    headerAdd.addEventListener('click', function () {
+      openCategoryModal({ mode: 'add', title: '新增分类', parent: '业务分类',
+        onConfirm: function (name) {
+          var ref = null;
+          $$('.tree-group-title', tree).forEach(function (t) { if (/其他/.test(t.textContent)) ref = ref || t; });
+          if (!ref) ref = tree.lastElementChild;
+          tree.insertBefore(buildNode(name, 0, false), ref);
+          toast('已新增分类：' + name);
+        }
+      });
+    });
+  }
+
+  // 3. 动作委派（捕获阶段，避免触发节点既有筛选 handler）
+  tree.addEventListener('click', function (e) {
+    var a = e.target.closest('.tree-actions a');
+    if (!a) return;
+    var title = a.getAttribute('title') || '';
+    if (title !== '编辑' && title !== '新增子类' && title !== '删除') return;
+    e.preventDefault();
+    e.stopPropagation();
+    var node = a.closest('.tree-node');
+    var name = $('.tree-label', node).textContent.trim();
+    if (title === '编辑') {
+      openCategoryModal({ mode: 'edit', title: '编辑分类', name: name, parent: '业务分类',
+        onConfirm: function (nm) { var lbl = $('.tree-label', node); if (lbl) lbl.textContent = nm; toast('分类已重命名为：' + nm); } });
+    } else if (title === '新增子类') {
+      openCategoryModal({ mode: 'add', title: '新增子分类', parent: name,
+        onConfirm: function (nm) { node.parentNode.insertBefore(buildNode(nm, 0, true), node.nextSibling); toast('已新增子分类：' + nm); } });
+    } else {
+      deleteCategory(node);
+    }
+  }, true);
+
+  // 4. 动态新增（custom-*）节点选中反馈
+  tree.addEventListener('click', function (e) {
+    if (e.target.closest('.tree-actions')) return;
+    var node = e.target.closest('.tree-node');
+    if (!node) return;
+    if ((node.getAttribute('data-cat') || '').indexOf('custom-') !== 0) return;
+    $$('.tree-node', tree).forEach(function (n) { n.classList.remove('active'); });
+    node.classList.add('active');
+    toast('已选择分类：' + $('.tree-label', node).textContent.trim() + '（暂无内容）');
+  });
+})();
 </script>
 </body>
 </html>

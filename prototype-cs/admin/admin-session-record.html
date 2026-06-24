@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>会话记录 — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    /* ===== admin-session-record.html 页面特有样式 ===== */
+
+    /* 统计摘要条 */
+    .stat-summary {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 16px;
+      background: var(--cs-bg-header);
+      border-radius: var(--cs-radius-sm);
+      margin-bottom: var(--cs-space-4);
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text-secondary);
+    }
+    .stat-summary .stat-item .num {
+      font-size: 18px;
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin-right: 4px;
+    }
+    .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
+    .stat-summary .stat-item.warn .num { color: var(--cs-orange); }
+
+    /* 会话状态标签（彩色圆点 + 黑色字，无彩色底） */
+    .s-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--cs-font-size-sm);
+      line-height: 1.5;
+      color: var(--cs-text);
+      white-space: nowrap;
+    }
+    .s-tag::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .s-tag.ongoing::before   { background: var(--cs-primary); }
+    .s-tag.offline::before   { background: var(--cs-orange); }   /* 离线待处理 = 留言态 */
+    .s-tag.closed::before    { background: #bfbfbf; }
+    .s-tag.transferred::before { background: var(--cs-purple); }
+    .s-tag.cancelled::before { background: var(--cs-danger); }
+
+    /* 离线待处理行：浅橙底，提示待分配 */
+    .data-table tbody tr.is-offline { background: #fff7e6; }
+    .data-table tbody tr.is-offline:hover { background: #fff1d6; }
+
+    /* 摘要列：会话显时长，留言态显留言内容 + 分类 */
+    .col-summary .dur { color: var(--cs-text-secondary); }
+    .col-summary .leave-msg {
+      color: var(--cs-text-secondary);
+      max-width: 240px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .col-summary .leave-cat {
+      display: inline-block;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      background: var(--cs-border-lighter);
+      border-radius: 3px;
+      padding: 0 6px;
+      margin-top: 2px;
+    }
+
+    /* 未分配处理人 */
+    .unassigned { color: var(--cs-text-placeholder); font-style: italic; }
+    .no-rate { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="session-record"></aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">服务管理 / <span style="color:var(--cs-text);font-weight:600;">会话记录</span></div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:13px;color:#595959;">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <p style="font-size:13px; color:#8c8c8c;">会话是唯一服务实体；无在线客服时进入「离线待处理(留言)」态，客服上线后走正常分配。支持多维度筛选与详情回溯。</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-default" id="btnExport">导出记录</button>
+          <button class="btn-primary" id="btnRefresh">刷新数据</button>
+        </div>
+      </div>
+
+      <!-- 统计摘要 -->
+      <div class="stat-summary">
+        <div class="stat-item accent"><span class="num">1,284</span>总会话</div>
+        <div class="stat-item"><span class="num">47</span>进行中</div>
+        <div class="stat-item warn"><span class="num">7</span>离线待处理</div>
+        <div class="stat-item"><span class="num">1,121</span>已关闭</div>
+        <div class="stat-item"><span class="num">109</span>已转接</div>
+        <div class="stat-item" style="margin-left:auto;"><span class="num" style="color:#faad14;">4.6</span>平均评分</div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="card" style="padding:16px;">
+        <div class="filter-bar">
+          <div class="field">
+            <span class="field-label">日期范围</span>
+            <span class="ipt">2026-06-01</span>
+            <span style="color:#bfbfbf;">~</span>
+            <span class="ipt">2026-06-11</span>
+          </div>
+          <div class="field">
+            <span class="field-label">客服</span>
+            <select class="select" id="fAgent">
+              <option value="">全部客服</option>
+              <option>张小明</option>
+              <option>李静</option>
+              <option>王磊</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">企业客户</span>
+            <select class="select" id="fEnt">
+              <option value="">全部企业</option>
+              <option>客户A</option><option>客户B</option><option>客户C</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">品牌商城</span>
+            <select class="select" id="fBrand">
+              <option value="">全部品牌</option>
+              <option>品牌商城1</option><option>品牌商城2</option><option>品牌商城3</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">应用端</span>
+            <select class="select" id="fApp">
+              <option value="">全部应用端</option>
+              <option>小程序</option><option>H5</option><option>PC</option>
+            </select>
+          </div>
+          <div style="margin-left:auto;" class="flex gap-8">
+            <button class="btn-default">重置</button>
+            <button class="btn-primary">查询</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表卡片 -->
+      <div class="card mt-16" style="padding:0;">
+
+        <!-- 状态 Tab：留言态 = 「离线待处理」 -->
+        <div class="status-tabs" style="padding: 0 16px;">
+          <div class="status-tab active">全部 <span class="tab-count">1284</span></div>
+          <div class="status-tab">进行中 <span class="tab-count">47</span></div>
+          <div class="status-tab">离线待处理 <span class="tab-count">7</span></div>
+          <div class="status-tab">已关闭 <span class="tab-count">1121</span></div>
+          <div class="status-tab">已转接 <span class="tab-count">109</span></div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>会话ID</th>
+                <th>用户</th>
+                <th>状态</th>
+                <th>客服 / 处理人</th>
+                <th>时间</th>
+                <th>摘要</th>
+                <th>评分</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 进行中 -->
+              <tr data-status="ongoing" data-agent="张小明" data-ent="客户A" data-brand="品牌商城1" data-app="小程序">
+                <td class="col-id">#CS20260611001</td>
+                <td><div class="col-user"><div class="mini-avatar">李</div><div><div>李小红</div><div style="font-size:12px;color:#8c8c8c;">VIP3 · 138****2891</div></div></div></td>
+                <td><span class="s-tag ongoing">进行中</span></td>
+                <td>张小明</td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:24</span></td>
+                <td class="col-summary"><span class="dur">时长 12分38秒</span></td>
+                <td><span class="no-rate">未评价</span></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-recontact">再次联系</a></td>
+              </tr>
+
+              <!-- 离线待处理（留言态） -->
+              <tr class="is-offline" data-status="offline" data-agent="" data-ent="客户A" data-brand="品牌商城1" data-app="小程序">
+                <td class="col-id">#CS20260611008</td>
+                <td><div class="col-user"><div class="mini-avatar orange">李</div><div><div>李婷婷</div><div style="font-size:12px;color:#8c8c8c;">138****6621 · 微信</div></div></div></td>
+                <td><span class="s-tag offline">离线待处理</span></td>
+                <td><span class="unassigned">未分配</span></td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:32</span></td>
+                <td class="col-summary"><div class="leave-msg">订单退款两天未到账，麻烦尽快处理</div><span class="leave-cat">退款/退货</span></td>
+                <td><span class="no-rate">—</span></td>
+                <td class="row-actions"><a class="sr-assign">分配</a><span class="divider">|</span><a class="sr-detail">详情</a></td>
+              </tr>
+
+              <!-- 离线待处理（留言态） -->
+              <tr class="is-offline" data-status="offline" data-agent="" data-ent="客户A" data-brand="品牌商城1" data-app="H5">
+                <td class="col-id">#CS20260611009</td>
+                <td><div class="col-user"><div class="mini-avatar">张</div><div><div>张伟</div><div style="font-size:12px;color:#8c8c8c;">159****3387</div></div></div></td>
+                <td><span class="s-tag offline">离线待处理</span></td>
+                <td><span class="unassigned">未分配</span></td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:50</span></td>
+                <td class="col-summary"><div class="leave-msg">收到的商品有破损，包装也是破的，要求换货</div><span class="leave-cat">订单售后</span></td>
+                <td><span class="no-rate">—</span></td>
+                <td class="row-actions"><a class="sr-assign">分配</a><span class="divider">|</span><a class="sr-detail">详情</a></td>
+              </tr>
+
+              <!-- 已关闭 -->
+              <tr data-status="closed" data-agent="李静" data-ent="客户A" data-brand="品牌商城1" data-app="H5">
+                <td class="col-id">#CS20260611002</td>
+                <td><div class="col-user"><div class="mini-avatar orange">王</div><div><div>王志强</div><div style="font-size:12px;color:#8c8c8c;">普通会员 · 159****6601</div></div></div></td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td>李静</td>
+                <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:52</span></td>
+                <td class="col-summary"><span class="dur">时长 06分12秒</span></td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-rating">查看评价</a></td>
+              </tr>
+
+              <!-- 已转接 -->
+              <tr data-status="transferred" data-agent="张小明" data-ent="客户B" data-brand="品牌商城2" data-app="PC">
+                <td class="col-id">#CS20260611003</td>
+                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">VIP2 · 186****0452</div></div></div></td>
+                <td><span class="s-tag transferred">已转接</span></td>
+                <td>张小明 &gt; 李静</td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:18</span></td>
+                <td class="col-summary"><span class="dur">时长 23分04秒</span></td>
+                <td><span class="stars">★★★★★</span></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-transfer">转接记录</a></td>
+              </tr>
+
+              <!-- 已关闭 -->
+              <tr data-status="closed" data-agent="王磊" data-ent="客户A" data-brand="品牌商城1" data-app="小程序">
+                <td class="col-id">#CS20260610024</td>
+                <td><div class="col-user"><div class="mini-avatar green">刘</div><div><div>刘大伟</div><div style="font-size:12px;color:#8c8c8c;">普通会员 · 137****8839</div></div></div></td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td>王磊</td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">18:36</span></td>
+                <td class="col-summary"><span class="dur">时长 04分51秒</span></td>
+                <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-rating">查看评价</a></td>
+              </tr>
+
+              <!-- 离线待处理（留言态） -->
+              <tr class="is-offline" data-status="offline" data-agent="" data-ent="客户C" data-brand="品牌商城3" data-app="小程序">
+                <td class="col-id">#CS20260611010</td>
+                <td><div class="col-user"><div class="mini-avatar">周</div><div><div>周芳</div><div style="font-size:12px;color:#8c8c8c;">186****4471</div></div></div></td>
+                <td><span class="s-tag offline">离线待处理</span></td>
+                <td><span class="unassigned">未分配</span></td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:08</span></td>
+                <td class="col-summary"><div class="leave-msg">会员积分兑换的商品什么时候发货？</div><span class="leave-cat">账户问题</span></td>
+                <td><span class="no-rate">—</span></td>
+                <td class="row-actions"><a class="sr-assign">分配</a><span class="divider">|</span><a class="sr-detail">详情</a></td>
+              </tr>
+
+              <!-- 已取消 -->
+              <tr data-status="cancelled" data-agent="张小明" data-ent="客户C" data-brand="品牌商城3" data-app="小程序">
+                <td class="col-id">#CS20260610015</td>
+                <td><div class="col-user"><div class="mini-avatar">赵</div><div><div>赵丽丽</div><div style="font-size:12px;color:#8c8c8c;">VIP4 · 133****1278</div></div></div></td>
+                <td><span class="s-tag cancelled">已取消</span></td>
+                <td>张小明</td>
+                <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:42</span></td>
+                <td class="col-summary"><span class="dur">时长 02分19秒</span></td>
+                <td><span class="no-rate">未评价</span></td>
+                <td class="row-actions"><a class="sr-detail">详情</a></td>
+              </tr>
+
+              <!-- 已关闭（差评） -->
+              <tr data-status="closed" data-agent="张小明" data-ent="客户A" data-brand="品牌商城2" data-app="小程序">
+                <td class="col-id">#CS20260609061</td>
+                <td><div class="col-user"><div class="mini-avatar">郑</div><div><div>郑国华</div><div style="font-size:12px;color:#8c8c8c;">普通会员 · 131****5577</div></div></div></td>
+                <td><span class="s-tag closed">已关闭</span></td>
+                <td>张小明</td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">10:08</span></td>
+                <td class="col-summary"><span class="dur">时长 15分33秒</span></td>
+                <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-badrate">差评追踪</a></td>
+              </tr>
+
+              <!-- 已转接 -->
+              <tr data-status="transferred" data-agent="王磊" data-ent="客户C" data-brand="品牌商城3" data-app="PC">
+                <td class="col-id">#CS20260609088</td>
+                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">VIP2 · 186****0452</div></div></div></td>
+                <td><span class="s-tag transferred">已转接</span></td>
+                <td>王磊 &gt; 张小明</td>
+                <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">19:55</span></td>
+                <td class="col-summary"><span class="dur">时长 18分42秒</span></td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-transfer">转接记录</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" style="padding: 16px;">
+          <span class="pg-info">共 1,284 条</span>
+          <span class="pg-btn disabled">&lt;</span>
+          <span class="pg-num active">1</span>
+          <span class="pg-num">2</span>
+          <span class="pg-num">3</span>
+          <span class="pg-num">4</span>
+          <span class="pg-num">5</span>
+          <span style="color:#bfbfbf;">...</span>
+          <span class="pg-num">129</span>
+          <span class="pg-btn">&gt;</span>
+          <span class="pg-jump">跳至<input value="1" />页</span>
+        </div>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:16px; font-size:12px; color:#bfbfbf;">
+        数据来源：customer_chat_sessions（唯一实体）· 状态：wait(排队) / offline(离线待处理·留言态) / accept(服务中) / close / cancel · 离线态会话在客服上线后走正常分配
+      </p>
+
+    </main>
+  </div>
+
+</div>
+
+<script src="nav.js"></script>
+<script>
+/* ============================================================
+   admin-session-record.html 交互（统一会话记录）
+   会话为唯一实体；留言 = 「离线待处理」状态。状态 Tab + 维度筛选，
+   行操作按文案委派 → csModal / toast。
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+  var rows = $$('.data-table tbody tr');
+
+  /* ---------- 1. 状态 Tab 过滤 ---------- */
+  var TABByText = { '全部': 'all', '进行中': 'ongoing', '离线待处理': 'offline', '已关闭': 'closed', '已转接': 'transferred' };
+  var statusTabs = $$('.status-tab');
+  var currentStatus = 'all';
+  function tabKey(tab) { return tab.textContent.replace(/[0-9]/g, '').trim(); }
+  statusTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      statusTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentStatus = TABByText[tabKey(tab)] || 'all';
+      applyFilters();
+    });
+  });
+
+  /* ---------- 2. 维度筛选 ---------- */
+  var fAgent = $('#fAgent'), fEnt = $('#fEnt'), fBrand = $('#fBrand'), fApp = $('#fApp');
+  var btnQuery = $('.filter-bar .btn-primary');
+  var btnReset = $('.filter-bar .btn-default');
+  function applyFilters() {
+    var agent = fAgent ? fAgent.value : '';
+    var ent = fEnt ? fEnt.value : '';
+    var brand = fBrand ? fBrand.value : '';
+    var app = fApp ? fApp.value : '';
+    rows.forEach(function (tr) {
+      var ok = (currentStatus === 'all' || tr.getAttribute('data-status') === currentStatus)
+        && (!agent || tr.getAttribute('data-agent') === agent)
+        && (!ent || tr.getAttribute('data-ent') === ent)
+        && (!brand || tr.getAttribute('data-brand') === brand)
+        && (!app || tr.getAttribute('data-app') === app);
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    [fAgent, fEnt, fBrand, fApp].forEach(function (el) { if (el) el.value = ''; });
+    currentStatus = 'all';
+    statusTabs.forEach(function (t) { t.classList.toggle('active', tabKey(t) === '全部'); });
+    applyFilters(); toast('已重置筛选');
+  });
+  [fAgent, fEnt, fBrand, fApp].forEach(function (el) { if (el) el.addEventListener('change', applyFilters); });
+
+  /* ---------- 3. 顶部按钮 ---------- */
+  var btnExport = $('#btnExport'), btnRefresh = $('#btnRefresh');
+  if (btnExport) btnExport.addEventListener('click', function () { toast('正在导出会话记录…'); });
+  if (btnRefresh) btnRefresh.addEventListener('click', function () { toast('数据已刷新'); });
+
+  /* ---------- 4. 行操作（按文案委派） ---------- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var txt = (a.textContent || '').trim();
+    if (txt === '详情') {
+      csModal.open('modals/modal-session-detail.html?type=detail', { variant: 'center', width: 540 });
+    } else if (txt === '转接记录') {
+      csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 });
+    } else if (txt === '查看评价') {
+      csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 });
+    } else if (txt === '差评追踪') {
+      csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 });
+    } else if (txt === '分配') {
+      /* 离线待处理会话：客服上线后走正常分配（原型以分配弹窗示意） */
+      var tr = a.closest('tr');
+      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
+        onConfirm: function (d) {
+          if (!tr) return;
+          tr.classList.remove('is-offline');
+          var st = $('.s-tag', tr); if (st) { st.className = 's-tag ongoing'; st.textContent = '进行中'; tr.setAttribute('data-status', 'ongoing'); }
+          var cells = $$('td', tr);
+          if (cells[3]) { var name = (d && d.assignee) || '客服'; cells[3].innerHTML = name; tr.setAttribute('data-agent', name); }
+          var act = $('.row-actions', tr); if (act) act.innerHTML = '<a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-recontact">再次联系</a>';
+          toast('已分配给 ' + ((d && d.assignee) || '客服') + '，会话进入服务中');
+        }
+      });
+    } else if (txt === '再次联系') {
+      toast('正在跳转工作台发起会话…');
+      setTimeout(function () { window.open('admin-workbench.html', '_blank'); }, 800);
+    }
+  });
+
+  /* ---------- 5. 分页 ---------- */
+  $$('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  applyFilters();
+})();
+</script>
+
+</body>
+</html>

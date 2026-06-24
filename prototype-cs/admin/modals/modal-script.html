@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>新建话术 · 弹窗</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 520px; max-width: 92vw; }
+    .sc-body { padding: 18px 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group > label { display: block; font-size: 13px; color: var(--cs-text); margin-bottom: 6px; font-weight: 500; }
+    .form-ipt {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 7px 11px; font-size: 13px; font-family: inherit; background: #fff;
+      outline: none; transition: border-color 0.15s;
+    }
+    .form-ipt:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    select.form-ipt { height: 34px; cursor: pointer; }
+    textarea.form-ipt { min-height: 90px; resize: vertical; line-height: 1.6; }
+    .form-hint { font-size: 12px; color: var(--cs-text-tertiary); margin-top: 4px; }
+    .radio-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .radio-row label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 400; }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span id="modalTitle">新建话术</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="sc-body">
+      <div class="form-group">
+        <label>话术内容 <span style="color:var(--cs-danger);">*</span></label>
+        <textarea class="form-ipt" id="scContent" placeholder="请输入话术内容，支持变量如 {用户昵称}、{订单号}、{客服昵称}，发送时自动替换"></textarea>
+        <div class="form-hint">支持插入变量：{用户昵称} {订单号} {客服昵称}</div>
+      </div>
+      <div class="form-group">
+        <label>场景标签 <span style="color:var(--cs-danger);">*</span></label>
+        <select class="form-ipt" id="scScene">
+          <option value="enter">进入会话</option>
+          <option value="offline">客服离线</option>
+          <option value="keyword">关键词匹配</option>
+          <option value="transfer">转人工</option>
+          <option value="general">通用</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>触发关键词</label>
+        <input type="text" class="form-ipt" id="scKeyword" placeholder="多个关键词用逗号分隔，如：退款,退货,退钱" />
+        <div class="form-hint">仅「关键词匹配」场景需要配置；用户消息包含任一关键词时自动推荐此话术</div>
+      </div>
+      <div class="form-group">
+        <label>业务分类 <span style="color:var(--cs-danger);">*</span></label>
+        <select class="form-ipt" id="scBiz">
+          <option value="general">通用</option>
+          <option value="presale">售前</option>
+          <option value="aftersale">售后</option>
+          <option value="complaint">投诉</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>启用状态</label>
+        <div class="radio-row">
+          <label><input type="radio" name="sc-status" value="enabled" checked> 启用</label>
+          <label><input type="radio" name="sc-status" value="disabled"> 停用</label>
+        </div>
+      </div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn">确定</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    /* 编辑入口预填：通过查询参数 ?title=&content=&scene=&biz=&keyword=&status= 传入 */
+    (function () {
+      var params = {};
+      try {
+        window.location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
+          var p = kv.split('=');
+          if (p[0]) params[decodeURIComponent(p[0])] = decodeURIComponent((p[1] || '').replace(/\+/g, ' '));
+        });
+      } catch (e) {}
+      if (params.title) { var t = document.getElementById('modalTitle'); if (t) t.textContent = params.title; }
+      if (params.content) document.getElementById('scContent').value = params.content;
+      if (params.scene) { var s = document.getElementById('scScene'); if (s) s.value = params.scene; }
+      if (params.biz) { var b = document.getElementById('scBiz'); if (b) b.value = params.biz; }
+      if (params.keyword) document.getElementById('scKeyword').value = params.keyword;
+      if (params.status === 'disabled') {
+        var d = document.querySelector('input[name="sc-status"][value="disabled"]');
+        if (d) d.checked = true;
+      }
+    })();
+
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      var content = document.getElementById('scContent').value.trim();
+      if (!content) { markErr('scContent'); return; }
+      window.csModalBridge.confirm({
+        content: content,
+        scene: document.getElementById('scScene').value,
+        keyword: document.getElementById('scKeyword').value,
+        biz: document.getElementById('scBiz').value,
+        status: document.querySelector('input[name="sc-status"]:checked').value
+      });
+    });
+
+    function markErr(id) {
+      var el = document.getElementById(id);
+      el.style.borderColor = 'var(--cs-danger)'; el.focus();
+      setTimeout(function () { el.style.borderColor = ''; }, 1500);
+    }
+  </script>
+</body>
+</html>

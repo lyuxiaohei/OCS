@@ -12,6 +12,7 @@
 const MENU_DATA = [
   {
     group: '工作台',
+    icon: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
     items: [
       { id: 'dashboard',  label: '数据仪表盘', href: 'admin-dashboard.html',    icon: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>' },
       { id: 'workbench',  label: '客服工作台', href: 'admin-workbench.html',    icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
@@ -20,19 +21,21 @@ const MENU_DATA = [
   },
   {
     group: '服务管理',
+    icon: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
     items: [
-      { id: 'session-list', label: '历史会话', href: 'admin-session-list.html', icon: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' },
+      { id: 'session-record', label: '会话记录', href: 'admin-session-record.html', icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
       { id: 'transfer',     label: '会话转接', href: 'admin-transfer.html',     icon: '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>' },
       { id: 'rating',       label: '评价管理', href: 'admin-rating-mgmt.html',  icon: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' },
-      { id: 'leave',        label: '留言管理', href: 'admin-leave-mgmt.html',   icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' },
     ]
   },
   {
     group: '配置',
+    icon: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
     items: [
       { id: 'knowledge',   label: '知识库',   href: 'admin-knowledge.html',    icon: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>' },
       { id: 'scripts',     label: '话术库',   href: 'admin-scripts.html',      icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
-      { id: 'settings',    label: '系统设置', href: 'admin-settings.html',     icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/>' },
+      { id: 'quick-reply', label: '快捷回复', href: 'admin-quick-reply.html',  icon: '<polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>' },
+      { id: 'settings',    label: '客服设置', href: 'admin-settings.html',     icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/>' },
     ]
   },
   // 以下 2/3 期分组已从 1 期侧边栏隐藏（详见 PRD V1.0 Out of Scope）：
@@ -74,18 +77,23 @@ function renderSidebar() {
 
   const activeId = el.getAttribute('data-active') || '';
 
-  let html = '<div class="logo">供应链平台</div>';
+  // L1 根目录：客服管理
+  let html = '<div class="logo">客服模块</div><div class="nav-l1">客服管理</div>';
 
   MENU_DATA.forEach(group => {
-    html += `<div class="sidebar-menu-group-title">${group.group}</div>`;
+    // L2 分组（带图标）
+    const groupIcon = group.icon
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">${group.icon}</svg>`
+      : '';
+    html += `<div class="nav-l2">${groupIcon}<span>${group.group}</span></div>`;
+    // L3 菜单项（无图标）
     group.items.forEach(item => {
       const isActive = item.id === activeId ? ' active' : '';
-      const svgIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;">${item.icon}</svg>`;
       // 跨「工作台边界」才新开页签：点的菜单与当前页分处工作台/非工作台两侧 → target="_blank"（异或）
       // 即：非工作台页点工作台、工作台页点其他菜单 → 新开；两边同侧（非工作台↔非工作台、工作台↔工作台）→ 同页跳转
       const openNew = (item.id === 'workbench') !== (activeId === 'workbench');
       const targetAttr = openNew ? ' target="_blank"' : '';
-      html += `<a href="${item.href}" class="menu-item${isActive}"${targetAttr}>${svgIcon}${item.label}</a>`;
+      html += `<a href="${item.href}" class="menu-item nav-l3${isActive}"${targetAttr}>${item.label}</a>`;
     });
   });
 

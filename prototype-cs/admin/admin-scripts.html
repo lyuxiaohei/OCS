@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>话术库 — 供应链平台</title>
+  <title>话术库 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <style>
@@ -17,341 +17,191 @@
       margin-bottom: var(--cs-space-5);
     }
 
-    /* ---------- 场景标签筛选 ---------- */
-    .filter-bar {
+    /* ---------- 两栏布局：左侧分类树 + 右侧话术列表 ---------- */
+    .kb-layout {
+      display: flex;
+      gap: var(--cs-space-4);
+      align-items: stretch;
+    }
+    .kb-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+    }
+    .kb-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ---------- 分类树 ---------- */
+    .category-tree {
       background: var(--cs-bg-card);
       border-radius: var(--cs-radius-md);
       border: 1px solid var(--cs-border-light);
-      padding: 14px 18px;
+      box-shadow: var(--cs-shadow-card);
+      padding: var(--cs-space-3) 0;
+      height: 100%;
+      overflow-y: auto;
     }
-    .filter-bar .filter-label {
-      font-size: var(--cs-font-size-base);
-      color: var(--cs-text-secondary);
-      font-weight: var(--cs-font-weight-semibold);
-      margin-right: 4px;
-    }
-    .filter-bar .filter-row {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: var(--cs-space-2);
-    }
-    .filter-bar .filter-row + .filter-row {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed var(--cs-border-light);
-    }
-    .scene-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      font-size: var(--cs-font-size-base);
-      cursor: pointer;
-      transition: var(--cs-transition-normal);
-      background: var(--cs-border-lighter);
-      color: var(--cs-text-secondary);
-      border: 1px solid var(--cs-border-light);
-      user-select: none;
-    }
-    .scene-tag:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
-    .scene-tag.active {
-      background: var(--cs-primary-bg);
-      color: var(--cs-primary);
-      border-color: var(--cs-primary);
-      font-weight: var(--cs-font-weight-semibold);
-    }
-    .scene-tag .tag-count {
-      background: rgba(0,0,0,0.06);
-      border-radius: 10px;
-      padding: 0 6px;
-      font-size: var(--cs-font-size-xs);
-      font-weight: var(--cs-font-weight-semibold);
-    }
-    .scene-tag.active .tag-count { background: rgba(22,119,255,0.15); }
-
-    /* 业务分类标签样式 */
-    .biz-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      font-size: var(--cs-font-size-base);
-      cursor: pointer;
-      transition: var(--cs-transition-normal);
-      background: var(--cs-border-lighter);
-      color: var(--cs-text-secondary);
-      border: 1px solid var(--cs-border-light);
-      user-select: none;
-    }
-    .biz-tag:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
-    .biz-tag.active {
-      background: var(--cs-primary-bg);
-      color: var(--cs-primary);
-      border-color: var(--cs-primary);
-      font-weight: var(--cs-font-weight-semibold);
-    }
-    .biz-tag .tag-count {
-      background: rgba(0,0,0,0.06);
-      border-radius: 10px;
-      padding: 0 6px;
-      font-size: var(--cs-font-size-xs);
-      font-weight: var(--cs-font-weight-semibold);
-    }
-    .biz-tag.active .tag-count { background: rgba(22,119,255,0.15); }
-
-    /* 业务分类颜色映射（用于列表中标签） */
-    .biz-presale  { background: #e6f4ff; color: #1677ff; border: 1px solid #91caff; }
-    .biz-aftersale { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
-    .biz-complaint { background: #fff1f0; color: #f5222d; border: 1px solid #ffccc7; }
-    .biz-general  { background: #f5f5f5; color: #8c8c8c; border: 1px solid #e8e8e8; }
-
-    /* 场景颜色映射（用于列表中标签） */
-    .scene-enter    { background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; }
-    .scene-offline  { background: var(--cs-orange-bg); color: #d48806; border: 1px solid #ffe58f; }
-    .scene-keyword  { background: var(--cs-purple-bg); color: var(--cs-purple); border: 1px solid #d3adf7; }
-    .scene-transfer { background: var(--cs-danger-bg); color: var(--cs-danger); border: 1px solid #ffccc7; }
-    .scene-general  { background: var(--cs-success-bg); color: #389e0d; border: 1px solid #b7eb8f; }
-
-    .filter-search {
-      flex: 1;
-      min-width: 180px;
-      display: flex;
-      align-items: center;
-      gap: var(--cs-space-2);
-      margin-left: auto;
-    }
-    .filter-search input {
-      flex: 1;
-      height: 32px;
-      border: 1px solid var(--cs-border);
-      border-radius: var(--cs-radius-sm);
-      padding: 0 12px;
-      font-size: var(--cs-font-size-base);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .filter-search input:focus { border-color: var(--cs-primary); }
-
-    /* ---------- 主体两列布局 ---------- */
-    .scripts-layout {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: var(--cs-space-4);
-      align-items: start;
-    }
-    @media (max-width: 1100px) {
-      .scripts-layout { grid-template-columns: 1fr; }
-      .script-stats { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    /* ---------- 话术列表 ---------- */
-    .scripts-list-card { padding: 0; overflow: hidden; }
-    .scripts-list-head {
+    .category-tree .tree-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--cs-border-light);
-      background: var(--cs-bg-header);
-    }
-    .scripts-list-head .title {
-      display: flex; align-items: center; gap: var(--cs-space-2);
-      font-size: var(--cs-font-size-lg); font-weight: var(--cs-font-weight-semibold);
-    }
-    .scripts-list-head .count-pill {
-      background: var(--cs-bg-page);
-      color: var(--cs-text-secondary);
-      border-radius: 10px;
-      padding: 1px 10px;
-      font-size: var(--cs-font-size-sm);
-      font-weight: var(--cs-font-weight-semibold);
-    }
-    .scripts-list-body { max-height: 720px; overflow-y: auto; padding: 4px 0; }
-
-    /* 话术条目 */
-    .script-item {
-      padding: 14px 18px;
+      padding: 4px var(--cs-space-4) var(--cs-space-3);
       border-bottom: 1px solid var(--cs-border-lighter);
-      transition: background 0.15s;
-      cursor: pointer;
     }
-    .script-item:hover { background: var(--cs-bg-hover); }
-    .script-item:last-child { border-bottom: none; }
-    .script-item.expanded { background: #fafcff; border-left: 3px solid var(--cs-primary); padding-left: 15px; }
-
-    .script-item-head {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .script-index {
-      width: 24px; height: 24px;
-      border-radius: var(--cs-radius-sm);
-      background: var(--cs-bg-page);
-      color: var(--cs-text-tertiary);
-      display: flex; align-items: center; justify-content: center;
-      font-size: var(--cs-font-size-sm); font-weight: var(--cs-font-weight-semibold);
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .script-index.hot { background: var(--cs-danger-bg); color: var(--cs-danger); }
-
-    .script-body { flex: 1; min-width: 0; }
-    .script-content {
+    .category-tree .tree-header .tree-title {
       font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
       color: var(--cs-text);
-      line-height: 1.6;
-      margin-bottom: var(--cs-space-2);
     }
-    .script-meta {
+    .category-tree .tree-header .tree-add {
+      font-size: var(--cs-font-size-xl);
+      color: var(--cs-primary);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .category-tree .tree-header .tree-add:hover { color: var(--cs-primary-hover); }
+
+    .tree-node {
       display: flex;
       align-items: center;
-      gap: var(--cs-space-2);
+      padding: var(--cs-space-2) var(--cs-space-4);
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text);
+      cursor: pointer;
+      transition: var(--cs-transition-fast);
+      gap: 6px;
+      position: relative;
+    }
+    .tree-node:hover { background: var(--cs-border-lighter); }
+    .tree-node.active {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .tree-node.active::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary);
+    }
+    .tree-node .tree-icon {
+      width: 16px;
+      text-align: center;
+      font-size: var(--cs-font-size-md);
+      flex-shrink: 0;
+      color: var(--cs-text-tertiary);
+    }
+    .tree-node.active .tree-icon { color: var(--cs-primary); }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      background: var(--cs-border-light);
+      border-radius: 10px;
+      padding: 0 7px;
+      line-height: 16px;
+    }
+    .tree-node.active .tree-count {
+      color: var(--cs-primary);
+      background: var(--cs-bg-card);
+    }
+    .tree-node .tree-actions {
+      display: none;
+      gap: 4px;
+    }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .tree-node .tree-actions a:hover { color: var(--cs-primary); }
+
+    .tree-group-title {
+      padding: var(--cs-space-3) var(--cs-space-4) 6px;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- 搜索 & 工具条 ---------- */
+    .kb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-3);
       flex-wrap: wrap;
     }
-    .scene-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 1px 8px;
-      border-radius: var(--cs-radius-xs);
-      font-size: var(--cs-font-size-xs);
-      font-weight: var(--cs-font-weight-semibold);
+    .kb-toolbar .ipt.input-search {
+      min-width: 240px;
+      color: var(--cs-text);
     }
+
+    /* ---------- 话术内容列 ---------- */
+    .data-table .col-title {
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+    }
+    .data-table .col-title .title-sub {
+      display: block;
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      font-weight: var(--cs-font-weight-normal);
+      margin-top: 2px;
+      max-width: 420px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 场景标签 / 业务分类标签（列内纯文本，无配色） */
+    .scene-badge {
+      display: inline;
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-secondary);
+      white-space: nowrap;
+    }
+
+    /* 使用次数（纯文本，无配色） */
     .usage-count {
       display: inline-flex;
       align-items: center;
       gap: 3px;
       font-size: var(--cs-font-size-sm);
-      color: var(--cs-text-tertiary);
-    }
-    .usage-count svg { vertical-align: -2px; }
-    .usage-count.hot { color: var(--cs-danger); font-weight: var(--cs-font-weight-semibold); }
-
-    .script-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex-shrink: 0;
-      align-items: flex-end;
+      color: var(--cs-text-secondary);
     }
 
-    .script-extra {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed var(--cs-border-light);
-      display: none;
-    }
-    .script-item.expanded .script-extra { display: block; }
-
-    /* 小号按钮 — page-specific overrides beyond shared .btn-sm */
-    .btn-sm {
-      padding: 4px 12px;
-      border-radius: 5px;
-      font-size: var(--cs-font-size-sm);
-      border: 1px solid var(--cs-border);
-      background: var(--cs-bg-card);
-      color: var(--cs-text);
-      cursor: pointer;
-      transition: var(--cs-transition-fast);
-      white-space: nowrap;
-    }
-    .btn-sm:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
-    .btn-sm.primary { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
-    .btn-sm.primary:hover { background: var(--cs-primary-hover); }
-    .btn-sm.danger { color: var(--cs-danger); border-color: #ffccc7; }
-    .btn-sm.danger:hover { background: var(--cs-danger-bg); border-color: var(--cs-danger); }
-
-    /* ---------- 新建话术表单 ---------- */
-    .new-script-card { position: sticky; top: 80px; }
-    .new-script-card .card-title { margin-bottom: 18px; }
-
-    .form-group { margin-bottom: var(--cs-space-4); }
-    .form-label {
-      display: block;
-      font-size: var(--cs-font-size-base);
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin-bottom: 6px;
-    }
-    .form-label .required { color: var(--cs-danger); margin-left: 2px; }
-    .form-input, .form-textarea {
-      width: 100%;
-      border: 1px solid var(--cs-border);
-      border-radius: var(--cs-radius-sm);
-      padding: 8px 12px;
-      font-size: var(--cs-font-size-base);
-      outline: none;
-      transition: border-color 0.2s;
-      font-family: inherit;
-    }
-    .form-input:focus, .form-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
-    .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-    .form-hint { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); margin-top: 4px; }
-
-    /* 场景选择器 */
-    .scene-selector {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--cs-space-2);
-    }
-    .scene-option {
+    /* 状态标签（彩色圆点 + 黑色字，无彩色底） */
+    .st-tag {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 6px 12px;
-      border-radius: var(--cs-radius-sm);
       font-size: var(--cs-font-size-sm);
-      cursor: pointer;
-      transition: var(--cs-transition-normal);
-      background: var(--cs-bg-card);
-      border: 1px solid var(--cs-border);
-      color: var(--cs-text-secondary);
-      user-select: none;
+      line-height: 1.5;
+      color: var(--cs-text);
     }
-    .scene-option:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
-    .scene-option.selected {
-      background: var(--cs-primary-bg);
-      border-color: var(--cs-primary);
-      color: var(--cs-primary);
-      font-weight: var(--cs-font-weight-semibold);
-    }
-    .scene-option .scene-dot {
-      width: 8px; height: 8px;
+    .st-tag::before {
+      content: "";
+      width: 6px; height: 6px;
       border-radius: 50%;
-      display: inline-block;
+      flex-shrink: 0;
     }
-    .dot-enter    { background: var(--cs-primary); }
-    .dot-offline  { background: var(--cs-orange); }
-    .dot-keyword  { background: var(--cs-purple); }
-    .dot-transfer { background: var(--cs-danger); }
-    .dot-general  { background: var(--cs-success); }
+    .st-tag.on::before  { background: var(--cs-success); }
+    .st-tag.off::before { background: #bfbfbf; }
 
-    .form-actions {
-      display: flex;
-      gap: var(--cs-space-2);
-      margin-top: var(--cs-space-5);
-      padding-top: var(--cs-space-4);
-      border-top: 1px solid var(--cs-border-light);
-    }
+    /* 操作列 */
+    .row-actions a.danger { color: var(--cs-danger); }
+    .row-actions a.danger:hover { color: var(--cs-danger-hover); }
 
-    /* 场景说明面板 */
-    .scene-info {
-      background: var(--cs-bg-header);
-      border-radius: var(--cs-radius-sm);
-      padding: var(--cs-space-3);
-      margin-top: var(--cs-space-2);
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-text-secondary);
-      line-height: 1.8;
-      display: none;
+    @media (max-width: 1100px) {
+      .kb-layout { flex-direction: column; }
+      .kb-sidebar { width: 100%; }
+      .script-stats { grid-template-columns: repeat(2, 1fr); }
     }
-    .scene-info.show { display: block; }
-    .scene-info-row { display: flex; align-items: center; gap: 6px; }
-    .scene-info-row strong { color: var(--cs-text); }
   </style>
 </head>
 <body>
@@ -366,7 +216,7 @@
 
     <!-- 顶部 Header -->
     <header class="admin-header">
-      <div class="breadcrumb">首页 / 内容管理 / <span style="color:var(--cs-text);">话术库</span></div>
+      <div class="breadcrumb">配置 / <span style="color:var(--cs-text);font-weight:600;">话术库</span></div>
       <div class="user-info">
         <span class="status-badge online">在线</span>
         <span>客服A · 王小明</span>
@@ -380,28 +230,24 @@
       <!-- ===== 顶部统计条 ===== -->
       <div class="script-stats">
         <div class="stat-card">
-          <div class="stat-icon icon-total"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
           <div>
             <div class="stat-num">48</div>
             <div class="stat-name">话术总数</div>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon icon-scene"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
           <div>
             <div class="stat-num">4</div>
             <div class="stat-name">业务分类</div>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon icon-usage"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
           <div>
             <div class="stat-num">2,136</div>
             <div class="stat-name">累计使用次数</div>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon icon-hot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></div>
           <div>
             <div class="stat-num">186</div>
             <div class="stat-name">高频话术使用</div>
@@ -409,452 +255,350 @@
         </div>
       </div>
 
-      <!-- ===== 场景标签筛选栏 ===== -->
-      <div class="filter-bar">
-        <div class="filter-row">
-          <span class="filter-label">场景筛选：</span>
-          <span class="scene-tag active">全部 <span class="tag-count">48</span></span>
-          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>进入会话 <span class="tag-count">15</span></span>
-          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>客服离线 <span class="tag-count">9</span></span>
-          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配 <span class="tag-count">16</span></span>
-          <span class="scene-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转人工 <span class="tag-count">8</span></span>
-          <div class="filter-search">
-            <input type="text" placeholder="搜索话术内容或关键词..." />
+      <!-- ===== 两栏：分类树 + 话术列表 ===== -->
+      <div class="kb-layout">
+
+        <!-- ===== 左侧：业务分类树 ===== -->
+        <div class="kb-sidebar">
+          <div class="category-tree">
+            <div class="tree-header">
+              <span class="tree-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>业务分类</span>
+              <span class="tree-add" title="新增分类">+</span>
+            </div>
+
+            <div class="tree-node active" data-cat="all">
+              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+              <span class="tree-label">全部话术</span>
+              <span class="tree-count">48</span>
+            </div>
+
+            <div class="tree-group-title">业务分类</div>
+
+            <div class="tree-node" data-cat="presale">
+              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              <span class="tree-label">售前</span>
+              <span class="tree-count">12</span>
+              <span class="tree-actions">
+                <a title="编辑">&#9998;</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-node" data-cat="aftersale">
+              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              <span class="tree-label">售后</span>
+              <span class="tree-count">18</span>
+              <span class="tree-actions">
+                <a title="编辑">&#9998;</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-node" data-cat="complaint">
+              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              <span class="tree-label">投诉</span>
+              <span class="tree-count">8</span>
+              <span class="tree-actions">
+                <a title="编辑">&#9998;</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-node" data-cat="general">
+              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              <span class="tree-label">通用</span>
+              <span class="tree-count">10</span>
+              <span class="tree-actions">
+                <a title="编辑">&#9998;</a>
+                <a title="新增子类">+</a>
+              </span>
+            </div>
+
+            <div class="tree-group-title">其他</div>
+            <div class="tree-node" data-cat="trash">
+              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+              <span class="tree-label">回收站</span>
+              <span class="tree-count">3</span>
+            </div>
           </div>
         </div>
-        <div class="filter-row">
-          <span class="filter-label">业务分类：</span>
-          <span class="biz-tag active">全部 <span class="tag-count">48</span></span>
-          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>售前 <span class="tag-count">12</span></span>
-          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>售后 <span class="tag-count">18</span></span>
-          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>投诉 <span class="tag-count">8</span></span>
-          <span class="biz-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>通用 <span class="tag-count">10</span></span>
-        </div>
-      </div>
 
-      <!-- ===== 主体两列 ===== -->
-      <div class="scripts-layout">
+        <!-- ===== 右侧：工具条 + 话术表格 ===== -->
+        <div class="kb-main">
 
-        <!-- ===== 左侧：话术列表 ===== -->
-        <section class="card scripts-list-card">
-          <div class="scripts-list-head">
-            <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>话术列表 <span class="count-pill" id="list-count">48 条</span></div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <select style="height:30px; border:1px solid var(--cs-border); border-radius:5px; padding:0 8px; font-size:12px; outline:none;">
-                <option>按使用次数排序</option>
-                <option>按创建时间排序</option>
-                <option>按场景排序</option>
+          <!-- 工具条 -->
+          <div class="card" style="padding:16px; margin-bottom:var(--cs-space-4);">
+            <div class="kb-toolbar">
+              <input type="text" id="scSearch" class="ipt input-search" placeholder="搜索话术内容或关键词" style="min-width:240px;color:var(--cs-text);" />
+              <select id="scSceneFilter" class="select" style="min-width:120px;">
+                <option value="">全部场景</option>
+                <option value="enter">进入会话</option>
+                <option value="offline">客服离线</option>
+                <option value="keyword">关键词匹配</option>
+                <option value="transfer">转人工</option>
+                <option value="general">通用</option>
               </select>
-              <button class="btn-sm primary">批量导入</button>
-            </div>
-          </div>
-
-          <div class="scripts-list-body">
-
-            <!-- 话术 1（高频·进入会话） -->
-            <div class="script-item expanded" data-biz="general">
-              <div class="script-item-head">
-                <div class="script-index hot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></div>
-                <div class="script-body">
-                  <div class="script-content">您好，欢迎来到 CS 商城！我是您的专属客服，很高兴为您服务。请问有什么可以帮您的吗？</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-enter"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>进入会话</span>
-                    <span class="scene-badge biz-general">通用</span>
-                    <span class="usage-count hot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 186 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：刚刚</span>
-                  </div>
-                  <div class="script-extra">
-                    <div style="font-size:12px; color:var(--cs-text-tertiary); line-height:1.8;">
-                      <strong style="color:var(--cs-text);">触发场景：</strong>用户进入会话时自动发送（欢迎语）<br/>
-                      <strong style="color:var(--cs-text);">关联关键词：</strong>你好、在吗、客服<br/>
-                      <strong style="color:var(--cs-text);">使用效果：</strong>平均响应时长缩短 <span style="color:var(--cs-success); font-weight:600;">3.2 秒</span>，满意度 <span style="color:var(--cs-success); font-weight:600;">96%</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 2（高频·关键词匹配） -->
-            <div class="script-item" data-biz="aftersale">
-              <div class="script-item-head">
-                <div class="script-index hot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg></div>
-                <div class="script-body">
-                  <div class="script-content">关于您的退款申请，一般会在 1-3 个工作日内审核完成，审核通过后退款将原路返回至您的支付账户，请耐心等待。查询退款进度可点击「我的订单 &gt; 退款详情」。</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-keyword"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配</span>
-                    <span class="scene-badge biz-aftersale">售后</span>
-                    <span class="usage-count hot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 142 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：5 分钟前</span>
-                  </div>
-                  <div class="script-extra">
-                    <div style="font-size:12px; color:var(--cs-text-tertiary); line-height:1.8;">
-                      <strong style="color:var(--cs-text);">触发关键词：</strong>退款、退钱、退货退款、申请退款<br/>
-                      <strong style="color:var(--cs-text);">匹配方式：</strong>部分匹配（用户消息包含任一关键词即推荐）
-                    </div>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 3（转人工） -->
-            <div class="script-item" data-biz="general">
-              <div class="script-item-head">
-                <div class="script-index">3</div>
-                <div class="script-body">
-                  <div class="script-content">您好，您的问题需要更专业的同事为您处理，正在为您转接至【售后专员】，请稍候，预计等待 30 秒。转接后您无需重复问题，我会同步历史记录。</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-transfer"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转人工</span>
-                    <span class="scene-badge biz-general">通用</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 98 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：12 分钟前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 4（客服离线） -->
-            <div class="script-item" data-biz="general">
-              <div class="script-item-head">
-                <div class="script-index">4</div>
-                <div class="script-body">
-                  <div class="script-content">亲爱的用户，当前客服不在线（工作时间：9:00-22:00）。您可以先留言描述您的问题，我们会在次日 9:00 优先为您处理。紧急问题请拨打客服热线：400-888-XXXX</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-offline"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>客服离线</span>
-                    <span class="scene-badge biz-general">通用</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 76 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：1 小时前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 5（关键词匹配·物流） -->
-            <div class="script-item" data-biz="aftersale">
-              <div class="script-item-head">
-                <div class="script-index">5</div>
-                <div class="script-body">
-                  <div class="script-content">您的订单已发货，物流单号 SF1234567890（顺丰速运）。正常情况下 2-3 天送达，您可点击「我的订单 &gt; 查看物流」实时追踪。如超时未送达请联系我处理。</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-keyword"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配</span>
-                    <span class="scene-badge biz-aftersale">售后</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 64 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：2 小时前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 6（进入会话·促销） -->
-            <div class="script-item" data-biz="presale">
-              <div class="script-item-head">
-                <div class="script-index">6</div>
-                <div class="script-body">
-                  <div class="script-content">您好！CS 商城 618 大促火热进行中，满 300 减 50、满 500 减 100，更有会员专属优惠券可领！需要我帮您查询活动详情或领取优惠券吗？</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-enter"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>进入会话</span>
-                    <span class="scene-badge biz-presale">售前</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 52 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：3 小时前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 7（转人工·投诉） -->
-            <div class="script-item" data-biz="complaint">
-              <div class="script-item-head">
-                <div class="script-index">7</div>
-                <div class="script-body">
-                  <div class="script-content">非常抱歉给您带来不愉快的体验。您的反馈我已经记录，现在为您转接至【投诉处理主管】跟进，一定会给您满意的答复，请稍等。</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-transfer"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转人工</span>
-                    <span class="scene-badge biz-complaint">投诉</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 43 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：昨天</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 8（客服离线·留言） -->
-            <div class="script-item" data-biz="general">
-              <div class="script-item-head">
-                <div class="script-index">8</div>
-                <div class="script-body">
-                  <div class="script-content">客服小伙伴已下线休息啦~ 您的问题对我们很重要，欢迎留言。留下订单号和问题描述，上线后我们会第一时间回复您（承诺 4 小时内响应）。</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-offline"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>客服离线</span>
-                    <span class="scene-badge biz-general">通用</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 38 次</span>
-                    <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：昨天</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 9（关键词匹配·优惠券） -->
-            <div class="script-item" data-biz="presale">
-              <div class="script-item-head">
-                <div class="script-index">9</div>
-                <div class="script-body">
-                  <div class="script-content">优惠券使用规则：满减券需满足对应金额门槛方可使用，每笔订单仅可使用一张优惠券，不可与秒杀商品叠加。优惠券有效期为发放后 7 天内，请尽快使用哦~</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-keyword"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配</span>
-                    <span class="scene-badge biz-presale">售前</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 31 次</span>
-                        <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：2 天前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 10（进入会话·会员） -->
-            <div class="script-item" data-biz="presale">
-              <div class="script-item-head">
-                <div class="script-index">10</div>
-                <div class="script-body">
-                  <div class="script-content">您好！检测到您是我们的银卡会员，当前可享受会员专属 9.5 折优惠。升级金卡会员还可享包邮、生日礼遇等权益，需要了解详情吗？</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-enter"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>进入会话</span>
-                    <span class="scene-badge biz-presale">售前</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 24 次</span>
-                        <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：3 天前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 11（关键词匹配·发票） -->
-            <div class="script-item" data-biz="aftersale">
-              <div class="script-item-head">
-                <div class="script-index">11</div>
-                <div class="script-body">
-                  <div class="script-content">电子发票将在订单完成后 24 小时内自动开具，您可在「我的订单 &gt; 发票管理」中查看和下载。如需修改发票抬头，请在订单确认页提前设置。</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-keyword"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>关键词匹配</span>
-                    <span class="scene-badge biz-aftersale">售后</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 19 次</span>
-                        <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：4 天前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 话术 12（转人工·技术） -->
-            <div class="script-item" data-biz="general">
-              <div class="script-item-head">
-                <div class="script-index">12</div>
-                <div class="script-body">
-                  <div class="script-content">您咨询的商品技术参数问题较为专业，正在为您转接至【产品专家】。转接期间请勿关闭窗口，预计 1 分钟内接通。</div>
-                  <div class="script-meta">
-                    <span class="scene-badge scene-transfer"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:0;margin-right:2px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转人工</span>
-                    <span class="scene-badge biz-general">通用</span>
-                    <span class="usage-count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>使用 15 次</span>
-                        <span style="font-size:12px; color:var(--cs-text-placeholder);">·</span>
-                    <span style="font-size:12px; color:var(--cs-text-tertiary);">最后使用：5 天前</span>
-                  </div>
-                </div>
-                <div class="script-actions">
-                  <button class="btn-sm primary" onclick="event.stopPropagation()">复制</button>
-                  <button class="btn-sm" onclick="event.stopPropagation()">编辑</button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- 列表底部 -->
-          <div style="padding:12px 18px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light); display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:12px; color:var(--cs-text-tertiary);">共 <strong>48</strong> 条话术 · 当前展示 12 条</span>
-            <div style="display:flex; gap:6px;">
-              <button class="btn-sm">上一页</button>
-              <button class="btn-sm primary">1</button>
-              <button class="btn-sm">2</button>
-              <button class="btn-sm">3</button>
-              <button class="btn-sm">4</button>
-              <button class="btn-sm">下一页</button>
-            </div>
-          </div>
-        </section>
-
-        <!-- ===== 右侧：新建话术 ===== -->
-        <section class="card new-script-card">
-          <div class="card-title">
-            <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>新建话术</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">话术内容 <span class="required">*</span></label>
-            <textarea class="form-textarea" placeholder="请输入话术内容，支持变量（如 {用户昵称}、{订单号}）...">您好，欢迎来到 CS 商城！我是您的专属客服，很高兴为您服务。请问有什么可以帮您的吗？</textarea>
-            <div class="form-hint">支持插入变量：{用户昵称} {订单号} {客服昵称}，发送时自动替换</div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">场景标签 <span class="required">*</span></label>
-            <div class="scene-selector">
-              <span class="scene-option selected">
-                <span class="scene-dot dot-enter"></span>进入会话
-              </span>
-              <span class="scene-option">
-                <span class="scene-dot dot-offline"></span>客服离线
-              </span>
-              <span class="scene-option">
-                <span class="scene-dot dot-keyword"></span>关键词匹配
-              </span>
-              <span class="scene-option">
-                <span class="scene-dot dot-transfer"></span>转人工
-              </span>
-              <span class="scene-option">
-                <span class="scene-dot dot-general"></span>通用
-              </span>
-            </div>
-
-            <!-- 场景说明 -->
-            <div class="scene-info show" id="scene-info">
-              <div class="scene-info-row">
-                <strong><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>进入会话：</strong>用户发起会话时自动发送或首次推荐
-              </div>
-              <div class="scene-info-row" style="margin-top:4px;">
-                适用：欢迎语、活动引导、会员权益提醒
+              <select id="scStatusFilter" class="select" style="min-width:110px;">
+                <option value="">全部状态</option>
+                <option value="on">启用</option>
+                <option value="off">停用</option>
+              </select>
+              <div style="margin-left:auto;" class="flex gap-8">
+                <button id="scBtnReset" class="btn-default">重置</button>
+                <button id="scBtnQuery" class="btn-primary">查询</button>
+                <button id="btnAddScript" class="btn-primary">+ 新建话术</button>
               </div>
             </div>
           </div>
 
-          <div class="form-group" id="keyword-group" style="display:none;">
-            <label class="form-label">触发关键词</label>
-            <input type="text" class="form-input" placeholder="多个关键词用逗号分隔，如：退款,退货,退钱" />
-            <div class="form-hint">用户消息包含任一关键词时，系统自动推荐此话术</div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">业务分类 <span class="required">*</span></label>
-            <div class="scene-selector">
-              <span class="scene-option selected" data-biz="general">
-                <span class="scene-dot" style="background:#8c8c8c;"></span>通用
-              </span>
-              <span class="scene-option" data-biz="presale">
-                <span class="scene-dot" style="background:#1677ff;"></span>售前
-              </span>
-              <span class="scene-option" data-biz="aftersale">
-                <span class="scene-dot" style="background:#d48806;"></span>售后
-              </span>
-              <span class="scene-option" data-biz="complaint">
-                <span class="scene-dot" style="background:#f5222d;"></span>投诉
-              </span>
+          <!-- 话术表格 -->
+          <div class="card" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table scripts-table">
+                <thead>
+                  <tr>
+                    <th style="width:40%;">话术内容</th>
+                    <th>场景</th>
+                    <th>业务分类</th>
+                    <th>使用次数</th>
+                    <th>状态</th>
+                    <th style="width:190px; white-space:nowrap;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="col-title">您好，欢迎来到 CS 商城！我是您的专属客服，很高兴为您服务。请问有什么可以帮您的吗？
+                        <span class="title-sub">最后使用：刚刚</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-enter">进入会话</span></td>
+                    <td><span class="scene-badge biz-general">通用</span></td>
+                    <td><span class="usage-count hot">186 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">关于您的退款申请，一般会在 1-3 个工作日内审核完成，审核通过后退款将原路返回至您的支付账户，请耐心等待。
+                        <span class="title-sub">最后使用：5 分钟前 · 关键词：退款、退货退款</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
+                    <td><span class="scene-badge biz-aftersale">售后</span></td>
+                    <td><span class="usage-count hot">142 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">您好，您的问题需要更专业的同事为您处理，正在为您转接至【售后专员】，请稍候，预计等待 30 秒。
+                        <span class="title-sub">最后使用：12 分钟前</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-transfer">转人工</span></td>
+                    <td><span class="scene-badge biz-general">通用</span></td>
+                    <td><span class="usage-count">98 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">亲爱的用户，当前客服不在线（工作时间：9:00-22:00）。您可以先留言描述您的问题，我们会在次日 9:00 优先为您处理。
+                        <span class="title-sub">最后使用：1 小时前</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-offline">客服离线</span></td>
+                    <td><span class="scene-badge biz-general">通用</span></td>
+                    <td><span class="usage-count">76 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">您的订单已发货，物流单号 SF1234567890（顺丰速运）。正常情况下 2-3 天送达，您可点击「我的订单 &gt; 查看物流」实时追踪。
+                        <span class="title-sub">最后使用：2 小时前 · 关键词：物流、发货、快递</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
+                    <td><span class="scene-badge biz-aftersale">售后</span></td>
+                    <td><span class="usage-count">64 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">您好！CS 商城 618 大促火热进行中，满 300 减 50、满 500 减 100，更有会员专属优惠券可领！
+                        <span class="title-sub">最后使用：3 小时前</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-enter">进入会话</span></td>
+                    <td><span class="scene-badge biz-presale">售前</span></td>
+                    <td><span class="usage-count">52 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">非常抱歉给您带来不愉快的体验。您的反馈我已经记录，现在为您转接至【投诉处理主管】跟进，一定会给您满意的答复。
+                        <span class="title-sub">最后使用：昨天</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-transfer">转人工</span></td>
+                    <td><span class="scene-badge biz-complaint">投诉</span></td>
+                    <td><span class="usage-count">43 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">客服小伙伴已下线休息啦~ 您的问题对我们很重要，欢迎留言。留下订单号和问题描述，上线后我们会第一时间回复您。
+                        <span class="title-sub">最后使用：昨天</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-offline">客服离线</span></td>
+                    <td><span class="scene-badge biz-general">通用</span></td>
+                    <td><span class="usage-count">38 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">优惠券使用规则：满减券需满足对应金额门槛方可使用，每笔订单仅可使用一张优惠券，不可与秒杀商品叠加。
+                        <span class="title-sub">最后使用：2 天前 · 关键词：优惠券、满减</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
+                    <td><span class="scene-badge biz-presale">售前</span></td>
+                    <td><span class="usage-count">31 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">您好！检测到您是我们的银卡会员，当前可享受会员专属 9.5 折优惠。升级金卡会员还可享包邮、生日礼遇等权益。
+                        <span class="title-sub">最后使用：3 天前</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-enter">进入会话</span></td>
+                    <td><span class="scene-badge biz-presale">售前</span></td>
+                    <td><span class="usage-count">24 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">电子发票将在订单完成后 24 小时内自动开具，您可在「我的订单 &gt; 发票管理」中查看和下载。
+                        <span class="title-sub">最后使用：4 天前 · 关键词：发票、抬头</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
+                    <td><span class="scene-badge biz-aftersale">售后</span></td>
+                    <td><span class="usage-count">19 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="col-title">您咨询的商品技术参数问题较为专业，正在为您转接至【产品专家】。转接期间请勿关闭窗口，预计 1 分钟内接通。
+                        <span class="title-sub">最后使用：5 天前</span>
+                      </div>
+                    </td>
+                    <td><span class="scene-badge scene-transfer">转人工</span></td>
+                    <td><span class="scene-badge biz-general">通用</span></td>
+                    <td><span class="usage-count">15 次</span></td>
+                    <td><span class="st-tag on">启用</span></td>
+                    <td class="row-actions">
+                      <a>编辑</a><span class="divider">|</span>
+                      <a>复制</a><span class="divider">|</span>
+                      <a>停用</a><span class="divider">|</span>
+                      <a class="danger">删除</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="form-hint">按业务类型分类，便于话术管理和智能推荐</div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">分类备注</label>
-            <input type="text" class="form-input" placeholder="如：欢迎语 / 退款咨询 / 物流查询" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">启用状态</label>
-            <div style="display:flex; gap:12px; align-items:center;">
-              <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-                <input type="radio" name="status" checked /> 启用
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-                <input type="radio" name="status" /> 停用
-              </label>
+            <!-- 分页 -->
+            <div class="pagination" style="padding:16px;">
+              <span class="pg-info">共 <span id="list-count">48</span> 条</span>
+              <span class="pg-btn disabled">&#8249;</span>
+              <span class="pg-num active">1</span>
+              <span class="pg-num">2</span>
+              <span class="pg-num">3</span>
+              <span class="pg-num">4</span>
+              <span style="color:var(--cs-text-placeholder);">...</span>
+              <span class="pg-num">5</span>
+              <span class="pg-btn">&#8250;</span>
             </div>
           </div>
 
-          <div class="form-actions">
-            <button class="btn-primary" style="flex:1;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" style="vertical-align:-2px;margin-right:5px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>保存话术</button>
-            <button class="btn-default">清空</button>
-          </div>
-
-          <!-- 场景统计小贴士 -->
-          <div style="margin-top:20px; padding:12px; background:var(--cs-primary-bg); border-radius:var(--cs-radius-sm); border:1px solid #bae0ff;">
-            <div style="font-size:12px; color:var(--cs-primary-active); font-weight:600; margin-bottom:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>场景标签说明</div>
-            <div style="font-size:12px; color:var(--cs-text-secondary); line-height:1.9;">
-              <span style="color:var(--cs-primary);">●</span> <strong>进入会话</strong>：用户进入会话自动触发<br/>
-              <span style="color:var(--cs-orange);">●</span> <strong>客服离线</strong>：非工作时间自动回复<br/>
-              <span style="color:var(--cs-purple);">●</span> <strong>关键词匹配</strong>：消息命中关键词推荐<br/>
-              <span style="color:var(--cs-danger);">●</span> <strong>转人工</strong>：转接时提示用户
-            </div>
-          </div>
-
-          <!-- 业务分类说明 -->
-          <div style="margin-top:12px; padding:12px; background:#fffbe6; border-radius:var(--cs-radius-sm); border:1px solid #ffe58f;">
-            <div style="font-size:12px; color:#d48806; font-weight:600; margin-bottom:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>业务分类说明</div>
-            <div style="font-size:12px; color:var(--cs-text-secondary); line-height:1.9;">
-              <span style="color:#1677ff;">●</span> <strong>售前</strong>：商品咨询、活动促销、会员引导<br/>
-              <span style="color:#d48806;">●</span> <strong>售后</strong>：退款退货、物流查询、发票开具<br/>
-              <span style="color:#f5222d;">●</span> <strong>投诉</strong>：投诉处理、纠纷调解、升级转接<br/>
-              <span style="color:#8c8c8c;">●</span> <strong>通用</strong>：欢迎语、转接提示、离线留言
-            </div>
-          </div>
-        </section>
-
-      </div>
+        </div><!-- /kb-main -->
+      </div><!-- /kb-layout -->
 
       <!-- 底部说明 -->
       <div style="margin-top:24px; padding:16px 20px; background:var(--cs-bg-card); border-radius:var(--cs-radius-md); border:1px solid var(--cs-border-light);">
         <div style="font-size:13px; font-weight:600; color:var(--cs-text); margin-bottom:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>话术库使用说明</div>
         <div style="font-size:12px; color:var(--cs-text-tertiary); line-height:1.9;">
-          ① 话术按 <strong>场景标签</strong> 和 <strong>业务分类</strong> 两个维度管理，客服在 <a href="admin-workbench.html">工作台</a> 聊天框输入时，系统根据当前场景智能推荐话术；<br/>
+          ① 话术按 <strong>业务分类</strong>（左侧树）组织，按 <strong>场景标签</strong>（右侧筛选）触发，客服在 <a href="admin-workbench.html">工作台</a> 聊天框输入时系统根据当前场景智能推荐；<br/>
           ② 「关键词匹配」场景需配置触发关键词，支持部分匹配；命中后话术将出现在快捷回复列表顶部；<br/>
           ③ 「进入会话」「客服离线」场景由系统自动触发，无需客服手动操作；<br/>
-          ④ <strong>业务分类</strong>（售前/售后/投诉/通用）用于按业务类型筛选话术，支持与场景标签组合过滤；<br/>
+          ④ 点击「+ 新建话术」可在弹窗中编辑话术内容、场景、关键词与业务分类；<br/>
           ⑤ 使用次数统计帮助识别高频话术，持续优化话术质量；低频话术可定期清理。<br/>
           ⑥ 关联 <a href="#">自动回复规则</a>：话术可作为规则的回复内容，实现场景化自动应答。
         </div>
@@ -872,12 +616,12 @@
 
 <script>
 /* ============================================================
-   admin-scripts.html 交互（话术库）
-   约定对齐兄弟页 admin-transfer.html：
+   admin-scripts.html 交互（话术库 · 左树右表）
+   对齐兄弟页 admin-knowledge.html 的套路：
    - 工具 $/$$/toast 统一封装
-   - 行/卡状态从已渲染 DOM 推断 data-scene / data-biz
-   - 标签筛选、按钮点击全部走 document 委派
-   - csModal.toast 作为统一反馈
+   - 行 data-scene / data-biz / data-status 从已渲染 badge class 推断
+   - 分类树点击、工具条筛选、行操作全部走 document 委派
+   - csModal.toast 作为统一反馈；新建/编辑走 modal-script.html 弹窗
    ============================================================ */
 (function () {
   'use strict';
@@ -885,197 +629,262 @@
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
 
-  /* ---------- 0. 卡片 data-* 标记（从 scene-badge / biz-* class 推断） ---------- */
-  // 场景 class > scene key（与 scene-tag 的 onclick 入参一致）
   var SCENE_BYClass = { 'scene-enter': 'enter', 'scene-offline': 'offline', 'scene-keyword': 'keyword', 'scene-transfer': 'transfer', 'scene-general': 'general' };
-  // 业务 class > biz key（与 biz-tag 的 onclick 入参一致）
   var BIZ_BYClass = { 'biz-presale': 'presale', 'biz-aftersale': 'aftersale', 'biz-complaint': 'complaint', 'biz-general': 'general' };
 
-  var items = $$('.script-item');
-  items.forEach(function (it) {
-    // 第一个 scene-badge 是场景（scene-enter 等）；取其 scene-* class
-    var sBadge = $('.scene-badge', it);
-    if (sBadge && !it.getAttribute('data-scene')) {
-      for (var k in SCENE_BYClass) {
-        if (sBadge.classList.contains(k)) { it.setAttribute('data-scene', SCENE_BYClass[k]); break; }
-      }
+  /* ---------- 0. 行 data-* 标记（从 badge class 推断） ---------- */
+  function rows() { return $$('.scripts-table tbody tr'); }
+  rows().forEach(function (tr) {
+    var badges = $$('.scene-badge', tr);
+    var sBadge = badges[0];
+    if (sBadge) {
+      for (var k in SCENE_BYClass) { if (sBadge.classList.contains(k)) { tr.setAttribute('data-scene', SCENE_BYClass[k]); break; } }
     }
-    // 第二个 scene-badge 是业务分类（biz-* class），覆盖 data-biz（保持与 class 同步）
-    var bBadges = $$('.scene-badge', it);
-    var bBadge = bBadges[1];
+    var bBadge = badges[1];
     if (bBadge) {
-      for (var bk in BIZ_BYClass) {
-        if (bBadge.classList.contains(bk)) { it.setAttribute('data-biz', BIZ_BYClass[bk]); break; }
-      }
+      for (var bk in BIZ_BYClass) { if (bBadge.classList.contains(bk)) { tr.setAttribute('data-biz', BIZ_BYClass[bk]); break; } }
     }
-    if (!it.getAttribute('data-biz')) it.setAttribute('data-biz', 'general');
+    if (!tr.getAttribute('data-biz')) tr.setAttribute('data-biz', 'general');
+    var st = $('.st-tag', tr);
+    tr.setAttribute('data-status', st && st.classList.contains('off') ? 'off' : 'on');
   });
 
-  /* ---------- 1. 场景标签 + 业务分类 筛选（叠加） ---------- */
-  var currentScene = 'all';
-  var currentBiz = 'all';
-  var sceneTags = $$('.filter-bar .scene-tag');
-  var bizTags = $$('.filter-bar .biz-tag');
+  /* ---------- 1. 筛选状态 ---------- */
+  var currentCat = 'all';
+  var currentScene = '';
+  var currentStatus = '';
+  var currentKw = '';
 
   function applyFilters() {
     var visible = 0;
-    items.forEach(function (it) {
-      var sOk = (currentScene === 'all') || (it.getAttribute('data-scene') === currentScene);
-      var bOk = (currentBiz === 'all') || (it.getAttribute('data-biz') === currentBiz);
-      var ok = sOk && bOk;
-      it.style.display = ok ? '' : 'none';
+    rows().forEach(function (tr) {
+      var ok = (currentCat === 'all' || tr.getAttribute('data-biz') === currentCat)
+            && (!currentScene || tr.getAttribute('data-scene') === currentScene)
+            && (!currentStatus || tr.getAttribute('data-status') === currentStatus);
+      if (ok && currentKw) { ok = (tr.textContent || '').toLowerCase().indexOf(currentKw) !== -1; }
+      tr.style.display = ok ? '' : 'none';
       if (ok) visible++;
     });
-    var countEl = $('#list-count');
-    if (countEl) countEl.textContent = visible + ' 条';
+    var cnt = $('#list-count'); if (cnt) cnt.textContent = visible;
   }
 
-  /* ---------- 2. 右侧编辑面板：场景选择 / 业务选择（保留原视觉） ---------- */
-  var sceneInfoMap = {
-    '进入会话': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>', bg: '#e6f4ff', border: '#bae0ff', desc: '用户发起会话时自动发送或首次推荐', detail: '适用：欢迎语、活动引导、会员权益提醒' },
-    '客服离线': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>', bg: '#fffbe6', border: '#ffe58f', desc: '客服不在线时自动回复用户', detail: '适用：离线提示、留言引导、客服热线' },
-    '关键词匹配': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>', bg: '#e6f4ff', border: '#d3adf7', desc: '用户消息命中关键词时推荐此话术', detail: '需配置触发关键词，支持部分匹配' },
-    '转人工': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>', bg: '#fff1f0', border: '#ffccc7', desc: '会话转接时发送给用户的提示', detail: '适用：转专员、转主管、转技术支持' },
-    '通用': { icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>', bg: '#f6ffed', border: '#b7eb8f', desc: '无特定场景，客服手动选择使用', detail: '适用：常规问候、结束语、通用答疑' }
-  };
-
-  function selectSceneOption(opt) {
-    // 编辑面板内的场景选择器（与列表筛选不同，互不干扰）
-    $$('.scene-selector .scene-option').forEach(function (o) {
-      // 仅作用于编辑面板顶部第一个 .scene-selector（场景），避免误伤业务分类
+  /* ---------- 2. 分类树点击 → 按业务分类联动 ---------- */
+  $$('.category-tree .tree-node').forEach(function (node) {
+    node.addEventListener('click', function () {
+      $$('.category-tree .tree-node').forEach(function (n) { n.classList.remove('active'); });
+      node.classList.add('active');
+      currentCat = node.getAttribute('data-cat') || 'all';
+      applyFilters();
+      var label = $('.tree-label', node);
+      toast('已筛选分类：' + (label ? label.textContent.trim() : '全部'));
     });
-    var parent = opt.parentElement;
-    if (!parent) return;
-    $$('.scene-option', parent).forEach(function (o) { o.classList.remove('selected'); });
-    opt.classList.add('selected');
-    // 仅编辑面板场景组会更新 scene-info
-    var infoBox = $('#scene-info');
-    var keywordGroup = $('#keyword-group');
-    var text = opt.textContent.trim();
-    var info = sceneInfoMap[text];
-    if (info && infoBox && parent.classList.contains('scene-selector')) {
-      // 确认是场景选择器（含 scene-dot）而非业务分类
-      if ($('.scene-dot', opt)) {
-        infoBox.style.background = info.bg;
-        infoBox.style.borderColor = info.border;
-        infoBox.innerHTML =
-          '<div class="scene-info-row"><strong>' + info.icon + ' ' + text + '：</strong>' + info.desc + '</div>' +
-          '<div class="scene-info-row" style="margin-top:4px;">' + info.detail + '</div>';
-        infoBox.classList.add('show');
-        if (keywordGroup) keywordGroup.style.display = (text === '关键词匹配') ? 'block' : 'none';
-      }
-    }
+  });
+
+  /* ---------- 3. 工具条筛选 ---------- */
+  var elSearch = $('#scSearch'), elScene = $('#scSceneFilter'), elStatus = $('#scStatusFilter');
+  function syncFromToolbar() {
+    currentScene = elScene ? elScene.value : '';
+    currentStatus = elStatus ? elStatus.value : '';
+    currentKw = elSearch ? elSearch.value.trim().toLowerCase() : '';
+  }
+  [elSearch, elScene, elStatus].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener('change', function () { syncFromToolbar(); applyFilters(); });
+    if (el === elSearch) el.addEventListener('input', function () { syncFromToolbar(); applyFilters(); });
+  });
+  var btnQuery = $('#scBtnQuery'), btnReset = $('#scBtnReset');
+  if (btnQuery) btnQuery.addEventListener('click', function () { syncFromToolbar(); applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    [elSearch, elScene, elStatus].forEach(function (el) { if (el) el.value = ''; });
+    syncFromToolbar(); applyFilters(); toast('已重置筛选');
+  });
+
+  /* ---------- 4. 新建话术 ---------- */
+  var btnAdd = $('#btnAddScript');
+  if (btnAdd) {
+    btnAdd.addEventListener('click', function () {
+      csModal.open('modals/modal-script.html', { variant: 'center', width: 520,
+        onConfirm: function () { toast('话术已保存'); } });
+    });
   }
 
-  /* ---------- 3. 全局点击委派：标签 / 卡片 / 按钮 / 分页 ---------- */
+  /* ---------- 5. 行操作委派 ---------- */
+  function getRowContent(tr) {
+    var el = $('.col-title', tr);
+    if (!el) return '';
+    var node = el.firstChild;
+    while (node && node.nodeType !== 3) node = node.nextSibling;
+    return node ? node.textContent.trim() : (el.textContent || '').trim();
+  }
+  function truncate(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
+
   document.addEventListener('click', function (e) {
-    /* —— 3.1 场景标签筛选 —— */
-    var sceneTag = e.target.closest('.filter-bar .scene-tag');
-    if (sceneTag) {
-      e.preventDefault();
-      sceneTags.forEach(function (t) { t.classList.remove('active'); });
-      sceneTag.classList.add('active');
-      currentScene = sceneTag.getAttribute('data-scene-key') || inferSceneKey(sceneTag);
-      applyFilters();
-      return;
-    }
-    /* —— 3.2 业务分类标签筛选 —— */
-    var bizTag = e.target.closest('.filter-bar .biz-tag');
-    if (bizTag) {
-      e.preventDefault();
-      bizTags.forEach(function (t) { t.classList.remove('active'); });
-      bizTag.classList.add('active');
-      currentBiz = bizTag.getAttribute('data-biz-key') || inferBizKey(bizTag);
-      applyFilters();
-      return;
-    }
-    /* —— 3.3 编辑面板 场景/业务 选择器 —— */
-    var sceneOpt = e.target.closest('.new-script-card .scene-selector .scene-option');
-    if (sceneOpt) { selectSceneOption(sceneOpt); return; }
-    /* —— 3.4 话术卡 展开/收起（点卡片空白处） —— */
-    var item = e.target.closest('.script-item');
-    if (item && !e.target.closest('.script-actions') && !e.target.closest('button')) {
-      item.classList.toggle('expanded');
-      return;
-    }
-    /* —— 3.5 话术卡 复制 / 编辑 —— */
-    var actBtn = e.target.closest('.script-actions .btn-sm');
-    if (actBtn && item) {
-      e.preventDefault();
-      e.stopPropagation();
-      var txt = (actBtn.textContent || '').trim();
-      var content = $('.script-content', item);
-      var text = content ? content.textContent.trim() : '';
-      if (txt === '复制') {
-        if (text && navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).catch(function () { /* 忽略剪贴板失败 */ });
+    var a = e.target.closest('.scripts-table .row-actions a');
+    if (!a) return;
+    var tr = a.closest('tr');
+    var txt = (a.textContent || '').trim();
+    e.preventDefault();
+    if (txt === '编辑') {
+      var content = getRowContent(tr);
+      csModal.open('modals/modal-script.html?title=' + encodeURIComponent('编辑话术') +
+        '&content=' + encodeURIComponent(content) +
+        '&scene=' + (tr.getAttribute('data-scene') || '') +
+        '&biz=' + (tr.getAttribute('data-biz') || '') +
+        '&status=' + (tr.getAttribute('data-status') === 'off' ? 'disabled' : 'enabled'),
+        { variant: 'center', width: 520, onConfirm: function () { toast('话术已保存'); } });
+    } else if (txt === '复制') {
+      var text = getRowContent(tr);
+      if (text && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function () { /* 忽略剪贴板失败 */ });
+      }
+      toast('已复制到剪贴板');
+    } else if (txt === '停用' || txt === '启用') {
+      var st = $('.st-tag', tr);
+      if (st) {
+        if (txt === '停用') {
+          st.className = 'st-tag off'; st.textContent = '停用'; tr.setAttribute('data-status', 'off');
+          a.textContent = '启用'; toast('已停用该话术');
+        } else {
+          st.className = 'st-tag on'; st.textContent = '启用'; tr.setAttribute('data-status', 'on');
+          a.textContent = '停用'; toast('已启用该话术');
         }
-        toast('已复制到剪贴板');
-      } else if (txt === '编辑') {
-        var editor = $('.new-script-card .form-textarea');
-        if (editor && text) editor.value = text;
-        toast('已加载到右侧编辑面板');
       }
-      return;
-    }
-    /* —— 3.6 批量导入 —— */
-    var importBtn = e.target.closest('.scripts-list-head .btn-sm.primary');
-    if (importBtn && (importBtn.textContent || '').indexOf('批量导入') >= 0) {
-      e.preventDefault();
-      toast('请选择要导入的话术文件（CSV/Excel）');
-      return;
-    }
-    /* —— 3.7 分页 上一页 / 下一页 —— */
-    var pgBtn = e.target.closest('.scripts-list-card .btn-sm');
-    if (pgBtn) {
-      var pt = (pgBtn.textContent || '').trim();
-      if (pt === '上一页') { e.preventDefault(); toast('已是当前页的上一页'); return; }
-      if (pt === '下一页') { e.preventDefault(); toast('已切换到下一页'); return; }
-      // 数字分页
-      if (/^\d+$/.test(pt)) {
-        e.preventDefault();
-        $$('.scripts-list-card .btn-sm').forEach(function (b) {
-          var bt = (b.textContent || '').trim();
-          if (/^\d+$/.test(bt)) b.classList.remove('primary');
-        });
-        pgBtn.classList.add('primary');
-        toast('已切换到第 ' + pt + ' 页');
-        return;
-      }
-    }
-    /* —— 3.8 编辑面板 保存话术 / 清空 —— */
-    var saveBtn = e.target.closest('.new-script-card .form-actions .btn-primary');
-    if (saveBtn) { e.preventDefault(); toast('话术已保存'); return; }
-    var clearBtn = e.target.closest('.new-script-card .form-actions .btn-default');
-    if (clearBtn) {
-      e.preventDefault();
-      var ta = $('.new-script-card .form-textarea');
-      if (ta) ta.value = '';
-      var inputs = $$('.new-script-card .form-input');
-      inputs.forEach(function (inp) { if (inp.type !== 'radio') inp.value = ''; });
-      toast('已清空编辑区');
-      return;
+    } else if (a.classList.contains('danger') || txt === '删除') {
+      var c = getRowContent(tr);
+      csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该话术？') +
+        '&desc=' + encodeURIComponent(c ? ('话术「' + truncate(c, 30) + '」删除后不可恢复。') : '删除后不可恢复，请谨慎操作。'),
+        { variant: 'center', width: 380 });
     }
   });
 
-  /* —— 从标签文案/上下文推断 scene/biz key（兼容现有无 data-*-key 的标签） —— */
-  var SCENEByText = { '全部': 'all', '进入会话': 'enter', '客服离线': 'offline', '关键词匹配': 'keyword', '转人工': 'transfer' };
-  function inferSceneKey(el) {
-    var t = (el.textContent || '').trim();
-    for (var k in SCENEByText) { if (t.indexOf(k) >= 0) return SCENEByText[k]; }
-    return 'all';
-  }
-  function inferBizKey(el) {
-    var t = (el.textContent || '').trim();
-    // 注意 "通用" 与 "全部"：精确匹配前缀
-    if (/售前/.test(t)) return 'presale';
-    if (/售后/.test(t)) return 'aftersale';
-    if (/投诉/.test(t)) return 'complaint';
-    if (/通用/.test(t)) return 'general';
-    return 'all';
-  }
+  /* ---------- 6. 分页 active ---------- */
+  $$('.pagination .pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      $$('.pagination .pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
 
   applyFilters();
+})();
+</script>
+
+<script>
+/* ============================================================
+   分类树 增/删/改（CRUD）
+   - 头部「+」新增一级分类；节点 hover 显示 编辑/新增子类/删除
+   - 新增/编辑走 modals/modal-category.html；删除走 modal-delete-confirm.html
+   - 动作点击用捕获阶段拦截，避免触发既有节点筛选 handler
+   ============================================================ */
+(function () {
+  if (!window.csModal) return;
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (csModal.toast) csModal.toast(t); };
+  var tree = document.querySelector('.category-tree');
+  if (!tree) return;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  var seq = 1000;
+  function folderIcon() {
+    return '<span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>';
+  }
+  function buildNode(name, count, isChild) {
+    var icon = isChild ? '<span class="tree-icon">&#8629;</span>' : folderIcon();
+    var div = document.createElement('div');
+    div.className = 'tree-node';
+    div.setAttribute('data-cat', 'custom-' + (++seq));
+    if (isChild) div.style.paddingLeft = '38px';
+    div.innerHTML = icon +
+      '<span class="tree-label">' + esc(name) + '</span>' +
+      '<span class="tree-count">' + (count || 0) + '</span>' +
+      '<span class="tree-actions">' +
+        '<a title="编辑">&#9998;</a>' +
+        '<a title="新增子类">+</a>' +
+        '<a title="删除" class="cat-del">&#10006;</a>' +
+      '</span>';
+    return div;
+  }
+
+  // 1. 给既有业务分类节点补「删除」动作
+  $$('.tree-node .tree-actions', tree).forEach(function (act) {
+    if (act.querySelector('.cat-del')) return;
+    var del = document.createElement('a');
+    del.title = '删除'; del.className = 'cat-del'; del.innerHTML = '&#10006;';
+    act.appendChild(del);
+  });
+
+  function openCategoryModal(opts) {
+    csModal.open('modals/modal-category.html?mode=' + (opts.mode || 'add') +
+      '&title=' + encodeURIComponent(opts.title || '') +
+      '&name=' + encodeURIComponent(opts.name || '') +
+      '&parent=' + encodeURIComponent(opts.parent || '业务分类'),
+      { variant: 'center', width: 440,
+        onConfirm: function (d) { if (d && d.name) opts.onConfirm(d.name); } });
+  }
+  function deleteCategory(node) {
+    var name = $('.tree-label', node).textContent.trim();
+    var cnt = $('.tree-count', node);
+    var n = cnt ? (parseInt(cnt.textContent, 10) || 0) : 0;
+    csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该分类？') +
+      '&desc=' + encodeURIComponent(n > 0
+        ? '分类「' + name + '」下有 ' + n + ' 条内容，删除后内容将归入「全部」，且不可恢复。'
+        : '分类「' + name + '」删除后不可恢复。'),
+      { variant: 'center', width: 380,
+        onConfirm: function () { node.remove(); toast('已删除分类：' + name); } });
+  }
+
+  // 2. 头部「+」新增一级分类（插入到「其他」分组前）
+  var headerAdd = $('.tree-add', tree);
+  if (headerAdd) {
+    headerAdd.addEventListener('click', function () {
+      openCategoryModal({ mode: 'add', title: '新增分类', parent: '业务分类',
+        onConfirm: function (name) {
+          var ref = null;
+          $$('.tree-group-title', tree).forEach(function (t) { if (/其他/.test(t.textContent)) ref = ref || t; });
+          if (!ref) ref = tree.lastElementChild;
+          tree.insertBefore(buildNode(name, 0, false), ref);
+          toast('已新增分类：' + name);
+        }
+      });
+    });
+  }
+
+  // 3. 动作委派（捕获阶段，避免触发节点既有筛选 handler）
+  tree.addEventListener('click', function (e) {
+    var a = e.target.closest('.tree-actions a');
+    if (!a) return;
+    var title = a.getAttribute('title') || '';
+    if (title !== '编辑' && title !== '新增子类' && title !== '删除') return;
+    e.preventDefault();
+    e.stopPropagation();
+    var node = a.closest('.tree-node');
+    var name = $('.tree-label', node).textContent.trim();
+    if (title === '编辑') {
+      openCategoryModal({ mode: 'edit', title: '编辑分类', name: name, parent: '业务分类',
+        onConfirm: function (nm) { var lbl = $('.tree-label', node); if (lbl) lbl.textContent = nm; toast('分类已重命名为：' + nm); } });
+    } else if (title === '新增子类') {
+      openCategoryModal({ mode: 'add', title: '新增子分类', parent: name,
+        onConfirm: function (nm) { node.parentNode.insertBefore(buildNode(nm, 0, true), node.nextSibling); toast('已新增子分类：' + nm); } });
+    } else {
+      deleteCategory(node);
+    }
+  }, true);
+
+  // 4. 动态新增（custom-*）节点选中反馈
+  tree.addEventListener('click', function (e) {
+    if (e.target.closest('.tree-actions')) return;
+    var node = e.target.closest('.tree-node');
+    if (!node) return;
+    if ((node.getAttribute('data-cat') || '').indexOf('custom-') !== 0) return;
+    $$('.tree-node', tree).forEach(function (n) { n.classList.remove('active'); });
+    node.classList.add('active');
+    toast('已选择分类：' + $('.tree-label', node).textContent.trim() + '（暂无内容）');
+  });
 })();
 </script>
 

@@ -420,13 +420,7 @@
 
       <!-- Header -->
       <header class="admin-header">
-        <div>
-          <div style="font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px;">
-            AI 报表看板
-            <span class="phase-tag">3期</span>
-          </div>
-          <div class="breadcrumb">AI 智能 / 报表看板</div>
-        </div>
+        <div class="breadcrumb">AI 智能 / <span style="color:var(--cs-text);font-weight:600;">报表看板</span></div>
         <div class="user-info">
           <div class="filter-bar">
             <select>
@@ -435,7 +429,7 @@
               <option>今日</option>
               <option>自定义</option>
             </select>
-            <button class="btn-default" style="padding:4px 12px; font-size:13px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 导出</button>
+            <button class="btn-default" style="padding:4px 12px; font-size:13px;">导出</button>
           </div>
           <div class="header-avatar">张</div>
           <span style="font-size:13px;">张客服主管</span>
@@ -449,7 +443,6 @@
         <div class="grid grid-4 mb-24">
 
           <div class="metric-card">
-            <div class="metric-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">38,642<span class="unit">次</span></div>
               <div class="metric-label">会话总量（本月）</div>
@@ -458,7 +451,6 @@
           </div>
 
           <div class="metric-card">
-            <div class="metric-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">96.3<span class="unit">%</span></div>
               <div class="metric-label">客户满意度</div>
@@ -467,7 +459,6 @@
           </div>
 
           <div class="metric-card">
-            <div class="metric-icon orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">38<span class="unit">秒</span></div>
               <div class="metric-label">平均响应时长</div>
@@ -476,7 +467,6 @@
           </div>
 
           <div class="metric-card">
-            <div class="metric-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg></div>
             <div class="metric-body">
               <div class="metric-value">78<span class="unit">%</span></div>
               <div class="metric-label">AI 解决率</div>
@@ -927,7 +917,7 @@
         <div class="card">
           <div class="section-row">
             <h3>会话明细</h3>
-            <button class="btn-default" style="padding:4px 12px; font-size:13px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 导出 CSV</button>
+            <button class="btn-default" style="padding:4px 12px; font-size:13px;">导出 CSV</button>
           </div>
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:13px;">
@@ -935,6 +925,8 @@
                 <tr style="background:#fafafa; border-bottom:1px solid #f0f0f0;">
                   <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">会话ID</th>
                   <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">用户</th>
+                  <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">企业客户</th>
+                  <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">品牌商城</th>
                   <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">渠道</th>
                   <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">客服</th>
                   <th style="text-align:left; padding:12px 8px; color:#8c8c8c; font-weight:500;">状态</th>
@@ -947,7 +939,9 @@
                 <tr style="border-bottom:1px solid #f5f5f5;">
                   <td style="padding:12px 8px;">#S20260611-001</td>
                   <td style="padding:12px 8px;">用户8732</td>
-                  <td style="padding:12px 8px;">微信小程序</td>
+                  <td style="padding:12px 8px;">客户A</td>
+                  <td style="padding:12px 8px;">品牌商城1</td>
+                  <td style="padding:12px 8px;">小程序</td>
                   <td style="padding:12px 8px;">李明</td>
                   <td style="padding:12px 8px;"><span class="status-badge online">已解决</span></td>
                   <td style="padding:12px 8px; text-align:right;"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
@@ -957,7 +951,9 @@
                 <tr style="border-bottom:1px solid #f5f5f5;">
                   <td style="padding:12px 8px;">#S20260611-002</td>
                   <td style="padding:12px 8px;">用户5108</td>
-                  <td style="padding:12px 8px;">H5 网页</td>
+                  <td style="padding:12px 8px;">客户A</td>
+                  <td style="padding:12px 8px;">品牌商城1</td>
+                  <td style="padding:12px 8px;">H5</td>
                   <td style="padding:12px 8px; color:#722ed1;">AI 机器人</td>
                   <td style="padding:12px 8px;"><span class="status-badge online">AI解决</span></td>
                   <td style="padding:12px 8px; text-align:right;"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
@@ -967,7 +963,9 @@
                 <tr style="border-bottom:1px solid #f5f5f5;">
                   <td style="padding:12px 8px;">#S20260611-003</td>
                   <td style="padding:12px 8px;">用户9921</td>
-                  <td style="padding:12px 8px;">APP 内嵌</td>
+                  <td style="padding:12px 8px;">客户B</td>
+                  <td style="padding:12px 8px;">品牌商城2</td>
+                  <td style="padding:12px 8px;">PC</td>
                   <td style="padding:12px 8px;">王芳</td>
                   <td style="padding:12px 8px;"><span class="status-badge online">已解决</span></td>
                   <td style="padding:12px 8px; text-align:right;"><span class="stars">&#9733;&#9733;&#9733;&#9733;<span class="empty">&#9733;</span></span></td>
@@ -977,7 +975,9 @@
                 <tr style="border-bottom:1px solid #f5f5f5;">
                   <td style="padding:12px 8px;">#S20260611-004</td>
                   <td style="padding:12px 8px;">用户2207</td>
-                  <td style="padding:12px 8px;">微信小程序</td>
+                  <td style="padding:12px 8px;">客户C</td>
+                  <td style="padding:12px 8px;">品牌商城3</td>
+                  <td style="padding:12px 8px;">小程序</td>
                   <td style="padding:12px 8px; color:#722ed1;">AI &gt; 赵磊</td>
                   <td style="padding:12px 8px;"><span class="status-badge waiting">转人工</span></td>
                   <td style="padding:12px 8px; text-align:right;"><span class="stars">&#9733;&#9733;&#9733;<span class="empty">&#9733;&#9733;</span></span></td>
@@ -987,7 +987,9 @@
                 <tr>
                   <td style="padding:12px 8px;">#S20260611-005</td>
                   <td style="padding:12px 8px;">用户6654</td>
-                  <td style="padding:12px 8px;">邮件 / 社交</td>
+                  <td style="padding:12px 8px;">客户B</td>
+                  <td style="padding:12px 8px;">品牌商城2</td>
+                  <td style="padding:12px 8px;">H5</td>
                   <td style="padding:12px 8px;">陈静</td>
                   <td style="padding:12px 8px;"><span class="status-badge online">已解决</span></td>
                   <td style="padding:12px 8px; text-align:right;"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>

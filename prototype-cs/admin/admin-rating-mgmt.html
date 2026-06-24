@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>评价管理 — 供应链平台</title>
+  <title>评价管理 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
 <script src="js/cs-modal.js"></script>
   <style>
@@ -99,7 +99,7 @@
     }
     .score-num.low { color: var(--cs-danger); font-weight: var(--cs-font-weight-medium); }
 
-    /* ---------- 评价标签 ---------- */
+    /* ---------- 评价标签（纯文本，不区分颜色） ---------- */
     .rtag {
       display: inline-block;
       padding: 2px 8px;
@@ -108,10 +108,8 @@
       line-height: 1.5;
       margin-right: 4px;
       margin-bottom: 2px;
+      color: var(--cs-text-secondary);
     }
-    .rtag.positive { background: var(--cs-success-bg); color: #389e0d; border: 1px solid #b7eb8f; }
-    .rtag.neutral  { background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; }
-    .rtag.negative { background: var(--cs-danger-bg); color: #cf1322; border: 1px solid #ffa39e; }
 
     /* ---------- 评论文本 ---------- */
     .comment-text {
@@ -141,7 +139,7 @@
 
     <!-- 顶栏 -->
     <header class="admin-header">
-      <div class="breadcrumb">服务管理 / 评价管理</div>
+      <div class="breadcrumb">服务管理 / <span style="color:var(--cs-text);font-weight:600;">评价管理</span></div>
       <div class="user-info">
         <span class="status-badge online">客服A 在线</span>
         <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
@@ -154,7 +152,6 @@
       <!-- 页面标题 -->
       <div class="flex-between mb-16">
         <div>
-          <h2 style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-semibold); margin-bottom:4px;">评价管理</h2>
           <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">统一查看用户对客服的服务评价，监控满意度趋势并追踪差评（对应功能 US-MVP-13 / F-MVP-22）</p>
         </div>
         <div class="flex gap-8">
@@ -166,7 +163,6 @@
       <!-- 顶部指标 -->
       <div class="grid grid-4 mb-16">
         <div class="metric-card">
-          <div class="metric-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
           <div class="metric-body">
             <div class="metric-value"><span class="stars-inline">4.6</span></div>
             <div class="metric-label">平均满意度</div>
@@ -174,7 +170,6 @@
           </div>
         </div>
         <div class="metric-card">
-          <div class="metric-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
           <div class="metric-body">
             <div class="metric-value">1,083</div>
             <div class="metric-label">累计评价数</div>
@@ -182,7 +177,6 @@
           </div>
         </div>
         <div class="metric-card">
-          <div class="metric-icon red"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
           <div class="metric-body">
             <div class="metric-value">42<span class="unit">条</span></div>
             <div class="metric-label">差评数（≤ 2 星）</div>
@@ -190,93 +184,12 @@
           </div>
         </div>
         <div class="metric-card">
-          <div class="metric-icon orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div class="metric-body">
             <div class="metric-value">62<span class="unit">%</span></div>
             <div class="metric-label">催评转化率</div>
             <div class="metric-trend up">▲ 4% 较上周</div>
             <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:4px;">口径：已评价 /（已评价+已跳过）= 1,083 / 1,748</div>
           </div>
-        </div>
-      </div>
-
-      <!-- 评分分布 + 客服满意度榜 -->
-      <div class="grid grid-2 mb-16">
-        <!-- 评分分布 -->
-        <div class="card">
-          <div class="card-title">评分分布</div>
-          <div class="dist-row">
-            <span class="dist-label">5<span class="star-ico">★</span></span>
-            <span class="dist-track"><span class="dist-fill" style="width:62%;"></span></span>
-            <span class="dist-count">671</span>
-            <span class="dist-pct">62.0%</span>
-          </div>
-          <div class="dist-row">
-            <span class="dist-label">4<span class="star-ico">★</span></span>
-            <span class="dist-track"><span class="dist-fill" style="width:24%;"></span></span>
-            <span class="dist-count">260</span>
-            <span class="dist-pct">24.0%</span>
-          </div>
-          <div class="dist-row">
-            <span class="dist-label">3<span class="star-ico">★</span></span>
-            <span class="dist-track"><span class="dist-fill" style="width:10%;"></span></span>
-            <span class="dist-count">110</span>
-            <span class="dist-pct">10.2%</span>
-          </div>
-          <div class="dist-row">
-            <span class="dist-label">2<span class="star-ico">★</span></span>
-            <span class="dist-track"><span class="dist-fill low" style="width:3%;"></span></span>
-            <span class="dist-count">28</span>
-            <span class="dist-pct">2.6%</span>
-          </div>
-          <div class="dist-row">
-            <span class="dist-label">1<span class="star-ico">★</span></span>
-            <span class="dist-track"><span class="dist-fill low" style="width:1.3%;"></span></span>
-            <span class="dist-count">14</span>
-            <span class="dist-pct">1.3%</span>
-          </div>
-        </div>
-
-        <!-- 客服满意度排名 -->
-        <div class="card">
-          <div class="card-title">客服满意度排名（本月）</div>
-          <table class="data-table" style="font-size:var(--cs-font-size-base);">
-            <thead>
-              <tr><th>客服</th><th>评价数</th><th>平均分</th><th>差评数</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><div class="col-user"><div class="mini-avatar green">李</div><div>李静</div></div></td>
-                <td>286</td>
-                <td><span class="stars">★★★★★</span></td>
-                <td><span style="color:var(--cs-text-tertiary);">3</span></td>
-              </tr>
-              <tr>
-                <td><div class="col-user"><div class="mini-avatar">张</div><div>张小明</div></div></td>
-                <td>342</td>
-                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.7</span></td>
-                <td><span style="color:var(--cs-warning);">9</span></td>
-              </tr>
-              <tr>
-                <td><div class="col-user"><div class="mini-avatar orange">王</div><div>王磊</div></div></td>
-                <td>198</td>
-                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.4</span></td>
-                <td><span style="color:var(--cs-danger);">12</span></td>
-              </tr>
-              <tr>
-                <td><div class="col-user"><div class="mini-avatar purple">赵</div><div>赵丽</div></div></td>
-                <td>151</td>
-                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.2</span></td>
-                <td><span style="color:var(--cs-danger);">10</span></td>
-              </tr>
-              <tr>
-                <td><div class="col-user"><div class="mini-avatar green">陈</div><div>陈昊</div></div></td>
-                <td>106</td>
-                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.0</span></td>
-                <td><span style="color:var(--cs-danger);">8</span></td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
 
@@ -797,6 +710,37 @@
   applyFilters();
 })();
   </script>
+
+<script>
+/* 三层归属：用户副行追加「企业客户 · 品牌商城 · 应用端」（原型按行轮转示意） */
+(function () {
+  var belong = [
+    ['客户A', '品牌商城1', '小程序'],
+    ['客户A', '品牌商城1', 'H5'],
+    ['客户B', '品牌商城2', 'PC'],
+    ['客户C', '品牌商城3', '小程序'],
+    ['客户B', '品牌商城2', 'H5'],
+    ['客户A', '品牌商城1', '小程序'],
+    ['客户B', '品牌商城2', 'PC'],
+    ['客户C', '品牌商城3', 'H5'],
+    ['客户A', '品牌商城2', '小程序'],
+    ['客户C', '品牌商城3', 'PC']
+  ];
+  var i = 0;
+  document.querySelectorAll('.col-user').forEach(function (cu) {
+    var phoneLine = null;
+    Array.prototype.forEach.call(cu.querySelectorAll('div'), function (d) {
+      if (!phoneLine && d.children.length === 0 && /· ?\d{3}\*/.test(d.textContent)) phoneLine = d;
+    });
+    if (!phoneLine) return;
+    var b = belong[i % belong.length]; i++;
+    var line = document.createElement('div');
+    line.style.cssText = 'font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);margin-top:2px;';
+    line.textContent = b[0] + ' · ' + b[1] + ' · ' + b[2];
+    phoneLine.parentNode.appendChild(line);
+  });
+})();
+</script>
 
 </body>
 </html>

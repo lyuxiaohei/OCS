@@ -3,20 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>系统设置 — 供应链平台</title>
+  <title>客服设置 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
     /* ===== admin-settings.html 专属样式 ===== */
 
-    /* ---------- 设置区域锚点导航 ---------- */
+    /* ---------- 设置区域锚点导航（电梯导航：吸顶） ---------- */
+    /* 本页内容以窗口为滚动容器，关闭 .admin-content 的 overflow 以便 sticky 吸顶/吸底生效 */
+    .admin-content { overflow: visible; }
     .settings-anchor {
       display: flex;
       align-items: center;
       gap: 4px;
-      padding: 0 4px 16px;
+      padding: 12px 4px;
       border-bottom: 1px solid var(--cs-border-light);
       margin-bottom: var(--cs-space-5);
       flex-wrap: wrap;
+      position: sticky;
+      top: 56px;
+      z-index: 20;
+      background: var(--cs-bg-page);
     }
     .settings-anchor a {
       padding: 6px 14px;
@@ -33,7 +39,7 @@
     /* ---------- 设置区块卡片 ---------- */
     .setting-section {
       margin-bottom: var(--cs-space-5);
-      scroll-margin-top: 80px;
+      scroll-margin-top: 120px;
     }
     .setting-section .section-head {
       display: flex;
@@ -43,19 +49,6 @@
       border-bottom: 1px solid var(--cs-border-light);
       margin-bottom: var(--cs-space-5);
     }
-    .setting-section .section-head .head-icon {
-      width: 32px; height: 32px;
-      border-radius: var(--cs-radius-md);
-      display: flex; align-items: center; justify-content: center;
-      font-size: var(--cs-font-size-xl);
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .icon-welcome  { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
-    .icon-offline  { background: linear-gradient(135deg, #8c8c8c, #bfbfbf); }
-    .icon-routing  { background: linear-gradient(135deg, var(--cs-purple), var(--cs-purple-hover)); }
-    .icon-timeout  { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
-    .icon-sensitive{ background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
 
     .setting-section .section-head h3 {
       font-size: var(--cs-font-size-xl);
@@ -440,7 +433,7 @@
 
     <!-- 顶栏 -->
     <header class="admin-header">
-      <div class="breadcrumb">配置 / 系统设置</div>
+      <div class="breadcrumb">配置 / <span style="color:var(--cs-text);font-weight:600;">客服设置</span></div>
       <div class="user-info">
         <span class="status-badge online">客服A 在线</span>
         <span style="font-size:13px;color:var(--cs-text-secondary);">张小明</span>
@@ -453,7 +446,6 @@
       <!-- 页面标题 -->
       <div class="flex-between mb-16">
         <div>
-          <h2 style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-semibold); margin-bottom:4px;">系统设置</h2>
           <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置全局欢迎语、离线语、智能路由、会话超时与敏感词过滤（对应功能 US-ADMIN-02 / US-ADMIN-03 / US-ADMIN-04）</p>
         </div>
         <div class="flex gap-8">
@@ -461,19 +453,19 @@
         </div>
       </div>
 
-      <!-- 锚点导航 -->
+      <!-- 锚点导航（电梯导航：吸顶 + 快捷跳转） -->
       <div class="settings-anchor">
-        <a class="active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 欢迎语</a>
-        <a><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="12" cy="10" r="3"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> 离线语</a>
-        <a><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 路由规则</a>
-        <a><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 会话超时</a>
-        <a><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> 敏感词</a>
+        <a class="active" href="#welcome">欢迎语</a>
+        <a href="#offline">离线语</a>
+        <a href="#routing">路由规则</a>
+        <a href="#timeout">会话超时</a>
+        <a href="#sensitive">敏感词</a>
+        <a href="#urgency">紧急度</a>
       </div>
 
       <!-- ========== 1. 欢迎语设置 ========== -->
       <div class="card setting-section" id="welcome">
         <div class="section-head">
-          <div class="head-icon icon-welcome"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
           <h3>欢迎语设置
             <span class="head-desc">用户进入会话时自动推送的欢迎文案</span>
           </h3>
@@ -515,7 +507,7 @@
 
         <!-- 预览 -->
         <div class="welcome-preview">
-          <div class="preview-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>用户端预览</div>
+          <div class="preview-label">用户端预览</div>
           <div class="bubble">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？</div>
         </div>
       </div>
@@ -523,7 +515,6 @@
       <!-- ========== 2. 离线语设置 ========== -->
       <div class="card setting-section" id="offline">
         <div class="section-head">
-          <div class="head-icon icon-offline"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="12" cy="10" r="3"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></div>
           <h3>离线语设置
             <span class="head-desc">无客服在线时，用户进入会话展示的提示文案</span>
           </h3>
@@ -564,7 +555,7 @@
 
         <!-- 预览 -->
         <div class="welcome-preview">
-          <div class="preview-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>用户端预览（离线态）</div>
+          <div class="preview-label">用户端预览（离线态）</div>
           <div class="bubble">当前无客服在线（工作时间 9:00-21:00），您可以留下问题和联系方式，客服上线后将第一时间为您处理。</div>
         </div>
       </div>
@@ -572,7 +563,6 @@
       <!-- ========== 3. 路由规则配置 ========== -->
       <div class="card setting-section" id="routing">
         <div class="section-head">
-          <div class="head-icon icon-routing"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
           <h3>路由规则配置
             <span class="head-desc">控制会话如何分配给客服，支持自动接入与智能分流</span>
           </h3>
@@ -594,17 +584,17 @@
           <div class="form-control">
             <div class="radio-card-group">
               <div class="radio-card checked">
-                <div class="rc-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 12l7-7 7 7"/><line x1="5" y1="18" x2="19" y2="18"/></svg>轮询分配（均衡）</div>
+                <div class="rc-title">轮询分配（均衡）</div>
                 <div class="rc-desc">按在线客服顺序轮流分配，保证每位客服接待量大致相等</div>
                 <div class="rc-check"></div>
               </div>
               <div class="radio-card">
-                <div class="rc-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>按空闲度分配</div>
+                <div class="rc-title">按空闲度分配</div>
                 <div class="rc-desc">优先分配给当前接待会话数最少的客服，避免过载</div>
                 <div class="rc-check"></div>
               </div>
               <div class="radio-card">
-                <div class="rc-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>按客户优先级</div>
+                <div class="rc-title">按客户优先级</div>
                 <div class="rc-desc">VIP/高价值客户优先分配给指定客服组（需配合技能组）</div>
                 <div class="rc-check"></div>
               </div>
@@ -661,7 +651,6 @@
       <!-- ========== 4. 会话超时设置 ========== -->
       <div class="card setting-section" id="timeout">
         <div class="section-head">
-          <div class="head-icon icon-timeout"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <h3>会话超时设置
             <span class="head-desc">用户长时间无回复时，自动关闭会话并释放接待名额</span>
           </h3>
@@ -711,7 +700,7 @@
               <div class="switch-track"></div>
               <span class="switch-label">允许用户重新发起会话</span>
             </div>
-            <div class="switch-desc">关闭后用户可点击「再次咨询」发起新会话，历史记录保留在「历史会话」中</div>
+            <div class="switch-desc">关闭后用户可点击「再次咨询」发起新会话，历史记录保留在「会话记录」中</div>
           </div>
         </div>
       </div>
@@ -719,7 +708,6 @@
       <!-- ========== 5. 敏感词管理 ========== -->
       <div class="card setting-section" id="sensitive">
         <div class="section-head">
-          <div class="head-icon icon-sensitive"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
           <h3>敏感词管理
             <span class="head-desc">过滤用户/客服消息中的敏感词，命中后自动替换或拦截</span>
           </h3>
@@ -741,17 +729,17 @@
           <div class="form-control">
             <div class="radio-card-group">
               <div class="radio-card checked">
-                <div class="rc-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg>替换为 ***</div>
+                <div class="rc-title">替换为 ***</div>
                 <div class="rc-desc">将敏感词替换为星号后正常发送，不打断对话</div>
                 <div class="rc-check"></div>
               </div>
               <div class="radio-card">
-                <div class="rc-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>拦截并提示</div>
+                <div class="rc-title">拦截并提示</div>
                 <div class="rc-desc">消息不发送，提示用户「消息含违规内容，请修改后重发」</div>
                 <div class="rc-check"></div>
               </div>
               <div class="radio-card">
-                <div class="rc-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>仅记录不拦截</div>
+                <div class="rc-title">仅记录不拦截</div>
                 <div class="rc-desc">消息正常发送，但记录到违规日志供管理员事后审查</div>
                 <div class="rc-check"></div>
               </div>
@@ -844,6 +832,62 @@
         </div>
       </div>
 
+      <!-- ========== 6. 紧急度判定 ========== -->
+      <div class="card setting-section" id="urgency">
+        <div class="section-head">
+          <h3>紧急度判定
+            <span class="head-desc">系统按规则自动评定未回复待办的紧急度（紧急/较急/一般），决定待办排序与着色；客服不可手标</span>
+          </h3>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">判定规则</div>
+          <div class="form-control">
+            <p class="form-hint" style="margin-top:0; padding:10px 14px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); line-height:1.8;">
+              紧急度 = <strong>max(时间梯度, 类目梯度)</strong>，取两档中更高者：<br/>
+              · <strong>时间梯度</strong>：等待时长 ≥ 首次响应阈值 T → 紧急；≥ 60%·T → 较急（T 取超时预警「首次响应 5 分钟」，<span style="color:var(--cs-warning);">📝 待补为独立设置项</span>；60% 比例一期写死，不可配）<br/>
+              · <strong>类目梯度</strong>：用户消息命中下方关键词组（复用规则引擎全匹配/部分匹配）<br/>
+              · 均不命中且等待时长 &lt; 60%·T → 一般
+            </p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">紧急类目关键词组<br/><span style="color:var(--cs-text-tertiary); font-weight:normal; font-size:var(--cs-font-size-sm);">urgency_high_keywords</span></div>
+          <div class="form-control">
+            <div class="sensitive-tags">
+              <span class="sensitive-tag">退款 <span class="remove">×</span></span>
+              <span class="sensitive-tag">退货 <span class="remove">×</span></span>
+              <span class="sensitive-tag">投诉 <span class="remove">×</span></span>
+              <span class="sensitive-tag">差评 <span class="remove">×</span></span>
+              <span class="sensitive-tag">破损 <span class="remove">×</span></span>
+              <span class="sensitive-tag">物流异常 <span class="remove">×</span></span>
+            </div>
+            <div class="add-sensitive">
+              <input class="input-text" placeholder="输入关键词后回车" />
+              <button class="btn-default" style="padding:4px 12px;">+ 添加</button>
+            </div>
+            <p class="form-hint">命中任一 → 紧急（钱损/投诉风险，不论等待时长）</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">较急类目关键词组<br/><span style="color:var(--cs-text-tertiary); font-weight:normal; font-size:var(--cs-font-size-sm);">urgency_medium_keywords</span></div>
+          <div class="form-control">
+            <div class="sensitive-tags">
+              <span class="sensitive-tag" style="background:var(--cs-orange-bg); border-color:#ffe58f; color:var(--cs-orange);">优惠券 <span class="remove">×</span></span>
+              <span class="sensitive-tag" style="background:var(--cs-orange-bg); border-color:#ffe58f; color:var(--cs-orange);">订单异常 <span class="remove">×</span></span>
+              <span class="sensitive-tag" style="background:var(--cs-orange-bg); border-color:#ffe58f; color:var(--cs-orange);">账户问题 <span class="remove">×</span></span>
+            </div>
+            <div class="add-sensitive">
+              <input class="input-text" placeholder="输入关键词后回车" />
+              <button class="btn-default" style="padding:4px 12px;">+ 添加</button>
+            </div>
+            <p class="form-hint">命中任一 → 较急；与紧急组同时命中时取紧急（取高原则）</p>
+          </div>
+        </div>
+      </div>
+
       <!-- 底部说明 -->
       <p style="margin-top:8px; font-size:12px; color:var(--cs-text-placeholder);">
         数据来源：customer_chat_settings（welcome_content / offline_content / is_auto_accept） · 敏感词对应新建表 customer_chat_sensitive_words · 超时逻辑由 internal/cron/cron.go 执行
@@ -852,7 +896,7 @@
       <!-- 吸底操作栏 -->
       <div class="settings-footer">
         <div style="display:flex; align-items:center; gap:16px;">
-          <div class="footer-tip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>修改后请点击「保存设置」生效，部分配置（如路由策略）将在新会话生效</div>
+          <div class="footer-tip">修改后请点击「保存设置」生效，部分配置（如路由策略）将在新会话生效</div>
           <span class="save-hint" id="saveHint" style="display:none;">&#x26A0;&#xFE0F; 有 <span id="dirtyCount">0</span> 个模块已修改</span>
         </div>
         <div class="footer-actions">
@@ -933,20 +977,46 @@
     });
   });
 
-  // === Unsaved changes warning on anchor navigation ===
-  var anchorLinks = document.querySelectorAll('.settings-anchor a');
+  // === 电梯导航：点击快捷跳转 + 吸顶滚动高亮 ===
+  var anchorLinks = Array.prototype.slice.call(document.querySelectorAll('.settings-anchor a'));
+  var anchorSections = Array.prototype.slice.call(document.querySelectorAll('.setting-section[id]'));
+  var scrollRoot = document.querySelector('.admin-content');
+
+  function setActiveAnchor(id) {
+    anchorLinks.forEach(function(l) {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+    });
+  }
   anchorLinks.forEach(function(link) {
     link.addEventListener('click', function(e) {
-      if (dirtySections.size > 0) {
-        var confirmed = confirm('您有未保存的修改，确定要离开吗？');
-        if (!confirmed) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      }
+      var id = (link.getAttribute('href') || '').replace('#', '');
+      var sec = id && document.getElementById(id);
+      if (!sec) return;
+      e.preventDefault();
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveAnchor(id);
     });
   });
+
+  // 滚动时高亮当前可见区块（电梯联动）
+  if ('IntersectionObserver' in window && anchorSections.length) {
+    var ratios = {};
+    var spy = new IntersectionObserver(function(entries) {
+      entries.forEach(function(en) { ratios[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0; });
+      var bestId = null, best = 0;
+      anchorSections.forEach(function(s) {
+        var r = ratios[s.id] || 0;
+        // 已滚动过（顶部之上）的区块兜底为可见，避免区块都很大时都不命中
+        if (r <= 0) {
+          var rect = s.getBoundingClientRect();
+          if (rect.top < 120) r = 0.1;
+        }
+        if (r > best) { best = r; bestId = s.id; }
+      });
+      if (bestId) setActiveAnchor(bestId);
+    }, { root: scrollRoot, rootMargin: '-56px 0px -55% 0px', threshold: [0, 0.2, 0.5, 1] });
+    anchorSections.forEach(function(s) { spy.observe(s); });
+  }
 
   // === Save clears dirty state ===
   var btnSave = document.getElementById('btnSave');

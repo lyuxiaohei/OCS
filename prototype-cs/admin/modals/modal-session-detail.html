@@ -16,13 +16,10 @@
     .stars { color: var(--cs-warning); letter-spacing: 1px; }
     .stars .empty { color: #e8e8e8; }
     .no-rate { color: #c0c0c0; font-size: 12px; }
-    .s-tag { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-    .s-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
-    .s-tag.ongoing { background: var(--cs-primary-bg); color: var(--cs-primary); }
+    .s-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--cs-text); }
+    .s-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .s-tag.ongoing::before { background: var(--cs-primary); }
-    .s-tag.closed { background: var(--cs-border-lighter); color: var(--cs-text-tertiary); }
     .s-tag.closed::before { background: #bfbfbf; }
-    .s-tag.transferred { background: var(--cs-purple-bg); color: var(--cs-purple); }
     .s-tag.transferred::before { background: var(--cs-purple); }
     .timeline { position: relative; padding-left: 18px; }
     .timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--cs-border-light); }
@@ -48,6 +45,9 @@
         <div class="row"><span class="k">用户</span><span class="v">王志强 · 普通会员</span></div>
         <div class="row"><span class="k">服务客服</span><span class="v">李静</span></div>
         <div class="row"><span class="k">状态</span><span class="v"><span class="s-tag closed">已关闭</span></span></div>
+        <div class="row"><span class="k">企业客户</span><span class="v">客户A</span></div>
+        <div class="row"><span class="k">品牌商城</span><span class="v">品牌商城1</span></div>
+        <div class="row"><span class="k">应用端</span><span class="v">H5</span></div>
         <div class="row"><span class="k">开始时间</span><span class="v">2026-06-11 08:52</span></div>
         <div class="row"><span class="k">会话时长</span><span class="v">06分12秒</span></div>
       </div>

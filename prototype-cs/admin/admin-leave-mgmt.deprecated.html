@@ -1,113 +1,34 @@
+<!-- ⚠️ 已弃用 DEPRECATED：本页（原「留言管理」）已并入 admin-session-record.html（会话记录）。留言不再独立成实体，现为会话的「离线待处理」状态，不再在侧边栏/首页引用，仅作历史参照保留。见 ADR 0012。 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>留言管理 — 供应链平台</title>
+  <title>留言管理 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <style>
     /* ===== admin-leave-mgmt.html 专属样式（仅保留页面独有样式） ===== */
 
-    /* ---------- 顶部统计条布局 ---------- */
-    .leave-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--cs-space-4);
-      margin-bottom: var(--cs-space-5);
-    }
-
-    /* ---------- 页面级 Tab / Filter 包装覆盖 ---------- */
-    .status-tabs {
-      background: var(--cs-bg-card);
-      border-radius: var(--cs-radius-md) var(--cs-radius-md) 0 0;
-      border: 1px solid var(--cs-border-light);
-      border-bottom: none;
-      padding: 0 var(--cs-space-2);
-    }
-    .filter-bar {
-      background: var(--cs-bg-card);
-      border: 1px solid var(--cs-border-light);
-      border-top: none;
-      padding: var(--cs-space-3) var(--cs-space-5);
-      border-radius: 0 0 var(--cs-radius-md) var(--cs-radius-md);
-      margin-bottom: var(--cs-space-4);
-    }
-    .filter-bar .search-input {
-      flex: 1;
-      min-width: 200px;
-      height: 32px;
-      border: 1px solid var(--cs-border);
-      border-radius: var(--cs-radius-sm);
-      padding: 0 12px;
-      font-size: var(--cs-font-size-base);
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .filter-bar .search-input:focus { border-color: var(--cs-primary); }
-    .filter-bar select {
-      height: 32px;
-      border: 1px solid var(--cs-border);
-      border-radius: var(--cs-radius-sm);
-      padding: 0 10px;
-      font-size: var(--cs-font-size-base);
-      background: var(--cs-bg-card);
-      outline: none;
-      cursor: pointer;
-    }
-    .filter-bar select:focus { border-color: var(--cs-primary); }
-
-    /* ---------- 分页页面覆盖 ---------- */
-    .pagination {
-      justify-content: space-between;
+    /* ---------- 统计摘要条（对齐历史会话 / 会话转接） ---------- */
+    .stat-summary {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-6);
       padding: var(--cs-space-3) var(--cs-space-4);
       background: var(--cs-bg-header);
-      border-top: 1px solid var(--cs-border-light);
-    }
-    .pagination-info { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); }
-    .pagination-controls { display: flex; gap: 4px; }
-    .page-btn {
-      min-width: 28px; height: 28px;
-      border: 1px solid var(--cs-border);
-      background: var(--cs-bg-card);
-      border-radius: 5px;
-      font-size: var(--cs-font-size-sm);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: var(--cs-transition-fast);
-    }
-    .page-btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
-    .page-btn.active { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
-
-    /* ---------- 留言列表表格 ---------- */
-    .leave-table-wrap {
-      background: var(--cs-bg-card);
-      border-radius: var(--cs-radius-md);
-      border: 1px solid var(--cs-border-light);
-      overflow: hidden;
-    }
-    .leave-table {
-      width: 100%;
-      border-collapse: collapse;
+      border-radius: var(--cs-radius-sm);
+      margin-bottom: var(--cs-space-4);
       font-size: var(--cs-font-size-base);
-    }
-    .leave-table thead th {
-      background: var(--cs-bg-header);
       color: var(--cs-text-secondary);
+    }
+    .stat-summary .stat-item .num {
+      font-size: 18px;
       font-weight: var(--cs-font-weight-semibold);
-      text-align: left;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--cs-border-light);
-      white-space: nowrap;
+      color: var(--cs-text);
+      margin-right: 4px;
     }
-    .leave-table tbody td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--cs-border-lighter);
-      vertical-align: middle;
-    }
-    .leave-table tbody tr { transition: background 0.15s; }
-    .leave-table tbody tr:hover { background: var(--cs-bg-hover); }
-    .leave-table tbody tr:last-child td { border-bottom: none; }
+    .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
 
     /* 留言人单元格 */
     .leave-user { display: flex; align-items: center; gap: 10px; }
@@ -143,29 +64,25 @@
     .leave-time { color: var(--cs-text-tertiary); font-size: var(--cs-font-size-sm); white-space: nowrap; }
     .leave-time .rel { color: var(--cs-text-placeholder); display: block; margin-top: 2px; font-size: var(--cs-font-size-xs); }
 
-    /* 状态标签（用于行内） */
+    /* 状态标签（彩色圆点 + 黑色字，无彩色底） */
     .leave-status {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 2px 10px;
-      border-radius: var(--cs-radius-xs);
       font-size: var(--cs-font-size-sm);
       font-weight: var(--cs-font-weight-medium);
       white-space: nowrap;
+      color: var(--cs-text);
     }
     .leave-status::before {
       content: '';
       width: 6px; height: 6px;
       border-radius: 50%;
+      flex-shrink: 0;
     }
-    .leave-status.s-pending  { background: var(--cs-warning-bg); color: #d48806; }
     .leave-status.s-pending::before  { background: var(--cs-orange); }
-    .leave-status.s-process  { background: var(--cs-primary-bg); color: var(--cs-primary); }
     .leave-status.s-process::before  { background: var(--cs-primary); }
-    .leave-status.s-replied  { background: var(--cs-success-bg); color: #389e0d; }
     .leave-status.s-replied::before  { background: var(--cs-success); }
-    .leave-status.s-invalid  { background: var(--cs-border-lighter); color: var(--cs-text-tertiary); }
     .leave-status.s-invalid::before  { background: #bfbfbf; }
 
     /* 处理人 */
@@ -183,34 +100,9 @@
     }
     .leave-unassigned { color: var(--cs-text-placeholder); font-style: italic; font-size: var(--cs-font-size-sm); }
 
-    /* 行内按钮变体 */
-    .btn-sm {
-      padding: 4px 12px;
-      border-radius: 5px;
-      font-size: var(--cs-font-size-sm);
-      border: 1px solid var(--cs-border);
-      background: var(--cs-bg-card);
-      color: var(--cs-text);
-      cursor: pointer;
-      transition: var(--cs-transition-fast);
-      white-space: nowrap;
-    }
-    .btn-sm:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
-    .btn-sm.primary { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
-    .btn-sm.primary:hover { background: var(--cs-primary-hover); }
-    .btn-sm.success { color: #389e0d; border-color: #b7eb8f; }
-    .btn-sm.success:hover { background: var(--cs-success-bg); border-color: var(--cs-success); }
-    .btn-sm.danger { color: var(--cs-danger); border-color: #ffccc7; }
-    .btn-sm.danger:hover { background: var(--cs-danger-bg); border-color: var(--cs-danger); }
-    .btn-link {
-      background: none;
-      border: none;
-      color: var(--cs-primary);
-      font-size: var(--cs-font-size-sm);
-      cursor: pointer;
-      padding: 4px 6px;
-    }
-    .btn-link:hover { color: var(--cs-primary-hover); text-decoration: underline; }
+    /* 操作列统一为文字链接（对齐其他列表），禁用态置灰 */
+    .row-actions { white-space: nowrap; }
+    .row-actions a.is-disabled { color: var(--cs-text-placeholder); cursor: not-allowed; pointer-events: none; }
 
     /* ---------- 分配/回复抽屉（页面独有） ---------- */
     .drawer-mask {
@@ -295,26 +187,6 @@
       line-height: 1.6;
     }
 
-    /* Disabled reply button tooltip */
-    .btn-sm.success[disabled] {
-      opacity: 0.5;
-      cursor: not-allowed;
-      position: relative;
-    }
-    .btn-sm.success[disabled]:hover::after {
-      content: '请先分配处理人';
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
-      z-index: 10;
-    }
   </style>
 </head>
 <body>
@@ -329,7 +201,7 @@
 
     <!-- 顶部 Header -->
     <header class="admin-header">
-      <div class="breadcrumb">首页 / 客服管理 / <span style="color:#1f1f1f;">留言管理</span></div>
+      <div class="breadcrumb">服务管理 / <span style="color:var(--cs-text);font-weight:600;">留言管理</span></div>
       <div class="user-info">
         <span class="status-badge online">在线</span>
         <span>客服主管 · 刘洋</span>
@@ -340,98 +212,82 @@
     <!-- 内容区 -->
     <main class="admin-content">
 
-      <!-- ===== 顶部统计条 ===== -->
-      <div class="leave-stats">
-        <div class="stat-card">
-          <div class="stat-icon icon-pending"></div>
-          <div>
-            <div class="stat-num">7</div>
-            <div class="stat-name">待处理</div>
+      <!-- 统计摘要 -->
+      <div class="stat-summary">
+        <div class="stat-item accent"><span class="num">36</span>留言总数</div>
+        <div class="stat-item"><span class="num">7</span>待处理</div>
+        <div class="stat-item"><span class="num">4</span>处理中</div>
+        <div class="stat-item"><span class="num">23</span>已回复</div>
+        <div class="stat-item"><span class="num">2</span>无效</div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="card" style="padding:16px;">
+        <div class="filter-bar">
+          <div class="field">
+            <span class="field-label">关键词</span>
+            <input type="text" id="lmSearch" class="ipt input-search" placeholder="搜索留言人 / 联系方式 / 留言内容..." />
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon icon-process"></div>
-          <div>
-            <div class="stat-num">4</div>
-            <div class="stat-name">处理中</div>
+          <div class="field">
+            <span class="field-label">问题分类</span>
+            <select id="lmCategory" class="select">
+              <option value="">全部问题分类</option>
+              <option value="商品咨询">商品咨询</option>
+              <option value="订单售后">订单售后</option>
+              <option value="物流问题">物流问题</option>
+              <option value="退款/退货">退款/退货</option>
+              <option value="账户问题">账户问题</option>
+              <option value="其他">其他</option>
+            </select>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon icon-replied"></div>
-          <div>
-            <div class="stat-num">23</div>
-            <div class="stat-name">已回复</div>
+          <div class="field">
+            <span class="field-label">处理人</span>
+            <select id="lmAssignee" class="select">
+              <option value="">全部处理人</option>
+              <option value="__unassigned__">未分配</option>
+              <option value="王小明">王小明</option>
+              <option value="李娜">李娜</option>
+              <option value="赵强">赵强</option>
+            </select>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon icon-invalid"></div>
-          <div>
-            <div class="stat-num">2</div>
-            <div class="stat-name">无效</div>
+          <div class="field">
+            <span class="field-label">时间</span>
+            <select id="lmTime" class="select">
+              <option value="">全部时间</option>
+              <option value="today">今天</option>
+              <option value="3d">近 3 天</option>
+              <option value="7d">近 7 天</option>
+              <option value="30d">近 30 天</option>
+            </select>
+          </div>
+          <div style="margin-left:auto;" class="flex gap-8">
+            <button id="lmBtnReset" class="btn-default">重置</button>
+            <button id="lmBtnQuery" class="btn-primary">查询</button>
           </div>
         </div>
       </div>
 
-      <!-- ===== 状态 Tab ===== -->
-      <div class="status-tabs">
-        <div class="status-tab active">
-          全部 <span class="tab-count">36</span>
+      <!-- 列表卡片 -->
+      <div class="card mt-16" style="padding:0;">
+        <!-- 状态 Tab -->
+        <div class="status-tabs" style="padding:0 16px;">
+          <div class="status-tab active">全部 <span class="tab-count">36</span></div>
+          <div class="status-tab">待处理 <span class="tab-count">7</span></div>
+          <div class="status-tab">处理中 <span class="tab-count">4</span></div>
+          <div class="status-tab">已回复 <span class="tab-count">23</span></div>
+          <div class="status-tab">无效 <span class="tab-count">2</span></div>
         </div>
-        <div class="status-tab">
-          待处理 <span class="tab-count">7</span>
-        </div>
-        <div class="status-tab">
-          处理中 <span class="tab-count">4</span>
-        </div>
-        <div class="status-tab">
-          已回复 <span class="tab-count">23</span>
-        </div>
-        <div class="status-tab">
-          无效 <span class="tab-count">2</span>
-        </div>
-      </div>
 
-      <!-- ===== 筛选条 ===== -->
-      <div class="filter-bar">
-        <input type="text" id="lmSearch" class="search-input" placeholder="搜索留言人 / 联系方式 / 留言内容..." />
-        <select id="lmCategory">
-          <option value="">全部问题分类</option>
-          <option value="商品咨询">商品咨询</option>
-          <option value="订单售后">订单售后</option>
-          <option value="物流问题">物流问题</option>
-          <option value="退款/退货">退款/退货</option>
-          <option value="账户问题">账户问题</option>
-          <option value="其他">其他</option>
-        </select>
-        <select id="lmAssignee">
-          <option value="">全部处理人</option>
-          <option value="__unassigned__">未分配</option>
-          <option value="王小明">王小明</option>
-          <option value="李娜">李娜</option>
-          <option value="赵强">赵强</option>
-        </select>
-        <select id="lmTime">
-          <option value="">全部时间</option>
-          <option value="today">今天</option>
-          <option value="3d">近 3 天</option>
-          <option value="7d">近 7 天</option>
-          <option value="30d">近 30 天</option>
-        </select>
-        <button id="lmBtnReset" class="btn-default" style="height:32px; padding:0 14px; font-size:13px;">重置</button>
-        <button id="lmBtnQuery" class="btn-primary" style="height:32px; padding:0 14px; font-size:13px;">查询</button>
-      </div>
-
-      <!-- ===== 留言列表 ===== -->
-      <div class="leave-table-wrap">
-        <table class="leave-table">
+        <div class="table-wrap">
+        <table class="data-table">
           <thead>
             <tr>
-              <th style="width:170px;">留言人</th>
+              <th style="width:180px;">留言人</th>
               <th>留言内容</th>
-              <th style="width:150px;">时间</th>
-              <th style="width:100px;">状态</th>
-              <th style="width:130px;">处理人</th>
-              <th style="width:230px;">操作</th>
+              <th style="width:124px;">时间</th>
+              <th style="width:84px;">状态</th>
+              <th style="width:108px;">处理人</th>
+              <th style="width:224px;">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -461,10 +317,10 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary lm-assign-btn">分配</button>
-                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
-                  <button class="btn-link">详情</button>
-                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
+                  <a class="lm-assign-btn">分配</a><span class="divider">|</span>
+                  <a class="lm-reply-btn is-disabled">回复</a><span class="divider">|</span>
+                  <a>详情</a><span class="divider">|</span>
+                  <a class="lm-invalid-btn">标记无效</a>
                 </div>
               </td>
             </tr>
@@ -494,10 +350,10 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary lm-assign-btn">分配</button>
-                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
-                  <button class="btn-link">详情</button>
-                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
+                  <a class="lm-assign-btn">分配</a><span class="divider">|</span>
+                  <a class="lm-reply-btn is-disabled">回复</a><span class="divider">|</span>
+                  <a>详情</a><span class="divider">|</span>
+                  <a class="lm-invalid-btn">标记无效</a>
                 </div>
               </td>
             </tr>
@@ -532,8 +388,8 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm success" onclick="openReplyDrawer()">继续回复</button>
-                  <button class="btn-link">详情</button>
+                  <a class="lm-reply-btn">继续回复</a><span class="divider">|</span>
+                  <a>详情</a>
                 </div>
               </td>
             </tr>
@@ -568,8 +424,8 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm">查看回复</button>
-                  <button class="btn-link">详情</button>
+                  <a>查看回复</a><span class="divider">|</span>
+                  <a>详情</a>
                 </div>
               </td>
             </tr>
@@ -599,10 +455,10 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary lm-assign-btn">分配</button>
-                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
-                  <button class="btn-link">详情</button>
-                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
+                  <a class="lm-assign-btn">分配</a><span class="divider">|</span>
+                  <a class="lm-reply-btn is-disabled">回复</a><span class="divider">|</span>
+                  <a>详情</a><span class="divider">|</span>
+                  <a class="lm-invalid-btn">标记无效</a>
                 </div>
               </td>
             </tr>
@@ -637,8 +493,8 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm success" onclick="openReplyDrawer()">继续回复</button>
-                  <button class="btn-link">详情</button>
+                  <a class="lm-reply-btn">继续回复</a><span class="divider">|</span>
+                  <a>详情</a>
                 </div>
               </td>
             </tr>
@@ -673,8 +529,8 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm">查看回复</button>
-                  <button class="btn-link">详情</button>
+                  <a>查看回复</a><span class="divider">|</span>
+                  <a>详情</a>
                 </div>
               </td>
             </tr>
@@ -709,8 +565,8 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm">查看回复</button>
-                  <button class="btn-link">详情</button>
+                  <a>查看回复</a><span class="divider">|</span>
+                  <a>详情</a>
                 </div>
               </td>
             </tr>
@@ -745,8 +601,8 @@
               </td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm">查看回复</button>
-                  <button class="btn-link">详情</button>
+                  <a>查看回复</a><span class="divider">|</span>
+                  <a>详情</a>
                 </div>
               </td>
             </tr>
@@ -776,28 +632,27 @@
               <td><span class="leave-unassigned">未分配</span></td>
               <td>
                 <div class="row-actions">
-                  <button class="btn-sm primary lm-assign-btn">分配</button>
-                  <button class="btn-sm success lm-reply-btn" disabled>回复</button>
-                  <button class="btn-link">详情</button>
-                  <button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>
+                  <a class="lm-assign-btn">分配</a><span class="divider">|</span>
+                  <a class="lm-reply-btn is-disabled">回复</a><span class="divider">|</span>
+                  <a>详情</a><span class="divider">|</span>
+                  <a class="lm-invalid-btn">标记无效</a>
                 </div>
               </td>
             </tr>
 
           </tbody>
         </table>
+        </div>
 
         <!-- 分页 -->
-        <div class="pagination">
-          <div class="pagination-info">共 <strong>36</strong> 条记录，第 1/4 页</div>
-          <div class="pagination-controls">
-            <button class="page-btn">&lt;</button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <button class="page-btn">4</button>
-            <button class="page-btn">&gt;</button>
-          </div>
+        <div class="pagination" style="padding:16px;">
+          <span class="pg-info">共 36 条</span>
+          <span class="pg-btn disabled">&lt;</span>
+          <span class="pg-num active">1</span>
+          <span class="pg-num">2</span>
+          <span class="pg-num">3</span>
+          <span class="pg-num">4</span>
+          <span class="pg-btn">&gt;</span>
         </div>
       </div>
 
@@ -850,7 +705,7 @@
 
   /* ---------- 0. 行 data-* 标记（从已渲染 DOM 推断） ---------- */
   var STATUSByCls = { 's-pending': 'pending', 's-process': 'process', 's-replied': 'replied', 's-invalid': 'invalid' };
-  function refreshRows() { return $$('.leave-table tbody tr'); }
+  function refreshRows() { return $$('.data-table tbody tr'); }
   function rowStatus(tr) {
     var tag = $('.leave-status', tr); if (!tag) return '';
     for (var k in STATUSByCls) { if (tag.classList.contains(k)) return STATUSByCls[k]; }
@@ -917,17 +772,16 @@
   });
 
   /* ---------- 3. 分页 active ---------- */
-  $$('.page-btn').forEach(function (n) {
+  $$('.pg-num').forEach(function (n) {
     n.addEventListener('click', function () {
-      if (n.classList.contains('disabled')) return;
-      $$('.page-btn').forEach(function (x) { x.classList.remove('active'); });
+      $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
       n.classList.add('active');
     });
   });
 
   /* ---------- 4. 行操作委派（详情/查看回复/继续回复/撤销无效 + 导出占位） ---------- */
   document.addEventListener('click', function (e) {
-    var link = e.target.closest('.btn-link, .btn-sm');
+    var link = e.target.closest('.row-actions a');
     if (!link) return;
     var txt = (link.textContent || '').trim();
     var tr = link.closest('tr');
@@ -942,7 +796,7 @@
       tr.style.opacity = '';
       tr.setAttribute('data-status', 'pending');
       var act = tr.querySelector('.row-actions');
-      if (act) act.innerHTML = '<button class="btn-sm primary lm-assign-btn">分配</button><button class="btn-sm success lm-reply-btn" disabled>回复</button><button class="btn-link">详情</button><button class="btn-link lm-invalid-btn" style="color:var(--cs-text-tertiary);">标记无效</button>';
+      if (act) act.innerHTML = '<a class="lm-assign-btn">分配</a><span class="divider">|</span><a class="lm-reply-btn is-disabled">回复</a><span class="divider">|</span><a>详情</a><span class="divider">|</span><a class="lm-invalid-btn">标记无效</a>';
       applyFilters(); toast('已撤销无效标记，恢复为待处理');
       return;
     }
@@ -961,8 +815,6 @@
       csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
         onConfirm: function (data) {
           if (!row) return;
-          var replyBtn = row.querySelector('.lm-reply-btn');
-          if (replyBtn) replyBtn.removeAttribute('disabled');
           var statusSpan = row.querySelector('.leave-status.s-pending');
           if (statusSpan) { statusSpan.className = 'leave-status s-process'; statusSpan.textContent = '处理中'; row.setAttribute('data-status', 'process'); }
           var unassigned = row.querySelector('.leave-unassigned');
@@ -972,14 +824,14 @@
             row.setAttribute('data-assignee', name);
           }
           row.style.background = '';
-          assignBtn.style.display = 'none';
-          if (replyBtn) replyBtn.textContent = '继续回复';
+          var act = assignBtn.closest('.row-actions');
+          if (act) act.innerHTML = '<a class="lm-reply-btn">继续回复</a><span class="divider">|</span><a>详情</a><span class="divider">|</span><a class="lm-invalid-btn">标记无效</a>';
         }
       });
       return;
     }
     var replyBtn = e.target.closest('.lm-reply-btn');
-    if (replyBtn && !replyBtn.disabled) {
+    if (replyBtn && !replyBtn.classList.contains('is-disabled')) {
       csModal.open('modals/drawer-reply.html', { variant: 'drawer-right', width: 480,
         onConfirm: function (data) {
           var row = replyBtn.closest('tr[data-leave-id]');
@@ -987,7 +839,7 @@
           var st = row.querySelector('.leave-status');
           if (st) { st.className = 'leave-status s-replied'; st.textContent = '已回复'; row.setAttribute('data-status', 'replied'); }
           var actions = row.querySelector('.row-actions');
-          if (actions) actions.innerHTML = '<button class="btn-sm">查看回复</button><button class="btn-link">详情</button>';
+          if (actions) actions.innerHTML = '<a>查看回复</a><span class="divider">|</span><a>详情</a>';
         }
       });
       return;
@@ -1003,11 +855,21 @@
           row.style.background = '#fafafa';
           row.style.opacity = '0.6';
           var actions = row.querySelector('.row-actions');
-          if (actions) actions.innerHTML = '<button class="btn-link">详情</button><button class="btn-link">撤销无效</button>';
+          if (actions) actions.innerHTML = '<a>详情</a><span class="divider">|</span><a class="lm-undo-invalid">撤销无效</a>';
         }
       });
       return;
     }
+  });
+})();
+</script>
+
+<script>
+/* 三层归属-应用端：留言人姓名追加应用端标识（原型按行轮转示意） */
+(function () {
+  var apps = ['小程序', 'H5', 'PC'];
+  document.querySelectorAll('.leave-name').forEach(function (el, i) {
+    el.textContent = el.textContent.trim() + ' · ' + apps[i % apps.length];
   });
 })();
 </script>

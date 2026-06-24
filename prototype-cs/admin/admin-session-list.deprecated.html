@@ -1,9 +1,10 @@
+<!-- ⚠️ 已弃用 DEPRECATED：本页（原「历史会话」）已并入 admin-session-record.html（会话记录），不再在侧边栏/首页引用，仅作历史参照保留。会话为唯一实体、留言=离线态，见 ADR 0012。 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>历史会话 — 供应链平台</title>
+  <title>历史会话 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
 <script src="js/cs-modal.js"></script>
   <style>
@@ -30,10 +31,30 @@
     .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
 
     /* 兼容旧 .s-tag 类名 > 映射到 .status-tag */
-    .s-tag { /* 委托给 styles.css .status-tag */ }
+    /* 会话状态标签（彩色圆点 + 黑色字，无彩色底） */
+    .s-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--cs-font-size-sm);
+      line-height: 1.5;
+      color: var(--cs-text);
+    }
+    .s-tag::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .s-tag.ongoing::before,
+    .s-tag.active::before { background: var(--cs-primary); }
+    .s-tag.closed::before { background: #bfbfbf; }
+    .s-tag.transferred::before { background: var(--cs-purple); }
+    .s-tag.cancelled::before { background: var(--cs-danger); }
 
     /* ===== V2.2：渠道列 + 按用户归集视图 ===== */
-    .s-tag.channel { background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+    .s-tag.channel { display: inline-flex; align-items: center; background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+    .s-tag.channel::before { display: none; }
     .status-tabs.view-toggle { border-top: 1px solid var(--cs-border-light); }
     .status-tabs.view-toggle .status-tab { cursor: pointer; }
     #user-view { padding: 8px 16px; }
@@ -67,7 +88,7 @@
 
     <!-- 顶栏 -->
     <header class="admin-header">
-      <div class="breadcrumb">服务管理 / 历史会话</div>
+      <div class="breadcrumb">服务管理 / <span style="color:var(--cs-text);font-weight:600;">历史会话</span></div>
       <div class="user-info">
         <span class="status-badge online">客服A 在线</span>
         <span style="font-size:13px;color:#595959;">张小明</span>
@@ -80,7 +101,6 @@
       <!-- 页面标题 -->
       <div class="flex-between mb-16">
         <div>
-          <h2 style="font-size:20px; font-weight:600; margin-bottom:4px;">历史会话</h2>
           <p style="font-size:13px; color:#8c8c8c;">查看所有历史服务记录，支持多维度筛选与详情回溯（对应功能 F-EX-03 / F-EX-04）</p>
         </div>
         <div class="flex gap-8">
@@ -117,8 +137,31 @@
             </select>
           </div>
           <div class="field">
-            <span class="field-label">关键词</span>
-            <input type="text" class="ipt input-search" id="fKw" placeholder="搜索用户昵称 / 会话ID / 手机号" />
+            <span class="field-label">企业客户</span>
+            <select class="select" id="fEnt">
+              <option value="">全部企业</option>
+              <option>客户A</option>
+              <option>客户B</option>
+              <option>客户C</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">品牌商城</span>
+            <select class="select" id="fBrand">
+              <option value="">全部品牌</option>
+              <option>品牌商城1</option>
+              <option>品牌商城2</option>
+              <option>品牌商城3</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">应用端</span>
+            <select class="select" id="fApp">
+              <option value="">全部应用端</option>
+              <option>小程序</option>
+              <option>H5</option>
+              <option>PC</option>
+            </select>
           </div>
           <div style="margin-left:auto;" class="flex gap-8">
             <button class="btn-default">重置</button>
@@ -440,27 +483,54 @@
     if (uc && uc.children[1] && uc.children[1].children[0]) return uc.children[1].children[0].textContent.trim();
     return '';
   }
-  // (a) 渠道列：thead 增 <th>渠道</th>；每行在客服 td 后插 <td>H5</td>；同时捕获开始时间(data-time) + data-user-id + 再次联系
+  // (a) 应用端列（V2.2 渠道列细化）：thead 增 <th>应用端</th>；每行在客服 td 后插应用端标签 + data-app；同时捕获开始时间(data-time) + data-user-id + 再次联系
   var UID_BY_SESSION = {
     '#CS20260611001': 'U1', '#CS20260611002': 'U2', '#CS20260611003': 'U3',
     '#CS20260610024': 'U4', '#CS20260610019': 'U5', '#CS20260610015': 'U6',
     '#CS20260609088': 'U3', '#CS20260609076': 'U2',
     '#CS20260609061': 'U7', '#CS20260608052': 'U8'
   };
+  // 三层归属：[企业客户, 品牌商城, 应用端]（应用端沿用原渠道取值）
+  var BELONG_BY_SESSION = {
+    '#CS20260611001': ['客户A', '品牌商城1', '小程序'],
+    '#CS20260611002': ['客户A', '品牌商城1', 'H5'],
+    '#CS20260611003': ['客户B', '品牌商城2', 'PC'],
+    '#CS20260610024': ['客户A', '品牌商城1', '小程序'],
+    '#CS20260610019': ['客户B', '品牌商城2', 'H5'],
+    '#CS20260610015': ['客户C', '品牌商城3', '小程序'],
+    '#CS20260609088': ['客户B', '品牌商城2', 'H5'],
+    '#CS20260609076': ['客户C', '品牌商城3', 'PC'],
+    '#CS20260609061': ['客户A', '品牌商城2', '小程序'],
+    '#CS20260608052': ['客户C', '品牌商城3', 'H5']
+  };
   var headThs = $$('.data-table thead th');
   if (headThs.length >= 3 && headThs[2].textContent.trim() === '客服') {
-    var chTh = document.createElement('th'); chTh.textContent = '渠道';
-    headThs[2].parentNode.insertBefore(chTh, headThs[2].nextSibling);
+    var belongThs = document.createDocumentFragment();
+    ['企业客户', '品牌商城', '应用端'].forEach(function (t) {
+      var th = document.createElement('th'); th.textContent = t; belongThs.appendChild(th);
+    });
+    headThs[2].parentNode.insertBefore(belongThs, headThs[2].nextSibling);
   }
   rows.forEach(function (tr) {
     var cells = $$('td', tr);
-    // 开始时间此时仍是 cells[3]（渠道列尚未插入）> 存 data-time
+    // 开始时间此时仍是 cells[3]（应用端列尚未插入）> 存 data-time
     if (cells[3] && cells[3].firstChild) tr.setAttribute('data-time', cells[3].firstChild.nodeValue.trim());
-    // 渠道 td 插在客服 cells[2] 之后
+    // 三层归属 td（企业客户 / 品牌商城 / 应用端）插在客服 cells[2] 之后；落 data-ent/data-brand/data-app 供筛选
     if (cells[2]) {
-      var chTd = document.createElement('td');
-      chTd.innerHTML = '<span class="s-tag channel">H5</span>';
-      cells[2].parentNode.insertBefore(chTd, cells[2].nextSibling);
+      var idEl0 = $('.col-id', tr);
+      var sid0 = idEl0 ? idEl0.textContent.trim() : '';
+      var b0 = BELONG_BY_SESSION[sid0] || ['客户A', '品牌商城1', 'H5'];
+      var belongFrag = document.createDocumentFragment();
+      [b0[0], b0[1]].forEach(function (val) {
+        var td = document.createElement('td'); td.textContent = val; belongFrag.appendChild(td);
+      });
+      var appTd = document.createElement('td');
+      appTd.innerHTML = '<span class="s-tag channel">' + b0[2] + '</span>';
+      belongFrag.appendChild(appTd);
+      tr.setAttribute('data-ent', b0[0]);
+      tr.setAttribute('data-brand', b0[1]);
+      tr.setAttribute('data-app', b0[2]);
+      cells[2].parentNode.insertBefore(belongFrag, cells[2].nextSibling);
     }
     // data-user-id（按会话 ID 映射；U2/U3 各对应两行 > 演示按用户归集）
     var idEl = $('.col-id', tr);
@@ -593,16 +663,20 @@
   });
 
   /* ---------- 2. 筛选（客服 / 关键词）+ 查询 / 重置 ---------- */
-  var fAgent = $('#fAgent'), fKw = $('#fKw');
+  var fAgent = $('#fAgent'), fApp = $('#fApp'), fEnt = $('#fEnt'), fBrand = $('#fBrand');
   var btnQuery = $('.filter-bar .btn-primary');
   var btnReset = $('.filter-bar .btn-default');
   function applyFilters() {
     var agent = fAgent ? fAgent.value : '';
-    var kw = (fKw ? fKw.value : '').trim().toLowerCase();
+    var app = fApp ? fApp.value : '';
+    var ent = fEnt ? fEnt.value : '';
+    var brand = fBrand ? fBrand.value : '';
     rows.forEach(function (tr) {
       var ok = (currentStatus === 'all' || tr.getAttribute('data-status') === currentStatus)
         && (!agent || tr.getAttribute('data-agent') === agent)
-        && (!kw || tr.textContent.toLowerCase().indexOf(kw) >= 0);
+        && (!ent || tr.getAttribute('data-ent') === ent)
+        && (!brand || tr.getAttribute('data-brand') === brand)
+        && (!app || tr.getAttribute('data-app') === app);
       tr.style.display = ok ? '' : 'none';
     });
     if (currentView === 'user') renderUserView();
@@ -610,13 +684,17 @@
   if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
   if (btnReset) btnReset.addEventListener('click', function () {
     if (fAgent) fAgent.value = '';
-    if (fKw) fKw.value = '';
+    if (fEnt) fEnt.value = '';
+    if (fBrand) fBrand.value = '';
+    if (fApp) fApp.value = '';
     currentStatus = 'all';
     statusTabs.forEach(function (t) { t.classList.toggle('active', tabKey(t) === '全部'); });
     applyFilters(); toast('已重置筛选');
   });
   if (fAgent) fAgent.addEventListener('change', applyFilters);
-  if (fKw) fKw.addEventListener('input', applyFilters);
+  if (fEnt) fEnt.addEventListener('change', applyFilters);
+  if (fBrand) fBrand.addEventListener('change', applyFilters);
+  if (fApp) fApp.addEventListener('change', applyFilters);
 
   /* ---------- 3. 顶部按钮：导出 / 刷新 ---------- */
   var btnExport = $('#btnExport'), btnRefresh = $('#btnRefresh');

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>分类编辑 · 弹窗</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 440px; max-width: 92vw; }
+    .cat-body { padding: 18px 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group > label { display: block; font-size: 13px; color: var(--cs-text); margin-bottom: 6px; font-weight: 500; }
+    .form-group > label .hint { font-weight: 400; color: var(--cs-text-tertiary); font-size: 12px; margin-left: 4px; }
+    .form-ipt {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 7px 11px; font-size: 13px; font-family: inherit; background: #fff;
+      outline: none; transition: border-color 0.15s;
+    }
+    .form-ipt:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .form-static { font-size: 13px; color: var(--cs-text-secondary); padding: 7px 0; }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span id="dlgTitle">新增分类</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="cat-body">
+      <div class="form-group">
+        <label>所属分组</label>
+        <div class="form-static" id="parentStatic">业务分类</div>
+      </div>
+      <div class="form-group">
+        <label>分类名称 <span style="color:var(--cs-danger);">*</span><span class="hint">2-12 个字</span></label>
+        <input type="text" class="form-ipt" id="catName" placeholder="请输入分类名称" maxlength="12" />
+      </div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn">确定</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var qs = {};
+      location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
+        var p = kv.split('=');
+        qs[decodeURIComponent(p[0])] = decodeURIComponent((p[1] || '').replace(/\+/g, ' '));
+      });
+      var mode = qs.mode || 'add';
+      document.getElementById('dlgTitle').textContent =
+        qs.title || (mode === 'edit' ? '编辑分类' : '新增分类');
+      if (qs.parent) document.getElementById('parentStatic').textContent = qs.parent;
+      var nameInput = document.getElementById('catName');
+      if (qs.name) nameInput.value = qs.name;
+      setTimeout(function () { nameInput.focus(); }, 60);
+
+      document.getElementById('confirmBtn').addEventListener('click', function () {
+        var name = nameInput.value.trim();
+        if (name.length < 2) {
+          nameInput.style.borderColor = 'var(--cs-danger)'; nameInput.focus();
+          setTimeout(function () { nameInput.style.borderColor = ''; }, 1500);
+          return;
+        }
+        window.csModalBridge.confirm({ name: name, mode: mode });
+      });
+      nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); document.getElementById('confirmBtn').click(); }
+      });
+    })();
+  </script>
+</body>
+</html>

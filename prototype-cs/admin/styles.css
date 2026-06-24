@@ -190,6 +190,31 @@ a { color: var(--cs-primary); text-decoration: none; }
   text-transform: uppercase;
 }
 
+/* ---------- 三级导航：L1 客服管理 / L2 分组(带图标) / L3 菜单项(无图标) ---------- */
+.admin-sidebar .nav-l1 {
+  padding: 14px 24px 6px;
+  font-size: var(--cs-font-size-xs);
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+}
+.admin-sidebar .nav-l2 {
+  display: flex;
+  align-items: center;
+  gap: var(--cs-space-2);
+  padding: 12px 24px 6px;
+  font-size: var(--cs-font-size-md);
+  font-weight: var(--cs-font-weight-semibold);
+  color: rgba(255,255,255,0.95);
+}
+.admin-sidebar .nav-l2 svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.9; }
+.admin-sidebar .menu-item.nav-l3 {
+  padding-left: 48px;
+  font-size: var(--cs-font-size-base);
+  color: rgba(255,255,255,0.7);
+}
+.admin-sidebar .menu-item.nav-l3:hover { color: #fff; }
+.admin-sidebar .menu-item.nav-l3.active { color: #fff; background: var(--cs-primary); }
+
 /* ============================================================
    4. Card
    ============================================================ */
@@ -298,47 +323,35 @@ a { color: var(--cs-primary); text-decoration: none; }
   font-size: var(--cs-font-size-sm);
 }
 
-/* --- Status Tag (unified: replaces .s-tag, .t-tag, .qtag etc.) --- */
+/* --- Status Tag (unified: 彩色圆点 + 黑色字，无彩色底) --- */
 .status-tag {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 2px 8px;
-  border-radius: var(--cs-radius-xs);
   font-size: var(--cs-font-size-sm);
   line-height: 1.5;
+  color: var(--cs-text);
 }
 .status-tag::before {
   content: "";
   width: 6px; height: 6px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 /* Session states */
-.status-tag.ongoing,
-.status-tag.active { background: var(--cs-primary-bg); color: var(--cs-primary); }
 .status-tag.ongoing::before,
 .status-tag.active::before { background: var(--cs-primary); }
-.status-tag.closed { background: var(--cs-border-lighter); color: var(--cs-text-tertiary); }
 .status-tag.closed::before { background: #bfbfbf; }
-.status-tag.transferred { background: var(--cs-purple-bg); color: var(--cs-purple); }
 .status-tag.transferred::before { background: var(--cs-purple); }
-.status-tag.cancelled { background: var(--cs-danger-bg); color: var(--cs-danger); }
 .status-tag.cancelled::before { background: var(--cs-danger); }
 /* Leave states */
-.status-tag.pending { background: var(--cs-warning-bg); color: var(--cs-orange); }
 .status-tag.pending::before { background: var(--cs-orange); }
-.status-tag.replied { background: var(--cs-success-bg); color: var(--cs-success); }
 .status-tag.replied::before { background: var(--cs-success); }
-.status-tag.process { background: var(--cs-primary-bg); color: var(--cs-primary); }
 .status-tag.process::before { background: var(--cs-primary); }
-.status-tag.invalid { background: var(--cs-border-lighter); color: var(--cs-text-tertiary); }
 .status-tag.invalid::before { background: #bfbfbf; }
 /* Quality states */
-.status-tag.pass { background: var(--cs-success-bg); color: var(--cs-success); }
 .status-tag.pass::before { background: var(--cs-success); }
-.status-tag.warn { background: var(--cs-warning-bg); color: var(--cs-warning); }
 .status-tag.warn::before { background: var(--cs-warning); }
-.status-tag.fail { background: var(--cs-danger-bg); color: var(--cs-danger); }
 .status-tag.fail::before { background: var(--cs-danger); }
 
 /* --- Status Badge (dot indicator) --- */
@@ -373,6 +386,9 @@ a { color: var(--cs-primary); text-decoration: none; }
   gap: var(--cs-space-3);
   margin-bottom: var(--cs-space-4);
 }
+/* filter/工具条作为卡片唯一子元素时去掉自带 margin-bottom，避免卡片内「下留白 > 上留白」 */
+.card > .filter-bar:last-child,
+.card > .kb-toolbar:last-child { margin-bottom: 0; }
 .filter-bar .field {
   display: flex;
   align-items: center;
@@ -464,6 +480,7 @@ a { color: var(--cs-primary); text-decoration: none; }
 }
 .data-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   font-size: var(--cs-font-size-base);
 }
