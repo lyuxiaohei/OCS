@@ -139,7 +139,7 @@
 
     <!-- 顶栏 -->
     <header class="admin-header">
-      <div class="breadcrumb">服务管理 / <span style="color:var(--cs-text);font-weight:600;">评价管理</span></div>
+      <div class="breadcrumb">会话管理 / <span style="color:var(--cs-text);font-weight:600;">评价管理</span></div>
       <div class="user-info">
         <span class="status-badge online">客服A 在线</span>
         <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
@@ -600,6 +600,16 @@
   }
   var rows = refreshRows();
   rows.forEach(annotateRow);
+
+  /* 每行均提供「差评追踪」入口（不再仅 ≤2 星行） */
+  rows.forEach(function (tr) {
+    var act = $('.row-actions', tr);
+    if (act && !$('.sl-track', tr)) {
+      var div = document.createElement('span'); div.className = 'divider'; div.textContent = '|';
+      var a = document.createElement('a'); a.className = 'warn sl-track'; a.textContent = '差评追踪';
+      act.appendChild(div); act.appendChild(a);
+    }
+  });
 
   /* ---------- 1. 状态 Tab 过滤（好评 / 中评 / 差评） ---------- */
   function classifyTab(tab) {

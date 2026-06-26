@@ -187,7 +187,7 @@
 
     <!-- 顶部 Header -->
     <header class="admin-header">
-      <div class="breadcrumb">工作台 / <span style="color:var(--cs-text);font-weight:600;">待办事项</span></div>
+      <div class="breadcrumb">会话管理 / <span style="color:var(--cs-text);font-weight:600;">待办事项</span></div>
       <div class="user-info">
         <span class="status-badge online">在线</span>
         <span>客服A · 王小明</span>
@@ -208,7 +208,7 @@
         </div>
         <div class="stat-card" data-target="timeout">
           <div>
-            <div class="stat-num">3</div>
+            <div class="stat-num">6</div>
             <div class="stat-name">超时预警</div>
           </div>
         </div>
@@ -234,7 +234,7 @@
         <section class="card section-card" data-col="unreply">
           <div class="section-head">
             <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>未回复消息 <span class="count-pill">8</span></div>
-            <div class="head-actions"><button class="todo-btn-sm" data-batch="unreply">批量回复</button><a href="admin-workbench.html">全部处理 &gt;</a></div>
+            <div class="head-actions"></div>
           </div>
           <div class="section-body">
 
@@ -274,7 +274,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">陈晓</span>
-                  <span class="urgency medium">较急</span>
+                  <!-- 一般：默认紧急度，不显示角标 -->
                 </div>
                 <div class="todo-sub">优惠券无法使用，已等 5 分钟</div>
               </div>
@@ -289,7 +289,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">刘洋</span>
-                  <span class="urgency medium">较急</span>
+                  <!-- 一般：默认紧急度，不显示角标 -->
                 </div>
                 <div class="todo-sub">物流一直没更新，订单 #20260610088</div>
               </div>
@@ -304,7 +304,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">周芳</span>
-                  <span class="urgency low">一般</span>
+                  <!-- 一般：默认紧急度，不显示角标 -->
                 </div>
                 <div class="todo-sub">咨询会员积分兑换规则</div>
               </div>
@@ -319,7 +319,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">吴磊</span>
-                  <span class="urgency low">一般</span>
+                  <!-- 一般：默认紧急度，不显示角标 -->
                 </div>
                 <div class="todo-sub">想了解发货时间</div>
               </div>
@@ -334,7 +334,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">郑丽</span>
-                  <span class="urgency low">一般</span>
+                  <!-- 一般：默认紧急度，不显示角标 -->
                 </div>
                 <div class="todo-sub">发票抬头怎么修改</div>
               </div>
@@ -349,7 +349,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">孙强</span>
-                  <span class="urgency low">一般</span>
+                  <!-- 一般：默认紧急度，不显示角标 -->
                 </div>
                 <div class="todo-sub">咨询是否支持货到付款</div>
               </div>
@@ -365,8 +365,8 @@
         <!-- ===== 2. 超时预警 ===== -->
         <section class="card section-card" data-col="timeout">
           <div class="section-head">
-            <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>超时预警 <span class="count-pill danger">3</span></div>
-            <div class="head-actions"><button class="todo-btn-sm" data-batch="timeout">一键接入全部</button><button class="todo-btn-sm" id="btnPlayTimeoutBeep">🔊 播放提示音</button><a href="#">设置规则 &gt;</a></div>
+            <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>超时预警 <span class="count-pill danger">6</span></div>
+            <div class="head-actions"></div>
           </div>
           <div class="section-body">
 
@@ -390,7 +390,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">响应超时 · 李婷婷</span>
-                  <span class="urgency medium">临界</span>
+                  <span class="urgency medium">即将超时</span>
                 </div>
                 <div class="todo-sub">距超时阈值还剩 <strong style="color:var(--cs-orange);" data-countdown="80">1 分 20 秒</strong></div>
               </div>
@@ -405,7 +405,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">排队超时 · 王芳</span>
-                  <span class="urgency medium">临界</span>
+                  <span class="urgency medium">即将超时</span>
                 </div>
                 <div class="todo-sub">已在等待队列 <strong style="color:var(--cs-orange);" data-countup="225">3 分 45 秒</strong>（阈值 4 分钟）</div>
               </div>
@@ -415,13 +415,60 @@
               </div>
             </div>
 
+            <div class="todo-row" style="background:var(--cs-orange-bg);">
+              <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+              <div class="todo-avatar warn">!</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">轮次响应 · 陈芳</span>
+                  <span class="urgency medium">即将超时</span>
+                </div>
+                <div class="todo-sub">用户消息已等待 <strong style="color:var(--cs-orange);" data-countup="155">2 分 35 秒</strong>（阈值 3 分钟）</div>
+              </div>
+              <div class="todo-actions">
+                <button class="todo-btn-sm primary">回复</button>
+              </div>
+            </div>
+            <div class="todo-row" style="background:var(--cs-orange-bg);">
+              <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+              <div class="todo-avatar warn">!</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">转接超时 · 孙建国</span>
+                  <span class="urgency medium">即将超时</span>
+                </div>
+                <div class="todo-sub">转接【售后组】已等待 <strong style="color:var(--cs-orange);" data-countdown="65">1 分 05 秒</strong>（TTL 5 分钟）</div>
+              </div>
+              <div class="todo-actions">
+                <button class="todo-btn-sm">催办</button>
+                <button class="todo-btn-sm primary">回退</button>
+              </div>
+            </div>
+            <div class="todo-row" style="background:var(--cs-danger-bg);">
+              <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+              <div class="todo-avatar danger">!</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">挂起超时 · 郑丽华</span>
+                  <span class="urgency high">超时</span>
+                </div>
+                <div class="todo-sub">挂起已超恢复时间 <strong style="color:var(--cs-danger);" data-countup="240">4 分 00 秒</strong>（原定 10 分钟恢复）</div>
+              </div>
+              <div class="todo-actions">
+                <button class="todo-btn-sm primary">恢复会话</button>
+              </div>
+            </div>
+
             <!-- 预警规则说明 -->
             <div style="padding:var(--cs-space-3) 18px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light);">
               <div style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); margin-bottom:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;margin-right:4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/></svg>当前预警规则</div>
               <div style="font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); line-height:1.8;">
                 · 首次响应：超过 <strong>5 分钟</strong> 标记超时<br/>
+                · 轮次响应：超过 <strong>3 分钟</strong> 提醒客服回复<br/>
                 · 排队等待：超过 <strong>4 分钟</strong> 触发预警<br/>
-                · 会话静默：超过 <strong>15 分钟</strong> 提醒关闭
+                · 会话静默：超过 <strong>15 分钟</strong> 提醒关闭<br/>
+                · 转接等待：超过 <strong>5 分钟</strong>（TTL）触发回退策略<br/>
+                · 挂起恢复：超过设定<strong>恢复时间</strong>提醒 / 自动恢复
               </div>
             </div>
 
@@ -456,7 +503,6 @@
               </div>
               <div class="todo-actions">
                 <button class="todo-btn-sm">催评</button>
-                <button class="todo-btn-sm danger">关闭</button>
               </div>
             </div>
             <div class="todo-row" data-status="pending">
@@ -471,7 +517,6 @@
               </div>
               <div class="todo-actions">
                 <button class="todo-btn-sm">催评</button>
-                <button class="todo-btn-sm danger">关闭</button>
               </div>
             </div>
             <div class="todo-row" data-status="pending">
@@ -486,7 +531,6 @@
               </div>
               <div class="todo-actions">
                 <button class="todo-btn-sm">催评</button>
-                <button class="todo-btn-sm danger">关闭</button>
               </div>
             </div>
             <div class="todo-row" data-status="skipped">
@@ -501,7 +545,6 @@
               </div>
               <div class="todo-actions">
                 <button class="todo-btn-sm">催评</button>
-                <button class="todo-btn-sm danger">关闭</button>
               </div>
             </div>
             <div class="todo-row" data-status="done">
@@ -522,14 +565,13 @@
             <div style="padding:var(--cs-space-3) 18px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light); display:flex; justify-content:space-between; align-items:center;">
               <span style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">平均催评转化率：<strong style="color:var(--cs-success);">62%</strong></span>
               <div style="display:flex; gap:8px;">
-                <button class="todo-btn-sm" data-batch="close-eval">一键关闭全部</button>
                 <button class="todo-btn-sm primary">一键催评全部</button>
               </div>
             </div>
 
             <!-- 跳过状态说明 -->
             <div style="margin:10px 18px 12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:8px 12px;font-size:12px;color:#1677ff;">
-              用户跳过评价后，系统记录为"已跳过"状态。管理员仍可发送催评邀请，或手动关闭会话。
+              用户跳过评价后，系统记录为"已跳过"状态。管理员仍可发送催评邀请。
             </div>
 
           </div>
@@ -541,9 +583,9 @@
       <div style="margin-top:var(--cs-space-6); padding:var(--cs-space-4) var(--cs-space-5); background:var(--cs-bg-card); border-radius:var(--cs-radius-md); border:1px solid var(--cs-border-light);">
         <div style="font-size:var(--cs-font-size-base); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); margin-bottom:var(--cs-space-2);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>待办处理流程说明</div>
         <div style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); line-height:1.9;">
-          ① 系统按 <strong>紧急度（紧急 &gt; 较急 &gt; 一般）</strong> 自动排序待办，超时项置顶高亮；<br/>
+          ① 系统按 <strong>紧急度（紧急 &gt; 一般）</strong> 自动排序待办，超时项置顶高亮；<br/>
           ② 点击「立即回复」跳转 <a href="admin-workbench.html">客服工作台</a> 并定位会话；「接入」直接接入排队/超时会话；<br/>
-          ③ 「催评」向用户推送评价邀请（用户端 <a href="../user/user-rating.html">服务评价</a> 弹层），「关闭」结束未评价会话；<br/>
+          ③ 「催评」向用户推送评价邀请（用户端 <a href="../user/user-rating.html">服务评价</a> 弹层）；<br/>
           ④ 预警规则可在 <a href="admin-settings.html">客服设置</a> 中配置响应/排队/静默阈值。
         </div>
       </div>
@@ -684,11 +726,6 @@
       if (!rows.length) { toast('当前无超时会话'); return; }
       toast('已一键接入 ' + rows.length + ' 个超时会话');
       rows.forEach(function (r) { removeRow(r); });
-    } else if (batch === 'close-eval') {
-      var erows = $$('.section-card[data-col="eval"] .todo-row[data-status="pending"], .section-card[data-col="eval"] .todo-row[data-status="skipped"]').filter(function (r) { return !r.dataset.removed && r.style.display !== 'none'; });
-      if (!erows.length) { toast('当前无可关闭的待评价会话'); return; }
-      toast('已关闭 ' + erows.length + ' 个未评价会话');
-      erows.forEach(function (r) { removeRow(r); });
     }
   }
 
@@ -717,13 +754,14 @@
       if (row) removeRow(row);
     } else if (txt === '催办') {
       toast('已催办，将再次提醒客服响应');
+    } else if (txt === '回退') {
+      toast('已触发转接回退（回源客服 / 重新排队）');
+    } else if (txt === '恢复会话') {
+      toast('已恢复该挂起会话');
     } else if (txt === '转接') {
       csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420 });
     } else if (txt === '催评') {
       toast('已向「' + nm + '」发送催评邀请');
-    } else if (txt === '关闭') {
-      if (row) removeRow(row);
-      toast('已关闭该未评价会话');
     } else if (txt.indexOf('一键催评') >= 0) {
       var n = evalRows.filter(function (r) { return !r.dataset.removed && r.getAttribute('data-status') === 'pending' && r.style.display !== 'none'; }).length;
       toast('已向 ' + n + ' 位待评价用户发送催评邀请');

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>新建 FAQ · 弹窗</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 520px; max-width: 92vw; }
+    .fq-body { padding: 18px 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group > label { display: block; font-size: 13px; color: var(--cs-text); margin-bottom: 6px; font-weight: 500; }
+    .form-ipt {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 7px 11px; font-size: 13px; font-family: inherit; background: #fff;
+      outline: none; transition: border-color 0.15s;
+    }
+    .form-ipt:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    select.form-ipt { height: 34px; cursor: pointer; }
+    textarea.form-ipt { min-height: 72px; resize: vertical; line-height: 1.6; }
+    .form-hint { font-size: 12px; color: var(--cs-text-tertiary); margin-top: 4px; }
+    .radio-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .radio-row label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 400; }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span id="modalTitle">新建 FAQ</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="fq-body">
+      <div class="form-group">
+        <label>问题 <span style="color:var(--cs-danger);">*</span></label>
+        <textarea class="form-ipt" id="fqQuestion" placeholder="如：如何查询我的订单状态？"></textarea>
+      </div>
+      <div class="form-group">
+        <label>答案 <span style="color:var(--cs-danger);">*</span></label>
+        <textarea class="form-ipt" id="fqAnswer" placeholder="FAQ 的答案，移动端将以卡片形式展示"></textarea>
+      </div>
+      <div class="form-group">
+        <label>分类 <span style="color:var(--cs-danger);">*</span></label>
+        <select class="form-ipt" id="fqCategory">
+          <option value="order">订单</option>
+          <option value="return">退换货</option>
+          <option value="pay">支付</option>
+          <option value="logistic">物流</option>
+          <option value="account">账户</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>触发关键词</label>
+        <input type="text" class="form-ipt" id="fqKeyword" placeholder="多个关键词用逗号分隔，如：订单,物流,发货" />
+        <div class="form-hint">用户咨询命中关键词或进入自助时，系统以卡片形式推送此 FAQ</div>
+      </div>
+      <div class="form-group">
+        <label>启用状态</label>
+        <div class="radio-row">
+          <label><input type="radio" name="fq-status" value="enabled" checked> 启用</label>
+          <label><input type="radio" name="fq-status" value="disabled"> 停用</label>
+        </div>
+      </div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn">确定</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    /* 编辑入口预填：?title=&question=&answer=&category=&keyword=&status= */
+    (function () {
+      var params = {};
+      try {
+        window.location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
+          var p = kv.split('=');
+          if (p[0]) params[decodeURIComponent(p[0])] = decodeURIComponent((p[1] || '').replace(/\+/g, ' '));
+        });
+      } catch (e) {}
+      if (params.title) { var t = document.getElementById('modalTitle'); if (t) t.textContent = params.title; }
+      if (params.question) document.getElementById('fqQuestion').value = params.question;
+      if (params.answer) document.getElementById('fqAnswer').value = params.answer;
+      if (params.category) { var c = document.getElementById('fqCategory'); if (c) c.value = params.category; }
+      if (params.keyword) document.getElementById('fqKeyword').value = params.keyword;
+      if (params.status === 'disabled') {
+        var d = document.querySelector('input[name="fq-status"][value="disabled"]');
+        if (d) d.checked = true;
+      }
+    })();
+
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      var q = document.getElementById('fqQuestion').value.trim();
+      var a = document.getElementById('fqAnswer').value.trim();
+      if (!q) { markErr('fqQuestion'); return; }
+      if (!a) { markErr('fqAnswer'); return; }
+      window.csModalBridge.confirm({
+        question: q,
+        answer: a,
+        category: document.getElementById('fqCategory').value,
+        keyword: document.getElementById('fqKeyword').value,
+        status: document.querySelector('input[name="fq-status"]:checked').value
+      });
+    });
+
+    function markErr(id) {
+      var el = document.getElementById(id);
+      el.style.borderColor = 'var(--cs-danger)'; el.focus();
+      setTimeout(function () { el.style.borderColor = ''; }, 1500);
+    }
+  </script>
+</body>
+</html>

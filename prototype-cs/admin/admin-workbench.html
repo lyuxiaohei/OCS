@@ -233,6 +233,18 @@
     .s-tag.pending::before { background: var(--cs-purple); }
     .s-tag.channel { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 3px; background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; }
     .s-tag.channel::before { display: none; }
+    /* 即将超时（临超时动作标志） */
+    .s-tag.warn { background: var(--cs-warning-bg); color: var(--cs-warning); padding: 1px 6px; border-radius: 3px; border: 1px solid #ffe58f; }
+    .s-tag.warn::before { background: var(--cs-warning); }
+    /* 临超时会话项：淡橙底 + 左侧橙条 */
+    .session-item.is-timeout { background: #fffbe6; }
+    .session-item.is-timeout::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-warning);
+    }
 
     /* 挂起会话项视觉：整行淡紫底，左侧紫条 */
     .session-item.is-pending { background: #faf5ff; }
@@ -980,7 +992,7 @@
     <!-- 顶部 Header -->
     <header class="admin-header">
       <div style="display:flex;align-items:center;gap:14px;">
-        <div class="breadcrumb">工作台 / <span style="color:var(--cs-text);font-weight:600;">客服工作台</span></div>
+        <div class="breadcrumb">会话管理 / <span style="color:var(--cs-text);font-weight:600;">客服工作台</span></div>
         <button id="btnSimulateMsg" style="padding:5px 12px;border:1px solid var(--cs-primary);background:var(--cs-primary-bg);color:var(--cs-primary);border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;">🔔 模拟新消息</button>
       </div>
       <div class="user-info">
@@ -1059,7 +1071,7 @@
           </div>
         </div>
 
-        <div class="session-item">
+        <div class="session-item is-timeout">
           <div class="session-avatar">刘</div>
           <div class="session-meta">
             <div class="session-top-row">
@@ -1069,6 +1081,7 @@
             </div>
             <div class="session-bottom-row">
               <span class="session-last-msg">商品图片发你了，麻烦看下</span>
+              <span class="s-tag warn">即将超时</span>
             </div>
           </div>
         </div>
@@ -1117,7 +1130,7 @@
           </div>
         </div>
 
-        <div class="session-item">
+        <div class="session-item is-timeout">
           <div class="session-avatar">周</div>
           <div class="session-meta">
             <div class="session-top-row">
@@ -1127,6 +1140,7 @@
             </div>
             <div class="session-bottom-row">
               <span class="session-last-msg">请问这个颜色有货吗</span>
+              <span class="s-tag warn">即将超时</span>
             </div>
           </div>
         </div>
@@ -1195,7 +1209,7 @@
           <button class="btn-sm" id="btnSuspend">挂起</button>
           <button class="btn-sm primary" id="btnTransfer">转接</button>
           <button class="btn-sm">更多</button>
-          <button class="btn-sm btn-icon-only" id="btnEnd" title="结束会话"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <button class="btn-sm" id="btnEnd">结束会话</button>
         </div>
       </div>
 
@@ -2198,35 +2212,42 @@
         { name: '孙建国', preview: '发票可以再开一张企业抬头的吗' },
         { name: '周婷婷', preview: '请问这个颜色还有货吗？' }
       ];
-      var simIdx = 0;
-      var simAllItems = Array.prototype.slice.call(document.querySelectorAll('.session-list .session-item'));
       var simBtn = document.getElementById('btnSimulateMsg');
+      /* 模拟新消息 · 两场景：a.新接入（新用户发起咨询、接入当前客服） b.新转接（其他客服把会话转接给你） */
+      function simulateScenario(kind) {
+        if (window.csNotify) { csNotify.unlockAudio(); csNotify.playBeep(); }
+        if (kind === 'accept') {
+          if (window.csNotify) csNotify.popup({ name: '新用户 · 林小娟', preview: '您好，在吗？想咨询下退换货的问题', onOpen: function () {} });
+          if (window.csModal && csModal.toast) csModal.toast('模拟场景 a · 新接入：新用户发起咨询，会话进入当前客服');
+        } else {
+          if (window.csNotify) csNotify.popup({ name: '转接 · 王志强（来自 李静）', preview: '（转接）订单 #20260611039 退款问题，需售后组跟进', onOpen: function () {} });
+          if (window.csModal && csModal.toast) csModal.toast('模拟场景 b · 新转接：其他客服把会话转接给你');
+        }
+      }
       if (simBtn) {
-        simBtn.addEventListener('click', function () {
-          if (!simAllItems.length) return;
+        simBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var old = document.getElementById('simMenu');
+          if (old) { old.remove(); return; }
           if (window.csNotify) csNotify.unlockAudio();
-          var active = document.querySelector('.session-list .session-item.active');
-          // 仅在非焦点会话上模拟新消息 > 每次必弹窗+提示音（焦点会话「免打扰」分支保留在代码中以保证 PRD 完整）
-          var candidates = simAllItems.filter(function (it) { return it !== active; });
-          if (!candidates.length) return;
-          var target = candidates[simIdx % candidates.length];
-          simIdx += 1;
-          var meta = PREVIEW_MSGS[(simIdx - 1) % PREVIEW_MSGS.length];
-          bumpUnread(target);
-          var isFocused = target === active;
-          if (isFocused && pageVisible) {
-            // 免打扰：当前焦点会话 + 页面可见 > 仅徽标 +1
-            if (window.csModal && csModal.toast) csModal.toast('焦点会话「' + meta.name + '」新消息：仅徽标提醒（免打扰）');
-          } else if (window.csNotify) {
-            // 非焦点 或 页面不可见 > 弹窗 + 提示音（立即查看 > 切到该会话）
-            csNotify.playBeep();
-            csNotify.popup({
-              name: meta.name,
-              preview: meta.preview,
-              onOpen: function () { target.click(); }
-            });
+          var menu = document.createElement('div');
+          menu.id = 'simMenu';
+          var r = simBtn.getBoundingClientRect();
+          menu.style.cssText = 'position:fixed;z-index:200;top:' + (r.bottom + 6) + 'px;left:' + r.left + 'px;background:#fff;border:1px solid var(--cs-border-light);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.12);padding:4px 0;min-width:210px;';
+          function addItem(label, desc, fn) {
+            var it = document.createElement('div');
+            it.style.cssText = 'padding:8px 16px;cursor:pointer;white-space:nowrap;';
+            it.innerHTML = '<div style="font-weight:600;color:var(--cs-text);">' + label + '</div><div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:2px;">' + desc + '</div>';
+            it.addEventListener('mouseenter', function () { it.style.background = 'var(--cs-primary-bg)'; });
+            it.addEventListener('mouseleave', function () { it.style.background = ''; });
+            it.addEventListener('click', function (ev) { ev.stopPropagation(); menu.remove(); fn(); });
+            menu.appendChild(it);
           }
+          addItem('a. 新接入', '新用户发起咨询、接入当前客服', function () { simulateScenario('accept'); });
+          addItem('b. 新转接', '其他客服把会话转接给你', function () { simulateScenario('transfer'); });
+          document.body.appendChild(menu);
         });
+        document.addEventListener('click', function () { var m = document.getElementById('simMenu'); if (m) m.remove(); });
       }
     })();
   </script>
