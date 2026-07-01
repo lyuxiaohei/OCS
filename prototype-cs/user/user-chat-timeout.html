@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>超时提示 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <style>
+    /* ===== user-chat-timeout.html 专属样式 ===== */
+    /* 场景：用户长时间未回复客服 → 系统提醒 → 仍无回复 → 自动关闭会话
+       业务规则对齐 admin-settings.html「会话超时设置」：
+         - 用户无响应超时：15 分钟（演示用 30 秒）
+         - 自动关闭时长：30 分钟（演示用 60 秒）
+         - 超时提醒文案：固定
+         - 关闭后：允许「再次咨询」
+    */
+    body {
+      background: var(--cs-bg-page);
+      padding: var(--cs-space-6) 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-caption {
+      text-align: center;
+      margin: 0 auto var(--cs-space-3);
+      color: var(--cs-text-tertiary);
+      font-size: var(--cs-font-size-sm);
+    }
+    .page-caption strong { color: var(--cs-text); font-size: var(--cs-font-size-lg); font-weight: var(--cs-font-weight-semibold); }
+    .page-caption .demo-note {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 8px;
+      background: #fff7e6;
+      border: 1px solid #ffe7ba;
+      border-radius: var(--cs-radius-xs);
+      color: #fa8c16;
+      font-size: var(--cs-font-size-xs);
+    }
+
+    /* ============ 导航栏 ============ */
+    .nav-peer {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .agent-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-semibold);
+      flex-shrink: 0;
+    }
+    .peer-info { display: flex; flex-direction: column; min-width: 0; }
+    .peer-name {
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      line-height: 1.2;
+    }
+    .peer-status {
+      font-size: var(--cs-font-size-xs);
+      line-height: 1.2;
+    }
+    .peer-status.online { color: var(--cs-success); }
+    .peer-status.closing { color: var(--cs-danger); }
+
+    /* ============ 消息列表 ============ */
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-end;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: #fff;
+    }
+    .msg-avatar.agent {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+    }
+    .msg-avatar.user {
+      background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
+    }
+    .msg-content {
+      max-width: 252px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg-row.user .msg-content { align-items: flex-end; }
+    .msg-content .msg-bubble-agent,
+    .msg-content .msg-bubble-user {
+      box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    }
+    .msg-meta {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-placeholder);
+      margin: 2px 4px 0;
+    }
+    .msg-system {
+      align-self: center;
+      background: rgba(0,0,0,0.10);
+      color: #fff;
+      font-size: var(--cs-font-size-xs);
+      padding: 3px 10px;
+      border-radius: var(--cs-radius-xs);
+      margin: 4px auto;
+      text-align: center;
+    }
+    /* 超时提醒系统消息（高亮橙色，区别于普通系统消息） */
+    .msg-system.timeout-notice {
+      background: #fff7e6;
+      color: #fa8c16;
+      border: 1px solid #ffe7ba;
+      max-width: 280px;
+      line-height: 1.6;
+      padding: 8px 12px;
+      border-radius: var(--cs-radius-sm);
+    }
+    /* 关闭系统消息（灰色） */
+    .msg-system.closed-notice {
+      background: #f5f5f5;
+      color: var(--cs-text-tertiary);
+      border: 1px solid #e0e0e0;
+    }
+
+    /* ============ 底部输入区 ============ */
+    .chat-input-area {
+      height: 54px;
+      padding: 0 10px;
+      gap: 4px;
+    }
+    .chat-input-area input {
+      flex: 1;
+      height: 34px;
+      border-radius: var(--cs-radius-sm);
+      border: 1px solid #e0e0e0;
+      padding: 0 12px;
+      font-size: var(--cs-font-size-md);
+      background: #fff;
+      outline: none;
+    }
+    .chat-input-area input:focus { border-color: var(--cs-primary); }
+    /* 会话关闭后：输入框禁用 */
+    .chat-input-area.closed input {
+      background: #f5f5f5;
+      color: var(--cs-text-placeholder);
+      cursor: not-allowed;
+    }
+    .chat-input-area.closed input::placeholder { color: var(--cs-text-placeholder); }
+
+    /* 会话关闭后的「再次咨询」按钮条（替代输入区） */
+    .reconsult-bar {
+      display: none;
+      height: 54px;
+      padding: 8px 12px;
+      background: #f7f7f7;
+      border-top: 1px solid #dcdcdc;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .reconsult-bar.show { display: flex; }
+    .reconsult-bar .rc-btn {
+      flex: 1;
+      height: 38px;
+      border-radius: var(--cs-radius-sm);
+      background: var(--cs-primary);
+      color: #fff;
+      border: none;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-medium);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .reconsult-bar .rc-btn:hover { background: var(--cs-primary-hover); }
+
+    /* 演示控制条（仅原型用，方便观察流程） */
+    .demo-controls {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 6px;
+      z-index: 50;
+    }
+    .demo-controls button {
+      padding: 4px 10px;
+      font-size: var(--cs-font-size-xs);
+      background: rgba(238, 10, 36, 0.9);
+      color: #fff;
+      border: none;
+      border-radius: var(--cs-radius-xs);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .demo-controls button:hover { background: var(--cs-primary-hover); }
+
+    /* Toast */
+    .cs-toast {
+      position: absolute;
+      left: 50%;
+      bottom: 80px;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: var(--cs-radius-md);
+      font-size: var(--cs-font-size-sm);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s;
+      z-index: 99;
+      white-space: nowrap;
+    }
+    .cs-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <p class="page-caption">
+    <strong>用户端 · 超时提示</strong> &nbsp;|&nbsp;用户长时间未回复 → 自动关闭会话<br>
+    <span class="demo-note">演示加速：实际 15 分钟无响应触发提醒，30 分钟自动关闭；本页 30 秒 / 60 秒</span>
+  </p>
+
+  <!-- ===== 移动端容器 (375px) ===== -->
+  <div class="cs-phone">
+
+    <!-- 演示控制（仅原型） -->
+    <div class="demo-controls">
+      <button id="btnDemoTimeout">⏩ 触发超时提醒</button>
+      <button id="btnDemoClose">⏩ 立即关闭</button>
+    </div>
+
+    <!-- 小程序状态栏 -->
+    <div class="cs-status-bar">
+      <span class="sb-time">09:41</span>
+      <div class="sb-icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+
+    <!-- 小程序导航栏 -->
+    <div class="cs-nav-bar">
+      <div class="cs-back" title="返回" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="nav-peer">
+        <div class="agent-avatar">王</div>
+        <div class="peer-info">
+          <span class="peer-name">客服 王小明</span>
+          <span class="peer-status online" id="peerStatus">在线</span>
+        </div>
+      </div>
+      <div class="cs-capsule" title="微信胶囊">
+        <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
+      </div>
+    </div>
+
+    <!-- ============ 消息列表 ============ -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg-system">— 已为您接入在线客服 · 订单咨询 —</div>
+
+      <!-- 用户咨询 -->
+      <div class="msg-row user">
+        <div class="msg-avatar user">我</div>
+        <div class="msg-content">
+          <div class="msg-bubble-user">您好，订单 JS20260408002 什么时候发货？</div>
+          <div class="msg-meta">10:24</div>
+        </div>
+      </div>
+
+      <!-- 客服回复（最后一条来自客服的消息，从此开始计时用户无响应） -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">王</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">您好，已为您查询，订单 JS20260408002 已打包完成，预计今天下午 18:00 前发出，您可以在「我的订单」中查看物流单号。请问还有其他需要帮助的吗？</div>
+          <div class="msg-meta">10:25</div>
+        </div>
+      </div>
+
+      <!-- （此处用户长时间未回复，触发超时流程） -->
+    </div>
+
+    <!-- ============ 底部输入区 ============ -->
+    <div class="chat-input-area" id="inputArea">
+      <input type="text" id="msgInput" placeholder="请输入消息..." />
+    </div>
+
+    <!-- 会话关闭后的「再次咨询」按钮条 -->
+    <div class="reconsult-bar" id="reconsultBar">
+      <button class="rc-btn" id="btnReconsult">再次咨询</button>
+    </div>
+
+    <!-- Toast -->
+    <div class="cs-toast" id="csToast"></div>
+
+  </div>
+
+  <script>
+    // ============================================================
+    // 超时状态机（对齐 admin-settings.html 业务规则）
+    //   - REMIND_THRESHOLD = 15 分钟（演示 30 秒）：触发超时提醒
+    //   - CLOSE_THRESHOLD  = 30 分钟（演示 60 秒）：自动关闭会话
+    //   - 提醒文案固定（与后台 textarea 一致）
+    //   - 关闭后允许「再次咨询」
+    // ============================================================
+
+    // 演示加速：1 秒 = 1 演示分钟
+    var REMIND_AT = 30;   // 演示 30 秒 → 实际 15 分钟
+    var CLOSE_AT  = 60;   // 演示 60 秒 → 实际 30 分钟
+    var REMIND_TEXT = '您已长时间未回复，如需继续咨询请回复任意内容；会话将在 15 分钟后自动关闭。';
+
+    var state = {
+      elapsed: 0,                // 客服最后消息后经过的秒数
+      reminded: false,           // 是否已发超时提醒
+      closed: false,             // 会话是否已关闭
+      tickId: null
+    };
+
+    var chatMessages = document.getElementById('chatMessages');
+    var peerStatus = document.getElementById('peerStatus');
+    var inputArea = document.getElementById('inputArea');
+    var reconsultBar = document.getElementById('reconsultBar');
+
+    // 计时器：每秒递增
+    state.tickId = setInterval(function () {
+      if (state.closed) { clearInterval(state.tickId); return; }
+      state.elapsed++;
+
+      // 到达提醒阈值
+      if (!state.reminded && state.elapsed >= REMIND_AT) {
+        triggerRemind();
+      }
+      // 到达关闭阈值
+      else if (state.elapsed >= CLOSE_AT) {
+        triggerClose();
+      }
+    }, 1000);
+
+    function formatTime(sec) {
+      var m = Math.floor(sec / 60);
+      var s = sec % 60;
+      return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    // 触发超时提醒（以客服消息气泡形式发送）
+    function triggerRemind() {
+      state.reminded = true;
+      // 以客服身份发送超时提醒
+      appendAgentMsg(REMIND_TEXT);
+      peerStatus.className = 'peer-status closing';
+      peerStatus.textContent = '即将关闭';
+      scrollBottom();
+    }
+
+    // 自动关闭会话
+    function triggerClose() {
+      state.closed = true;
+      clearInterval(state.tickId);
+      // 以客服身份发送关闭提示
+      appendAgentMsg('会话已自动关闭（用户长时间未回复），如有需要可点击「再次咨询」重新发起会话。');
+      peerStatus.textContent = '已结束';
+      // 隐藏输入区，显示再次咨询按钮
+      inputArea.classList.add('closed');
+      document.getElementById('msgInput').disabled = true;
+      document.getElementById('msgInput').placeholder = '会话已关闭';
+      reconsultBar.classList.add('show');
+      scrollBottom();
+      showToast('会话已自动关闭');
+    }
+
+    // 用户回复 → 重置计时（演示交互）
+    function onUserReply() {
+      if (state.closed) return;
+      // 重置：清除已发提醒、重置 elapsed
+      state.elapsed = 0;
+      if (state.reminded) {
+        state.reminded = false;
+        peerStatus.className = 'peer-status online';
+        peerStatus.textContent = '在线';
+        appendSystemMsg('— 已收到您的回复，会话继续 —');
+      }
+    }
+
+    // 插入系统消息
+    function appendSystemMsg(text) {
+      var div = document.createElement('div');
+      div.className = 'msg-system';
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      scrollBottom();
+    }
+
+    // 插入超时提醒（橙色高亮）
+    function appendTimeoutNotice(text) {
+      var div = document.createElement('div');
+      div.className = 'msg-system timeout-notice';
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      scrollBottom();
+    }
+
+    // 插入关闭提醒（灰色）
+    function appendClosedNotice(text) {
+      var div = document.createElement('div');
+      div.className = 'msg-system closed-notice';
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      scrollBottom();
+    }
+
+    // 插入用户消息
+    function appendUserMsg(text) {
+      var row = document.createElement('div');
+      row.className = 'msg-row user';
+      row.innerHTML =
+        '<div class="msg-avatar user">我</div>' +
+        '<div class="msg-content">' +
+          '<div class="msg-bubble-user">' + text.replace(/</g, '&lt;') + '</div>' +
+          '<div class="msg-meta">' + nowTime() + '</div>' +
+        '</div>';
+      chatMessages.appendChild(row);
+      scrollBottom();
+    }
+
+    // 插入客服消息（以客服王小明身份发送）
+    function appendAgentMsg(text) {
+      var row = document.createElement('div');
+      row.className = 'msg-row';
+      row.innerHTML =
+        '<div class="msg-avatar agent">王</div>' +
+        '<div class="msg-content">' +
+          '<div class="msg-bubble-agent">' + text.replace(/</g, '&lt;') + '</div>' +
+          '<div class="msg-meta">' + nowTime() + '</div>' +
+        '</div>';
+      chatMessages.appendChild(row);
+      scrollBottom();
+    }
+
+    function nowTime() {
+      return new Date().toTimeString().slice(0, 5);
+    }
+
+    function scrollBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // ===== 事件绑定 =====
+
+    // 输入框发送
+    document.getElementById('msgInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        var val = this.value.trim();
+        if (!val || state.closed) return;
+        appendUserMsg(val);
+        this.value = '';
+        onUserReply();  // 用户回复 → 重置超时计时
+      }
+    });
+
+    // 再次咨询按钮
+    document.getElementById('btnReconsult').addEventListener('click', function () {
+      showToast('正在发起新的咨询...');
+      setTimeout(function () {
+        location.href = 'user-chat-basic.html';
+      }, 600);
+    });
+
+    // 演示控制：手动触发超时提醒
+    document.getElementById('btnDemoTimeout').addEventListener('click', function () {
+      if (state.closed) { showToast('会话已关闭'); return; }
+      if (state.reminded) { showToast('已发过超时提醒'); return; }
+      state.elapsed = REMIND_AT;
+      triggerRemind();
+    });
+
+    // 演示控制：手动触发关闭
+    document.getElementById('btnDemoClose').addEventListener('click', function () {
+      if (state.closed) { showToast('会话已关闭'); return; }
+      state.elapsed = CLOSE_AT;
+      triggerClose();
+    });
+
+    // Toast
+    var toastTimer = null;
+    function showToast(msg) {
+      var toast = document.getElementById('csToast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    scrollBottom();
+  </script>
+
+</body>
+</html>

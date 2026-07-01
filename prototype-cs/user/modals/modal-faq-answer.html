@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>常见问题 · 答案</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .fq-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+    }
+    .fq-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
+    .fq-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 440px;
+      -webkit-overflow-scrolling: touch;
+      
+      padding: 18px 18px 20px;
+      
+    }
+    /* 问题头 */
+    .fq-question-block {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      margin-bottom: 16px;
+    }
+    .fq-q-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--cs-primary);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .fq-q-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--cs-text);
+      line-height: 1.4;
+      flex: 1;
+    }
+    /* 答案区 */
+    .fq-answer-block {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .fq-a-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--cs-success);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .fq-a-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .fq-a-text {
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    /* 步骤式答案 */
+    .fq-steps {
+      margin: 12px 0 4px;
+      padding-left: 0;
+      list-style: none;
+    }
+    .fq-step {
+      display: flex;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      line-height: 1.6;
+    }
+    .fq-step-num {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      font-size: 11px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    /* 相关问题 */
+    .fq-related-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cs-text);
+      margin: 20px 0 10px;
+      padding-left: 8px;
+      border-left: 3px solid var(--cs-primary);
+    }
+    .fq-related-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--cs-bg-header);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--cs-text);
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      font-family: inherit;
+      transition: background .15s;
+    }
+    .fq-related-item:hover { background: var(--cs-border-lighter); }
+    .fq-related-item .arrow { color: var(--cs-text-tertiary); }
+    /* 底部 */
+    .fq-foot {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px 14px;
+      border-top: 1px solid var(--cs-border-light);
+      background: var(--cs-bg-card);
+      flex-shrink: 0;
+    }
+    .fq-btn {
+      flex: 1;
+      height: 40px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: opacity .15s;
+    }
+    .fq-btn:active { opacity: 0.8; }
+    .fq-btn-secondary {
+      background: var(--cs-bg-header);
+      color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border);
+    }
+    .fq-btn-primary {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="fq-modal">
+    <div class="fq-handle"></div>
+    <div class="fq-body" id="fqBody">
+      <!-- 由 JS 渲染 -->
+    </div>
+    <div class="fq-foot">
+      <button class="fq-btn fq-btn-secondary" id="btnClose">关闭</button>
+      <button class="fq-btn fq-btn-primary" id="btnContact">仍要咨询客服</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      // 数据源：mini-program/pages/help.html（折叠面板真实问答）
+      // 补充：customer_service.html 的快捷问题（电话客服等）
+      var FAQS = {
+        'register': {
+          q: '如何注册苏银豆商城账号？',
+          a: '',
+          steps: [
+            '打开苏银豆商城小程序，点击右下角「我的」',
+            '点击「点击登录」，选择「新用户注册」',
+            '输入手机号，获取并填写短信验证码',
+            '设置登录密码（8-20位，含字母和数字）',
+            '阅读并同意《用户协议》《隐私政策》，完成注册'
+          ],
+          a_post: '新用户注册成功即送 500 苏银豆，可在「积分中心」查看。',
+          related: ['points', 'password']
+        },
+        'points': {
+          q: '积分如何获取和使用？',
+          a: '【获取方式】\n· 新用户注册：500 积分\n· 完善个人信息：50 积分\n· 每日签到：5-20 积分\n· 购物消费：每消费 1 元得 1 积分\n· 邀请好友注册：200 积分\n\n【使用规则】\n100 积分 = 1 元，下单时可抵扣现金，单笔订单最多抵扣订单金额的 50%。',
+          related: ['payment', 'register']
+        },
+        'refund_time': {
+          q: '退款多久能到账？',
+          a: '退款到账时间因支付方式而异：\n· 苏银豆抵扣部分：即时返还\n· 微信支付：1-3 个工作日\n· 银行卡支付：3-5 个工作日\n· 余额支付：即时到账\n\n如超过上述时间仍未到账，请联系客服查询。',
+          related: ['refund', 'payment']
+        },
+        'password': {
+          q: '忘记密码怎么办？',
+          a: '',
+          steps: [
+            '在登录页点击「忘记密码」',
+            '输入注册手机号，获取验证码',
+            '验证成功后设置新密码',
+            '使用新密码登录'
+          ],
+          a_post: '如手机号已更换无法接收验证码，请联系人工客服（400-888-8888）协助处理。',
+          related: ['register', 'phone_service']
+        },
+        'refund': {
+          q: '如何申请退换货？',
+          a: '',
+          steps: [
+            '进入「我的 - 退款/售后」',
+            '找到对应订单，点击「申请退款」或「申请换货」',
+            '选择退款原因，上传凭证（如有）',
+            '提交申请，等待商家审核（一般 1-3 个工作日）'
+          ],
+          a_post: '审核通过后，退款将在 1-5 个工作日内原路退回。苏银豆抵扣部分即时返还。',
+          related: ['refund_time', 'payment']
+        },
+        'phone_service': {
+          q: '如何联系人工客服？',
+          a: '人工客服电话：400-888-8888\n服务时间：周一至周日 9:00-21:00\n\n您也可以通过本在线客服会话与人工客服沟通，工作时间内会尽快响应。',
+          related: ['refund', 'register']
+        }
+      };
+      var KEY_LABEL = {
+        register: '如何注册苏银豆商城账号？',
+        points: '积分如何获取和使用？',
+        refund_time: '退款多久能到账？',
+        password: '忘记密码怎么办？',
+        refund: '如何申请退换货？',
+        phone_service: '如何联系人工客服？'
+      };
+
+      var qs = new URLSearchParams(location.search);
+      var key = qs.get('q') || qs.get('key') || qs.get('id') || 'logistics';
+      // 支持直接传问题文本
+      var faq = FAQS[key];
+      if (!faq) {
+        // 兜底：匹配 label
+        Object.keys(FAQS).forEach(function (k) {
+          if (FAQS[k].q === key) { key = k; faq = FAQS[k]; }
+        });
+      }
+      if (!faq) faq = FAQS['logistics'];
+
+      function esc(s) { return String(s).replace(/</g, '&lt;'); }
+
+      var body = document.getElementById('fqBody');
+      var html = '';
+
+      // 问题
+      html += '<div class="fq-question-block">';
+      html +=   '<div class="fq-q-icon">问</div>';
+      html +=   '<div class="fq-q-text">' + esc(faq.q) + '</div>';
+      html += '</div>';
+
+      // 答案
+      html += '<div class="fq-answer-block">';
+      html +=   '<div class="fq-a-icon">答</div>';
+      html +=   '<div class="fq-a-content">';
+      if (faq.a) {
+        html +=   '<div class="fq-a-text">' + esc(faq.a) + '</div>';
+      }
+      if (faq.steps && faq.steps.length) {
+        html +=   '<div class="fq-steps">';
+        faq.steps.forEach(function (s, i) {
+          html += '<div class="fq-step"><span class="fq-step-num">' + (i+1) + '</span><span>' + esc(s) + '</span></div>';
+        });
+        html +=   '</div>';
+      }
+      if (faq.a_post) {
+        html +=   '<div class="fq-a-text" style="margin-top:10px;">' + esc(faq.a_post) + '</div>';
+      }
+      html +=   '</div>';
+      html += '</div>';
+
+      // 相关问题
+      if (faq.related && faq.related.length) {
+        html += '<div class="fq-related-title">相关问题</div>';
+        faq.related.forEach(function (k) {
+          if (!KEY_LABEL[k]) return;
+          html += '<button class="fq-related-item" data-key="' + k + '">';
+          html +=   '<span>' + esc(KEY_LABEL[k]) + '</span>';
+          html +=   '<span class="arrow">›</span>';
+          html += '</button>';
+        });
+      }
+
+      body.innerHTML = html;
+
+      // 相关问题点击 → 重新渲染（不走父窗，直接刷新自身内容）
+      body.addEventListener('click', function (e) {
+        var item = e.target.closest('.fq-related-item');
+        if (!item) return;
+        var newKey = item.getAttribute('data-key');
+        if (newKey && FAQS[newKey]) {
+          // 通过重新打开替换（用 confirm 让父窗再开一个）
+          window.csModalBridge.confirm({ action: 'viewFaq', faqKey: newKey, faqQ: FAQS[newKey].q });
+        }
+      });
+
+      document.getElementById('btnClose').addEventListener('click', function () {
+        window.csModalBridge.close();
+      });
+      document.getElementById('btnContact').addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'contactAgent', faqKey: key });
+      });
+    
+      // 主动上报高度（覆盖 autoHeight 早期错误测量）
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try {
+            window.csModalBridge.reportHeight(document.documentElement.offsetHeight);
+          } catch (e) {}
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

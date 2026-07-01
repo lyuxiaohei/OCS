@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>优惠券详情 · 半屏预览</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .cp-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+    }
+    .cp-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
+    .cp-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 440px;
+      -webkit-overflow-scrolling: touch;
+      
+      padding-bottom: 16px;
+      
+    }
+    /* 券主体 */
+    .cp-coupon-card {
+      margin: 20px 16px 16px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(238,10,36,0.15);
+      position: relative;
+    }
+    .cp-coupon-main {
+      display: flex;
+      background: linear-gradient(135deg, #ff6034, #ee0a24);
+      color: #fff;
+      padding: 20px 16px;
+      align-items: center;
+      gap: 14px;
+    }
+    .cp-coupon-main::before,
+    .cp-coupon-main::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--cs-bg-card);
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .cp-coupon-main::before { left: -8px; }
+    .cp-coupon-main::after { right: -8px; }
+    .cp-value-block {
+      text-align: center;
+      flex-shrink: 0;
+      min-width: 90px;
+    }
+    .cp-value {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .cp-value .unit {
+      font-size: 16px;
+      font-weight: 600;
+      margin-right: 2px;
+    }
+    .cp-value-label {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+    .cp-coupon-meta {
+      flex: 1;
+      min-width: 0;
+      border-left: 1px dashed rgba(255,255,255,0.4);
+      padding-left: 14px;
+    }
+    .cp-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .cp-threshold {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+    .cp-range {
+      font-size: 11px;
+      opacity: 0.75;
+    }
+    /* 状态徽标 */
+    .cp-status-badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.22);
+      margin-bottom: 4px;
+    }
+    /* 详情列表 */
+    .cp-section {
+      padding: 0 20px;
+      margin-bottom: 14px;
+    }
+    .cp-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cs-text);
+      margin-bottom: 10px;
+      padding-left: 8px;
+      border-left: 3px solid var(--cs-primary);
+    }
+    .cp-info-card {
+      background: var(--cs-bg-header);
+      border-radius: 10px;
+      padding: 4px 14px;
+    }
+    .cp-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      font-size: 12px;
+      gap: 12px;
+    }
+    .cp-info-row:last-child { border-bottom: none; }
+    .cp-info-row .label {
+      color: var(--cs-text-tertiary);
+      flex-shrink: 0;
+      min-width: 70px;
+    }
+    .cp-info-row .value {
+      color: var(--cs-text);
+      text-align: right;
+      flex: 1;
+    }
+    /* 使用规则 */
+    .cp-rule-item {
+      display: flex;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 12px;
+      color: var(--cs-text-secondary);
+      line-height: 1.6;
+    }
+    .cp-rule-item::before {
+      content: '·';
+      color: var(--cs-primary);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    /* 底部 */
+    .cp-foot {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px 14px;
+      border-top: 1px solid var(--cs-border-light);
+      background: var(--cs-bg-card);
+      flex-shrink: 0;
+    }
+    .cp-btn {
+      flex: 1;
+      height: 42px;
+      border-radius: 21px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: opacity .15s;
+    }
+    .cp-btn:active { opacity: 0.8; }
+    .cp-btn-secondary {
+      background: var(--cs-bg-header);
+      color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border);
+    }
+    .cp-btn-primary {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+    }
+    .cp-btn-primary.disabled {
+      background: var(--cs-border-lighter);
+      color: var(--cs-text-placeholder);
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="cp-modal">
+    <div class="cp-handle"></div>
+    <div class="cp-body" id="cpBody">
+      <!-- 由 JS 渲染 -->
+    </div>
+    <div class="cp-foot">
+      <button class="cp-btn cp-btn-secondary" id="btnClose">稍后再说</button>
+      <button class="cp-btn cp-btn-primary" id="btnClaim">立即领取</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      // 数据源：coupon.html 的真实券（5张示例，状态对齐：可领取/已使用/已过期）
+      var COUPONS = {
+        'C20': {
+          name: '满100减20元券', value: 20, threshold: '满100可用',
+          range: '2026.04.01 - 2026.04.30', scope: '全品类通用',
+          status: '可领取', claimable: true, statusType: 'available',
+          rules: [
+            '订单实付金额满 ¥100 元（不含运费）时可使用',
+            '不可与其它优惠券叠加使用，每笔订单仅限一张',
+            '退款时优惠券不返还',
+            '有效期结束后自动失效'
+          ]
+        },
+        'C50': {
+          name: '满200减50元券', value: 50, threshold: '满200可用',
+          range: '2026.04.01 - 2026.05.31', scope: '全品类通用',
+          status: '可领取', claimable: true, statusType: 'available',
+          rules: [
+            '订单实付金额满 ¥200 元（不含运费）时可使用',
+            '不可与其它优惠券叠加使用',
+            '退款时优惠券不返还',
+            '请在有效期内使用'
+          ]
+        },
+        'C10': {
+          name: '满50减10元券', value: 10, threshold: '满50可用',
+          range: '2026.03.01 - 2026.03.31', scope: '全品类通用',
+          status: '已使用', claimable: false, statusType: 'used',
+          rules: [
+            '订单实付金额满 ¥50 元（不含运费）时可使用',
+            '该券已使用',
+            '不可重复使用',
+            '历史记录仅供参考'
+          ]
+        },
+        'C30': {
+          name: '满150减30元券', value: 30, threshold: '满150可用',
+          range: '2026.02.01 - 2026.02.28', scope: '仅限数码家电',
+          status: '已过期', claimable: false, statusType: 'expired',
+          rules: [
+            '订单实付金额满 ¥150 元（不含运费）时可使用',
+            '该券已过期',
+            '过期券不可恢复',
+            '请关注后续活动领取新券'
+          ]
+        }
+      };
+      var DEFAULT = COUPONS['C20'];
+
+      var qs = new URLSearchParams(location.search);
+      var cid = qs.get('id') || qs.get('coupon_id') || 'C20';
+      var c = COUPONS[cid] || DEFAULT;
+
+      function esc(s) { return String(s).replace(/</g, '&lt;'); }
+
+      var body = document.getElementById('cpBody');
+      var html = '';
+
+      // 券主体
+      html += '<div class="cp-coupon-card">';
+      html +=   '<div class="cp-coupon-main">';
+      html +=     '<div class="cp-value-block">';
+      html +=       '<div class="cp-value"><span class="unit">¥</span>' + c.value + '</div>';
+      html +=       '<div class="cp-value-label">优惠券</div>';
+      html +=     '</div>';
+      html +=     '<div class="cp-coupon-meta">';
+      html +=       '<div class="cp-status-badge">' + esc(c.status) + '</div>';
+      html +=       '<div class="cp-name">' + esc(c.name) + '</div>';
+      html +=       '<div class="cp-threshold">' + esc(c.threshold) + '</div>';
+      html +=       '<div class="cp-range">' + esc(c.range) + '</div>';
+      html +=     '</div>';
+      html +=   '</div>';
+      html += '</div>';
+
+      // 详情
+      html += '<div class="cp-section">';
+      html +=   '<div class="cp-section-title">券详情</div>';
+      html +=   '<div class="cp-info-card">';
+      html +=     '<div class="cp-info-row"><span class="label">面额</span><span class="value">¥ ' + c.value + '.00</span></div>';
+      html +=     '<div class="cp-info-row"><span class="label">使用门槛</span><span class="value">' + esc(c.threshold) + '</span></div>';
+      html +=     '<div class="cp-info-row"><span class="label">有效期</span><span class="value">' + esc(c.range) + '</span></div>';
+      html +=     '<div class="cp-info-row"><span class="label">适用范围</span><span class="value">' + esc(c.scope) + '</span></div>';
+      html +=   '</div>';
+      html += '</div>';
+
+      // 使用规则
+      html += '<div class="cp-section">';
+      html +=   '<div class="cp-section-title">使用规则</div>';
+      c.rules.forEach(function (r) {
+        html += '<div class="cp-rule-item">' + esc(r) + '</div>';
+      });
+      html += '</div>';
+
+      body.innerHTML = html;
+
+      // 按钮状态
+      var claimBtn = document.getElementById('btnClaim');
+      if (!c.claimable) {
+        claimBtn.classList.add('disabled');
+        claimBtn.textContent = '已领取';
+      }
+
+      document.getElementById('btnClose').addEventListener('click', function () {
+        window.csModalBridge.close();
+      });
+      claimBtn.addEventListener('click', function () {
+        if (!c.claimable) return;
+        window.csModalBridge.confirm({ action: 'claim', couponId: cid, value: c.value });
+      });
+    
+      // 主动上报高度（覆盖 autoHeight 早期错误测量）
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try {
+            window.csModalBridge.reportHeight(document.documentElement.offsetHeight);
+          } catch (e) {}
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

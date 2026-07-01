@@ -22,6 +22,47 @@
     }
     .tf-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
     .tf-tip { font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.6; margin-top: 8px; }
+
+    /* ===== 转接原因：可编辑标签 ===== */
+    .tf-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tf-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; font-size: 12px;
+      border: 1px solid #d9d9d9; border-radius: 14px;
+      background: #fff; color: var(--cs-text-secondary);
+      cursor: pointer; transition: all .15s;
+      user-select: none;
+    }
+    .tf-tag:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .tf-tag.active {
+      background: var(--cs-primary); border-color: var(--cs-primary);
+      color: #fff;
+    }
+    .tf-tag .tg-close {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%;
+      margin-left: 2px; opacity: .6;
+    }
+    .tf-tag .tg-close:hover { opacity: 1; background: rgba(255,255,255,.25); }
+    .tf-tag.custom::before {
+      content: ''; width: 4px; height: 4px; border-radius: 50%;
+      background: currentColor; opacity: .6;
+    }
+    .tf-add-row { display: flex; gap: 6px; margin-top: 8px; }
+    .tf-add-input {
+      flex: 1; height: 30px; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 0 10px; font-size: 12px; outline: none; font-family: inherit;
+    }
+    .tf-add-input:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .tf-add-btn {
+      height: 30px; padding: 0 12px; font-size: 12px;
+      border: 1px solid var(--cs-primary); background: var(--cs-primary-bg);
+      color: var(--cs-primary); border-radius: 6px; cursor: pointer;
+      white-space: nowrap;
+    }
+    .tf-add-btn:hover { background: var(--cs-primary); color: #fff; }
+    .tf-add-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .tf-tag-hint { font-size: 11px; color: var(--cs-text-tertiary); margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -41,13 +82,20 @@
         </select>
       </div>
       <div class="tf-row">
-        <div class="tf-label">转接原因</div>
-        <select class="tf-select" id="reasonCat">
-          <option>VIP 用户</option>
-          <option>技能不匹配</option>
-          <option>当前繁忙</option>
-          <option>响应超时</option>
-        </select>
+        <div class="tf-label">转接原因 <span style="color:var(--cs-text-tertiary);font-weight:400;font-size:12px;">（可多选 / 可自定义）</span></div>
+        <div class="tf-tags" id="reasonTags">
+          <span class="tf-tag" data-reason="VIP 用户">VIP 用户</span>
+          <span class="tf-tag" data-reason="技能不匹配">技能不匹配</span>
+          <span class="tf-tag" data-reason="当前繁忙">当前繁忙</span>
+          <span class="tf-tag" data-reason="响应超时">响应超时</span>
+          <span class="tf-tag" data-reason="用户请求转接">用户请求转接</span>
+          <span class="tf-tag" data-reason="涉及投诉">涉及投诉</span>
+        </div>
+        <div class="tf-add-row">
+          <input type="text" class="tf-add-input" id="customReasonInput" placeholder="输入自定义原因，回车或点击添加" maxlength="12" />
+          <button class="tf-add-btn" id="addReasonBtn">+ 添加</button>
+        </div>
+        <div class="tf-tag-hint">已选 <span id="selectedCount">0</span> 个原因，自定义标签本会话内有效</div>
       </div>
       <div class="tf-row">
         <div class="tf-label">转接备注（可选）</div>
@@ -63,6 +111,68 @@
 
   <script src="../js/cs-modal.js"></script>
   <script>
+    // ===== 转接原因：可编辑标签 =====
+    var reasonTagsEl = document.getElementById('reasonTags');
+    var selectedCountEl = document.getElementById('selectedCount');
+    var customInput = document.getElementById('customReasonInput');
+    var addBtn = document.getElementById('addReasonBtn');
+
+    function getSelectedReasons() {
+      var arr = [];
+      reasonTagsEl.querySelectorAll('.tf-tag.active').forEach(function (t) {
+        arr.push(t.getAttribute('data-reason'));
+      });
+      return arr;
+    }
+    function updateCount() {
+      selectedCountEl.textContent = getSelectedReasons().length;
+    }
+    // 点击预设标签切换选中
+    reasonTagsEl.addEventListener('click', function (e) {
+      var tag = e.target.closest('.tf-tag');
+      if (!tag) return;
+      // 点的是删除按钮
+      if (e.target.closest('.tg-close')) {
+        if (tag.classList.contains('custom')) {
+          tag.remove();
+          updateCount();
+        }
+        return;
+      }
+      tag.classList.toggle('active');
+      updateCount();
+    });
+    // 添加自定义标签
+    function addCustomReason() {
+      var val = customInput.value.trim();
+      if (!val) return;
+      // 去重
+      var exists = Array.from(reasonTagsEl.querySelectorAll('.tf-tag')).some(function (t) {
+        return t.getAttribute('data-reason') === val;
+      });
+      if (exists) {
+        customInput.value = '';
+        return;
+      }
+      var tag = document.createElement('span');
+      tag.className = 'tf-tag custom active';
+      tag.setAttribute('data-reason', val);
+      tag.innerHTML = esc(val) +
+        '<span class="tg-close" title="移除"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
+      reasonTagsEl.appendChild(tag);
+      customInput.value = '';
+      updateCount();
+    }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    addBtn.addEventListener('click', addCustomReason);
+    customInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); addCustomReason(); }
+    });
+    customInput.addEventListener('input', function () {
+      addBtn.disabled = !customInput.value.trim();
+    });
+
+    // ===== 确认转接 =====
     document.getElementById('confirmBtn').addEventListener('click', function () {
       var target = document.getElementById('targetAgent');
       if (!target.value) {
@@ -71,9 +181,11 @@
         setTimeout(function () { target.style.borderColor = ''; }, 1500);
         return;
       }
+      var reasons = getSelectedReasons();
       window.csModalBridge.confirm({
         target: target.value,
-        reason: document.getElementById('reasonCat').value,
+        reason: reasons.join('、') || '未填写',
+        reasons: reasons,
         note: document.getElementById('transferNote').value.trim()
       });
     });

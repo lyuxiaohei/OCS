@@ -13,6 +13,9 @@
       background: #ededed;
       min-height: 100vh;
       padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .page-wrap {
@@ -329,9 +332,9 @@
       </div>
 
       <div class="nav-peer">
-        <div class="agent-avatar">李</div>
+        <div class="agent-avatar">王</div>
         <div class="peer-info">
-          <span class="peer-name">客服 李小米</span>
+          <span class="peer-name">客服 王小明</span>
           <span class="peer-status online">在线</span>
         </div>
       </div>
@@ -362,9 +365,9 @@
       <div class="msg-system">— 您好，已为您接入在线客服 —</div>
 
       <div class="msg-row">
-        <div class="msg-avatar agent">李</div>
+        <div class="msg-avatar agent">王</div>
         <div class="msg-content">
-          <div class="msg-bubble-agent">您好，我是客服李小米。请在下方输入消息，或点击「+」查看更多功能。</div>
+          <div class="msg-bubble-agent">您好，我是客服王小明。请在下方输入消息，或点击「+」查看更多功能。</div>
           <div class="msg-meta">10:24</div>
         </div>
       </div>
@@ -396,10 +399,6 @@
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
           <div class="mi-label">商品</div>
         </div>
-        <div class="more-item" data-action="file">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-          <div class="mi-label">文件</div>
-        </div>
         <div class="more-item" data-action="phone">
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
           <div class="mi-label">电话客服</div>
@@ -424,14 +423,6 @@
         </svg>
       </div>
       <input type="text" id="msgInput" placeholder="请输入消息..." />
-      <div class="input-icon" id="emojiIcon" title="表情">
-        <svg viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
-          <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-          <line x1="9" y1="9" x2="9.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
-          <line x1="15" y1="9" x2="15.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
       <div class="input-icon" id="moreIcon" title="更多">
         <svg viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
@@ -481,12 +472,10 @@
     var input = document.getElementById('msgInput');
     var sendBtn = document.getElementById('sendBtn');
     var moreIcon = document.getElementById('moreIcon');
-    var emojiIcon = document.getElementById('emojiIcon');
     input.addEventListener('input', function () {
       var has = input.value.trim().length > 0;
       sendBtn.classList.toggle('show', has);
       moreIcon.style.display = has ? 'none' : '';
-      emojiIcon.style.display = has ? 'none' : '';
     });
     sendBtn.addEventListener('click', function () {
       var val = input.value.trim();
@@ -505,7 +494,6 @@
       input.value = '';
       sendBtn.classList.remove('show');
       moreIcon.style.display = '';
-      emojiIcon.style.display = '';
     });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); sendBtn.click(); }
@@ -528,7 +516,6 @@
       camera:    '已打开相机（演示）',
       order:     '已选择订单卡片（演示）',
       product:   '已选择商品卡片（演示）',
-      file:      '已打开文件选择（演示）',
       phone:     '是否拨打客服热线 400-888-8888？',
       transfer:  '已为您转接人工客服（演示）',
       end:       '确认结束本次会话？（演示）'
@@ -545,7 +532,7 @@
         } else if (key === 'end') {
           if (window.confirm(msg)) {
             if (window.csModal) csModal.toast('会话已结束');
-            setTimeout(function () { history.back(); }, 800);
+            setTimeout(function () { location.href = 'user-rating.html'; }, 800);
           }
         } else {
           if (window.csModal) csModal.toast(msg);
@@ -579,14 +566,6 @@
           else { secEl.textContent = sec; }
         }, 1000);
       }
-    });
-  })();
-
-  // 表情按钮：演示
-  (function () {
-    var emojiIcon = document.getElementById('emojiIcon');
-    emojiIcon.addEventListener('click', function () {
-      if (window.csModal) csModal.toast('表情面板（演示）');
     });
   })();
 </script>

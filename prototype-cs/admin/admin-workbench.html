@@ -287,6 +287,7 @@
       margin-left: auto;
       display: flex;
       gap: 8px;
+      position: relative;
     }
     .btn-sm {
       padding: 4px 12px;
@@ -312,6 +313,94 @@
       width: 30px; height: 30px;
       padding: 0;
       justify-content: center;
+    }
+
+    /* ---- 「更多」下拉面板：客户备注/标签 ---- */
+    .more-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--cs-border-light);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 60;
+      display: none;
+    }
+    .more-dropdown.open { display: block; }
+    .more-dropdown .md-head {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .more-dropdown .md-title {
+      font-size: 13px; font-weight: 600; color: var(--cs-text);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .more-dropdown .md-cust {
+      font-size: 11px; color: var(--cs-text-tertiary);
+    }
+    .more-dropdown .md-body { padding: 12px 14px; }
+    .more-dropdown .md-label {
+      font-size: 12px; color: var(--cs-text-secondary);
+      margin-bottom: 6px; font-weight: 500;
+    }
+    .more-dropdown .md-note {
+      width: 100%; box-sizing: border-box;
+      min-height: 64px; border: 1px solid var(--cs-border);
+      border-radius: 6px; padding: 8px 10px; font-size: 12px;
+      font-family: inherit; resize: vertical; outline: none;
+      line-height: 1.5;
+    }
+    .more-dropdown .md-note:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .more-dropdown .md-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 8px;
+    }
+    .more-dropdown .md-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; font-size: 11px;
+      border-radius: 10px; background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+    .more-dropdown .md-tag .rm {
+      cursor: pointer; opacity: .6; display: inline-flex;
+    }
+    .more-dropdown .md-tag .rm:hover { opacity: 1; }
+    .more-dropdown .md-tag-add {
+      display: flex; gap: 6px;
+    }
+    .more-dropdown .md-tag-input {
+      flex: 1; height: 28px; border: 1px solid var(--cs-border);
+      border-radius: 6px; padding: 0 8px; font-size: 12px; outline: none;
+      font-family: inherit;
+    }
+    .more-dropdown .md-tag-input:focus { border-color: var(--cs-primary); }
+    .more-dropdown .md-tag-btn {
+      height: 28px; padding: 0 10px; font-size: 12px;
+      border: 1px solid var(--cs-border); background: #fff;
+      border-radius: 6px; cursor: pointer; color: var(--cs-text-secondary);
+    }
+    .more-dropdown .md-tag-btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .more-dropdown .md-foot {
+      padding: 10px 14px;
+      border-top: 1px solid var(--cs-border-lighter);
+      display: flex; justify-content: flex-end; gap: 8px;
+    }
+    .more-dropdown .md-save {
+      height: 30px; padding: 0 16px; font-size: 12px;
+      background: var(--cs-primary); color: #fff;
+      border: none; border-radius: 6px; cursor: pointer;
+    }
+    .more-dropdown .md-save:hover { background: #4096ff; }
+    .more-dropdown .md-cancel {
+      height: 30px; padding: 0 12px; font-size: 12px;
+      background: #fff; color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border); border-radius: 6px; cursor: pointer;
+    }
+    .more-dropdown .md-empty-tag {
+      font-size: 11px; color: var(--cs-text-tertiary);
     }
 
     /* ---- Message thread ---- */
@@ -529,6 +618,298 @@
       color: var(--cs-text-secondary);
     }
     .quick-reply-dd .qr-panel .qr-item:hover { background: #f5f5f5; color: var(--cs-primary); }
+    .quick-reply-dd .qr-panel .qr-search {
+      padding: 4px 8px 6px;
+      border-bottom: 1px dashed var(--cs-border-light);
+      margin-bottom: 4px;
+    }
+    .quick-reply-dd .qr-panel .qr-search input {
+      width: 100%;
+      box-sizing: border-box;
+      height: 26px;
+      border: 1px solid var(--cs-border);
+      border-radius: 4px;
+      padding: 0 8px;
+      font-size: 12px;
+      outline: none;
+    }
+    .quick-reply-dd .qr-panel .qr-search input:focus { border-color: var(--cs-primary); }
+    .quick-reply-dd .qr-item.hidden-by-search { display: none; }
+
+    /* ---- 话术库抽屉（与快捷回复并列，从右侧滑入） ---- */
+    .lib-drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 460px;
+      max-width: 90vw;
+      background: #fff;
+      box-shadow: -6px 0 24px rgba(0,0,0,0.10);
+      z-index: 200;
+      transform: translateX(100%);
+      transition: transform .25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .lib-drawer.open { transform: translateX(0); }
+    .lib-mask {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.30);
+      z-index: 199;
+      display: none;
+    }
+    .lib-mask.open { display: block; }
+    .lib-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--cs-border-light);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .lib-head .lh-title {
+      font-size: 15px; font-weight: 600; color: var(--cs-text);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .lib-head .lh-close {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--cs-text-tertiary);
+      border-radius: 4px;
+    }
+    .lib-head .lh-close:hover { background: #f5f5f5; color: var(--cs-text); }
+    .lib-filter {
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      flex-shrink: 0;
+    }
+    .lib-filter .lf-search {
+      width: 100%;
+      box-sizing: border-box;
+      height: 30px;
+      border: 1px solid var(--cs-border);
+      border-radius: 6px;
+      padding: 0 10px;
+      font-size: 12px;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    .lib-filter .lf-search:focus { border-color: var(--cs-primary); }
+    .lib-filter .lf-tags {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .lib-filter .lf-tag {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      cursor: pointer;
+      background: #f5f5f5;
+      color: var(--cs-text-secondary);
+      border: 1px solid transparent;
+      user-select: none;
+    }
+    .lib-filter .lf-tag:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .lib-filter .lf-tag.active {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      border-color: var(--cs-primary);
+    }
+    .lib-body {
+      flex: 1; overflow-y: auto; padding: 8px 0;
+    }
+    .lib-item {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .lib-item:hover { background: #fafcff; }
+    .lib-item .li-content {
+      font-size: 13px; color: var(--cs-text);
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+    .lib-item .li-meta {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      font-size: 11px; color: var(--cs-text-tertiary);
+      align-items: center;
+    }
+    .lib-item .li-scene {
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+    .lib-item .li-biz {
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: #f5f5f5;
+      color: var(--cs-text-secondary);
+    }
+    .lib-item .li-usage {
+      color: var(--cs-success);
+      font-weight: 500;
+    }
+    .lib-foot {
+      padding: 10px 18px;
+      border-top: 1px solid var(--cs-border-light);
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      flex-shrink: 0;
+      display: flex; justify-content: space-between;
+    }
+    .lib-foot a { color: var(--cs-primary); text-decoration: none; }
+
+    /* ---- 卡片选择弹层（订单/商品/优惠券/图片 统一组件） ---- */
+    .cp-mask {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.32);
+      z-index: 210;
+      display: none;
+      align-items: center; justify-content: center;
+    }
+    .cp-mask.open { display: flex; }
+    .cp-modal {
+      width: 520px; max-width: 94vw; max-height: 80vh;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .cp-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--cs-border-light);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .cp-head .ch-title {
+      font-size: 15px; font-weight: 600; color: var(--cs-text);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .cp-head .ch-sub {
+      font-size: 11px; color: var(--cs-text-tertiary); font-weight: 400;
+      margin-left: 6px;
+    }
+    .cp-head .ch-close {
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--cs-text-tertiary); border-radius: 4px;
+    }
+    .cp-head .ch-close:hover { background: #f5f5f5; color: var(--cs-text); }
+    .cp-search {
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      flex-shrink: 0;
+    }
+    .cp-search input {
+      width: 100%; box-sizing: border-box;
+      height: 30px; border: 1px solid var(--cs-border);
+      border-radius: 6px; padding: 0 10px; font-size: 12px; outline: none;
+    }
+    .cp-search input:focus { border-color: var(--cs-primary); }
+    .cp-list {
+      flex: 1; overflow-y: auto; padding: 6px 0;
+    }
+    .cp-item {
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      cursor: pointer;
+      transition: background .12s;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .cp-item:hover { background: #fafcff; }
+    .cp-item.selected { background: var(--cs-primary-bg); }
+    .cp-item.selected .cp-radio { border-color: var(--cs-primary); }
+    .cp-item.selected .cp-radio::after { opacity: 1; }
+    .cp-radio {
+      width: 16px; height: 16px;
+      border: 1.5px solid #d9d9d9;
+      border-radius: 50%;
+      flex-shrink: 0; margin-top: 2px;
+      position: relative;
+      transition: border-color .15s;
+    }
+    .cp-radio::after {
+      content: ''; position: absolute; inset: 3px;
+      background: var(--cs-primary); border-radius: 50%;
+      opacity: 0; transition: opacity .15s;
+    }
+    .cp-main { flex: 1; min-width: 0; }
+    .cp-title {
+      font-size: 13px; color: var(--cs-text);
+      font-weight: 500; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .cp-meta {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      font-size: 12px; color: var(--cs-text-tertiary);
+    }
+    .cp-meta .m-k { color: var(--cs-text-secondary); }
+    .cp-state {
+      padding: 1px 6px; border-radius: 3px; font-size: 11px;
+      background: #f5f5f5; color: var(--cs-text-secondary);
+    }
+    .cp-state.s-warn { background: #fff7e6; color: #fa8c16; }
+    .cp-state.s-done { background: #f6ffed; color: #52c41a; }
+    .cp-state.s-refund { background: #fff1f0; color: #ff4d4f; }
+    .cp-price { color: #fa541c; font-weight: 600; }
+    .cp-empty {
+      padding: 40px 18px; text-align: center;
+      color: var(--cs-text-tertiary); font-size: 13px;
+    }
+    .cp-foot {
+      padding: 10px 18px;
+      border-top: 1px solid var(--cs-border-light);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    .cp-foot .cf-tip { font-size: 11px; color: var(--cs-text-tertiary); }
+    .cp-foot .cf-actions { display: flex; gap: 8px; }
+    .cp-foot .btn-default, .cp-foot .btn-primary {
+      height: 30px; padding: 0 16px; font-size: 13px;
+      border-radius: 6px; cursor: pointer; border: none;
+    }
+    .cp-foot .btn-default {
+      background: #f5f5f5; color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border);
+    }
+    .cp-foot .btn-default:hover { background: #efefef; }
+    .cp-foot .btn-primary {
+      background: var(--cs-primary); color: #fff;
+    }
+    .cp-foot .btn-primary:disabled {
+      background: #bae0ff; cursor: not-allowed;
+    }
+    /* 图片选择网格 */
+    .cp-img-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; padding: 12px 18px;
+    }
+    .cp-img-tile {
+      aspect-ratio: 1 / 1;
+      border: 1.5px solid var(--cs-border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+      background: linear-gradient(135deg,#f5f7fa,#e8ecf1);
+      transition: border-color .15s;
+    }
+    .cp-img-tile:hover { border-color: var(--cs-primary); }
+    .cp-img-tile.selected { border-color: var(--cs-primary); box-shadow: 0 0 0 2px var(--cs-primary-bg); }
+    .cp-img-tile .tile-name {
+      position: absolute; bottom: 4px; left: 4px; right: 4px;
+      font-size: 10px; color: var(--cs-text-tertiary);
+      text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cp-img-upload {
+      aspect-ratio: 1 / 1;
+      border: 1.5px dashed var(--cs-border);
+      border-radius: 8px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; color: var(--cs-text-tertiary); cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .cp-img-upload:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .cp-img-upload .up-text { font-size: 11px; }
+
     .tool-divider {
       width: 1px; height: 18px;
       background: var(--cs-border);
@@ -1205,10 +1586,37 @@
           <span class="tag-urgent">紧急</span>
         </span>
         <div class="topbar-actions">
-          <button class="btn-sm" id="btnSuspend">挂起</button>
-          <button class="btn-sm primary" id="btnTransfer">转接</button>
-          <button class="btn-sm">更多</button>
-          <button class="btn-sm" id="btnEnd">结束会话</button>
+          <button class="btn-sm" id="btnSuspend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>挂起</button>
+          <button class="btn-sm primary" id="btnTransfer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转接</button>
+          <button class="btn-sm" id="btnMore"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>更多</button>
+          <button class="btn-sm btn-icon-only" id="btnEnd" title="结束会话"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+
+          <!-- 「更多」下拉面板：客户备注/标签 -->
+          <div class="more-dropdown" id="moreDropdown">
+            <div class="md-head">
+              <span class="md-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                客户备注与标签
+              </span>
+              <span class="md-cust" id="mdCustName">—</span>
+            </div>
+            <div class="md-body">
+              <div class="md-label">客户备注</div>
+              <textarea class="md-note" id="mdNote" placeholder="添加对该客户的内部备注，仅客服可见..."></textarea>
+            </div>
+            <div class="md-body" style="padding-top:0;">
+              <div class="md-label">客户标签</div>
+              <div class="md-tags" id="mdTags"></div>
+              <div class="md-tag-add">
+                <input type="text" class="md-tag-input" id="mdTagInput" placeholder="输入标签后回车添加" maxlength="10" />
+                <button class="md-tag-btn" id="mdTagBtn">+ 添加</button>
+              </div>
+            </div>
+            <div class="md-foot">
+              <button class="md-cancel" id="mdCancel">取消</button>
+              <button class="md-save" id="mdSave">保存</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1284,7 +1692,7 @@
                 <div class="tc-row"><span class="k">下单时间</span><span class="v">2026-06-11 09:12</span></div>
               </div>
               <div class="tc-footer">
-                <div class="tc-btn">查看详情</div>
+                <div class="tc-btn" onclick="location.href='admin-customer-info.html'">查看详情</div>
                 <div class="tc-btn solid">催发货</div>
               </div>
             </div>
@@ -1405,6 +1813,7 @@
           <div class="quick-reply-dd" id="qrdd">
             <div class="qr-trigger" onclick="document.getElementById('qrdd').classList.toggle('open')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>快捷回复 ▾</div>
             <div class="qr-panel">
+              <div class="qr-search"><input type="text" placeholder="搜索快捷回复..." id="qrSearch"></div>
               <div class="qr-cat">— 常用问候 —</div>
               <div class="qr-item">您好，很高兴为您服务～</div>
               <div class="qr-item">请问有什么可以帮您？</div>
@@ -1414,6 +1823,9 @@
               <div class="qr-cat">— 结束语 —</div>
               <div class="qr-item">感谢您的咨询，祝您生活愉快！</div>
             </div>
+          </div>
+          <div class="quick-reply-dd" id="libdd" style="margin-left:6px;">
+            <div class="qr-trigger" id="libTrigger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:4px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>话术库 ▾</div>
           </div>
           <div class="tool-divider"></div>
           <button class="card-btn" data-card="order" title="发送订单卡片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></button>
@@ -1428,8 +1840,8 @@
           </div>
         </div>
         <div class="input-box">
-          <textarea placeholder="请输入消息内容…（Enter 发送）"></textarea>
-          <button class="send-btn">发 送</button>
+          <textarea id="msgInput" placeholder="请输入消息内容…（Enter 发送）"></textarea>
+          <button class="send-btn" id="sendBtn">发 送</button>
         </div>
       </div>
 
@@ -1462,6 +1874,22 @@
           <div class="info-row"><span class="k">应用端</span><span class="v">小程序</span></div>
           <div class="info-row"><span class="k">所在地区</span><span class="v">广东 · 深圳</span></div>
           <div class="info-row"><span class="k">实名认证</span><span class="v" style="color:#52c41a">已认证</span></div>
+
+          <div class="section-label">积分信息</div>
+          <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;">
+            <div class="stat-mini">
+              <div class="sv">2,860</div>
+              <div class="sl">总积分</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv">420</div>
+              <div class="sl">已消费</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv" style="color:#fa8c16">120</div>
+              <div class="sl">即将失效</div>
+            </div>
+          </div>
 
           <div class="section-label">客户标签</div>
           <div class="cust-tag-list" style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -1614,6 +2042,128 @@
   </div><!-- /主区域 -->
 </div><!-- /admin-layout -->
 
+  <!-- ============ 话术库抽屉（与快捷回复并列，从右侧滑入） ============ -->
+  <div class="lib-mask" id="libMask"></div>
+  <aside class="lib-drawer" id="libDrawer">
+    <div class="lib-head">
+      <div class="lh-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        话术库
+        <span style="font-size:11px;color:var(--cs-text-tertiary);font-weight:400;">48 条</span>
+      </div>
+      <div class="lh-close" id="libClose" title="关闭">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="lib-filter">
+      <input type="text" class="lf-search" placeholder="搜索话术内容或关键词..." id="libSearch">
+      <div class="lf-tags" id="libTags">
+        <span class="lf-tag active" data-biz="all">全部</span>
+        <span class="lf-tag" data-biz="presale">售前</span>
+        <span class="lf-tag" data-biz="aftersale">售后</span>
+        <span class="lf-tag" data-biz="complaint">投诉</span>
+        <span class="lf-tag" data-biz="general">通用</span>
+      </div>
+    </div>
+    <div class="lib-body" id="libBody">
+      <!-- 话术条目（与 admin-scripts.html 字段一致） -->
+      <div class="lib-item" data-biz="general">
+        <div class="li-content">您好，欢迎来到 CS 商城！我是您的专属客服，很高兴为您服务。请问有什么可以帮您的吗？</div>
+        <div class="li-meta">
+          <span class="li-scene">进入会话</span>
+          <span class="li-biz">通用</span>
+          <span class="li-usage">使用 186 次</span>
+          <span>· 最后使用：刚刚</span>
+        </div>
+      </div>
+      <div class="lib-item" data-biz="aftersale">
+        <div class="li-content">关于您的退款申请，一般会在 1-3 个工作日内审核完成，审核通过后退款将原路返回至您的支付账户，请耐心等待。</div>
+        <div class="li-meta">
+          <span class="li-scene">关键词匹配</span>
+          <span class="li-biz">售后</span>
+          <span class="li-usage">使用 92 次</span>
+          <span>· 1 小时前</span>
+        </div>
+      </div>
+      <div class="lib-item" data-biz="general">
+        <div class="li-content">您好，您的问题需要更专业的同事为您处理，正在为您转接至【售后专员】，请稍候，预计等待 30 秒。</div>
+        <div class="li-meta">
+          <span class="li-scene">转人工</span>
+          <span class="li-biz">通用</span>
+          <span class="li-usage">使用 45 次</span>
+          <span>· 3 小时前</span>
+        </div>
+      </div>
+      <div class="lib-item" data-biz="general">
+        <div class="li-content">亲爱的用户，当前客服不在线（工作时间：09:00-21:00）。您可以先留言描述您的问题，我们会在次日 9:00 优先为您处理。</div>
+        <div class="li-meta">
+          <span class="li-scene">进入会话</span>
+          <span class="li-biz">通用</span>
+          <span class="li-usage">使用 38 次</span>
+          <span>· 昨天</span>
+        </div>
+      </div>
+      <div class="lib-item" data-biz="aftersale">
+        <div class="li-content">您的订单已发货，物流单号 SF1234567890（顺丰速运）。正常情况下 2-3 天送达，您可点击「我的订单 → 查看物流」实时追踪。</div>
+        <div class="li-meta">
+          <span class="li-scene">关键词匹配</span>
+          <span class="li-biz">售后</span>
+          <span class="li-usage">使用 76 次</span>
+          <span>· 2 小时前</span>
+        </div>
+      </div>
+      <div class="lib-item" data-biz="presale">
+        <div class="li-content">您好！CS 商城 618 大促火热进行中，满 300 减 50、满 500 减 100，更有会员专属优惠券可领！需要我帮您查询活动详情吗？</div>
+        <div class="li-meta">
+          <span class="li-scene">关键词匹配</span>
+          <span class="li-biz">售前</span>
+          <span class="li-usage">使用 28 次</span>
+          <span>· 5 小时前</span>
+        </div>
+      </div>
+      <div class="lib-item" data-biz="complaint">
+        <div class="li-content">非常抱歉给您带来不愉快的体验。您的反馈我已经记录，现在为您转接至【投诉处理主管】跟进，一定会给您满意的答复。</div>
+        <div class="li-meta">
+          <span class="li-scene">转人工</span>
+          <span class="li-biz">投诉</span>
+          <span class="li-usage">使用 12 次</span>
+          <span>· 1 天前</span>
+        </div>
+      </div>
+    </div>
+    <div class="lib-foot">
+      <span>提示：点击条目填入输入框，可在发送前编辑</span>
+      <a href="admin-scripts.html" target="_blank">管理话术库 &gt;</a>
+    </div>
+  </aside>
+
+  <!-- ============ 卡片选择弹层（订单/商品/优惠券/图片 统一组件） ============ -->
+  <div class="cp-mask" id="cardPickerMask">
+    <div class="cp-modal">
+      <div class="cp-head">
+        <div class="ch-title">
+          <span id="cpIcon"></span>
+          <span id="cpTitle">发送卡片</span>
+          <span class="ch-sub" id="cpSub"></span>
+        </div>
+        <div class="ch-close" id="cpClose" title="关闭">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+      <div class="cp-search" id="cpSearchBox">
+        <input type="text" placeholder="搜索..." id="cpSearch">
+      </div>
+      <div class="cp-list" id="cpList"></div>
+      <div class="cp-foot">
+        <span class="cf-tip" id="cpTip">请选择一条记录后发送</span>
+        <div class="cf-actions">
+          <button class="btn-default" id="cpCancel">取消</button>
+          <button class="btn-primary" id="cpSend" disabled>发送</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== cs-modal 接线：挂起 / 转接 / 结束会话 =====
     (function(){
@@ -1692,6 +2242,111 @@
           });
         });
       }
+      // ===== 「更多」按钮：客户备注/标签下拉面板 =====
+      var btnMore = document.getElementById('btnMore');
+      var moreDropdown = document.getElementById('moreDropdown');
+      var mdCustName = document.getElementById('mdCustName');
+      var mdNote = document.getElementById('mdNote');
+      var mdTags = document.getElementById('mdTags');
+      var mdTagInput = document.getElementById('mdTagInput');
+      var mdTagBtn = document.getElementById('mdTagBtn');
+      var mdSave = document.getElementById('mdSave');
+      var mdCancel = document.getElementById('mdCancel');
+      // 工作标签缓存（编辑中）
+      var mdEditingTags = [];
+
+      function renderMdTags() {
+        mdTags.innerHTML = '';
+        if (!mdEditingTags.length) {
+          mdTags.innerHTML = '<span class="md-empty-tag">暂无标签，可在下方添加</span>';
+          return;
+        }
+        mdEditingTags.forEach(function (t, i) {
+          var el = document.createElement('span');
+          el.className = 'md-tag';
+          el.innerHTML = esc(t) +
+            '<span class="rm" data-idx="' + i + '" title="移除"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
+          mdTags.appendChild(el);
+        });
+      }
+      function openMoreDropdown() {
+        var cust = (typeof window.getCurrentCust === 'function') ? window.getCurrentCust() : null;
+        if (cust) {
+          mdCustName.textContent = cust.name || '—';
+          mdNote.value = cust.note || '';
+          // 从 custTags 复制为可编辑数组（取标签文字）
+          mdEditingTags = (cust.custTags || []).map(function (t) { return t[0]; });
+        } else {
+          mdCustName.textContent = '—';
+          mdNote.value = '';
+          mdEditingTags = [];
+        }
+        renderMdTags();
+        moreDropdown.classList.add('open');
+      }
+      function closeMoreDropdown() { moreDropdown.classList.remove('open'); }
+
+      if (btnMore) {
+        btnMore.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (moreDropdown.classList.contains('open')) closeMoreDropdown();
+          else openMoreDropdown();
+        });
+      }
+      // 阻止面板内点击冒泡
+      if (moreDropdown) {
+        moreDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+      }
+      // 移除标签
+      if (mdTags) {
+        mdTags.addEventListener('click', function (e) {
+          var rm = e.target.closest('.rm');
+          if (!rm) return;
+          var idx = parseInt(rm.getAttribute('data-idx'), 10);
+          mdEditingTags.splice(idx, 1);
+          renderMdTags();
+        });
+      }
+      // 添加标签
+      function addMdTag() {
+        var v = mdTagInput.value.trim();
+        if (!v) return;
+        if (mdEditingTags.indexOf(v) >= 0) { mdTagInput.value = ''; return; }
+        mdEditingTags.push(v);
+        mdTagInput.value = '';
+        renderMdTags();
+      }
+      if (mdTagBtn) mdTagBtn.addEventListener('click', addMdTag);
+      if (mdTagInput) {
+        mdTagInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); addMdTag(); }
+        });
+      }
+      // 保存
+      if (mdSave) {
+        mdSave.addEventListener('click', function () {
+          var cust = (typeof window.getCurrentCust === 'function') ? window.getCurrentCust() : null;
+          if (cust) {
+            // 写回 SESSIONS（保持 custTags 结构 [text, cls]）
+            cust.note = mdNote.value.trim();
+            cust.custTags = mdEditingTags.map(function (t) { return [t, 'tag-normal']; });
+            // 同步刷新右侧基础信息tab的标签显示
+            if (typeof renderSession === 'function') {
+              renderSession(cust);
+            }
+          }
+          closeMoreDropdown();
+          if (window.csModal && csModal.toast) csModal.toast('已保存客户备注与标签');
+        });
+      }
+      if (mdCancel) mdCancel.addEventListener('click', closeMoreDropdown);
+      // 点击外部关闭
+      document.addEventListener('click', function (e) {
+        if (moreDropdown.classList.contains('open') && !moreDropdown.contains(e.target) && e.target !== btnMore) {
+          closeMoreDropdown();
+        }
+      });
+
       // 模拟「挂起会话点击恢复」：沿用原逻辑（pending 会话项点击恢复）
       document.querySelectorAll('.session-item[data-status="pending"]').forEach(function (item) {
         item.addEventListener('click', function () {
@@ -1980,56 +2635,178 @@
       var initialThread = document.querySelector('.msg-thread').innerHTML;
       var initialBasic = document.querySelector('.info-pane[data-pane="basic"]').innerHTML;
       var SESSIONS = [
-        { name: '李晓红', isDefault: true, topTags: '<span class="tag-urgent">紧急</span>' },
-        { name: '张伟', av: '张', custId: 'U20240112', reg: '注册 1.5 年', phone: '137****8830', channel: '微信小程序', region: '浙江 · 杭州', verified: true, custTags: [['高复购', 'tag-normal']], topTags: '', msgs: [
+        { name: '李晓红', isDefault: true, topTags: '<span class="tag-urgent">紧急</span><span class="tag-normal">VIP</span>',
+          orders: [
+            { id: '#20260611', goods: '无线蓝牙耳机（白色）×1', amount: '¥299.00', time: '2026-06-11 09:12', state: '待发货', sCls: 's-warn' },
+            { id: '#20260588', goods: '硅胶手机壳（黑）×2', amount: '¥78.00', time: '2026-05-28 21:40', state: '已签收', sCls: 's-done' },
+            { id: '#20260402', goods: '便携充电宝 10000mAh ×1', amount: '¥129.00', time: '2026-04-02 15:08', state: '已退款', sCls: 's-refund' }
+          ],
+          products: [
+            { name: '无线蓝牙耳机（白色）', sku: 'BT-WHITE-001', spec: '颜色:白 / 降噪款', price: '¥299.00', stock: '128 件' },
+            { name: '硅胶手机壳（黑）', sku: 'CASE-BLACK-S', spec: '颜色:黑 / 适配 iPhone15', price: '¥39.00', stock: '320 件' },
+            { name: '便携充电宝 10000mAh', sku: 'PB-10000', spec: '容量:10000mAh / 双口', price: '¥129.00', stock: '56 件' }
+          ],
+          coupons: [
+            { face: '满 ¥200 减 ¥30', scope: '全品类', expire: '2026-06-30 前', state: '可领取', sCls: 's-warn' },
+            { face: '满 ¥500 减 ¥100', scope: '数码品类', expire: '2026-07-15 前', state: '可领取', sCls: 's-warn' },
+            { face: '满 ¥99 减 ¥10', scope: '全品类', expire: '2026-06-20 前', state: '已领取', sCls: 's-done' }
+          ],
+          images: [
+            { name: '商品实拍图.jpg', size: '128 KB' },
+            { name: '物流截图.png', size: '86 KB' }
+          ] },
+        { name: '张伟', av: '张', custId: 'U20240112', reg: '注册 1.5 年', phone: '137****8830', level: '白银会员', points: '860', pointsUsed: '240', pointsExpire: '60', channel: '微信小程序', region: '浙江 · 杭州', verified: true, custTags: [['高复购', 'tag-normal']], topTags: '',
+          orders: [
+            { id: '#20260605', goods: '运动跑鞋（42 码）×1', amount: '¥459.00', time: '2026-06-05 18:22', state: '已签收', sCls: 's-done' },
+            { id: '#20260520', goods: '速干 T 恤 ×2', amount: '¥158.00', time: '2026-05-20 10:05', state: '已签收', sCls: 's-done' }
+          ],
+          products: [
+            { name: '运动跑鞋（黑）', sku: 'SHOE-BK-42', spec: '尺码:42 / 黑色', price: '¥459.00', stock: '24 件' },
+            { name: '速干 T 恤（白）', sku: 'TSHIRT-W-M', spec: '尺码:M / 白色', price: '¥79.00', stock: '88 件' }
+          ],
+          coupons: [
+            { face: '满 ¥300 减 ¥50', scope: '运动品类', expire: '2026-06-30 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [{ name: '跑鞋实拍.jpg', size: '142 KB' }], msgs: [
           { k: 'time', v: '今天 14:10' },
           { s: 'user', from: '张伟', text: '好的，谢谢客服，问题已经解决了' },
           { s: 'agent', from: '客服 王小明', text: '不客气～后续有任何问题随时联系我，祝您生活愉快！' }
         ]},
-        { name: '陈芳', av: '陈', custId: 'U20231220', reg: '注册 2.5 年', phone: '139****4471', channel: 'APP', region: '江苏 · 南京', verified: true, custTags: [['售后频繁', 'tag-urgent'], ['高价值', 'tag-normal']], topTags: '', msgs: [
+        { name: '陈芳', av: '陈', custId: 'U20231220', reg: '注册 2.5 年', phone: '139****4471', level: '黄金会员', points: '5,120', pointsUsed: '1,580', pointsExpire: '320', channel: 'APP', region: '江苏 · 南京', verified: true, custTags: [['售后频繁', 'tag-urgent'], ['高价值', 'tag-normal']], topTags: '',
+          orders: [
+            { id: '#20260588', goods: '真丝连衣裙 ×1', amount: '¥899.00', time: '2026-05-26 14:30', state: '退款中', sCls: 's-refund' },
+            { id: '#20260410', goods: '羊绒围巾 ×1', amount: '¥329.00', time: '2026-04-10 09:18', state: '已签收', sCls: 's-done' }
+          ],
+          products: [
+            { name: '真丝连衣裙（红）', sku: 'DRESS-RED-M', spec: '尺码:M / 红色', price: '¥899.00', stock: '12 件' },
+            { name: '羊绒围巾（驼色）', sku: 'SCARF-CAMEL', spec: '颜色:驼色', price: '¥329.00', stock: '40 件' }
+          ],
+          coupons: [
+            { face: '满 ¥800 减 ¥100', scope: '女装品类', expire: '2026-07-01 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [{ name: '质量问题图.jpg', size: '210 KB' }], msgs: [
           { k: 'time', v: '今天 14:15' },
           { s: 'user', from: '陈芳', text: '退款什么时候能到账？订单 #20260588 已经退款 3 天了，我手机号 13700004471' },
           { s: 'agent', from: '客服 王小明', text: '陈女士您好，查到退款已审核通过，预计 1-3 个工作日原路退回，请留意账户变动。' },
           { s: 'user', from: '陈芳', text: '好的，那我再等等，谢谢' }
         ]},
-        { name: '刘强', av: '刘', custId: 'U20240807', reg: '注册 1 年', phone: '135****2298', channel: '微信小程序', region: '北京 · 朝阳', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '', msgs: [
+        { name: '刘强', av: '刘', custId: 'U20240807', reg: '注册 1 年', phone: '135****2298', level: '普通会员', points: '320', pointsUsed: '80', pointsExpire: '40', channel: '微信小程序', region: '北京 · 朝阳', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '',
+          orders: [
+            { id: '#20260609', goods: '蓝牙音箱 ×1', amount: '¥199.00', time: '2026-06-09 11:42', state: '待发货', sCls: 's-warn' }
+          ],
+          products: [
+            { name: '蓝牙音箱（黑）', sku: 'SPK-BK', spec: '颜色:黑 / 防水', price: '¥199.00', stock: '64 件' }
+          ],
+          coupons: [
+            { face: '满 ¥99 减 ¥10', scope: '全品类', expire: '2026-06-20 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [{ name: '商品图片.jpg', size: '95 KB' }], msgs: [
           { k: 'time', v: '今天 13:50' },
           { s: 'user', from: '刘强', text: '商品图片发你了，麻烦看下规格对不对' },
           { s: 'user', from: '刘强', text: '[商品图片]' },
           { s: 'agent', from: '客服 王小明', text: '收到，规格确认无误，是您下单的白色款，预计明天发出。' }
         ]},
-        { name: '王丽娟', av: '王', custId: 'U20230518', reg: '注册 3 年', phone: '138****6612', channel: 'APP', region: '上海 · 浦东', verified: true, custTags: [['高价值', 'tag-normal']], topTags: '<span class="tag-transferred">转接入</span>', msgs: [
+        { name: '王丽娟', av: '王', custId: 'U20230518', reg: '注册 3 年', phone: '138****6612', level: '铂金会员', points: '12,400', pointsUsed: '5,600', pointsExpire: '800', channel: 'APP', region: '上海 · 浦东', verified: true, custTags: [['VIP', 'tag-normal'], ['高价值', 'tag-normal']], topTags: '<span class="tag-normal">VIP</span><span class="tag-transferred">转接入</span>',
+          orders: [
+            { id: '#20260608', goods: '高端护肤套装 ×1', amount: '¥1,280.00', time: '2026-06-08 16:50', state: '已签收', sCls: 's-done' },
+            { id: '#20260530', goods: '香氛蜡烛 ×2', amount: '¥268.00', time: '2026-05-30 20:12', state: '已签收', sCls: 's-done' }
+          ],
+          products: [
+            { name: '高端护肤套装', sku: 'SKIN-SET-VIP', spec: '套装:洁面+水乳', price: '¥1,280.00', stock: '8 件' },
+            { name: '香氛蜡烛（玫瑰）', sku: 'CANDLE-ROSE', spec: '香型:玫瑰', price: '¥134.00', stock: '60 件' }
+          ],
+          coupons: [
+            { face: '满 ¥1000 减 ¥150', scope: '全品类', expire: '2026-07-31 前', state: '可领取', sCls: 's-warn' },
+            { face: '满 ¥500 减 ¥100', scope: '数码品类', expire: '2026-07-15 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [{ name: '护肤套装图.jpg', size: '156 KB' }], msgs: [
           { k: 'time', v: '今天 13:42' },
           { s: 'user', from: '王丽娟', text: '优惠券怎么用不了？满 200 减 30 那张' },
           { s: 'agent', from: '客服 王小明', text: '您好，这张券需满足满 200 元门槛，当前订单 188 元，建议再加件小商品凑单～' },
           { s: 'user', from: '王丽娟', text: '好的我再去挑挑，谢谢' }
         ]},
-        { name: '赵敏', av: '赵', custId: 'U20240229', reg: '注册 1.5 年', phone: '136****0085', channel: '微信小程序', region: '广东 · 广州', verified: true, custTags: [['满意用户', 'tag-normal']], topTags: '', msgs: [
+        { name: '赵敏', av: '赵', custId: 'U20240229', reg: '注册 1.5 年', phone: '136****0085', level: '黄金会员', points: '2,800', pointsUsed: '760', pointsExpire: '180', channel: '微信小程序', region: '广东 · 广州', verified: true, custTags: [['满意用户', 'tag-normal']], topTags: '',
+          orders: [
+            { id: '#20260607', goods: '儿童积木套装 ×1', amount: '¥168.00', time: '2026-06-07 09:30', state: '已签收', sCls: 's-done' }
+          ],
+          products: [
+            { name: '儿童积木套装', sku: 'TOY-BLOCK-100', spec: '件数:100 / 适龄 3+', price: '¥168.00', stock: '75 件' }
+          ],
+          coupons: [
+            { face: '满 ¥150 减 ¥20', scope: '母婴品类', expire: '2026-06-25 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [{ name: '收货实拍.jpg', size: '118 KB' }], msgs: [
           { k: 'time', v: '今天 12:30' },
           { s: 'user', from: '赵敏', text: '已经收到货了，非常满意！包装也很好～' },
           { s: 'agent', from: '客服 王小明', text: '感谢您的认可！欢迎为本次服务做个评价，您的反馈是我们进步的动力 ❤️' }
         ]},
-        { name: '孙建国', av: '孙', custId: 'U20230901', reg: '注册 2.5 年', phone: '137****5566', channel: 'APP', region: '四川 · 成都', verified: true, custTags: [['企业客户', 'tag-normal']], topTags: '', msgs: [
+        { name: '孙建国', av: '孙', custId: 'U20230901', reg: '注册 2.5 年', phone: '137****5566', level: '企业用户', points: '6,600', pointsUsed: '2,200', pointsExpire: '500', channel: 'APP', region: '四川 · 成都', verified: true, custTags: [['企业客户', 'tag-normal']], topTags: '',
+          orders: [
+            { id: '#20260606', goods: '办公椅（人体工学）×10', amount: '¥4,990.00', time: '2026-06-06 10:15', state: '已签收', sCls: 's-done' }
+          ],
+          products: [
+            { name: '人体工学办公椅', sku: 'CHAIR-ERGO', spec: '颜色:黑 / 可调节', price: '¥499.00', stock: '30 件' }
+          ],
+          coupons: [
+            { face: '满 ¥5000 减 ¥600', scope: '办公用品', expire: '2026-08-31 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [{ name: '采购清单.png', size: '88 KB' }], msgs: [
           { k: 'time', v: '今天 11:58' },
           { s: 'user', from: '孙建国', text: '发票能开企业抬头的吗？需要增值税专票' },
           { s: 'agent', from: '客服 王小明', text: '可以的，请在订单详情页申请增值税专用发票，填写公司名称、税号、注册地址等，审核通过后 7 个工作日内开具并邮寄。' }
         ]},
-        { name: '周婷婷', av: '周', custId: 'U20241115', reg: '注册 0.5 年', phone: '134****7788', channel: '微信小程序', region: '湖北 · 武汉', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '', msgs: [
+        { name: '周婷婷', av: '周', custId: 'U20241115', reg: '注册 0.5 年', phone: '134****7788', level: '普通会员', points: '150', pointsUsed: '30', pointsExpire: '20', channel: '微信小程序', region: '湖北 · 武汉', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '',
+          orders: [],
+          products: [
+            { name: '马克杯（蓝色）', sku: 'MUG-BLUE-350', spec: '颜色:蓝 / 350ml', price: '¥49.00', stock: '36 件' }
+          ],
+          coupons: [
+            { face: '满 ¥99 减 ¥10', scope: '全品类', expire: '2026-06-20 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [], msgs: [
           { k: 'time', v: '今天 11:20' },
           { s: 'user', from: '周婷婷', text: '请问这个颜色还有货吗？蓝色款' },
           { s: 'agent', from: '客服 王小明', text: '您好，蓝色款目前有货，库存 36 件，下单后 24 小时内发出～' }
         ]},
-        { name: '吴鹏', av: '吴', custId: 'U20240330', reg: '注册 1 年', phone: '135****1234', channel: '微信小程序', region: '福建 · 福州', verified: true, custTags: [['普通', 'tag-normal']], topTags: '<span class="tag-waiting">等待中</span>', msgs: [
+        { name: '吴鹏', av: '吴', custId: 'U20240330', reg: '注册 1 年', phone: '135****1234', level: '白银会员', points: '980', pointsUsed: '220', pointsExpire: '50', channel: '微信小程序', region: '福建 · 福州', verified: true, custTags: [['普通', 'tag-normal']], topTags: '<span class="tag-waiting">等待中</span>',
+          orders: [
+            { id: '#20260610', goods: '机械键盘 ×1', amount: '¥329.00', time: '2026-06-10 19:25', state: '待发货', sCls: 's-warn' }
+          ],
+          products: [
+            { name: '机械键盘（青轴）', sku: 'KB-BLUE', spec: '轴体:青轴 / RGB', price: '¥329.00', stock: '42 件' }
+          ],
+          coupons: [
+            { face: '满 ¥300 减 ¥40', scope: '数码品类', expire: '2026-06-30 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [], msgs: [
           { k: 'sys', v: '⏳ 用户正在排队等待客服接入…' },
           { s: 'user', from: '吴鹏', text: '你好，想咨询一下物流问题' }
         ]},
-        { name: '郑丽华', av: '郑', custId: 'U20230101', reg: '注册 3 年', phone: '138****9999', channel: 'APP', region: '山东 · 青岛', verified: true, custTags: [['退款中', 'tag-urgent']], topTags: '<span class="tag-pending">挂起</span>', msgs: [
+        { name: '郑丽华', av: '郑', custId: 'U20230101', reg: '注册 3 年', phone: '138****9999', level: '黄金会员', points: '4,500', pointsUsed: '1,200', pointsExpire: '300', channel: 'APP', region: '山东 · 青岛', verified: true, custTags: [['退款中', 'tag-urgent']], topTags: '<span class="tag-pending">挂起</span>',
+          orders: [
+            { id: '#20260603', goods: '陶瓷炖锅 ×1', amount: '¥259.00', time: '2026-06-03 13:40', state: '退款中', sCls: 's-refund' }
+          ],
+          products: [
+            { name: '陶瓷炖锅（4L）', sku: 'POT-CERA-4', spec: '容量:4L / 黑色', price: '¥259.00', stock: '20 件' }
+          ],
+          coupons: [
+            { face: '满 ¥200 减 ¥25', scope: '厨具品类', expire: '2026-07-10 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [{ name: '质量问题.jpg', size: '198 KB' }], msgs: [
           { k: 'time', v: '今天 13:10' },
           { s: 'user', from: '郑丽华', text: '我要申请退款，商品有质量问题' },
           { s: 'agent', from: '客服 王小明', text: '已为您发起退款申请。为加快处理，麻烦补充上传商品问题的照片凭证。' },
           { k: 'sys', v: '⏸ 会话已挂起 · 等待用户提供退款凭证' }
         ]},
-        { name: '何静', av: '何', custId: 'U20240606', reg: '注册 1 年', phone: '139****3333', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '<span class="tag-pending">挂起</span>', msgs: [
+        { name: '何静', av: '何', custId: 'U20240606', reg: '注册 1 年', phone: '139****3333', level: '白银会员', points: '1,200', pointsUsed: '380', pointsExpire: '90', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '<span class="tag-pending">挂起</span>',
+          orders: [],
+          products: [
+            { name: '智能台灯（白）', sku: 'LAMP-WHITE', spec: '颜色:白 / 触控调光', price: '¥159.00', stock: '0 件' }
+          ],
+          coupons: [
+            { face: '满 ¥150 减 ¥20', scope: '家居品类', expire: '2026-06-28 前', state: '可领取', sCls: 's-warn' }
+          ],
+          images: [], msgs: [
           { k: 'time', v: '今天 12:45' },
           { s: 'user', from: '何静', text: '这个商品什么时候能补货？急需' },
           { s: 'agent', from: '客服 王小明', text: '正在协同仓库核实补货时间，请稍候。' },
@@ -2101,6 +2878,12 @@
               + '<div class="info-row"><span class="k">应用端</span><span class="v">' + esc(b[2]) + '</span></div>'
               + '<div class="info-row"><span class="k">所在地区</span><span class="v">' + esc(d.region) + '</span></div>'
               + '<div class="info-row"><span class="k">实名认证</span><span class="v" style="' + vColor + '">' + vText + '</span></div>'
+              + '<div class="section-label">积分信息</div>'
+              + '<div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;">'
+              +   '<div class="stat-mini"><div class="sv">' + esc(d.points || '0') + '</div><div class="sl">总积分</div></div>'
+              +   '<div class="stat-mini"><div class="sv">' + esc(d.pointsUsed || '0') + '</div><div class="sl">已消费</div></div>'
+              +   '<div class="stat-mini"><div class="sv" style="color:#fa8c16">' + esc(d.pointsExpire || '0') + '</div><div class="sl">即将失效</div></div>'
+              + '</div>'
               + '<div class="section-label">客户标签</div>'
               + '<div class="cust-tag-list" style="display:flex;gap:6px;flex-wrap:wrap;">' + tagsHtml + '</div>';
           })();
@@ -2120,6 +2903,9 @@
 
       // 列表项点击 > 切换客户（联动顶栏 / 客户信息 / 聊天记录）
       var items = document.querySelectorAll('.session-list .session-item');
+      var currentIndex = 0; // 默认选中第一个（李晓红）
+      // 暴露给「卡片选择器」获取当前客户数据
+      window.getCurrentCust = function () { return SESSIONS[currentIndex] || SESSIONS[0]; };
       items.forEach(function (item, idx) {
         // 左列表归属标签：三层合并展示为小字（替代原仅应用端的彩色 chip）
         (function () {
@@ -2135,6 +2921,7 @@
         item.addEventListener('click', function () {
           items.forEach(function (x) { x.classList.remove('active'); });
           item.classList.add('active');
+          currentIndex = idx;
           var data = SESSIONS[idx] || {
             name: (item.querySelector('.session-name') || {}).textContent || '未知客户',
             isDefault: false, av: (item.querySelector('.session-avatar') || {}).textContent || '?',

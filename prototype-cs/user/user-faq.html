@@ -13,6 +13,9 @@
       background: var(--cs-bg-page);
       min-height: 100vh;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     /* 顶部说明条（页面级，非手机内部） */
@@ -108,10 +111,10 @@
       transition: var(--cs-transition-normal);
       border: 1px solid transparent;
     }
-    .faq-item:hover { border-color: #d6e4ff; }
+    .faq-item:hover { border-color: var(--cs-border-light); }
     .faq-item.expanded {
       border-color: var(--cs-primary);
-      box-shadow: 0 2px 8px rgba(22,119,255,0.08);
+      box-shadow: 0 2px 8px rgba(238, 10, 36,0.08);
     }
     .faq-item-row {
       display: flex;
