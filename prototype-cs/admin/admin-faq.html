@@ -9,53 +9,61 @@
   <style>
     /* ===== admin-faq.html 专属样式 ===== */
 
-    .stat-summary {
-      display: flex;
-      align-items: center;
-      gap: var(--cs-space-6);
-      padding: var(--cs-space-3) var(--cs-space-4);
-      background: var(--cs-bg-header);
-      border-radius: var(--cs-radius-sm);
-      margin-bottom: var(--cs-space-4);
-      font-size: var(--cs-font-size-base);
-      color: var(--cs-text-secondary);
+    /* 两栏布局：左侧分类树 + 右侧 FAQ 列表 */
+    .kb-layout { display: flex; gap: var(--cs-space-4); align-items: stretch; }
+    .kb-sidebar { width: 240px; flex-shrink: 0; }
+    .kb-main { flex: 1; min-width: 0; }
+
+    /* 分类树 */
+    .category-tree {
+      background: var(--cs-bg-card); border-radius: var(--cs-radius-md);
+      border: 1px solid var(--cs-border-light); box-shadow: var(--cs-shadow-card);
+      padding: var(--cs-space-3) 0; height: 100%; overflow-y: auto;
     }
-    .stat-summary .stat-item .num {
-      font-size: 18px;
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin-right: 4px;
+    .category-tree .tree-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px var(--cs-space-4) var(--cs-space-3);
+      border-bottom: 1px solid var(--cs-border-lighter);
     }
-    .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
+    .category-tree .tree-header .tree-title { font-size: var(--cs-font-size-md); font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); }
+    .tree-node {
+      display: flex; align-items: center; padding: var(--cs-space-2) var(--cs-space-4);
+      font-size: var(--cs-font-size-base); color: var(--cs-text); cursor: pointer;
+      transition: var(--cs-transition-fast); gap: 6px; position: relative;
+    }
+    .tree-node:hover { background: var(--cs-border-lighter); }
+    .tree-node.active { background: var(--cs-primary-bg); color: var(--cs-primary); font-weight: var(--cs-font-weight-medium); }
+    .tree-node.active::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary); }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count { font-size: var(--cs-font-size-xs); color: var(--cs-text-tertiary); background: var(--cs-border-light); border-radius: 10px; padding: 0 7px; line-height: 16px; }
+    .tree-node.active .tree-count { color: var(--cs-primary); background: var(--cs-bg-card); }
+    .category-tree .tree-header .tree-add { font-size: var(--cs-font-size-xl); color: var(--cs-primary); cursor: pointer; line-height: 1; padding: 0 4px; }
+    .category-tree .tree-header .tree-add:hover { color: var(--cs-primary-hover); }
+    .tree-node .tree-actions { display: none; gap: 4px; }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); cursor: pointer; padding: 0 2px; }
+    .tree-node .tree-actions a:hover { color: var(--cs-primary); }
+
+    /* 工具条 */
+    .kb-toolbar { display: flex; align-items: center; gap: var(--cs-space-3); flex-wrap: wrap; margin-bottom: var(--cs-space-4); }
+    .kb-toolbar .ipt.input-search { min-width: 240px; color: var(--cs-text); }
 
     /* 问题列 */
     .data-table .col-title { font-weight: var(--cs-font-weight-medium); color: var(--cs-text); }
     .data-table .col-title .title-sub {
-      display: block;
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-text-tertiary);
-      font-weight: var(--cs-font-weight-normal);
-      margin-top: 2px;
-      max-width: 420px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      display: block; font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary);
+      font-weight: var(--cs-font-weight-normal); margin-top: 2px;
+      max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
-    /* 分类 / 关键词（纯文本，无配色） */
     .faq-meta { font-size: var(--cs-font-size-sm); color: var(--cs-text-secondary); }
-
-    /* 状态标签（圆点 + 黑色字） */
-    .fq-tag {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: var(--cs-font-size-sm); line-height: 1.5; color: var(--cs-text);
-    }
+    .fq-tag { display: inline-flex; align-items: center; gap: 5px; font-size: var(--cs-font-size-sm); line-height: 1.5; color: var(--cs-text); }
     .fq-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-    .fq-tag.on::before  { background: var(--cs-success); }
+    .fq-tag.on::before { background: var(--cs-success); }
     .fq-tag.off::before { background: #bfbfbf; }
-
     .row-actions a.danger { color: var(--cs-danger); }
     .row-actions a.danger:hover { color: var(--cs-danger-hover); }
+
+    @media (max-width: 1100px) { .kb-layout { flex-direction: column; } .kb-sidebar { width: 100%; } }
   </style>
 </head>
 <body>
@@ -75,181 +83,199 @@
 
     <main class="admin-content">
 
+      <!-- 页面标题 + 操作按钮 -->
       <div class="flex-between mb-16">
         <div>
           <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">维护常见问题（Q/A），供<strong>移动端自动发送 FAQ 卡片</strong>：用户咨询命中关键词或进入自助时，系统以卡片形式推送对应 FAQ。</p>
         </div>
         <div class="flex gap-8">
-          <button class="btn-default" id="btnFaqCategory">分类管理</button>
           <button class="btn-primary" id="btnAddFaq">+ 新建 FAQ</button>
         </div>
       </div>
 
-      <!-- 筛选条 -->
-      <div class="card" style="padding:16px;">
-        <div class="filter-bar">
-          <div class="field">
-            <span class="field-label">关键词</span>
-            <input type="text" id="fqSearch" class="ipt input-search" placeholder="搜索问题 / 答案 / 关键词" style="min-width:240px;color:var(--cs-text);" />
-          </div>
-          <div class="field">
-            <span class="field-label">分类</span>
-            <select id="fqCategory" class="select" style="min-width:110px;">
-              <option value="">全部分类</option>
-              <option value="order">订单</option>
-              <option value="pay">支付</option>
-              <option value="aftersale">售后</option>
-              <option value="promo">营销</option>
-              <option value="account">账户</option>
-              <option value="logistic">物流</option>
-            </select>
-          </div>
-          <div class="field">
-            <span class="field-label">状态</span>
-            <select id="fqStatus" class="select" style="min-width:110px;">
-              <option value="">全部状态</option>
-              <option value="on">启用</option>
-              <option value="off">停用</option>
-            </select>
-          </div>
-          <div style="margin-left:auto;" class="flex gap-8">
-            <button id="fqBtnReset" class="btn-default">重置</button>
-            <button id="fqBtnQuery" class="btn-primary">查询</button>
-          </div>
-        </div>
-      </div>
+      <!-- 两栏：分类树 + FAQ 列表 -->
+      <div class="kb-layout">
 
-      <!-- 列表卡片 -->
-      <div class="card mt-16" style="padding:0;">
-        <div class="table-wrap">
-          <table class="data-table faq-table">
-            <thead>
-              <tr>
-                <th style="width:32%;">问题</th>
-                <th>答案摘要</th>
-                <th>分类</th>
-                <th>触发关键词</th>
-                <th>状态</th>
-                <th>推送次数</th>
-                <th style="width:150px;">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr data-cat="order" data-status="on">
-                <td><div class="col-title">如何查询我的订单状态？
-                  <span class="title-sub">进入「我的-订单」按状态筛选查看</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">用户可在「我的-订单」查看订单详情与实时物流，支持按状态筛选…</div></div></td>
-                <td><span class="faq-meta">订单</span></td>
-                <td><span class="faq-meta">订单查询、订单状态、我的订单</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>1,284</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="pay" data-status="on">
-                <td><div class="col-title">支持哪些支付方式？
-                  <span class="title-sub">微信/支付宝/银行卡/花呗分期</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">支持微信、支付宝、银行卡、花呗分期，部分商品支持白条与信用卡分期…</div></div></td>
-                <td><span class="faq-meta">支付</span></td>
-                <td><span class="faq-meta">支付方式、怎么付款、分期</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>962</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="aftersale" data-status="on">
-                <td><div class="col-title">如何申请退款？
-                  <span class="title-sub">订单详情页申请，1-3 工作日原路退回</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">在订单详情页点击「申请退款」，选择仅退款/退货退款，审核通过后 1-3 个工作日原路退回…</div></div></td>
-                <td><span class="faq-meta">售后</span></td>
-                <td><span class="faq-meta">退款、退钱、申请退款</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>874</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="aftersale" data-status="on">
-                <td><div class="col-title">7 天无理由退货流程？
-                  <span class="title-sub">签收 7 天内，商品完好可申请</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">签收后 7 天内可申请无理由退货，商品需保持原包装完好，部分品类不支持…</div></div></td>
-                <td><span class="faq-meta">售后</span></td>
-                <td><span class="faq-meta">退货、7天无理由、换货</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>731</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="promo" data-status="on">
-                <td><div class="col-title">优惠券怎么用？
-                  <span class="title-sub">下单满足门槛即可选用，每单一张</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">满减券需满足对应金额门槛，下单时在结算页选用，每笔订单仅可使用一张…</div></div></td>
-                <td><span class="faq-meta">营销</span></td>
-                <td><span class="faq-meta">优惠券、满减、券怎么用</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>645</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="order" data-status="on">
-                <td><div class="col-title">如何开具发票？
-                  <span class="title-sub">订单完成后 24h 内自动开具电子发票</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">电子发票在订单完成后 24 小时内自动开具，可在「我的订单-发票管理」查看下载…</div></div></td>
-                <td><span class="faq-meta">订单</span></td>
-                <td><span class="faq-meta">发票、抬头、开票</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>512</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="account" data-status="on">
-                <td><div class="col-title">忘记密码怎么办？
-                  <span class="title-sub">登录页「忘记密码」验证后重置</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">登录页点击「忘记密码」，通过绑定手机号或邮箱验证后重置登录密码…</div></div></td>
-                <td><span class="faq-meta">账户</span></td>
-                <td><span class="faq-meta">忘记密码、登录不了、重置密码</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>388</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="logistic" data-status="on">
-                <td><div class="col-title">物流一直不更新怎么办？
-                  <span class="title-sub">联系快递员核实或申请客服介入</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">请先联系快递员核实；若仍未解决可在订单页申请售后或联系客服介入…</div></div></td>
-                <td><span class="faq-meta">物流</span></td>
-                <td><span class="faq-meta">物流、快递、没更新</span></td>
-                <td><span class="fq-tag on">启用</span></td>
-                <td>297</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="aftersale" data-status="off">
-                <td><div class="col-title">商品有质量问题怎么办？
-                  <span class="title-sub">提供照片凭证，申请退换货</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">请拍摄商品质量问题照片，在订单页申请退换货，仓库验收后处理…</div></div></td>
-                <td><span class="faq-meta">售后</span></td>
-                <td><span class="faq-meta">质量问题、破损、坏</span></td>
-                <td><span class="fq-tag off">停用</span></td>
-                <td>89</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-              <tr data-cat="account" data-status="off">
-                <td><div class="col-title">会员等级与权益？
-                  <span class="title-sub">按成长值升级，享对应权益</span></div></td>
-                <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">会员按成长值升级（银卡/金卡/铂金），不同等级享折扣、包邮、生日礼遇等权益…</div></div></td>
-                <td><span class="faq-meta">账户</span></td>
-                <td><span class="faq-meta">会员、等级、权益</span></td>
-                <td><span class="fq-tag off">停用</span></td>
-                <td>54</td>
-                <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- 左侧：分类树 -->
+        <div class="kb-sidebar">
+          <div class="category-tree">
+            <div class="tree-header">
+              <span class="tree-title">FAQ 分类</span>
+              <span class="tree-add" title="新增分类">+</span>
+            </div>
+            <div class="tree-node active" data-cat="all">
+              <span class="tree-label">全部 FAQ</span>
+              <span class="tree-count">10</span>
+            </div>
+            <div class="tree-node" data-cat="order">
+              <span class="tree-label">订单</span>
+              <span class="tree-count">2</span>
+            </div>
+            <div class="tree-node" data-cat="pay">
+              <span class="tree-label">支付</span>
+              <span class="tree-count">1</span>
+            </div>
+            <div class="tree-node" data-cat="aftersale">
+              <span class="tree-label">售后</span>
+              <span class="tree-count">3</span>
+            </div>
+            <div class="tree-node" data-cat="promo">
+              <span class="tree-label">营销</span>
+              <span class="tree-count">1</span>
+            </div>
+            <div class="tree-node" data-cat="account">
+              <span class="tree-label">账户</span>
+              <span class="tree-count">2</span>
+            </div>
+            <div class="tree-node" data-cat="logistic">
+              <span class="tree-label">物流</span>
+              <span class="tree-count">1</span>
+            </div>
+          </div>
         </div>
 
-        <div class="pagination" style="padding:16px;">
-          <span class="pg-info">共 42 条</span>
-          <span class="pg-btn disabled">&#8249;</span>
-          <span class="pg-num active">1</span>
-          <span class="pg-num">2</span>
-          <span class="pg-num">3</span>
-          <span class="pg-num">4</span>
-          <span class="pg-num">5</span>
-          <span class="pg-btn">&#8250;</span>
-        </div>
-      </div>
+        <!-- 右侧：工具条 + FAQ 表格 -->
+        <div class="kb-main">
+
+          <!-- 工具条 -->
+          <div class="card" style="padding:16px; margin-bottom:var(--cs-space-4);">
+            <div class="kb-toolbar">
+              <input type="text" id="fqSearch" class="ipt input-search" placeholder="搜索问题 / 答案 / 关键词" style="min-width:240px;color:var(--cs-text);" />
+              <select id="fqStatus" class="select" style="min-width:110px;">
+                <option value="">全部状态</option>
+                <option value="on">启用</option>
+                <option value="off">停用</option>
+              </select>
+              <div style="margin-left:auto;" class="flex gap-8">
+                <button id="fqBtnReset" class="btn-default">重置</button>
+                <button id="fqBtnQuery" class="btn-primary">查询</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 表格 -->
+          <div class="card" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table faq-table">
+                <thead>
+                  <tr>
+                    <th style="width:32%;">问题</th>
+                    <th>答案摘要</th>
+                    <th>触发关键词</th>
+                    <th>状态</th>
+                    <th>推送次数</th>
+                    <th style="width:150px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-cat="order" data-status="on">
+                    <td><div class="col-title">如何查询我的订单状态？
+                      <span class="title-sub">进入「我的-订单」按状态筛选查看</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">用户可在「我的-订单」查看订单详情与实时物流，支持按状态筛选…</div></div></td>
+                    <td><span class="faq-meta">订单查询、订单状态、我的订单</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>1,284</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="pay" data-status="on">
+                    <td><div class="col-title">支持哪些支付方式？
+                      <span class="title-sub">微信/支付宝/银行卡/花呗分期</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">支持微信、支付宝、银行卡、花呗分期，部分商品支持白条与信用卡分期…</div></div></td>
+                    <td><span class="faq-meta">支付方式、怎么付款、分期</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>962</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="aftersale" data-status="on">
+                    <td><div class="col-title">如何申请退款？
+                      <span class="title-sub">订单详情页申请，1-3 工作日原路退回</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">在订单详情页点击「申请退款」，选择仅退款/退货退款…</div></div></td>
+                    <td><span class="faq-meta">退款、退钱、申请退款</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>874</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="aftersale" data-status="on">
+                    <td><div class="col-title">7 天无理由退货流程？
+                      <span class="title-sub">签收 7 天内，商品完好可申请</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">签收后 7 天内可申请无理由退货，商品需保持原包装完好…</div></div></td>
+                    <td><span class="faq-meta">退货、7天无理由、换货</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>731</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="promo" data-status="on">
+                    <td><div class="col-title">优惠券怎么用？
+                      <span class="title-sub">下单满足门槛即可选用，每单一张</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">满减券需满足对应金额门槛，下单时在结算页选用…</div></div></td>
+                    <td><span class="faq-meta">优惠券、满减、券怎么用</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>645</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="order" data-status="on">
+                    <td><div class="col-title">如何开具发票？
+                      <span class="title-sub">订单完成后 24h 内自动开具电子发票</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">电子发票在订单完成后 24 小时内自动开具…</div></div></td>
+                    <td><span class="faq-meta">发票、抬头、开票</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>512</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="account" data-status="on">
+                    <td><div class="col-title">忘记密码怎么办？
+                      <span class="title-sub">登录页「忘记密码」验证后重置</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">登录页点击「忘记密码」，通过绑定手机号或邮箱验证后重置…</div></div></td>
+                    <td><span class="faq-meta">忘记密码、登录不了、重置密码</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>388</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="logistic" data-status="on">
+                    <td><div class="col-title">物流一直不更新怎么办？
+                      <span class="title-sub">联系快递员核实或申请客服介入</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">请先联系快递员核实；若仍未解决可在订单页申请售后…</div></div></td>
+                    <td><span class="faq-meta">物流、快递、没更新</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>297</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="aftersale" data-status="off">
+                    <td><div class="col-title">商品有质量问题怎么办？
+                      <span class="title-sub">提供照片凭证，申请退换货</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">请拍摄商品质量问题照片，在订单页申请退换货…</div></div></td>
+                    <td><span class="faq-meta">质量问题、破损、坏</span></td>
+                    <td><span class="fq-tag off">停用</span></td>
+                    <td>89</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="account" data-status="off">
+                    <td><div class="col-title">会员等级与权益？
+                      <span class="title-sub">按成长值升级，享对应权益</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">会员按成长值升级（银卡/金卡/铂金），不同等级享折扣、包邮…</div></div></td>
+                    <td><span class="faq-meta">会员、等级、权益</span></td>
+                    <td><span class="fq-tag off">停用</span></td>
+                    <td>54</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination" style="padding:16px;">
+              <span class="pg-info">共 42 条</span>
+              <span class="pg-btn disabled">&#8249;</span>
+              <span class="pg-num active">1</span>
+              <span class="pg-num">2</span>
+              <span class="pg-num">3</span>
+              <span class="pg-num">4</span>
+              <span class="pg-num">5</span>
+              <span class="pg-btn">&#8250;</span>
+            </div>
+          </div>
+
+        </div><!-- /kb-main -->
+      </div><!-- /kb-layout -->
 
       <p style="margin-top:16px; font-size:12px; color:var(--cs-text-placeholder);">
         数据模型：customer_chat_faqs（FAQ Q/A）· 移动端命中关键词或进入自助时，以 FAQ 卡片（faq_card）自动推送；客服端可在工作台手动发送。
@@ -262,7 +288,7 @@
 
 <script src="nav.js"></script>
 <script>
-/* admin-faq.html 交互：筛选 + 行操作委派 + 新增 */
+/* admin-faq.html 交互：左树分类筛选 + 右侧搜索/状态 + 行操作委派 + 新增 */
 (function () {
   'use strict';
   var $  = function (s, c) { return (c || document).querySelector(s); };
@@ -271,64 +297,77 @@
 
   function rows() { return $$('.faq-table tbody tr'); }
 
-  /* 筛选 */
-  var fSearch = $('#fqSearch'), fCat = $('#fqCategory'), fStatus = $('#fqStatus');
+  /* ---------- 1. 筛选状态 ---------- */
+  var currentCat = 'all';
+  var fSearch = $('#fqSearch'), fStatus = $('#fqStatus');
   var btnQuery = $('#fqBtnQuery'), btnReset = $('#fqBtnReset');
+
   function applyFilters() {
     var kw = (fSearch ? fSearch.value : '').trim().toLowerCase();
-    var cat = fCat ? fCat.value : '';
     var st = fStatus ? fStatus.value : '';
     rows().forEach(function (tr) {
-      var ok = (!cat || tr.getAttribute('data-cat') === cat)
+      var ok = (currentCat === 'all' || tr.getAttribute('data-cat') === currentCat)
             && (!st || tr.getAttribute('data-status') === st);
       if (ok && kw) { ok = (tr.textContent || '').toLowerCase().indexOf(kw) !== -1; }
       tr.style.display = ok ? '' : 'none';
     });
   }
-  [fSearch, fCat, fStatus].forEach(function (el) {
+
+  /* ---------- 2. 分类树点击 → 联动 ---------- */
+  $$('.category-tree .tree-node').forEach(function (node) {
+    node.addEventListener('click', function () {
+      $$('.category-tree .tree-node').forEach(function (n) { n.classList.remove('active'); });
+      node.classList.add('active');
+      currentCat = node.getAttribute('data-cat') || 'all';
+      applyFilters();
+      var label = $('.tree-label', node);
+      toast('已筛选分类：' + (label ? label.textContent.trim() : '全部'));
+    });
+  });
+
+  /* ---------- 3. 工具条筛选 ---------- */
+  [fSearch, fStatus].forEach(function (el) {
     if (!el) return;
     el.addEventListener('change', applyFilters);
     if (el === fSearch) el.addEventListener('input', applyFilters);
   });
   if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
   if (btnReset) btnReset.addEventListener('click', function () {
-    if (fSearch) fSearch.value = ''; if (fCat) fCat.value = ''; if (fStatus) fStatus.value = '';
+    if (fSearch) fSearch.value = ''; if (fStatus) fStatus.value = '';
+    currentCat = 'all';
+    $$('.category-tree .tree-node').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-cat') === 'all'); });
     applyFilters(); toast('已重置筛选');
   });
 
-  /* 新增 */
+  /* ---------- 4. 新增 ---------- */
   var btnAdd = $('#btnAddFaq');
   if (btnAdd) btnAdd.addEventListener('click', function () {
     csModal.open('modals/modal-faq.html', { variant: 'center', width: 520 });
   });
-  /* 分类维护 */
-  var btnCat = $('#btnFaqCategory');
-  if (btnCat) btnCat.addEventListener('click', function () {
-    csModal.open('modals/modal-category.html?title=' + encodeURIComponent('FAQ 分类管理'), { variant: 'center', width: 440 });
-  });
 
-  /* 行操作委派 */
+  /* ---------- 5. 行操作委派（编辑/停用/启用/删除） ---------- */
   document.addEventListener('click', function (e) {
     var a = e.target.closest('.faq-table .row-actions a');
     if (!a) return;
     e.preventDefault();
     var txt = (a.textContent || '').trim();
     var tr = a.closest('tr');
-    if (a.classList.contains('danger') || txt === '删除') {
-      var q = $('.col-title', tr) ? $('.col-title', tr).firstChild.textContent.trim() : '';
+    if (a.classList.contains('danger')) {
+      var tds = $$('td', tr);
+      var q = tds[0] ? tds[0].textContent.trim() : '';
       csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该 FAQ？') +
         '&desc=' + encodeURIComponent(q ? ('问题「' + q + '」删除后不可恢复。') : '删除后不可恢复。'),
         { variant: 'center', width: 380 });
       return;
     }
     if (txt === '编辑') {
-      var tds = $$('td', tr);
-      var q = tds[0] ? tds[0].textContent.trim() : '';
-      var a = tds[1] ? tds[1].textContent.trim() : '';
-      var kw = tds[3] ? tds[3].textContent.trim() : '';
+      var tds2 = $$('td', tr);
+      var q2 = tds2[0] ? tds2[0].textContent.trim() : '';
+      var a2 = tds2[1] ? tds2[1].textContent.trim() : '';
+      var kw = tds2[2] ? tds2[2].textContent.trim() : '';
       csModal.open('modals/modal-faq.html?title=' + encodeURIComponent('编辑 FAQ') +
-        '&question=' + encodeURIComponent(q) +
-        '&answer=' + encodeURIComponent(a) +
+        '&question=' + encodeURIComponent(q2) +
+        '&answer=' + encodeURIComponent(a2) +
         '&category=' + (tr.getAttribute('data-cat') || '') +
         '&keyword=' + encodeURIComponent(kw) +
         '&status=' + (tr.getAttribute('data-status') === 'off' ? 'disabled' : 'enabled'),
@@ -336,14 +375,17 @@
       return;
     }
     if (txt === '停用') {
-      var s1 = $('.fq-tag', tr); if (s1) { s1.className = 'fq-tag off'; s1.textContent = '停用'; tr.setAttribute('data-status', 'off'); }
+      var s1 = $('.fq-tag', tr);
+      if (s1) { s1.className = 'fq-tag off'; s1.textContent = '停用'; tr.setAttribute('data-status', 'off'); }
       a.textContent = '启用'; toast('已停用该 FAQ');
     } else if (txt === '启用') {
-      var s2 = $('.fq-tag', tr); if (s2) { s2.className = 'fq-tag on'; s2.textContent = '启用'; tr.setAttribute('data-status', 'on'); }
+      var s2 = $('.fq-tag', tr);
+      if (s2) { s2.className = 'fq-tag on'; s2.textContent = '启用'; tr.setAttribute('data-status', 'on'); }
       a.textContent = '停用'; toast('已启用该 FAQ');
     }
   });
 
+  /* ---------- 6. 分页 ---------- */
   $$('.pg-num').forEach(function (n) {
     n.addEventListener('click', function () {
       $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
@@ -352,6 +394,106 @@
   });
 
   applyFilters();
+})();
+</script>
+
+<script src="js/cs-icons.js"></script>
+<script>
+/* FAQ 分类树 增/删/改（CRUD）— 复用话术库/知识文档同款逻辑 */
+(function () {
+  if (!window.csModal) return;
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (csModal.toast) csModal.toast(t); };
+  var tree = document.querySelector('.category-tree');
+  if (!tree) return;
+  if (window.csInitTreeIcons) csInitTreeIcons();
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  var seq = 1000;
+  function buildNode(name, count, isChild) {
+    var div = document.createElement('div');
+    div.className = 'tree-node';
+    div.setAttribute('data-cat', 'custom-' + (++seq));
+    if (isChild) div.style.paddingLeft = '38px';
+    div.innerHTML =
+      '<span class="tree-label">' + esc(name) + '</span>' +
+      '<span class="tree-count">' + (count || 0) + '</span>' +
+      '<span class="tree-actions">' +
+        '<a title="编辑">' + csIcon('edit', 12) + '</a>' +
+        '<a title="新增子类">' + csIcon('plus', 12) + '</a>' +
+        '<a title="删除" class="cat-del">' + csIcon('trash', 12) + '</a>' +
+      '</span>';
+    return div;
+  }
+
+  // 1. 给既有分类节点补 tree-actions（✎/+/✗）
+  $$('.tree-node', tree).forEach(function (node) {
+    if (node.getAttribute('data-cat') === 'all') return;
+    if (node.querySelector('.tree-actions')) return;
+    var act = document.createElement('span');
+    act.className = 'tree-actions';
+    act.innerHTML = '<a title="编辑">' + csIcon('edit', 12) + '</a><a title="新增子类">' + csIcon('plus', 12) + '</a><a title="删除" class="cat-del">' + csIcon('trash', 12) + '</a>';
+    node.appendChild(act);
+  });
+
+  function openCategoryModal(opts) {
+    csModal.open('modals/modal-category.html?mode=' + (opts.mode || 'add') +
+      '&title=' + encodeURIComponent(opts.title || '') +
+      '&name=' + encodeURIComponent(opts.name || '') +
+      '&parent=' + encodeURIComponent(opts.parent || 'FAQ 分类'),
+      { variant: 'center', width: 440,
+        onConfirm: function (d) { if (d && d.name) opts.onConfirm(d.name); } });
+  }
+  function deleteCategory(node) {
+    var name = $('.tree-label', node).textContent.trim();
+    var cnt = $('.tree-count', node);
+    var n = cnt ? (parseInt(cnt.textContent, 10) || 0) : 0;
+    csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该分类？') +
+      '&desc=' + encodeURIComponent(n > 0
+        ? '分类「' + name + '」下有 ' + n + ' 条 FAQ，删除后内容将归入「全部」，且不可恢复。'
+        : '分类「' + name + '」删除后不可恢复。'),
+      { variant: 'center', width: 380,
+        onConfirm: function () { node.remove(); toast('已删除分类：' + name); } });
+  }
+
+  // 2. 头部「+」新增分类（追加到树末尾）
+  var headerAdd = $('.tree-add', tree);
+  if (headerAdd) {
+    headerAdd.addEventListener('click', function () {
+      openCategoryModal({ mode: 'add', title: '新增分类', parent: 'FAQ 分类',
+        onConfirm: function (name) {
+          tree.appendChild(buildNode(name, 0, false));
+          toast('已新增分类：' + name);
+        }
+      });
+    });
+  }
+
+  // 3. 动作委派（捕获阶段，避免触发节点既有筛选 handler）
+  tree.addEventListener('click', function (e) {
+    var a = e.target.closest('.tree-actions a');
+    if (!a) return;
+    var title = a.getAttribute('title') || '';
+    if (title !== '编辑' && title !== '新增子类' && title !== '删除') return;
+    e.preventDefault();
+    e.stopPropagation();
+    var node = a.closest('.tree-node');
+    var name = $('.tree-label', node).textContent.trim();
+    if (title === '编辑') {
+      openCategoryModal({ mode: 'edit', title: '编辑分类', name: name, parent: 'FAQ 分类',
+        onConfirm: function (nm) { var lbl = $('.tree-label', node); if (lbl) lbl.textContent = nm; toast('分类已重命名为：' + nm); } });
+    } else if (title === '新增子类') {
+      openCategoryModal({ mode: 'add', title: '新增子分类', parent: name,
+        onConfirm: function (nm) { node.parentNode.insertBefore(buildNode(nm, 0, true), node.nextSibling); toast('已新增子分类：' + nm); } });
+    } else {
+      deleteCategory(node);
+    }
+  }, true);
 })();
 </script>
 

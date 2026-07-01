@@ -850,6 +850,7 @@
 })();
 </script>
 
+<script src="js/cs-icons.js"></script>
 <script>
 /* ============================================================
    分类树 增/删/改（CRUD）
@@ -864,6 +865,7 @@
   var toast = function (t) { if (csModal.toast) csModal.toast(t); };
   var tree = document.querySelector('.category-tree');
   if (!tree) return;
+  if (window.csInitTreeIcons) csInitTreeIcons();
 
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) {
@@ -884,9 +886,9 @@
       '<span class="tree-label">' + esc(name) + '</span>' +
       '<span class="tree-count">' + (count || 0) + '</span>' +
       '<span class="tree-actions">' +
-        '<a title="编辑">&#9998;</a>' +
-        '<a title="新增子类">+</a>' +
-        '<a title="删除" class="cat-del">&#10006;</a>' +
+        '<a title="编辑">' + csIcon('edit', 12) + '</a>' +
+        '<a title="新增子类">' + csIcon('plus', 12) + '</a>' +
+        '<a title="删除" class="cat-del">' + csIcon('trash', 12) + '</a>' +
       '</span>';
     return div;
   }

@@ -332,22 +332,23 @@
       align-items: center;
       gap: 6px;
       padding: 4px 10px;
-      background: var(--cs-danger-bg);
-      border: 1px solid #ffccc7;
+      background: var(--cs-primary-bg);
+      border: 1px solid #91caff;
       border-radius: var(--cs-radius-xs);
       font-size: var(--cs-font-size-base);
-      color: var(--cs-danger);
+      color: var(--cs-primary);
       transition: var(--cs-transition-fast);
     }
-    .sensitive-tag:hover { background: #ffccc7; }
+    .sensitive-tag:hover { background: #bae0ff; }
     .sensitive-tag .remove {
       cursor: pointer;
       font-size: var(--cs-font-size-md);
       line-height: 1;
-      color: var(--cs-danger-hover);
+      color: var(--cs-primary);
+      opacity: 0.5;
       margin-left: 2px;
     }
-    .sensitive-tag .remove:hover { color: var(--cs-danger); }
+    .sensitive-tag .remove:hover { color: var(--cs-primary); opacity: 1; }
 
     .add-sensitive {
       display: inline-flex;
@@ -549,12 +550,12 @@
             </div>
             <div class="switch-desc">用户消息命中以下关键词时，自动将会话转接给人工客服（跳过机器人）</div>
             <div class="sensitive-tags" style="margin-top:10px;">
-              <span class="sensitive-tag" style="background:var(--cs-purple-bg); border-color:#d3adf7; color:var(--cs-purple);">人工 <span class="remove">×</span></span>
-              <span class="sensitive-tag" style="background:var(--cs-purple-bg); border-color:#d3adf7; color:var(--cs-purple);">客服 <span class="remove">×</span></span>
-              <span class="sensitive-tag" style="background:var(--cs-purple-bg); border-color:#d3adf7; color:var(--cs-purple);">投诉 <span class="remove">×</span></span>
-              <span class="sensitive-tag" style="background:var(--cs-purple-bg); border-color:#d3adf7; color:var(--cs-purple);">退款 <span class="remove">×</span></span>
-              <span class="sensitive-tag" style="background:var(--cs-purple-bg); border-color:#d3adf7; color:var(--cs-purple);">售后 <span class="remove">×</span></span>
-              <span class="sensitive-tag" style="background:var(--cs-purple-bg); border-color:#d3adf7; color:var(--cs-purple);">转人工 <span class="remove">×</span></span>
+              <span class="sensitive-tag">人工 <span class="remove">×</span></span>
+              <span class="sensitive-tag">客服 <span class="remove">×</span></span>
+              <span class="sensitive-tag">投诉 <span class="remove">×</span></span>
+              <span class="sensitive-tag">退款 <span class="remove">×</span></span>
+              <span class="sensitive-tag">售后 <span class="remove">×</span></span>
+              <span class="sensitive-tag">转人工 <span class="remove">×</span></span>
             </div>
             <div class="add-sensitive">
               <input class="input-text" placeholder="输入关键词后回车" />
@@ -1041,6 +1042,7 @@
   }
 })();
 </script>
+<script src="js/cs-icons.js"></script>
 <script src="nav.js"></script>
 </body>
 </html>
