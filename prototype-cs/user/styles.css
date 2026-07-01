@@ -11,11 +11,22 @@
    1. Design Tokens (CSS Custom Properties)
    ============================================================ */
 :root {
-  /* --- Color Tokens --- */
-  --cs-primary: #1677ff;
-  --cs-primary-hover: #4096ff;
-  --cs-primary-active: #0958d9;
-  --cs-primary-bg: #e6f4ff;
+  /* --- 小程序主题变量映射（对齐 mini-program/css/common.css）---
+     显式映射 --cs-* 到小程序变量名，便于将来同步；
+     当前因两套变量色值已一致，此处为文档性声明 + 补全小程序独有变量。--- */
+  --primary-start: #ff6034;
+  --primary-end: #ee0a24;
+  --price-color: #ee0a24;
+  --wechat-green: #07c160;
+
+  /* --- 隐式依赖修复：mobile.css .msg-bubble-user 引用但从未定义 --- */
+  --chat-card-width: 252px;
+
+  /* --- Color Tokens (对齐小程序红色主题) --- */
+  --cs-primary: #ee0a24;
+  --cs-primary-hover: #ff6034;
+  --cs-primary-active: #d00820;
+  --cs-primary-bg: #fff5f0;
 
   --cs-success: #52c41a;
   --cs-success-hover: #73d13d;
@@ -117,8 +128,11 @@ body {
   font-family: var(--cs-font-family);
   font-size: var(--cs-font-size-md);
   color: var(--cs-text);
-  background: var(--cs-bg-page);
+  background: #ededed;
   line-height: 1.5;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
 }
 a { color: var(--cs-primary); text-decoration: none; }
 

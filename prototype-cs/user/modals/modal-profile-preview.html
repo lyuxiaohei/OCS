@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>账户详情 · 半屏预览</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .pf-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+    }
+    .pf-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
+    .pf-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 440px;
+      -webkit-overflow-scrolling: touch;
+      
+      
+    }
+    /* 会员信息头 */
+    .pf-hero {
+      padding: 22px 16px 18px;
+      background: linear-gradient(135deg, #ff6034, #ee0a24);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pf-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      border: 2px solid rgba(255,255,255,0.6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .pf-user-info { flex: 1; min-width: 0; }
+    .pf-user-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .pf-user-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.22);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+    }
+    .pf-user-level svg { width: 11px; height: 11px; }
+    /* 数据卡片 */
+    .pf-stats {
+      display: flex;
+      padding: 14px 8px;
+      background: var(--cs-bg-card);
+      margin: -8px 12px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: relative;
+      z-index: 2;
+    }
+    .pf-stat {
+      flex: 1;
+      text-align: center;
+      padding: 4px;
+    }
+    .pf-stat-num {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--cs-text);
+      line-height: 1.2;
+    }
+    .pf-stat-num.primary { color: var(--cs-primary); }
+    .pf-stat-label {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      margin-top: 3px;
+    }
+    /* 信息区 */
+    .pf-section {
+      padding: 16px;
+    }
+    .pf-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cs-text);
+      margin-bottom: 10px;
+      padding-left: 8px;
+      border-left: 3px solid var(--cs-primary);
+    }
+    .pf-info-card {
+      background: var(--cs-bg-header);
+      border-radius: 10px;
+      padding: 4px 12px;
+    }
+    .pf-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      font-size: 13px;
+    }
+    .pf-info-row:last-child { border-bottom: none; }
+    .pf-info-row .label { color: var(--cs-text-tertiary); }
+    .pf-info-row .value { color: var(--cs-text); font-weight: 500; }
+    /* 底部 */
+    .pf-foot {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px 14px;
+      border-top: 1px solid var(--cs-border-light);
+      background: var(--cs-bg-card);
+      flex-shrink: 0;
+    }
+    .pf-btn {
+      flex: 1;
+      height: 40px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: opacity .15s;
+    }
+    .pf-btn:active { opacity: 0.8; }
+    .pf-btn-secondary {
+      background: var(--cs-bg-header);
+      color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border);
+    }
+    .pf-btn-primary {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="pf-modal">
+    <div class="pf-handle"></div>
+    <div class="pf-body" id="pfBody">
+      <!-- 由 JS 渲染 -->
+    </div>
+    <div class="pf-foot">
+      <button class="pf-btn pf-btn-secondary" id="btnClose">关闭</button>
+      <button class="pf-btn pf-btn-primary" id="btnView">查看我的账户</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      // 账户 mock（按 member_level 区分演示）
+      // 数据源：profile.html（昵称/会员等级/积分）
+      // 注：profile.html 不展示手机号/注册时间，故本弹窗也不展示
+      var PROFILES = {
+        '黄金会员': { name: '悦享用户', beans: '1,280', orders: '待付款1 待收货2' },
+        '白银会员': { name: '悦享用户', beans: '860', orders: '待付款0 待收货1' },
+        '普通会员': { name: '悦享用户', beans: '320', orders: '待付款0 待收货0' }
+      };
+
+      var qs = new URLSearchParams(location.search);
+      var level = qs.get('member_level') || qs.get('level') || '黄金会员';
+      var p = PROFILES[level] || PROFILES['黄金会员'];
+
+      function esc(s) { return String(s).replace(/</g, '&lt;'); }
+
+      var crownSvg = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm0 2h14v2H5v-2z"/></svg>';
+
+      var body = document.getElementById('pfBody');
+      var html = '';
+
+      // 会员头
+      html += '<div class="pf-hero">';
+      html +=   '<div class="pf-avatar">' + esc(p.name.charAt(0)) + '</div>';
+      html +=   '<div class="pf-user-info">';
+      html +=     '<div class="pf-user-name">' + esc(p.name) + '</div>';
+      html +=     '<span class="pf-user-level">' + crownSvg + esc(level) + '</span>';
+      html +=   '</div>';
+      html += '</div>';
+
+      // 数据卡片
+      html += '<div class="pf-stats">';
+      html +=   '<div class="pf-stat"><div class="pf-stat-num primary">' + esc(p.beans) + '</div><div class="pf-stat-label">苏银豆</div></div>';
+      html +=   '<div class="pf-stat"><div class="pf-stat-num">' + esc(p.orders) + '</div><div class="pf-stat-label">订单数</div></div>';
+      html += '</div>';
+
+      // 账户信息
+      html += '<div class="pf-section">';
+      html +=   '<div class="pf-section-title">账户信息</div>';
+      html +=   '<div class="pf-info-card">';
+            html +=     '<div class="pf-info-row"><span class="label">会员等级</span><span class="value">' + esc(level) + '</span></div>';
+      html +=     '<div class="pf-info-row"><span class="label">订单状态</span><span class="value">' + esc(p.orders) + '</span></div>';
+            html +=   '</div>';
+      html += '</div>';
+
+      body.innerHTML = html;
+
+      document.getElementById('btnClose').addEventListener('click', function () {
+        window.csModalBridge.close();
+      });
+      document.getElementById('btnView').addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'viewProfile', memberLevel: level });
+      });
+
+      // 数据统计项：苏银豆→积分中心 / 订单→订单列表
+      var stats = document.querySelectorAll('.pf-stat');
+      if (stats[0]) { stats[0].style.cursor = 'pointer'; stats[0].addEventListener('click', function () { window.csModalBridge.confirm({ action: 'viewPoints' }); }); }
+      if (stats[1]) { stats[1].style.cursor = 'pointer'; stats[1].addEventListener('click', function () { window.csModalBridge.confirm({ action: 'viewOrders' }); });}
+    
+      // 主动上报高度（覆盖 autoHeight 早期错误测量）
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try {
+            window.csModalBridge.reportHeight(document.documentElement.offsetHeight);
+          } catch (e) {}
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

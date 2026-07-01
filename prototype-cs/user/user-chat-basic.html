@@ -6,44 +6,16 @@
   <title>基础消息交互 — CS 商城客服系统</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="mobile.css" />
+  <script src="js/cs-modal.js"></script>
   <style>
     /* ===== user-chat-basic.html 专属样式（从 user-chat.html 抽取） ===== */
     body {
       background: #ededed;
       min-height: 100vh;
-      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-
-    .page-wrap {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-
-    .cs-phone {
-      margin: 0 auto 16px;
-      height: 720px;
-    }
-    @media (max-width: 430px) {
-      .cs-phone { height: 100vh; }
-    }
-
-    .page-head {
-      max-width: 480px;
-      margin: 0 auto 18px;
-      text-align: center;
-    }
-    .page-head h1 {
-      font-size: var(--cs-font-size-lg);
-      font-weight: var(--cs-font-weight-semibold);
-      color: var(--cs-text);
-      margin: 0 0 3px;
-    }
-    .page-head .back-link {
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-text-tertiary);
-    }
-    .page-head .back-link a { color: var(--cs-primary); }
 
     /* ---- 会话头（合并进导航栏） ---- */
     .chat-nav .nav-peer {
@@ -167,8 +139,8 @@
       box-shadow: 0 1px 1px rgba(0,0,0,0.04);
     }
     /* 卡片消息：去除气泡白底/内边距/边框，让卡片自身样式直接展示 */
-    .msg-content .msg-bubble-agent:has(.msg-card),
-    .msg-content .msg-bubble-user:has(.msg-card) {
+    .msg-content .msg-bubble-agent:has(.thread-card),
+    .msg-content .msg-bubble-user:has(.thread-card) {
       background: transparent;
       padding: 0;
       border: 0;
@@ -196,6 +168,19 @@
       margin: 4px auto;
       text-align: center;
     }
+
+    /* ---- 消息撤回提示（对方撤回了一条消息，与 PC 端客服工作台撤回联动） ---- */
+    .msg-recalled-notice {
+      align-self: center;
+      color: var(--cs-text-tertiary);
+      font-size: var(--cs-font-size-xs);
+      margin: 4px auto;
+      padding: 2px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .msg-recalled-notice .recall-icon { flex-shrink: 0; }
 
     /* ---- Image message ---- */
     .msg-image {
@@ -238,6 +223,138 @@
     .msg-bubble-user .msg-voice .voice-icon,
     .msg-bubble-user .msg-voice .voice-duration { color: var(--cs-text); }
     .msg-bubble-user .msg-voice .voice-wave svg rect { fill: var(--cs-text); }
+
+
+    /* ---- 会话内评价卡片 ---- */
+    .msg-rating-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      max-width: 280px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #f0f0f0;
+    }
+    .msg-rating-card .rc-title {
+      font-size: 14px; font-weight: 600; color: var(--cs-text);
+      margin: 0 0 4px;
+    }
+    .msg-rating-card .rc-sub {
+      font-size: 12px; color: var(--cs-text-tertiary);
+      margin: 0 0 12px;
+    }
+    .msg-rating-card .rc-stars {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .msg-rating-card .rc-star {
+      font-size: 28px; color: #d9d9d9; cursor: pointer;
+      transition: color .15s, transform .15s; user-select: none;
+    }
+    .msg-rating-card .rc-star.active { color: #ffa940; }
+    .msg-rating-card .rc-star:hover { transform: scale(1.15); }
+    .msg-rating-card .rc-tags {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+    }
+    .msg-rating-card .rc-tag {
+      font-size: 11px; padding: 4px 10px;
+      border: 1px solid #d9d9d9; border-radius: 12px;
+      color: var(--cs-text-secondary); cursor: pointer;
+      transition: all .15s;
+    }
+    .msg-rating-card .rc-tag.active {
+      border-color: var(--cs-primary); color: var(--cs-primary);
+      background: var(--cs-primary-bg);
+    }
+    .msg-rating-card .rc-submit {
+      width: 100%; height: 36px; border: none;
+      background: linear-gradient(135deg, var(--cs-primary-hover), var(--cs-primary));
+      color: #fff; border-radius: 18px; font-size: 13px;
+      cursor: pointer; font-family: inherit;
+    }
+    .msg-rating-card .rc-submit:disabled {
+      background: #f0f0f0; color: #bfbfbf; cursor: not-allowed;
+    }
+    .msg-rating-card.done .rc-stars,
+    .msg-rating-card.done .rc-tags,
+    .msg-rating-card.done .rc-submit { display: none; }
+    .msg-rating-card .rc-thanks {
+      text-align: center; padding: 8px 0; color: var(--cs-success);
+      font-size: 13px; font-weight: 500; display: none;
+    }
+    .msg-rating-card.done .rc-thanks { display: block; }
+    /* ---- 系统提示带按钮（关闭引导留言）---- */
+    .msg-system-with-action {
+      text-align: center; padding: 10px 16px; margin: 8px 12px;
+      background: #fff7e6; border-radius: 8px; font-size: 12px;
+      color: var(--cs-text-secondary);
+    }
+    .msg-system-with-action .msa-btn {
+      display: inline-block; margin-left: 8px;
+      color: var(--cs-primary); text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .thread-card .card-actions {
+      display: flex; gap: 6px; padding: 8px 12px 12px;
+      border-top: 1px solid #f0f0f0; flex-wrap: wrap;
+    }
+    .thread-card .card-action-btn {
+      font-size: 11px; padding: 5px 10px;
+      border: 1px solid var(--cs-border, #d9d9d9); border-radius: 12px;
+      background: #fff; color: var(--cs-text-secondary);
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+      transition: all .15s;
+    }
+    .thread-card .card-action-btn:hover {
+      border-color: var(--cs-primary); color: var(--cs-primary);
+    }
+    .thread-card .card-action-btn.done {
+      opacity: 0.5; pointer-events: none;
+    }
+
+    /* ---- Quick cards bar（输入框上方快捷卡片入口） ---- */
+    .quick-cards-bar {
+      display: flex;
+      gap: 8px;
+      padding: 8px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: #f5f5f5;
+      border-top: 1px solid #f0f0f0;
+    }
+    .quick-cards-bar::-webkit-scrollbar { display: none; }
+    .quick-card {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+      padding: 6px 12px;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 16px;
+      font-size: 12px;
+      color: var(--cs-text-secondary);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .quick-card:hover {
+      border-color: var(--cs-primary);
+      color: var(--cs-primary);
+      background: var(--cs-primary-bg);
+    }
+    .quick-card:active { transform: scale(.96); }
+    .quick-card svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+
+    .quick-card-end {
+      color: var(--cs-danger, #f5222d) !important;
+      border-color: #ffccc7 !important;
+    }
+    .quick-card-end:hover {
+      background: #fff1f0 !important;
+      color: var(--cs-danger, #f5222d) !important;
+    }
 
     /* ---- Input area ---- */
     .chat-input-area {
@@ -350,15 +467,6 @@
       50% { opacity: 0.3; }
     }
 
-    .page-footer {
-      max-width: 480px;
-      margin: 0 auto;
-      text-align: center;
-      font-size: var(--cs-font-size-sm);
-      color: var(--cs-text-tertiary);
-    }
-    .page-footer a { color: var(--cs-primary); }
-
     /* ===== 场景卡片样式（与 user-chat-cards.html 富媒体卡片完全统一） ===== */
     .cs-phone {
       --chat-card-width: 252px;
@@ -366,7 +474,7 @@
       --chat-card-shadow: var(--cs-shadow-md);
       --chat-card-border: 1px solid var(--cs-border-light);
     }
-    .msg-card {
+    .thread-card {
       width: var(--chat-card-width);
       background: var(--cs-bg-card);
       border: var(--chat-card-border);
@@ -374,14 +482,14 @@
       overflow: hidden;
       box-shadow: var(--chat-card-shadow);
     }
-    .msg-card .card-header {
+    .thread-card .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 9px 12px;
       border-bottom: 1px solid var(--cs-border-lighter);
     }
-    .msg-card .card-header .h-left {
+    .thread-card .card-header .h-left {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -389,50 +497,50 @@
       font-weight: var(--cs-font-weight-semibold);
       color: var(--cs-text);
     }
-    .msg-card .card-header .h-icon {
+    .thread-card .card-header .h-icon {
       color: var(--cs-text-tertiary);
       display: inline-flex;
     }
-    .msg-card .status-badge {
+    .thread-card .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
       font-size: var(--cs-font-size-xs);
       font-weight: var(--cs-font-weight-medium);
     }
-    .msg-card .status-badge::before {
+    .thread-card .status-badge::before {
       content: "";
       width: 6px; height: 6px;
       border-radius: 50%;
     }
-    .msg-card .status-badge.s-warn::before { background: var(--cs-orange); }
-    .msg-card .status-badge.s-warn { color: var(--cs-orange); }
-    .msg-card .status-badge.s-proc::before { background: var(--cs-primary); }
-    .msg-card .status-badge.s-proc { color: var(--cs-primary); }
-    .msg-card .status-badge.s-done::before { background: var(--cs-success); }
-    .msg-card .status-badge.s-done { color: var(--cs-success); }
-    .msg-card .status-badge.s-danger::before { background: var(--cs-danger); }
-    .msg-card .status-badge.s-danger { color: var(--cs-danger); }
-    .msg-card .status-badge.s-closed::before { background: #bfbfbf; }
-    .msg-card .status-badge.s-closed { color: var(--cs-text-tertiary); }
-    .msg-card .card-body { padding: 10px 12px; }
-    .msg-card .card-row {
+    .thread-card .status-badge.s-warn::before { background: var(--cs-orange); }
+    .thread-card .status-badge.s-warn { color: var(--cs-orange); }
+    .thread-card .status-badge.s-proc::before { background: var(--cs-primary); }
+    .thread-card .status-badge.s-proc { color: var(--cs-primary); }
+    .thread-card .status-badge.s-done::before { background: var(--cs-success); }
+    .thread-card .status-badge.s-done { color: var(--cs-success); }
+    .thread-card .status-badge.s-danger::before { background: var(--cs-danger); }
+    .thread-card .status-badge.s-danger { color: var(--cs-danger); }
+    .thread-card .status-badge.s-closed::before { background: #bfbfbf; }
+    .thread-card .status-badge.s-closed { color: var(--cs-text-tertiary); }
+    .thread-card .card-body { padding: 10px 12px; }
+    .thread-card .card-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin: 4px 0;
       font-size: var(--cs-font-size-sm);
     }
-    .msg-card .card-row .label { color: var(--cs-text-tertiary); }
-    .msg-card .card-row .value { color: var(--cs-text); font-weight: var(--cs-font-weight-medium); }
-    .msg-card .card-row .price { color: var(--cs-text); font-weight: var(--cs-font-weight-semibold); }
+    .thread-card .card-row .label { color: var(--cs-text-tertiary); }
+    .thread-card .card-row .value { color: var(--cs-text); font-weight: var(--cs-font-weight-medium); }
+    .thread-card .card-row .price { color: var(--cs-text); font-weight: var(--cs-font-weight-semibold); }
 
-    .msg-card .product-info {
+    .thread-card .product-info {
       display: flex;
       gap: 10px;
       align-items: center;
     }
-    .msg-card .product-thumb {
+    .thread-card .product-thumb {
       width: 56px; height: 56px;
       border-radius: var(--cs-radius-sm);
       background: var(--cs-bg-header);
@@ -440,8 +548,8 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .msg-card .product-detail { flex: 1; min-width: 0; }
-    .msg-card .product-name {
+    .thread-card .product-detail { flex: 1; min-width: 0; }
+    .thread-card .product-name {
       font-size: var(--cs-font-size-base);
       font-weight: var(--cs-font-weight-medium);
       color: var(--cs-text);
@@ -452,54 +560,44 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
     }
-    .msg-card .product-desc {
+    .thread-card .product-desc {
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-tertiary);
       margin: 3px 0;
     }
-    .msg-card .product-tags {
+    .thread-card .product-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
       margin: 4px 0;
     }
-    .msg-card .product-tags .ptag {
+    .thread-card .product-tags .ptag {
       font-size: 10px;
       padding: 1px 5px;
       border-radius: 3px;
       background: var(--cs-border-lighter);
       color: var(--cs-text-secondary);
     }
-    .msg-card .price-line {
+    .thread-card .price-line {
       display: flex;
       align-items: baseline;
       gap: 6px;
     }
-    .msg-card .price-line .now {
+    .thread-card .price-line .now {
       font-size: var(--cs-font-size-md);
       color: var(--cs-text);
       font-weight: var(--cs-font-weight-semibold);
     }
-    .msg-card .price-line .origin {
+    .thread-card .price-line .origin {
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-tertiary);
       text-decoration: line-through;
     }
-    .msg-card .meta-line {
+    .thread-card .meta-line {
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-tertiary);
       margin-top: 3px;
-    }
-    .msg-card .coupon-value {
-      font-size: 22px;
-      font-weight: var(--cs-font-weight-bold);
-      color: var(--cs-text);
-    }
-    .msg-card .coupon-value .unit {
-      font-size: var(--cs-font-size-sm);
-      font-weight: var(--cs-font-weight-medium);
-    }
-    .msg-card .card-action {
+    }  .thread-card .card-action {
       text-align: center;
       padding: 8px;
       background: var(--cs-bg-card);
@@ -512,42 +610,34 @@
       border-radius: var(--cs-radius-xs);
       transition: background .15s, color .15s;
     }
-    .msg-card .card-action:hover { background: var(--cs-primary); color: #fff; }
+    .thread-card .card-action:hover { background: var(--cs-primary); color: #fff; }
 
     /* 物流轨迹（cards.html 无此场景，沿用统一风格） */
-    .msg-card .track-step {
+    .thread-card .track-step {
       display: flex; align-items: flex-start; gap: 8px; padding: 4px 0;
       font-size: var(--cs-font-size-xs);
     }
-    .msg-card .track-dot {
+    .thread-card .track-dot {
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
     }
-    .msg-card .track-dot.active { background: var(--cs-primary); }
-    .msg-card .track-dot.done { background: var(--cs-success); }
-    .msg-card .track-dot.pending { background: #d9d9d9; }
-    .msg-card .track-line { flex: 1; }
-    .msg-card .track-line .track-time { color: var(--cs-text-tertiary); font-size: 10px; }
+    .thread-card .track-dot.active { background: var(--cs-primary); }
+    .thread-card .track-dot.done { background: var(--cs-success); }
+    .thread-card .track-dot.pending { background: #d9d9d9; }
+    .thread-card .track-line { flex: 1; }
+    .thread-card .track-line .track-time { color: var(--cs-text-tertiary); font-size: 10px; }
 
     /* FAQ 列表（cards.html 无此场景，沿用统一风格） */
-    .msg-card .faq-item {
+    .thread-card .faq-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 7px 10px; background: #fafafa; border-radius: var(--cs-radius-xs);
       margin-bottom: 6px; font-size: var(--cs-font-size-sm); color: var(--cs-text);
       cursor: pointer;
     }
-    .msg-card .faq-item:hover { background: var(--cs-primary-bg); }
-    .msg-card .faq-item .q-arrow { color: var(--cs-text-tertiary); }
+    .thread-card .faq-item:hover { background: var(--cs-primary-bg); }
+    .thread-card .faq-item .q-arrow { color: var(--cs-text-tertiary); }
   </style>
 </head>
 <body>
-
-<div class="page-wrap">
-
-  <!-- Page heading -->
-  <div class="page-head">
-    <h1>基础消息交互（用户端）</h1>
-    <div class="back-link"><a href="javascript:history.back()">← 返回上一页</a> · 移动端 375px · US-MVP-14</div>
-  </div>
 
   <!-- ===== Mobile chat container ===== -->
   <div class="cs-phone">
@@ -568,9 +658,9 @@
       </div>
 
       <div class="nav-peer">
-        <div class="agent-avatar">李</div>
+        <div class="agent-avatar">王</div>
         <div class="peer-info">
-          <span class="peer-name">客服 李小米</span>
+          <span class="peer-name">客服 王小明</span>
           <span class="peer-status online">在线</span>
         </div>
       </div>
@@ -581,13 +671,7 @@
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
           </svg>
         </div>
-        <div class="nav-action" id="moreHeaderBtn" title="更多">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="5" cy="12" r="1.8"/>
-            <circle cx="12" cy="12" r="1.8"/>
-            <circle cx="19" cy="12" r="1.8"/>
-          </svg>
-        </div>
+
       </div>
 
       <div class="cs-capsule" title="微信胶囊">
@@ -606,9 +690,9 @@
 
       <!-- Agent welcome text -->
       <div class="msg-row">
-        <div class="msg-avatar agent">李</div>
+        <div class="msg-avatar agent">王</div>
         <div class="msg-content">
-          <div class="msg-bubble-agent">您好，我是客服李小米，很高兴为您服务！请问有什么可以帮您？<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="msg-bubble-agent">您好，我是客服王小明，很高兴为您服务！请问有什么可以帮您？<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
           <div class="msg-meta">10:24</div>
         </div>
       </div>
@@ -624,7 +708,7 @@
 
       <!-- Agent text -->
       <div class="msg-row">
-        <div class="msg-avatar agent">李</div>
+        <div class="msg-avatar agent">王</div>
         <div class="msg-content">
           <div class="msg-bubble-agent">好的，请稍等，我帮您查询一下订单状态～</div>
           <div class="msg-meta">10:25</div>
@@ -651,7 +735,7 @@
 
       <!-- Agent text -->
       <div class="msg-row">
-        <div class="msg-avatar agent">李</div>
+        <div class="msg-avatar agent">王</div>
         <div class="msg-content">
           <div class="msg-bubble-agent">收到您的截图，规格确认无误，是您下单的白色降噪款。还有其他问题吗？</div>
           <div class="msg-meta">10:30</div>
@@ -685,7 +769,7 @@
 
       <!-- Agent text -->
       <div class="msg-row">
-        <div class="msg-avatar agent">李</div>
+        <div class="msg-avatar agent">王</div>
         <div class="msg-content">
           <div class="msg-bubble-agent">好的，已收到您的语音反馈，我会帮您跟进处理。还有其他问题吗？</div>
           <div class="msg-meta">10:34</div>
@@ -701,6 +785,12 @@
         </div>
       </div>
 
+      <!-- 撤回提示：客服撤回了一条消息（与 PC 端工作台 2 分钟撤回联动） -->
+      <div class="msg-recalled-notice">
+        <svg class="recall-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        对方撤回了一条消息
+      </div>
+
     </div>
 
     <!-- 语音录制浮层 -->
@@ -709,7 +799,7 @@
       <span>正在录音... 00:0<span id="vrSec">0</span></span>
     </div>
 
-    <!-- 更多面板 -->
+    <!-- 更多面板：4 个功能项（相册 + 拍照 + 电话客服 + 转人工） -->
     <div class="more-panel" id="morePanel">
       <div class="more-grid">
         <div class="more-item" data-action="album">
@@ -718,33 +808,38 @@
         </div>
         <div class="more-item" data-action="camera">
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-          <div class="mi-label">拍摄</div>
-        </div>
-        <div class="more-item" data-action="order">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
-          <div class="mi-label">订单</div>
-        </div>
-        <div class="more-item" data-action="product">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
-          <div class="mi-label">商品</div>
-        </div>
-        <div class="more-item" data-action="file">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-          <div class="mi-label">文件</div>
+          <div class="mi-label">拍照</div>
         </div>
         <div class="more-item" data-action="phone">
           <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
           <div class="mi-label">电话客服</div>
         </div>
+
         <div class="more-item" data-action="transfer">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div class="mi-label">转人工</div>
         </div>
-        <div class="more-item" data-action="end">
-          <div class="mi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/><line x1="23" y1="1" x2="1" y2="23"/></svg></div>
-          <div class="mi-label">结束会话</div>
-        </div>
+
       </div>
+    </div>
+
+    <!-- 快捷卡片入口条（输入框上方，横向滚动） -->
+    <div class="quick-cards-bar" id="quickCardsBar">
+      <button class="quick-card" data-action="order" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        订单
+      </button>
+      <button class="quick-card" data-action="refund" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        退款
+      </button>      <button class="quick-card" data-action="logistics" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        物流
+      </button>
+      <button class="quick-card" data-action="cart" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        购物车
+      </button>
     </div>
 
     <!-- 输入工具栏 -->
@@ -756,14 +851,6 @@
         </svg>
       </div>
       <input type="text" id="msgInput" placeholder="请输入消息..." />
-      <div class="input-icon" id="emojiIcon" title="表情">
-        <svg viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
-          <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-          <line x1="9" y1="9" x2="9.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
-          <line x1="15" y1="9" x2="15.01" y2="9" stroke="#595959" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
       <div class="input-icon" id="moreIcon" title="更多">
         <svg viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
@@ -775,26 +862,8 @@
 
   </div>
 
-  <!-- Page footer -->
-  <div class="page-footer">
-    对应需求：US-MVP-14（语音消息）· 文本/图片/语音基础消息交互 · 历史消息向上滚动加载
-    <br />
-    <a href="javascript:history.back()">← 返回上一页</a>
-  </div>
-
-</div>
-
 <!-- ===== Demo interactions ===== -->
 <script>
-  // 顶栏「更多」按钮
-  (function () {
-    var btn = document.getElementById('moreHeaderBtn');
-    if (btn && window.csModal) {
-      btn.addEventListener('click', function () {
-        csModal.toast('更多：转人工 · 结束会话 · 投诉建议');
-      });
-    }
-  })();
 
   // 顶栏「电话」按钮：一键拨打客服热线
   (function () {
@@ -823,7 +892,7 @@
       {
         date: '昨天 18:30',
         msgs: [
-          { who: 'agent', text: '您好，我是客服李小米，请问有什么可以帮您？', time: '18:30' },
+          { who: 'agent', text: '您好，我是客服王小明，请问有什么可以帮您？', time: '18:30' },
           { who: 'user', text: '想了解一下这款耳机的保修政策', time: '18:31' },
           { who: 'agent', text: '这款耳机整机保修一年，保修期内非人为损坏可免费维修～', time: '18:32' }
         ]
@@ -844,7 +913,7 @@
       }
     ];
 
-    function avatarText(who) { return who === 'agent' ? '李' : '我'; }
+    function avatarText(who) { return who === 'agent' ? '王' : '我'; }
 
     function makeRow(who, text, time) {
       var row = document.createElement('div');
@@ -864,6 +933,20 @@
       d.textContent = '— ' + text + ' —';
       return d;
     }
+
+    // 插入撤回提示（对方撤回了一条消息，与 PC 端工作台撤回联动）
+    function appendRecalledNotice(text) {
+      var box = document.getElementById('chatMessages');
+      if (!box) return;
+      var el = document.createElement('div');
+      el.className = 'msg-recalled-notice';
+      el.innerHTML =
+        '<svg class="recall-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+        (text || '对方撤回了一条消息');
+      box.appendChild(el);
+      box.scrollTop = box.scrollHeight;
+    }
+
 
     function loadMore() {
       if (loading || allLoaded) return;
@@ -912,18 +995,16 @@
     box.scrollTop = box.scrollHeight;
   })();
 
-  // 输入框：有内容时显示「发送」按钮，隐藏「+」和表情
+  // 输入框：有内容时显示「发送」按钮，隐藏「+」
   (function () {
     var input = document.getElementById('msgInput');
     var sendBtn = document.getElementById('sendBtn');
     var moreIcon = document.getElementById('moreIcon');
-    var emojiIcon = document.getElementById('emojiIcon');
     if (!input || !sendBtn) return;
     input.addEventListener('input', function () {
       var has = input.value.trim().length > 0;
       sendBtn.classList.toggle('show', has);
       moreIcon.style.display = has ? 'none' : '';
-      emojiIcon.style.display = has ? 'none' : '';
     });
     sendBtn.addEventListener('click', function () {
       var val = input.value.trim();
@@ -942,7 +1023,19 @@
       input.value = '';
       sendBtn.classList.remove('show');
       moreIcon.style.display = '';
-      emojiIcon.style.display = '';
+      // 模拟客服自动回复
+      setTimeout(function () {
+        var reply = document.createElement('div');
+        reply.className = 'msg-row';
+        reply.innerHTML =
+          '<div class="msg-avatar agent">王</div>' +
+          '<div class="msg-content">' +
+            '<div class="msg-bubble-agent">您好，您的问题已收到，稍后为您处理～</div>' +
+            '<div class="msg-meta">' + new Date().toTimeString().slice(0, 5) + '</div>' +
+          '</div>';
+        thread.appendChild(reply);
+        thread.scrollTop = thread.scrollHeight;
+      }, 800);
     });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); sendBtn.click(); }
@@ -960,229 +1053,727 @@
   })();
 
   // 更多面板：各功能项交互
+  // 卡片类操作（order/product/cart/logistics/refund）> 发送真实富媒体卡片到会话
+  // 其他操作（相册/相机/文件/电话/转接/结束）> 演示提示
   (function () {
-    var ACTIONS = {
-      album:     '已打开相册（演示）',
-      camera:    '已打开相机（演示）',
-      order:     '已选择订单卡片（演示）',
-      product:   '已选择商品卡片（演示）',
+    // 卡片类 action > 卡片类型映射（key 等于卡片类型）
+    var CARD_ACTIONS = {
+      order: 'order',
+      product: 'product',
+      cart: 'cart',
+      logistics: 'logistics',
+      refund: 'refund'
+    };
+    // 卡片发送后，客服的自动回复（演示）
+    var CARD_REPLIES = {
+      order: '好的，已收到您的订单信息，请问这笔订单有什么问题？',
+      product: '好的，您咨询的是这款商品，请问有什么可以帮您？',
+      cart: '好的，已查看您的购物车，请问需要什么帮助？',
+      logistics: '好的，已为您查询物流，包裹正在运输中。',
+      refund: '好的，已收到您的退款信息，我来为您查看进度。',      camera:    '已打开相机（演示）',
       file:      '已打开文件选择（演示）',
       phone:     '是否拨打客服热线 400-888-8888？',
       transfer:  '已为您转接人工客服（演示）',
       end:       '确认结束本次会话？（演示）'
     };
+
+
+    // 评价卡片交互绑定
+    function bindRatingCard(row) {
+      var card = row.querySelector('.msg-rating-card');
+      if (!card) return;
+      var stars = card.querySelectorAll('.rc-star');
+      var tags = card.querySelectorAll('.rc-tag');
+      var submit = card.querySelector('.rc-submit');
+      var rating = 0;
+      var selectedTags = [];
+      stars.forEach(function (star) {
+        star.addEventListener('click', function () {
+          rating = parseInt(star.getAttribute('data-v'), 10);
+          stars.forEach(function (s, i) {
+            s.classList.toggle('active', i < rating);
+          });
+          submit.disabled = (rating === 0);
+        });
+      });
+      tags.forEach(function (tag) {
+        tag.addEventListener('click', function () {
+          var idx = selectedTags.indexOf(tag.textContent);
+          if (idx >= 0) { selectedTags.splice(idx, 1); tag.classList.remove('active'); }
+          else { selectedTags.push(tag.textContent); tag.classList.add('active'); }
+        });
+      });
+      submit.addEventListener('click', function () {
+        if (rating === 0) return;
+        card.classList.add('done');
+        if (window.csModal) csModal.toast('评价已提交，感谢！');
+      });
+    }
+
+    // 转人工后：快捷栏显示"结束会话"按钮
+    function showEndButton() {
+      var bar = document.getElementById('quickCardsBar');
+      if (!bar || bar.querySelector('[data-action="end"]')) return;
+      var btn = document.createElement('button');
+      btn.className = 'quick-card quick-card-end';
+      btn.setAttribute('data-action', 'end');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>结束会话';
+      btn.addEventListener('click', function () {
+        if (!window.confirm('确认结束本次会话？')) return;
+        // 推送关闭提示（带留言引导）+ 评价卡片
+        if (window.csChat) {
+          window.csChat.sendSystem('本次会话已结束，如有需要请重新发起咨询', true);
+          setTimeout(function () {
+            window.csChat.sendText('感谢您的咨询，欢迎下次再来～', 'agent');
+            window.csChat.sendRating();
+          }, 500);
+        }
+        if (window.csModal) csModal.toast('会话已结束');
+      });
+      bar.appendChild(btn);
+    }
+
+    // 需要先选择对象的卡片类型（多对象场景）
+    var PICKER_TYPES = { order: 'order', product: 'product', refund: 'refund', logistics: 'logistics' };
+
+    // 统一的卡片发送流程
+    function sendCardFlow(key) {
+      if (!CARD_ACTIONS[key] || !window.csChat) return;
+      var cardType = CARD_ACTIONS[key];
+      // 需要选择对象的类型 > 先弹选择列表
+      if (PICKER_TYPES[key] && window.csModal) {
+        window.csModal.open('modals/modal-object-picker.html?type=' + cardType, {
+          variant: 'sheet', width: 375,
+          onConfirm: function (data) {
+            if (data && data.action === 'pickObject') {
+              var objData = buildCardData(data.objectType, data.objectId, data.objectName, data.objectStatus);
+              window.csChat.sendCard(data.objectType, 'user', objData);
+              setTimeout(function () {
+                window.csChat.sendText(CARD_REPLIES[data.objectType] || '好的，已收到您的信息。', 'agent');
+              }, 600);
+            }
+          }
+        });
+      } else {
+        // 无需选择（cart/profile）：直接发默认卡片
+        window.csChat.sendCard(cardType, 'user');
+        setTimeout(function () {
+          window.csChat.sendText(CARD_REPLIES[key] || '好的，已收到您的信息。', 'agent');
+        }, 600);
+      }
+    }
+
+    // 根据选中对象构造卡片数据
+    function buildCardData(type, id, name, status) {
+      var map = {
+        order: { order_id: id, order_status: status || '运输中', amount: '' },
+        product: { product_id: id, product_name: name, price: '' },
+        refund: { refund_id: id, refund_type: '退货退款', refund_status: status || '审核中' },
+        logistics: { tracking_no: id, carrier: '顺丰速运' }
+      };
+      return map[type] || {};
+    }
+
     document.querySelectorAll('.more-item').forEach(function (item) {
       item.addEventListener('click', function () {
         var key = item.getAttribute('data-action');
-        var msg = ACTIONS[key] || '功能演示';
+        var morePanel = document.getElementById('morePanel');
+        if (morePanel) morePanel.classList.remove('show');
+        if (CARD_ACTIONS[key]) { sendCardFlow(key); return; }
         if (key === 'phone') {
-          if (window.confirm(msg)) {
+          if (window.confirm(ACTIONS.phone)) {
             if (window.csModal) csModal.toast('正在拨打 400-888-8888…');
             else alert('正在拨打 400-888-8888…');
           }
-        } else if (key === 'end') {
-          if (window.confirm(msg)) {
-            if (window.csModal) csModal.toast('会话已结束');
-            setTimeout(function () { history.back(); }, 800);
-          }
-        } else {
-          if (window.csModal) csModal.toast(msg);
-          else alert(msg);
+          return;
         }
-        document.getElementById('morePanel').classList.remove('show');
+        // 转人工：切换状态，快捷栏加结束会话
+        if (key === 'transfer') {
+          if (window.csModal) csModal.toast('正在为您转接人工客服…');
+          setTimeout(function () {
+            window.csSession.isHuman = true;
+            // 插入系统消息
+            if (window.csChat) {
+              var box = document.getElementById('chatMessages');
+              var sys = document.createElement('div');
+              sys.className = 'msg-system';
+              sys.textContent = '人工客服已接入，您现在可以与真人客服沟通';
+              box.appendChild(sys);
+              box.scrollTop = box.scrollHeight;
+            }
+            // 快捷栏显示"结束会话"
+            showEndButton();
+            if (window.csModal) csModal.toast('人工客服已接入');
+          }, 1500);
+          return;
+        }
+        var msg = ACTIONS[key] || '功能演示';
+        if (window.csModal) csModal.toast(msg);
+        else alert(msg);
+      });
+    });
+
+    document.querySelectorAll('.quick-card').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        sendCardFlow(chip.getAttribute('data-action'));
       });
     });
   })();
 
-  // 语音按钮：模拟录音浮层
+  // ============================================================
+  // 卡片发送 API（全局可用，不依赖 entry_tag 场景参数）
+  // 供输入区"+"面板的 more-item 调用，往会话里发送富媒体卡片
+  // ============================================================
   (function () {
-    var voiceIcon = document.getElementById('voiceIcon');
-    var overlay = document.getElementById('voiceRecording');
-    var secEl = document.getElementById('vrSec');
-    if (!voiceIcon || !overlay) return;
-    var timer = null, sec = 0;
-    voiceIcon.addEventListener('click', function () {
-      if (overlay.classList.contains('show')) {
-        overlay.classList.remove('show');
-        clearInterval(timer);
-        if (window.csModal) csModal.toast('录音结束（演示），时长 00:0' + sec + '"');
-        sec = 0; secEl.textContent = '0';
-      } else {
-        overlay.classList.add('show');
-        sec = 0; secEl.textContent = '0';
-        timer = setInterval(function () {
-          sec++;
-          secEl.textContent = sec;
-        }, 1000);
-      }
-    });
-  })();
-
-  // 表情按钮：演示
-  (function () {
-    var emojiIcon = document.getElementById('emojiIcon');
-    if (!emojiIcon) return;
-    emojiIcon.addEventListener('click', function () {
-      if (window.csModal) csModal.toast('表情面板（演示）');
-    });
-  })();
-
-  // ===== 场景化自动发送：读取 entry_tag，自动发问候语 + 场景卡片 =====
-  (function () {
-    var params = {};
-    location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
-      var p = kv.split('=');
-      params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
-    });
-    var tag = params.entry_tag;
-    if (!tag) return; // 无场景参数，保持原预设对话
-
     var box = document.getElementById('chatMessages');
-    var loader = document.getElementById('historyLoader');
-    if (!box || !loader) return;
+    if (!box) return;
 
-    // 清空 loader 之后的所有预设对话
-    while (loader.nextSibling) box.removeChild(loader.nextSibling);
-
-    function now() { return new Date().toTimeString().slice(0, 5); }
-    function esc(s) { return String(s).replace(/</g, '&lt;'); }
-
-    // 生成消息行
-    function row(who, html) {
-      var el = document.createElement('div');
-      el.className = 'msg-row' + (who === 'user' ? ' user' : '');
-      el.innerHTML =
-        '<div class="msg-avatar ' + who + '">' + (who === 'agent' ? '李' : '我') + '</div>' +
-        '<div class="msg-content">' +
-          '<div class="msg-bubble-' + (who === 'user' ? 'user' : 'agent') + '">' + html + '</div>' +
-          '<div class="msg-meta">' + now() + '</div>' +
-        '</div>';
-      return el;
-    }
-    function system(text) {
-      var el = document.createElement('div');
-      el.className = 'msg-system';
-      el.textContent = '— ' + text + ' —';
-      return el;
-    }
-
-    // 场景配置：问候语 + 卡片类型
-    var SCENES = {
-      home:      { label: '首页咨询',     greeting: '您好，请问有什么可以帮您？',                                 card: null },
-      product:   { label: '商品咨询',     greeting: '您好，关于这款商品有什么可以帮您？',                         card: 'product' },
-      order:     { label: '订单咨询',     greeting: '您好，关于这笔订单有什么可以帮您？',                         card: 'order' },
-      cart:      { label: '购物车咨询',   greeting: '您好，关于购物车里的商品有什么可以帮您？',                   card: 'cart' },
-      help:      { label: '常见问题',     greeting: '您好，为您推荐以下常见问题，点击即可查看：',                 card: 'faq' },
-      profile:   { label: '账户咨询',     greeting: '您好，关于您的账户有什么可以帮您？',                         card: 'profile' },
-      logistics: { label: '物流查询',     greeting: '您好，您的包裹正在运输中，物流信息如下：',                   card: 'logistics' },
-      refund:    { label: '退款咨询',     greeting: '您好，关于这笔退款申请有什么可以帮您？',                     card: 'refund' },
-      phone:     { label: '电话客服',     greeting: '您好，已为您接通电话客服，请稍候…',                          card: null }
+    // 卡片默认数据（用户从"+"面板发送时，用这些 mock 数据）
+    var CARD_DEFAULTS = {
+      product:   { product_id: '10086', product_name: '日本进口保温杯 不锈钢真空便携水杯', price: '68' },
+      order:     { order_id: 'JS2026040888001', order_status: '运输中', amount: '196.90' },
+      cart:      { cart_items: '3', total_amount: '195.90' },
+      logistics: { tracking_no: 'SF1234567890', carrier: '顺丰速运' },
+      refund:    { refund_id: 'RF202604080001', refund_type: '退货退款' },
+      profile:   { member_level: '黄金会员' }
     };
-    var s = SCENES[tag] || SCENES.home;
 
-    // 卡片 HTML 生成（结构与 user-chat-cards.html 富媒体卡片一致）
+    function esc(s) { return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    // 卡片 HTML 生成（独立版本，不依赖场景化 IIFE 的 cardHtml）
     function cardHtml(type, p) {
-      var ICON = {
-        product: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
-        order:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
-        cart:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
-        logistics: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
-        refund:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',
-        faq:     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-        profile: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
-      };
+      p = p || {};
       var THUMB_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>';
-      var h = '<div class="msg-card ' + type + '">' +
-        '<div class="card-header"><div class="h-left"><span class="h-icon">' + (ICON[type] || '') + '</span>';
       var body = '<div class="card-body">';
       var action = '';
+      var h = '<div class="thread-card ' + type + '">';
 
       if (type === 'product') {
-        h += '<span>商品</span></div><span class="status-badge s-done">在售</span></div>';
-        body += '<div class="product-info">' +
-            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
-            '<div class="product-detail">' +
-              '<div class="product-name">' + esc(p.product_name || 'YONEX 天斧100ZZ 碳纤维羽毛球拍') + '</div>' +
-              '<div class="product-desc">碳纤维拍框 · 重量 89g · 头重进攻型</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="product-tags"><span class="ptag">包邮</span><span class="ptag">七天无理由</span><span class="ptag">正品保障</span></div>' +
-          '<div class="price-line"><span class="now">¥' + esc(p.price || '1580') + '.00</span><span class="origin">¥1880.00</span></div>' +
-          '<div class="meta-line">已售 580+ · 好评 97%</div>';
+        h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><span>商品</span></div><span class="status-badge s-done">在售</span></div>';
+        body += '<div class="product-info"><div class="product-thumb">' + THUMB_SVG + '</div><div class="product-detail"><div class="product-name">' + esc(p.product_name || '日本进口保温杯') + '</div><div class="product-desc">白色 · 500ml · 304不锈钢</div></div></div><div class="price-line"><span class="now">¥' + esc(p.price || '68') + '</span></div>';
         action = '<div class="card-action">查看商品</div>';
       } else if (type === 'order') {
-        h += '<span>订单</span></div><span class="status-badge s-warn">' + esc(p.order_status || '待发货') + '</span></div>';
-        body += '<div class="product-info">' +
-            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
-            '<div class="product-detail">' +
-              '<div class="product-name">' + esc(p.product_name || 'YONEX 天斧100ZZ 碳纤维羽毛球拍') + '</div>' +
-              '<div class="product-desc">规格：标准款 &nbsp;x1</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="card-row"><span class="label">订单编号</span><span class="value">' + esc(p.order_id || '202606110001') + '</span></div>' +
-          '<div class="card-row"><span class="label">实付金额</span><span class="price">¥' + esc(p.amount || '1580') + '.00</span></div>' +
-          '<div class="meta-line">下单时间 2026-06-10 09:12</div>';
-        action = '<div class="card-action">查看订单详情</div>';
+        // 订单状态徽标配色
+        var orderStatusMap = {
+          '待发货': 's-warn', '运输中': 's-proc', '已签收': 's-done',
+          '售后中': 's-danger', '已完成': 's-done', '已取消': 's-danger'
+        };
+        var os = p.order_status || '运输中';
+        var osBadge = orderStatusMap[os] || 's-proc';
+        h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span>订单</span></div><span class="status-badge ' + osBadge + '">' + esc(os) + '</span></div>';
+        body += '<div class="card-row"><span class="label">订单编号</span><span class="value">' + esc(p.order_id || 'JS2026040888001') + '</span></div><div class="card-row"><span class="label">实付金额</span><span class="value">¥' + esc(p.amount || '196.90') + '</span></div>';
+        // 按钮工厂：根据状态生成不同按钮组
+        var oid = esc(p.order_id || 'JS2026040888001');
+        function ob(text, act) { return '<button class="card-action-btn" data-cs-action="' + act + '" data-order-id="' + oid + '">' + text + '</button>'; }
+        var orderBtns = [ob('查看详情', 'viewDetail_order')];
+        if (os === '待发货') {
+          orderBtns.push(ob('申请退款', 'refund'), ob('取消订单', 'cancel'));
+        } else if (os === '运输中') {
+          orderBtns.push(ob('查看物流', 'trackLogistics'));
+        } else if (os === '已签收') {
+          orderBtns.push(ob('查看物流', 'trackLogistics'), ob('申请售后', 'refund'));
+        } else if (os === '售后中') {
+          orderBtns.push(ob('查看退款进度', 'viewProgress'));
+        }
+        // 已完成/已取消：只有查看详情
+        action = '<div class="card-actions">' + orderBtns.join('') + '</div>';
       } else if (type === 'cart') {
-        h += '<span>购物车</span></div><span class="status-badge s-proc">' + esc(p.cart_items || '3') + ' 件商品</span></div>';
-        body += '<div class="product-info">' +
-            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
-            '<div class="product-detail">' +
-              '<div class="product-name">购物车共 ' + esc(p.cart_items || '3') + ' 件商品</div>' +
-              '<div class="product-desc">含运动装备、配件等</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="card-row"><span class="label">商品数量</span><span class="value">' + esc(p.cart_items || '3') + ' 件</span></div>' +
-          '<div class="card-row"><span class="label">合计金额</span><span class="price">¥' + esc(p.total_amount || '1800') + '.00</span></div>';
-        action = '<div class="card-action">查看购物车</div>';
+        h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><span>购物车</span></div><span class="status-badge s-proc">' + esc(p.cart_items || '3') + ' 件商品</span></div>';
+        body += '<div class="card-row"><span class="label">商品数量</span><span class="value">' + esc(p.cart_items || '3') + ' 件</span></div><div class="card-row"><span class="label">合计金额</span><span class="value">¥' + esc(p.total_amount || '195.90') + '</span></div>';
+        action = '<div class="card-actions">' +
+          '<button class="card-action-btn" data-cs-action="viewCart">查看购物车</button>' +
+          '<button class="card-action-btn" data-cs-action="checkout">去结算</button>' +
+          '<button class="card-action-btn" data-cs-action="askAll">咨询商品</button>' +
+          '</div>';
       } else if (type === 'logistics') {
-        h += '<span>物流</span></div><span class="status-badge s-proc">运输中</span></div>';
-        body += '<div class="card-row"><span class="label">运单号</span><span class="value">' + esc(p.tracking_no || 'SF1234567890') + '</span></div>' +
-          '<div class="card-row"><span class="label">承运商</span><span class="value">' + esc(p.carrier || '顺丰速运') + '</span></div>' +
-          '<div class="track-step"><span class="track-dot done"></span><div class="track-line">已揽收<span class="track-time">06-10 09:00</span></div></div>' +
-          '<div class="track-step"><span class="track-dot done"></span><div class="track-line">运输中<span class="track-time">06-11 14:20</span></div></div>' +
-          '<div class="track-step"><span class="track-dot active"></span><div class="track-line">派送中<span class="track-time">06-12 08:30</span></div></div>';
+        h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span><span>物流</span></div><span class="status-badge s-proc">运输中</span></div>';
+        body += '<div class="card-row"><span class="label">运单号</span><span class="value">' + esc(p.tracking_no || 'SF1234567890') + '</span></div><div class="card-row"><span class="label">承运商</span><span class="value">' + esc(p.carrier || '顺丰速运') + '</span></div>';
         action = '<div class="card-action">查看物流详情</div>';
       } else if (type === 'refund') {
-        h += '<span>退款</span></div><span class="status-badge s-danger">' + esc(p.refund_type || '退货退款') + '</span></div>';
-        body += '<div class="product-info">' +
-            '<div class="product-thumb">' + THUMB_SVG + '</div>' +
-            '<div class="product-detail">' +
-              '<div class="product-name">' + esc(p.product_name || 'YONEX 天斧100ZZ 碳纤维羽毛球拍') + '</div>' +
-              '<div class="product-desc">退款原因：商品与描述不符</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="card-row"><span class="label">订单号</span><span class="value">' + esc(p.order_id || '202606110001') + '</span></div>' +
-          '<div class="card-row"><span class="label">退款类型</span><span class="value">' + esc(p.refund_type || '退货退款') + '</span></div>' +
-          '<div class="card-row"><span class="label">退款金额</span><span class="price">¥1580.00</span></div>' +
-          '<div class="meta-line">申请时间 2026-06-11 10:00</div>';
-        action = '<div class="card-action">查看退款进度</div>';
-      } else if (type === 'faq') {
-        h += '<span>常见问题</span></div><span class="status-badge s-proc">推荐</span></div>';
-        body += '<div class="faq-item">物流什么时候到？<span class="q-arrow">›</span></div>' +
-          '<div class="faq-item">如何申请退换货？<span class="q-arrow">›</span></div>' +
-          '<div class="faq-item">发票怎么开具？<span class="q-arrow">›</span></div>' +
-          '<div class="faq-item">优惠券怎么使用？<span class="q-arrow">›</span></div>';
+        // 退款状态（默认从 refund_type 推断，或用 refund_status 字段）
+        var rs = p.refund_status || (p.refund_type === '退货退款' ? '待退货' : '审核中');
+        var refundStatusMap = { '审核中': 's-warn', '待退货': 's-proc', '已完成': 's-done', '已拒绝': 's-danger' };
+        var rsBadge = refundStatusMap[rs] || 's-warn';
+        h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span><span>退款</span></div><span class="status-badge ' + rsBadge + '">' + esc(rs) + '</span></div>';
+        body += '<div class="card-row"><span class="label">退款单号</span><span class="value">' + esc(p.refund_id || 'RF202604080001') + '</span></div>';
+        var rid = esc(p.refund_id || 'RF202604080001');
+        function rb(text, act) { return '<button class="card-action-btn" data-cs-action="' + act + '" data-refund-id="' + rid + '">' + text + '</button>'; }
+        var refundBtns = [rb('查看进度', 'viewProgress')];
+        if (rs === '审核中') {
+          refundBtns.push(rb('补充说明', 'supplement'), rb('撤销申请', 'revoke'));
+        } else if (rs === '待退货') {
+          refundBtns.push(rb('填写物流', 'fillLogistics'));
+        }
+        // 已完成/已拒绝：只有查看进度
+        action = '<div class="card-actions">' + refundBtns.join('') + '</div>';
       } else if (type === 'profile') {
-        h += '<span>账户</span></div><span class="status-badge s-warn">' + esc(p.member_level || '黄金会员') + '</span></div>';
-        body += '<div class="card-row"><span class="label">会员等级</span><span class="value">' + esc(p.member_level || '黄金会员') + '</span></div>' +
-          '<div class="card-row"><span class="label">账户积分</span><span class="value">2,580</span></div>' +
-          '<div class="card-row"><span class="label">优惠券</span><span class="value">5 张</span></div>' +
-          '<div class="meta-line">注册时间 2024-03-15</div>';
+        h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>账户</span></div><span class="status-badge s-warn">' + esc(p.member_level || '黄金会员') + '</span></div>';
+        body += '<div class="card-row"><span class="label">会员等级</span><span class="value">' + esc(p.member_level || '黄金会员') + '</span></div>';
+        body += '<div class="card-row"><span class="label">账户积分</span><span class="value">1,280</span></div>';
         action = '<div class="card-action">查看我的账户</div>';
+      } else if (type === 'faq') {
+        h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>常见问题</span></div><span class="status-badge s-proc">推荐</span></div>';
+        body += '<div class="faq-item">如何注册苏银豆商城账号？<span class="q-arrow">></span></div>';
+        body += '<div class="faq-item">积分如何获取和使用？<span class="q-arrow">></span></div>';
+        body += '<div class="faq-item">退款多久能到账？<span class="q-arrow">></span></div>';
+        body += '<div class="faq-item">忘记密码怎么办？<span class="q-arrow">></span></div>';
+      } else {
+        return '';
       }
       body += '</div>';
       return h + body + action + '</div>';
     }
 
-    // 插入场景化会话
-    box.appendChild(system('已为您接入在线客服 · 场景：' + s.label));
-    box.appendChild(row('agent', esc(s.greeting)));
-    if (s.card) {
-      box.appendChild(row('agent', cardHtml(s.card, params)));
+    window.csChat = {
+      sendCard: function (type, who, data) {
+        var d = data || CARD_DEFAULTS[type] || {};
+        var isUser = (who || 'user') === 'user';
+        var el = document.createElement('div');
+        el.className = 'msg-row' + (isUser ? ' user' : '');
+        el.innerHTML = '<div class="msg-avatar ' + (isUser ? 'user' : 'agent') + '">' + (isUser ? '我' : '李') + '</div><div class="msg-bubble ' + (isUser ? 'user' : 'agent') + '">' + cardHtml(type, d) + '</div>';
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+        return el;
+      },
+      sendSystem: function (text, withAction) {
+        var el = document.createElement('div');
+        if (withAction) {
+          el.className = 'msg-system-with-action';
+          el.innerHTML = text + '<span class="msa-btn" data-action="leave-message">去留言 &gt;</span>';
+        } else {
+          el.className = 'msg-system';
+          el.textContent = text;
+        }
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+        return el;
+      },
+      // 发送评价卡片到会话
+      sendRating: function () {
+        var row = document.createElement('div');
+        row.className = 'msg-row';
+        row.innerHTML =
+          '<div class="msg-avatar agent">王</div>' +
+          '<div class="msg-content">' +
+            '<div class="msg-rating-card" id="ratingCard">' +
+              '<div class="rc-title">服务评价</div>' +
+              '<div class="rc-sub">感谢您的咨询，请对本次服务打分</div>' +
+              '<div class="rc-stars">' +
+                '<span class="rc-star" data-v="1">★</span>' +
+                '<span class="rc-star" data-v="2">★</span>' +
+                '<span class="rc-star" data-v="3">★</span>' +
+                '<span class="rc-star" data-v="4">★</span>' +
+                '<span class="rc-star" data-v="5">★</span>' +
+              '</div>' +
+              '<div class="rc-tags">' +
+                '<span class="rc-tag">响应迅速</span>' +
+                '<span class="rc-tag">态度友好</span>' +
+                '<span class="rc-tag">专业能力强</span>' +
+                '<span class="rc-tag">问题已解决</span>' +
+              '</div>' +
+              '<button class="rc-submit" disabled>提交评价</button>' +
+              '<div class="rc-thanks">感谢您的评价，祝您生活愉快！</div>' +
+            '</div>' +
+          '</div>';
+        box.appendChild(row);
+        box.scrollTop = box.scrollHeight;
+        bindRatingCard(row);
+        return row;
+      },
+      sendText: function (text, who) {
+        var isUser = (who || 'user') === 'user';
+        var el = document.createElement('div');
+        el.className = 'msg-row' + (isUser ? 'user' : '');
+        el.innerHTML = '<div class="msg-avatar ' + (isUser ? 'user' : 'agent') + '">' + (isUser ? '我' : '李') + '</div><div class="msg-bubble ' + (isUser ? 'user' : 'agent') + '">' + esc(text) + '</div>';
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+        return el;
+      },
+      defaults: CARD_DEFAULTS
+    };
+  })();
+
+  // ============================================================
+  // 场景化会话初始化（根据 entry_tag 推送不同卡片）
+  // 问候语统一，卡片随场景变化
+  // ============================================================
+  (function () {
+    var box = document.getElementById('chatMessages');
+    if (!box || !window.csChat) return;
+
+    // 解析 URL 参数
+    var params = {};
+    location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
+      var p = kv.split('=');
+      params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+    });
+
+    var tag = params.entry_tag || 'home';
+
+    // 统一问候语
+    var GREETING = '您好，请问有什么可以帮您？';
+
+    // 场景 -> 卡片类型 + 卡片数据映射
+    var SCENES = {
+      home:      { card: null },
+      product:   { card: 'product', data: { product_id: params.product_id || '10086', product_name: params.product_name || '日本进口保温杯 不锈钢真空便携水杯', price: params.price || '68' } },
+      order:     { card: 'order', data: { order_id: params.order_id || 'JS2026040888001', order_status: params.order_status || '运输中', amount: params.amount || '196.90' } },
+      cart:      { card: 'cart', data: { cart_items: params.cart_items || '3', total_amount: params.total_amount || '195.90' } },
+      logistics: { card: 'logistics', data: { tracking_no: params.tracking_no || 'SF1234567890', carrier: params.carrier || '顺丰速运' } },
+      refund:    { card: 'refund', data: { refund_id: params.refund_id || 'RF202604080001', refund_type: params.refund_type || '退货退款' } },
+      profile:   { card: 'profile', data: { member_level: params.member_level || '黄金会员' } },
+      help:      { card: 'faq', data: {} }
+    };
+
+    var scene = SCENES[tag] || SCENES.home;
+
+    // 场景标签
+    var sceneLabels = {
+      home: '首页咨询', product: '商品咨询', order: '订单咨询',
+      cart: '购物车咨询', logistics: '物流查询', refund: '退款咨询',
+      profile: '账户咨询', help: '常见问题'
+    };
+
+    // 系统消息
+    var sysEl = document.createElement('div');
+    sysEl.className = 'msg-system';
+    sysEl.textContent = '已为您接入在线客服 · ' + (sceneLabels[tag] || '在线咨询');
+    box.appendChild(sysEl);
+
+    // 问候语（客服气泡）
+    window.csChat.sendText(GREETING, 'agent');
+
+    // 场景卡片（客服气泡，延迟 400ms）
+    if (scene.card) {
+      setTimeout(function () {
+        window.csChat.sendCard(scene.card, 'agent', scene.data);
+      }, 400);
     }
-    // 滚动到底部
-    box.scrollTop = box.scrollHeight;
+  })();
+
+  // ============================================================
+  // 超时提示演示（5 秒后模拟客服繁忙提示）
+  // 真实场景：用户发消息后 3 分钟无客服回复触发
+  // ============================================================
+  (function () {
+    setTimeout(function () {
+      if (window.csChat) {
+        window.csChat.sendSystem('客服当前咨询量较大，可能需要稍等片刻，感谢您的耐心');
+      }
+    }, 5000);
+  })();
+
+  // 全局：留言引导按钮点击
+  document.addEventListener('click', function (e) {
+    if (e.target.classList && e.target.classList.contains('msa-btn')) {
+      if (e.target.getAttribute('data-action') === 'leave-message') {
+        if (window.csChat) {
+          window.csChat.sendText('您可以在下方输入留言内容，客服上线后会第一时间回复您', 'agent');
+        }
+      }
+    }
+  });
+
+  // ============================================================
+  // 卡片点击交互层（方案 D：信息类>半屏预览，操作类>操作菜单）
+  // ============================================================
+  (function () {
+    var box = document.getElementById('chatMessages');
+    if (!box || !window.csModal) return;
+
+    // 卡片类型判定
+    function detectCardType(card) {
+      var types = ['product', 'order', 'cart', 'logistics', 'refund', 'faq', 'profile'];
+      for (var i = 0; i < types.length; i++) {
+        if (card.classList.contains(types[i])) return types[i];
+      }
+      return null;
+    }
+
+    // 从 URL 缓存里取场景参数（供 modal 查询用）
+    var sceneParams = {};
+    location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
+      var p = kv.split('=');
+      sceneParams[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+    });
+
+    // 构造 modal URL（带场景透传的 ID 参数）
+    function buildUrl(base, idKey, idVal, extra) {
+      var qs = [idKey + '=' + encodeURIComponent(idVal)];
+      if (extra) {
+        for (var k in extra) {
+          if (extra.hasOwnProperty(k)) qs.push(k + '=' + encodeURIComponent(extra[k]));
+        }
+      }
+      return base + '?' + qs.join('&');
+    }
+
+    // 打开卡片对应的 modal
+    function openCardModal(type) {
+      var tag = sceneParams.entry_tag || 'home';
+      var url = '';
+      var onConfirm = handleCardAction;
+
+      switch (type) {
+        case 'product':
+          url = buildUrl('modals/modal-product-preview.html', 'id',
+            sceneParams.product_id || '10086');
+          break;
+        case 'logistics':
+          url = buildUrl('modals/modal-logistics-preview.html', 'id',
+            sceneParams.tracking_no || 'SF1234567890');
+          break;
+        case 'profile':
+          url = buildUrl('modals/modal-profile-preview.html', 'member_level',
+            sceneParams.member_level || '黄金会员');
+          break;
+        case 'order':
+          url = buildUrl('modals/modal-order-actions.html', 'id',
+            sceneParams.order_id || 'JS2026040888001');
+          break;
+        case 'refund':
+          url = buildUrl('modals/modal-refund-actions.html', 'id',
+            sceneParams.refund_id || 'RF202604080001');
+          break;
+        case 'cart':
+          url = buildUrl('modals/modal-cart-actions.html', 'items',
+            sceneParams.cart_items || '3', {
+              amount: sceneParams.total_amount || sceneParams.amount || '195.90'
+            });
+          break;
+        default:
+          return;
+      }
+
+      window.csModal.open(url, { variant: 'sheet', width: 375, onConfirm: onConfirm });
+    }
+
+    // 卡片操作回调：根据 action 在会话里插入系统消息 + toast
+    function handleCardAction(data) {
+      if (!data || !data.action) return;
+      var msgs = {
+        // 商品
+        addCart: '已将「' + (data.productName || '商品') + '」加入购物车',
+        viewDetail: '已在新标签页打开商品详情',
+        // 物流
+        copyTracking: '运单号已复制：' + (data.trackingNo || ''),
+        refreshLogistics: '物流信息已刷新，包裹仍在运输中',
+        // 账户
+        viewProfile: '已在新标签页打开「我的」账户页',
+        viewPoints: '已在新标签页打开积分中心',
+        viewOrders: '已在新标签页打开订单列表',
+        viewReviews: '已在新标签页打开商品评价',
+        viewSpecs: '已在新标签页打开商品详情（含规格）',
+        // 订单（标★为排期要求、业务页待补功能）
+        viewDetail_order: '已在新标签页打开订单详情',
+        refund: '已在新标签页打开退款/售后申请页',
+        cancel: '订单已取消，关联的退款申请已自动撤销',
+        modifyAddress: '修改收货地址请联系在线客服协助处理',
+        trackLogistics: '已在新标签页打开物流追踪',
+        contact: '已返回会话继续沟通',
+        // 退款
+        viewProgress: '已在新标签页打开退款进度',
+        supplement: '已在新标签页打开退款详情（补充说明）',
+        fillLogistics: '已在新标签页打开退款详情（填写退货物流）',
+        revoke: '退款申请已撤销',
+        // 购物车
+        viewCart: '已在新标签页打开购物车',
+        checkout: '已在新标签页打开订单确认页',
+        askAll: '__PICK_PRODUCT__',
+        clearInvalid: '★ 清理失效商品：功能演示，将移除已下架/售罄/无库存商品',
+        // FAQ
+        viewFaq: '__OPEN_FAQ__',
+        contactAgent: '已通知人工客服介入'
+      };
+
+      // 订单操作里也有 viewDetail，区分一下
+      var key = data.action;
+      if (key === 'viewDetail' && data.orderId) key = 'viewDetail_order';
+
+      var text = msgs[key];
+      if (!text) return;
+
+      // 购物车"咨询这些商品" > 弹商品选择列表
+      if (text === '__PICK_PRODUCT__' && window.csModal) {
+        window.csModal.open('modals/modal-object-picker.html?type=product', {
+          variant: 'sheet', width: 375,
+          onConfirm: function (data) {
+            if (data && data.action === 'pickObject') {
+              window.csChat.sendCard('product', 'user', { product_id: data.objectId, product_name: data.objectName, price: '' });
+              setTimeout(function () {
+                window.csChat.sendText('好的，您咨询的是「' + data.objectName + '」，请问有什么问题？', 'agent');
+              }, 600);
+            }
+          }
+        });
+        return;
+      }
+      // FAQ 相关问题 > 重新打开 FAQ modal（不插消息）
+      if (text === '__OPEN_FAQ__') {
+        var faqUrl = buildUrl('modals/modal-faq-answer.html', 'q', data.faqKey);
+        setTimeout(function () {
+          window.csModal.open(faqUrl, { variant: 'sheet', width: 375, onConfirm: handleCardAction });
+        }, 320); // 等当前弹层完全关闭后再开
+        return;
+      }
+
+      // 跨项目真跳转映射：action > mini-program 业务页
+      // 本页位于 OCS/prototype-cs/user/，需回退两级到「在线客服1」根目录
+      var REDIRECTS = {
+        // 商品详情：跳转到 mini-program 商品页
+        viewDetail: function (d) {
+          return '../../../mini-program/pages/product_detail.html' +
+            (d.productId ? '?id=' + encodeURIComponent(d.productId) : '');
+        },
+        // 订单详情：跳转到 mini-program 订单详情页
+        viewDetail_order: function (d) {
+          return '../../../mini-program/pages/order_detail.html' +
+            (d.orderId ? '?id=' + encodeURIComponent(d.orderId) : '');
+        },
+        // 订单查看物流：跳转到 mini-program 物流追踪页
+        trackLogistics: function (d) {
+          return '../../../mini-program/pages/logistics.html';
+        },
+        // 退款进度：跳转到 mini-program 退款详情页
+        viewProgress: function (d) {
+          var caseMap = { '审核通过，待填写物流': 'refund_return_approved', '商家审核中': 'refund_only_reviewing', '申请已拒绝': 'refund_return_rejected' };
+          var c = caseMap[d.refundStatus] || 'refund_return_approved';
+          return '../../../mini-program/pages/refund_detail.html?case=' + c;
+        },
+        // 退款-填写退货物流：跳转到退款详情页（定位到填写物流）
+        fillLogistics: function (d) {
+          return '../../../mini-program/pages/refund_detail.html?case=refund_return_approved';
+        },
+        // 退款-补充说明：跳转到退款详情页
+        supplement: function (d) {
+          return '../../../mini-program/pages/refund_detail.html?case=refund_only_reviewing';
+        },
+        // 购物车：跳转到 mini-program 购物车页
+        viewCart: function (d) {
+          return '../../../mini-program/pages/cart.html';
+        },
+        // 购物车-去结算：跳转到订单确认页
+        checkout: function (d) {
+          return '../../../mini-program/pages/order_product.html';
+        },
+        // 账户：跳转到 mini-program 个人中心页
+        viewProfile: function (d) {
+          return '../../../mini-program/pages/profile.html';
+        },
+        // 积分中心（账户苏银豆）
+        viewPoints: function (d) {
+          return '../../../mini-program/pages/points_center.html';
+        },
+        // 订单列表（账户订单数）
+        viewOrders: function (d) {
+          return '../../../mini-program/pages/order_list.html';
+        },
+        // 商品评价列表
+        viewReviews: function (d) {
+          return '../../../mini-program/pages/product_reviews.html';
+        },
+        // 规格选择（原型无独立页，跳商品详情页）
+        viewSpecs: function (d) {
+          return '../../../mini-program/pages/product_detail.html' +
+            (d.productId ? '?id=' + encodeURIComponent(d.productId) : '');
+        },
+        // 订单-申请退换货 > 退款/售后申请页
+        refund: function (d) {
+          return '../../../mini-program/pages/refund.html';
+        },
+        // 订单-取消订单
+        cancel: function (d) {
+          return '../../../mini-program/pages/order_cancel.html';
+        }
+      };
+
+      // 如果该 action 有真跳转配置，先 window.open 新标签页
+      if (REDIRECTS[key]) {
+        var targetUrl = REDIRECTS[key](data);
+        try {
+          window.open(targetUrl, '_blank');
+        } catch (e) {
+          // 浏览器拦截时，文案提示手动打开
+          text = '浏览器拦截了新窗口，请允许弹窗后重试，或手动打开商品详情页';
+        }
+      }
+
+      // 插入系统消息
+      insertSystemMsg(text);
+      // toast
+      if (window.csModal && window.csModal.toast) window.csModal.toast(text);
+    }
+
+    function insertSystemMsg(text) {
+      var el = document.createElement('div');
+      el.className = 'msg-system';
+      el.textContent = text;
+      box.appendChild(el);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // ===== 事件委托：点击 card-action / faq-item =====
+    // 卡片内联按钮点击 > 直接执行操作（不弹 modal）
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest('.card-action-btn');
+      if (btn) {
+        e.stopPropagation();
+        if (btn.classList.contains('done')) return; // 已操作的按钮不重复触发
+        var action = btn.getAttribute('data-cs-action');
+        var data = { action: action };
+        var orderId = btn.getAttribute('data-order-id');
+        var refundId = btn.getAttribute('data-refund-id');
+        if (orderId) data.orderId = orderId;
+        if (refundId) data.refundId = refundId;
+
+        // 需确认的操作
+        if (action === 'revoke') {
+          if (!window.confirm('确认撤销该退款申请？撤销后无法恢复')) return;
+        } else if (action === 'cancel') {
+          if (!window.confirm('确认取消该订单？取消后关联的退款申请将自动撤销')) return;
+          // 联动：取消订单 > 自动撤销关联退款
+          var card = btn.closest('.thread-card');
+          if (card) {
+            var refundBtn = card.querySelector('[data-cs-action="refund"]');
+            if (refundBtn) refundBtn.classList.add('done');
+          }
+        }
+
+        handleCardAction(data);
+        // 按钮标记为已操作（防止重复）
+        btn.classList.add('done');
+        return;
+      }
+    });
+
+    box.addEventListener('click', function (e) {
+      var action = e.target.closest('.card-action');
+      var card = e.target.closest('.thread-card');
+      if (action && card) {
+        var type = detectCardType(card);
+        if (type) {
+          e.preventDefault();
+          openCardModal(type);
+        }
+        return;
+      }
+      // FAQ 卡片里的单个问题项
+      var faqItem = e.target.closest('.faq-item');
+      if (faqItem) {
+        e.preventDefault();
+        var q = faqItem.textContent.replace('>', '').trim();
+        // 反向匹配 FAQ key（简化：用文本映射）
+        var KEY_MAP = {
+          '如何注册苏银豆商城账号？': 'register',
+          '积分如何获取和使用？': 'points',
+          '退款多久能到账？': 'refund_time',
+          '忘记密码怎么办？': 'password'
+        };
+        var fk = KEY_MAP[q] || q;
+        var url = buildUrl('modals/modal-faq-answer.html', 'q', fk);
+        window.csModal.open(url, { variant: 'sheet', width: 375, onConfirm: handleCardAction });
+      }
+    });
   })();
 </script>
 

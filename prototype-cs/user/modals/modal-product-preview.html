@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商品详情 · 半屏预览</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    /* 复刻 mini-program/pages/product_detail.html 视觉规范
+       颜色用 OCS 的 --cs-* 变量（已与小程序 #ee0a24/#ff6034 对齐） */
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .pv-modal {
+      width: 100%;
+      background: #f5f5f5;
+      border-radius: 20px 20px 0 0;
+    }
+    .pv-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 8px auto 0; }
+    .pv-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 440px;
+    }
+
+    /* === 商品主图轮播（复刻 .detail-swiper） === */
+    .detail-swiper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #f8f8f8;
+      overflow: hidden;
+    }
+    .detail-swiper-slide {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .detail-swiper-slide .ph-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.85);
+    }
+    .detail-swiper-slide .ph-placeholder svg { width: 80px; height: 80px; opacity: 0.6; }
+    .detail-swiper-indicator {
+      position: absolute;
+      bottom: 12px; right: 12px;
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      font-size: 12px;
+      border-radius: 12px;
+      padding: 2px 8px;
+    }
+
+    /* === 价格区（复刻 .price-area） === */
+    .price-area { background: #fff; padding: 14px 12px 10px; }
+    .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+    .current-price { font-size: 26px; font-weight: 700; color: var(--cs-primary); line-height: 1; }
+    .current-price .symbol { font-size: 15px; font-weight: 600; }
+    .original-price { font-size: 13px; color: #bbb; text-decoration: line-through; }
+    .discount-tag {
+      font-size: 10px; font-weight: 600; color: #fff;
+      background: linear-gradient(135deg, var(--cs-primary-hover), var(--cs-primary));
+      border-radius: 4px; padding: 2px 8px;
+    }
+    .sold-info { font-size: 12px; color: var(--cs-text-tertiary); }
+
+    /* === 标题区（复刻 .product-title-area） === */
+    .product-title-area { background: #fff; padding: 4px 12px 14px; }
+    .product-title-area .title { font-size: 15px; font-weight: 600; color: var(--cs-text); line-height: 1.5; margin: 0 0 8px; }
+    .sub-info { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag-small { font-size: 10px; color: var(--cs-primary); background: var(--cs-primary-bg); border-radius: 4px; padding: 2px 8px; } /* === 规格行（复刻 .specs-section） === */
+    .specs-section {
+      background: #fff; margin-top: 8px; padding: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .specs-section .label { font-size: 12px; color: var(--cs-text); }
+    .specs-section .value { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--cs-text-tertiary); }
+    .specs-section .value svg { width: 12px; height: 12px; }
+
+    /* === 评价区（复刻 .review-section） === */
+    .review-section { background: #fff; margin-top: 8px; padding: 12px; }
+    .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .review-header .title { font-size: 14px; font-weight: 600; color: var(--cs-text); }
+    .review-header .count { font-size: 12px; color: var(--cs-text-tertiary); }
+    .review-item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+    .review-user { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .review-user .avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #ffd6cc, #ff9988);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 11px; font-weight: 600; flex-shrink: 0;
+    }
+    .review-user .name { font-size: 12px; color: var(--cs-text-secondary); }
+    .review-user .stars { margin-left: auto; color: var(--cs-primary); font-size: 12px; }
+    .review-content { font-size: 12px; color: var(--cs-text); line-height: 1.6; }
+    .review-date { font-size: 11px; color: var(--cs-text-placeholder); margin-top: 4px; }
+
+    /* === 底部按钮区（客服场景专属） === */
+    .pv-foot {
+      display: flex; gap: 8px;
+      padding: 10px 12px 14px;
+      border-top: 1px solid #f0f0f0; background: #fff;
+    }
+    .pv-btn {
+      flex: 1; height: 40px; border-radius: 20px;
+      font-size: 14px; font-weight: 500; cursor: pointer; border: none;
+      font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 4px;
+      transition: opacity .15s;
+    }
+    .pv-btn:active { opacity: 0.8; }
+    .pv-btn-secondary { background: linear-gradient(135deg, #ffa726, #ff9800); color: #fff; }
+    .pv-btn-primary { background: linear-gradient(135deg, var(--cs-primary-hover), var(--cs-primary)); color: #fff; }
+    .pv-btn svg { width: 16px; height: 16px; }
+  </style>
+</head>
+<body>
+  <div class="pv-modal">
+    <div class="pv-handle"></div>
+    <div class="pv-body" id="pvBody"><!-- 由 JS 渲染 --></div>
+    <div class="pv-foot">
+      <button class="pv-btn pv-btn-secondary" id="btnAddCart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        加入购物车
+      </button>
+      <button class="pv-btn pv-btn-primary" id="btnDetail">
+        查看商品详情
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      // ===== 商品 mock 库（按 product_id 查询）=====
+      // 数据源：mini-program/pages/product_detail.html 的 SPU_NAME / SKU_MAP
+      // 以及 cart.html / order_detail.html 中的真实商品
+      var PRODUCTS = {
+        // 保温杯（product_detail.html 主商品，白色 SKU）
+        '10086': {
+          name: '日本进口保温杯 不锈钢真空便携水杯500ml 大容量男女通用 304不锈钢内胆 12小时保温保冷',
+          price: 68, origin: 168, discount: '4折',
+          sold: '已售 2.3万件 · 好评率 98%',
+          tags: ['正品保障', '7天无理由', '极速退款'],
+          bannerColor: 'linear-gradient(135deg, var(--cs-primary-hover), var(--cs-primary))',
+          spec: '白色，500ml',
+          reviewCount: '2386', reviewRate: '98%',
+          reviewUser: '用***8',
+          reviewContent: '保温效果非常好，早上装的热水到晚上还是温的，外观也很有质感，值得购买！',
+          reviewDate: '2026-03-15'
+        },
+        // 蓝牙耳机（cart.html / order_detail.html 商品）
+        '10087': {
+          name: '无线蓝牙降噪耳机 迷你入耳式超长续航 黑色 标准版 主动降噪 蓝牙5.3',
+          price: 89, origin: 199, discount: '45折',
+          sold: '已售 5800+ · 好评率 96%',
+          tags: ['正品保障', '7天无理由', '极速退款'],
+          bannerColor: 'linear-gradient(135deg, #bfbfbf, #595959)',
+          spec: '黑色，标准版',
+          reviewCount: '1256', reviewRate: '96%',
+          reviewUser: '数***客',
+          reviewContent: '降噪效果惊艳，地铁里基本听不到外界声音，佩戴也很舒适，续航给力。',
+          reviewDate: '2026-04-02'
+        },
+        // T恤（cart.html / order_detail.html 商品）
+        '10088': {
+          name: '纯棉短袖T恤男女款 夏季宽松百搭潮流 白色 L码 100%纯棉透气舒适',
+          price: 39, origin: 99, discount: '4折',
+          sold: '已售 1.2万件 · 好评率 97%',
+          tags: ['正品保障', '7天无理由'],
+          bannerColor: 'linear-gradient(135deg, #ffd6e7, #ff85a2)',
+          spec: '白色，L码',
+          reviewCount: '2840', reviewRate: '97%',
+          reviewUser: '夏***风',
+          reviewContent: '面料柔软亲肤，洗了几次没变形没褪色，版型宽松舒服，性价比很高。',
+          reviewDate: '2026-03-28'
+        }
+      };
+      var DEFAULT_PRODUCT = PRODUCTS['10086'];
+
+      var qs = new URLSearchParams(location.search);
+      var pid = qs.get('id') || qs.get('product_id') || '10086';
+      var p = PRODUCTS[pid] || DEFAULT_PRODUCT;
+
+      function esc(s) { return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+      var IMG_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+      var ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+
+      // ===== 渲染（严格复刻 product_detail.html 结构） =====
+      var body = document.getElementById('pvBody');
+      var html = '';
+
+      // 商品主图（轮播占位 + 指示器）
+      html += '<div class="detail-swiper">';
+      html +=   '<div class="detail-swiper-slide">';
+      html +=     '<div class="ph-placeholder" style="background:' + p.bannerColor + ';">' + IMG_SVG + '</div>';
+      html +=   '</div>';
+      html +=   '<div class="detail-swiper-indicator">1/3</div>';
+      html += '</div>';
+
+      // 价格区
+      html += '<div class="price-area">';
+      html +=   '<div class="price-row">';
+      html +=     '<span class="current-price"><span class="symbol">¥</span>' + p.price + '</span>';
+      html +=     '<span class="original-price">¥' + p.origin + '</span>';
+      html +=     '<span class="discount-tag">' + esc(p.discount) + '</span>';
+      html +=   '</div>';
+      html +=   '<div class="sold-info">' + esc(p.sold) + '</div>';
+      html += '</div>';
+
+      // 标题区
+      html += '<div class="product-title-area">';
+      html +=   '<div class="title">' + esc(p.name) + '</div>';
+      html +=   '<div class="sub-info">';
+      p.tags.forEach(function (t) { html += '<span class="tag-small">' + esc(t) + '</span>'; });
+      html +=   '</div>';
+      html += '</div>';
+
+      // 规格已选
+      html += '<div class="specs-section">';
+      html +=   '<span class="label">已选</span>';
+      html +=   '<div class="value"><span>' + esc(p.spec) + '</span>' + ARROW_SVG + '</div>';
+      html += '</div>';
+
+      // 评价区
+      html += '<div class="review-section">';
+      html +=   '<div class="review-header">';
+      html +=     '<span class="title">用户评价 (' + esc(p.reviewCount) + ')</span>';
+      html +=     '<span class="count">好评率 ' + esc(p.reviewRate) + ' &gt;</span>';
+      html +=   '</div>';
+      html +=   '<div class="review-item">';
+      html +=     '<div class="review-user">';
+      html +=       '<div class="avatar">' + esc(p.reviewUser.charAt(0)) + '</div>';
+      html +=       '<span class="name">' + esc(p.reviewUser) + '</span>';
+      html +=       '<span class="stars">★★★★★</span>';
+      html +=     '</div>';
+      html +=     '<div class="review-content">' + esc(p.reviewContent) + '</div>';
+      html +=     '<div class="review-date">' + esc(p.reviewDate) + '</div>';
+      html +=   '</div>';
+      html += '</div>';
+
+      body.innerHTML = html;
+
+      // 主动上报高度
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try { window.csModalBridge.reportHeight(document.documentElement.offsetHeight); } catch (e) {}
+        });
+      }
+
+      // ===== 按钮事件 =====
+      document.getElementById('btnAddCart').addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'addCart', productId: pid, productName: p.name });
+      });
+      document.getElementById('btnDetail').addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'viewDetail', productId: pid, productName: p.name });
+      });
+
+      // 内嵌入口：规格已选 → 暂不实现（原型无规格选择弹窗），给提示
+      var specsEntry = document.querySelector('.specs-section');
+      if (specsEntry) specsEntry.addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'viewSpecs', productId: pid });
+      });
+      // 内嵌入口：评价区 → 跳评价列表
+      var reviewEntry = document.querySelector('.review-header');
+      if (reviewEntry) reviewEntry.addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'viewReviews', productId: pid });
+      });
+    })();
+  </script>
+</body>
+</html>

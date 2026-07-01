@@ -15,18 +15,16 @@
    独立 cs- 前缀，不污染旧 .chat-mobile-container / .chat-header。
    ============================================================ */
 
-/* --- Phone Frame (375px 扁平卡片，对齐 mini-program 小程序规范) ---
-   去掉旧的「8px 黑边实体手机」观感，改为干净扁平卡片：
-   白底 + 1px 细边 + 柔和投影 + 16px 圆角，高度内容驱动（保底 680px）。 */
+/* --- Phone Frame (对齐 mini-program phone-frame 规范) ---
+   375px 宽，全屏高度，无圆角无阴影，白底，居中显示。 */
 .cs-phone {
   width: 375px;
-  min-height: 680px;        /* 内容驱动；保底避免短页空荡 */
-  margin: var(--cs-space-6) auto;
+  min-height: 100vh;
   background: var(--cs-bg-card);
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0;
+  border: none;
   overflow: hidden;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -147,6 +145,27 @@
 }
 
 /* ============================================================
+   全局覆盖：对齐小程序风格，隐藏原型外层标题/页脚
+   ============================================================ */
+.page-wrap {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.page-head,
+.page-header,
+.page-footer {
+  display: none !important;
+}
+.cs-phone {
+  margin: 0 !important;
+  height: 100vh !important;
+}
+@media (max-width: 430px) {
+  .cs-phone { height: 100vh !important; }
+}
+
+/* ============================================================
    14. Mobile Chat Container (375px)
    ============================================================ */
 .chat-mobile-container {
@@ -246,7 +265,7 @@
 /* ============================================================
    16. Rich Media Cards (order/product/coupon)
    ============================================================ */
-.msg-card {
+.thread-card {
   width: 240px;
   background: #fff;
   border-radius: var(--cs-radius-md);
@@ -254,7 +273,7 @@
   overflow: hidden;
   font-size: var(--cs-font-size-base);
 }
-.msg-card .card-banner {
+.thread-card .card-banner {
   height: 90px;
   background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
   color: #fff;
@@ -263,12 +282,12 @@
   justify-content: center;
   font-size: var(--cs-font-size-sm);
 }
-.msg-card.order .card-banner { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
-.msg-card.coupon .card-banner { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
-.msg-card.product .card-banner { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
-.msg-card .card-body { padding: 10px 12px; }
-.msg-card .card-row { display: flex; justify-content: space-between; margin: 4px 0; }
-.msg-card .card-action {
+.thread-card.order .card-banner { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
+.thread-card.coupon .card-banner { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
+.thread-card.product .card-banner { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
+.thread-card .card-body { padding: 10px 12px; }
+.thread-card .card-row { display: flex; justify-content: space-between; margin: 4px 0; }
+.thread-card .card-action {
   text-align: center;
   padding: 8px;
   background: var(--cs-primary);

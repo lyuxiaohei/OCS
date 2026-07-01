@@ -11,6 +11,9 @@
     body {
       background: var(--cs-bg-page);
       padding: var(--cs-space-6) 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .page-caption {
@@ -91,6 +94,19 @@
       animation: none;
     }
     .queue-banner.connected b { color: var(--cs-success); }
+
+    /* ============ 排队提示（中间一行小字） ============ */
+    .queue-tip {
+      align-self: center;
+      margin: 12px auto;
+      padding: 2px 10px;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .queue-tip b { color: #fa8c16; font-weight: var(--cs-font-weight-semibold); }
+    .queue-tip.connected b { color: var(--cs-success); }
 
     /* ============ 消息列表（复用 mobile.css .chat-messages） ============ */
     .msg-row {
@@ -224,20 +240,19 @@
       </div>
     </div>
 
-    <!-- ============ 排队提示条（一行小条，核心） ============ -->
-    <div class="queue-banner" id="queueBanner">
-      <span class="queue-dot"></span>
-      <span>排队中 · 前面还有 <b id="aheadNumber">3</b> 人 · 预计 <b id="etaTime">02:30</b></span>
-    </div>
-
     <!-- ============ 消息列表 ============ -->
     <div class="chat-messages" id="chatMessages">
       <div class="msg-system">— 您已进入排队队列 —</div>
 
+      <!-- 排队提示（中间一行小字） -->
+      <div class="queue-tip" id="queueTip">
+        排队中，前面还有 <b id="aheadNumber">3</b> 位用户，预计 <span id="etaTime">02:30</span>
+      </div>
+
       <div class="msg-row">
         <div class="msg-avatar agent">客</div>
         <div class="msg-content">
-          <div class="msg-bubble-agent">您好，当前咨询人数较多，已为您进入排队队列。您前面还有 3 位用户，预计等待 2 分 30 秒，客服上线后将自动为您接通，请耐心等待。</div>
+          <div class="msg-bubble-agent">您好，当前咨询人数较多，已为您进入排队队列。客服上线后将自动为您接通，请耐心等待。</div>
         </div>
       </div>
     </div>
@@ -263,7 +278,7 @@
     };
 
     var chatMessages = document.getElementById('chatMessages');
-    var queueBanner = document.getElementById('queueBanner');
+    var queueTip = document.getElementById('queueTip');
     var queueInputBar = document.getElementById('queueInputBar');
     var peerStatus = document.getElementById('peerStatus');
 
@@ -327,7 +342,7 @@
       var row = document.createElement('div');
       row.className = 'msg-row';
       row.innerHTML =
-        '<div class="msg-avatar agent">李</div>' +
+        '<div class="msg-avatar agent">王</div>' +
         '<div class="msg-content">' +
           '<div class="msg-bubble-agent">' + text + '</div>' +
         '</div>';
@@ -344,24 +359,20 @@
     function connectAgent() {
       clearInterval(state.intervalId);
       clearInterval(state.etaIntervalId);
-      // 提示条变绿
-      queueBanner.classList.add('connected');
-      queueBanner.innerHTML = '<span class="queue-dot"></span><span>客服已接通，正在为您服务</span>';
+      // 提示文字变更为已接通
+      queueTip.classList.add('connected');
+      queueTip.innerHTML = '客服 <b>王小明</b> 已为您接通';
       // 导航栏状态变在线
       peerStatus.className = 'peer-status online';
       peerStatus.textContent = '在线';
       // 插入接通消息
-      appendSystemMsg('— 客服 李小米 已为您服务 —');
-      appendAgentMsg('您好，我是客服李小米，很高兴为您服务！请问有什么可以帮您？');
+      appendSystemMsg('— 客服 王小明 已为您服务 —');
+      appendAgentMsg('您好，我是客服王小明，很高兴为您服务！请问有什么可以帮您？');
       // 输入区恢复
       queueInputBar.classList.add('connected');
       var input = queueInputBar.querySelector('input');
       input.disabled = false;
       input.placeholder = '请输入消息...';
-      // 3 秒后自动跳转
-      setTimeout(function() {
-        location.href = 'user-chat.html';
-      }, 3000);
     }
 
     // Toast 提示

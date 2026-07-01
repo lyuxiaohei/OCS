@@ -12,6 +12,9 @@
       background: #ededed;
       min-height: 100vh;
       padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .page-wrap {
@@ -234,11 +237,11 @@
     .quick-tpl:hover {
       background: var(--cs-primary-bg);
       color: var(--cs-primary);
-      border-color: #d6e4ff;
+      border-color: var(--cs-border-light);
     }
 
     /* ---- 卡片消息（商品/订单，entry_tag 联动） ---- */
-    .msg-card {
+    .thread-card {
       width: var(--chat-card-width, 252px);
       background: #fff;
       border-radius: var(--cs-radius-md);
@@ -246,7 +249,7 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.06);
       border: 1px solid var(--cs-border-light);
     }
-    .msg-card .card-thumb {
+    .thread-card .card-thumb {
       width: 100%;
       height: 100px;
       background: linear-gradient(135deg, #ffe7ba, #ffd591);
@@ -256,10 +259,10 @@
       color: #ad6800;
       font-size: var(--cs-font-size-sm);
     }
-    .msg-card .card-body {
+    .thread-card .card-body {
       padding: 8px 10px;
     }
-    .msg-card .card-title {
+    .thread-card .card-title {
       font-size: var(--cs-font-size-sm);
       color: var(--cs-text);
       font-weight: var(--cs-font-weight-medium);
@@ -269,12 +272,12 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .msg-card .card-meta {
+    .thread-card .card-meta {
       font-size: var(--cs-font-size-xs);
       color: var(--cs-text-tertiary);
       margin-bottom: 4px;
     }
-    .msg-card .card-price {
+    .thread-card .card-price {
       font-size: var(--cs-font-size-base);
       color: var(--cs-danger);
       font-weight: var(--cs-font-weight-semibold);
@@ -339,7 +342,7 @@
   <!-- Page heading -->
   <div class="page-head">
     <h1>离线留言（用户端）</h1>
-    <div class="back-link"><a href="javascript:history.back()">← 返回上一页</a> · 移动端 375px · US-MVP-20 / 22</div>
+    <div class="back-link"><a href="javascript:history.back()">&lt; 返回上一页</a> · 移动端 375px · US-MVP-20 / 22</div>
   </div>
 
   <!-- ===== Mobile chat container ===== -->
@@ -411,7 +414,7 @@
       <div class="msg-row user" id="sceneCardMsg" style="display:none;">
         <div class="msg-avatar user">我</div>
         <div class="msg-content">
-          <div class="msg-card">
+          <div class="thread-card">
             <div class="card-thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg></div>
             <div class="card-body">
               <div class="card-title" id="sceneCardTitle">商品咨询</div>
@@ -466,7 +469,7 @@
   <div class="page-footer">
     对应需求：US-MVP-20（离线留言提交）· US-MVP-22（离线自动回复）· 支持 entry_tag 场景联动
     <br />
-    <a href="javascript:history.back()">← 返回上一页</a>
+    <a href="javascript:history.back()">&lt; 返回上一页</a>
   </div>
 
 </div>

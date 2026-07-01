@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>购物车操作 · 操作菜单</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .ac-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+    }
+    .ac-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
+    .ac-head {
+      padding: 12px 16px 10px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .ac-head .ac-title { font-size: 13px; color: var(--cs-text-tertiary); text-align: center; margin: 0 0 4px; }
+    .ac-head .ac-cart-brief {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      background: var(--cs-bg-header);
+      border-radius: 8px;
+    }
+    .ac-head .ac-cart-info { display: flex; flex-direction: column; gap: 2px; }
+    .ac-head .ac-cart-count { font-size: 12px; color: var(--cs-text-secondary); }
+    .ac-head .ac-cart-amount { font-size: 13px; color: var(--cs-primary); font-weight: 600; }
+    .ac-head .ac-cart-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ac-head .ac-cart-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--cs-primary); }
+
+    .ac-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 440px;
+      -webkit-overflow-scrolling: touch;
+      
+      padding: 8px 0;
+      
+    }
+    .ac-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: inherit;
+      transition: background .15s;
+    }
+    .ac-item:hover { background: var(--cs-bg-header); }
+    .ac-item:active { background: var(--cs-border-lighter); }
+    .ac-item .ai-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ac-item .ai-icon svg { width: 18px; height: 18px; }
+    .ac-item .ai-text { flex: 1; text-align: left; }
+    .ac-item .ai-label { font-size: 14px; color: var(--cs-text); font-weight: 500; }
+    .ac-item .ai-desc { font-size: 11px; color: var(--cs-text-tertiary); margin-top: 2px; }
+    .ac-item .ai-arrow { color: var(--cs-text-placeholder); font-size: 16px; }
+    .ac-item .ai-icon.ic-blue   { background: var(--cs-primary-bg); color: var(--cs-primary); }
+    .ac-item .ai-icon.ic-red    { background: var(--cs-primary-bg); color: var(--cs-primary); }
+    .ac-item .ai-icon.ic-green  { background: #f6ffed; color: #52c41a; }
+    .ac-item .ai-icon.ic-gray   { background: var(--cs-bg-header); color: var(--cs-text-secondary); }
+
+    .ac-cancel {
+      width: calc(100% - 32px);
+      margin: 4px 16px 14px;
+      height: 40px;
+      border-radius: 20px;
+      border: 1px solid var(--cs-border);
+      background: var(--cs-bg-card);
+      color: var(--cs-text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+    .ac-cancel:active { background: var(--cs-bg-header); }
+  </style>
+</head>
+<body>
+  <div class="ac-modal">
+    <div class="ac-handle"></div>
+    <div class="ac-head">
+      <p class="ac-title">购物车操作</p>
+      <div class="ac-cart-brief">
+        <div class="ac-cart-info">
+          <div class="ac-cart-count" id="cartCount">共 0 件商品</div>
+          <div class="ac-cart-amount" id="cartAmount">¥ —</div>
+        </div>
+        <span class="ac-cart-status">待结算</span>
+      </div>
+    </div>
+
+    <div class="ac-body" id="acBody">
+      <!-- 由 JS 渲染 -->
+    </div>
+
+    <button class="ac-cancel" id="btnCancel">取消</button>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var qs = new URLSearchParams(location.search);
+      var items = qs.get('items') || qs.get('cart_items') || '3';
+      var amount = qs.get('amount') || qs.get('total_amount') || '195.90';
+
+      document.getElementById('cartCount').textContent = '共 ' + items + ' 件商品';
+      // 金额格式化：统一保留 2 位小数（用 toFixed 而非拼接 .00，避免 195.9.00 的 bug）
+      var amt = parseFloat(amount) || 0;
+      document.getElementById('cartAmount').textContent = '¥ ' + amt.toFixed(2);
+
+      var ACTIONS = [
+        {
+          key: 'viewCart',
+          iconCls: 'ic-blue',
+          svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+          label: '查看购物车',
+          desc: '查看完整商品列表与价格'
+        },
+        {
+          key: 'checkout',
+          iconCls: 'ic-red',
+          svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg>',
+          label: '去结算',
+          desc: '进入订单确认页提交订单'
+        },
+        {
+          key: 'askAll',
+          iconCls: 'ic-green',
+          svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+          label: '咨询这些商品',
+          desc: '在对话中咨询购物车全部商品'
+        },
+        {
+          key: 'clearInvalid',
+          iconCls: 'ic-gray',
+          svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+          label: '清理失效商品',
+          desc: '移除已下架或缺货商品'
+        }
+      ];
+
+      var body = document.getElementById('acBody');
+      var html = '';
+      ACTIONS.forEach(function (a) {
+        html += '<button class="ac-item" data-action="' + a.key + '">';
+        html +=   '<span class="ai-icon ' + a.iconCls + '">' + a.svg + '</span>';
+        html +=   '<span class="ai-text">';
+        html +=     '<div class="ai-label">' + a.label + '</div>';
+        html +=     '<div class="ai-desc">' + a.desc + '</div>';
+        html +=   '</span>';
+        html +=   '<span class="ai-arrow">›</span>';
+        html += '</button>';
+      });
+      body.innerHTML = html;
+
+      body.addEventListener('click', function (e) {
+        var item = e.target.closest('.ac-item');
+        if (!item) return;
+        var action = item.getAttribute('data-action');
+        window.csModalBridge.confirm({ action: action, cartItems: items, cartAmount: amount });
+      });
+
+      document.getElementById('btnCancel').addEventListener('click', function () {
+        window.csModalBridge.close();
+      });
+    
+      // 主动上报高度（覆盖 autoHeight 早期错误测量）
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try {
+            window.csModalBridge.reportHeight(document.documentElement.offsetHeight);
+          } catch (e) {}
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

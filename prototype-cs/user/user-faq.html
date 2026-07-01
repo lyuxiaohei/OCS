@@ -13,6 +13,9 @@
       background: var(--cs-bg-page);
       min-height: 100vh;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     /* 顶部说明条（页面级，非手机内部） */
@@ -108,10 +111,10 @@
       transition: var(--cs-transition-normal);
       border: 1px solid transparent;
     }
-    .faq-item:hover { border-color: #d6e4ff; }
+    .faq-item:hover { border-color: var(--cs-border-light); }
     .faq-item.expanded {
       border-color: var(--cs-primary);
-      box-shadow: 0 2px 8px rgba(22,119,255,0.08);
+      box-shadow: 0 2px 8px rgba(238, 10, 36,0.08);
     }
     .faq-item-row {
       display: flex;
@@ -491,7 +494,7 @@
           <div class="faq-answer">
             <div class="faq-answer-bubble">
               <span class="label">A</span>
-              在「我的订单」中找到对应订单，点击「申请售后」→ 选择「退货退款」→ 填写退货原因并提交。商品需保持全新未使用状态，附带完整配件与包装。审核通过后将自动生成退货物流单。
+              在「我的订单」中找到对应订单，点击「申请售后」&gt; 选择「退货退款」&gt; 填写退货原因并提交。商品需保持全新未使用状态，附带完整配件与包装。审核通过后将自动生成退货物流单。
             </div>
             <div class="faq-answer-actions">
               <button>没用</button>
@@ -837,7 +840,7 @@
 
       <!-- 底部兜底入口（FAQ / 服务指南 共用） -->
       <div class="faq-footer-tip">
-        没找到答案？<a href="user-chat.html">转人工客服 ›</a>
+        没找到答案？<a href="user-chat.html">转人工客服 &gt;</a>
       </div>
 
     </div>
