@@ -158,7 +158,7 @@
       text-overflow: ellipsis;
     }
 
-    /* 场景标签 / 业务分类标签（列内纯文本，无配色） */
+    /* 业务分类标签（列内纯文本，无配色） */
     .scene-badge {
       display: inline;
       font-size: var(--cs-font-size-sm);
@@ -309,14 +309,6 @@
           <div class="card" style="padding:16px; margin-bottom:var(--cs-space-4);">
             <div class="kb-toolbar">
               <input type="text" id="scSearch" class="ipt input-search" placeholder="搜索话术内容或关键词" style="min-width:240px;color:var(--cs-text);" />
-              <select id="scSceneFilter" class="select" style="min-width:120px;">
-                <option value="">全部场景</option>
-                <option value="enter">进入会话</option>
-                <option value="offline">客服离线</option>
-                <option value="keyword">关键词匹配</option>
-                <option value="transfer">转人工</option>
-                <option value="general">通用</option>
-              </select>
               <select id="scStatusFilter" class="select" style="min-width:110px;">
                 <option value="">全部状态</option>
                 <option value="on">启用</option>
@@ -337,7 +329,6 @@
                 <thead>
                   <tr>
                     <th style="width:40%;">话术内容</th>
-                    <th>场景</th>
                     <th>业务分类</th>
                     <th>使用次数</th>
                     <th>状态</th>
@@ -351,7 +342,6 @@
                         <span class="title-sub">最后使用：刚刚</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-enter">进入会话</span></td>
                     <td><span class="scene-badge biz-general">通用</span></td>
                     <td><span class="usage-count hot">186 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -368,7 +358,6 @@
                         <span class="title-sub">最后使用：5 分钟前 · 关键词：退款、退货退款</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
                     <td><span class="scene-badge biz-aftersale">售后</span></td>
                     <td><span class="usage-count hot">142 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -385,7 +374,6 @@
                         <span class="title-sub">最后使用：12 分钟前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-transfer">转人工</span></td>
                     <td><span class="scene-badge biz-general">通用</span></td>
                     <td><span class="usage-count">98 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -402,7 +390,6 @@
                         <span class="title-sub">最后使用：1 小时前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-offline">客服离线</span></td>
                     <td><span class="scene-badge biz-general">通用</span></td>
                     <td><span class="usage-count">76 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -419,7 +406,6 @@
                         <span class="title-sub">最后使用：2 小时前 · 关键词：物流、发货、快递</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
                     <td><span class="scene-badge biz-aftersale">售后</span></td>
                     <td><span class="usage-count">64 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -436,7 +422,6 @@
                         <span class="title-sub">最后使用：3 小时前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-enter">进入会话</span></td>
                     <td><span class="scene-badge biz-presale">售前</span></td>
                     <td><span class="usage-count">52 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -453,7 +438,6 @@
                         <span class="title-sub">最后使用：昨天</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-transfer">转人工</span></td>
                     <td><span class="scene-badge biz-complaint">投诉</span></td>
                     <td><span class="usage-count">43 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -470,7 +454,6 @@
                         <span class="title-sub">最后使用：昨天</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-offline">客服离线</span></td>
                     <td><span class="scene-badge biz-general">通用</span></td>
                     <td><span class="usage-count">38 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -487,7 +470,6 @@
                         <span class="title-sub">最后使用：2 天前 · 关键词：优惠券、满减</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
                     <td><span class="scene-badge biz-presale">售前</span></td>
                     <td><span class="usage-count">31 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -504,7 +486,6 @@
                         <span class="title-sub">最后使用：3 天前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-enter">进入会话</span></td>
                     <td><span class="scene-badge biz-presale">售前</span></td>
                     <td><span class="usage-count">24 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -521,7 +502,6 @@
                         <span class="title-sub">最后使用：4 天前 · 关键词：发票、抬头</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-keyword">关键词匹配</span></td>
                     <td><span class="scene-badge biz-aftersale">售后</span></td>
                     <td><span class="usage-count">19 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -538,7 +518,6 @@
                         <span class="title-sub">最后使用：5 天前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-transfer">转人工</span></td>
                     <td><span class="scene-badge biz-general">通用</span></td>
                     <td><span class="usage-count">15 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -549,13 +528,12 @@
                       <a class="danger">删除</a>
                     </td>
                   </tr>
-                  <tr data-biz="quickreply" data-scene="general" data-status="on">
+                  <tr data-biz="quickreply"data-status="on">
                     <td>
                       <div class="col-title">您好，请问有什么可以帮您？
                         <span class="title-sub">快捷回复 · 最后使用：刚刚</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-general">通用</span></td>
                     <td><span class="scene-badge">快捷回复</span></td>
                     <td><span class="usage-count hot">2,341 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -566,13 +544,12 @@
                       <a class="danger">删除</a>
                     </td>
                   </tr>
-                  <tr data-biz="quickreply" data-scene="general" data-status="on">
+                  <tr data-biz="quickreply"data-status="on">
                     <td>
                       <div class="col-title">您的订单已发货，预计X天到达，物流单号：XXXXXX，请注意查收。
                         <span class="title-sub">快捷回复 · 最后使用：5 分钟前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-general">通用</span></td>
                     <td><span class="scene-badge">快捷回复</span></td>
                     <td><span class="usage-count hot">1,856 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -583,13 +560,12 @@
                       <a class="danger">删除</a>
                     </td>
                   </tr>
-                  <tr data-biz="quickreply" data-scene="general" data-status="on">
+                  <tr data-biz="quickreply"data-status="on">
                     <td>
                       <div class="col-title">退换货申请已提交，预计 3-5 个工作日处理，请耐心等待。
                         <span class="title-sub">快捷回复 · 最后使用：12 分钟前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-general">通用</span></td>
                     <td><span class="scene-badge">快捷回复</span></td>
                     <td><span class="usage-count hot">1,432 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -600,13 +576,12 @@
                       <a class="danger">删除</a>
                     </td>
                   </tr>
-                  <tr data-biz="quickreply" data-scene="general" data-status="on">
+                  <tr data-biz="quickreply"data-status="on">
                     <td>
                       <div class="col-title">感谢您的咨询，祝您购物愉快！如有其他问题随时联系我们。
                         <span class="title-sub">快捷回复 · 最后使用：1 小时前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-general">通用</span></td>
                     <td><span class="scene-badge">快捷回复</span></td>
                     <td><span class="usage-count">1,198 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -617,13 +592,12 @@
                       <a class="danger">删除</a>
                     </td>
                   </tr>
-                  <tr data-biz="quickreply" data-scene="general" data-status="on">
+                  <tr data-biz="quickreply"data-status="on">
                     <td>
                       <div class="col-title">您的退款已受理，预计 1-3 个工作日原路退回，请注意查收。
                         <span class="title-sub">快捷回复 · 最后使用：2 小时前</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-general">通用</span></td>
                     <td><span class="scene-badge">快捷回复</span></td>
                     <td><span class="usage-count">1,024 次</span></td>
                     <td><span class="st-tag on">启用</span></td>
@@ -634,13 +608,12 @@
                       <a class="danger">删除</a>
                     </td>
                   </tr>
-                  <tr data-biz="quickreply" data-scene="general" data-status="off">
+                  <tr data-biz="quickreply"data-status="off">
                     <td>
                       <div class="col-title">当前咨询人数较多，请您稍等，我们会尽快为您服务。预计等待时间不超过 3 分钟。
                         <span class="title-sub">快捷回复 · 最后使用：昨天</span>
                       </div>
                     </td>
-                    <td><span class="scene-badge scene-general">通用</span></td>
                     <td><span class="scene-badge">快捷回复</span></td>
                     <td><span class="usage-count">467 次</span></td>
                     <td><span class="st-tag off">停用</span></td>
@@ -676,12 +649,11 @@
       <div style="margin-top:24px; padding:16px 20px; background:var(--cs-bg-card); border-radius:var(--cs-radius-md); border:1px solid var(--cs-border-light);">
         <div style="font-size:13px; font-weight:600; color:var(--cs-text); margin-bottom:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>话术库使用说明</div>
         <div style="font-size:12px; color:var(--cs-text-tertiary); line-height:1.9;">
-          ① 话术按 <strong>业务分类</strong>（左侧树）组织，按 <strong>场景标签</strong>（右侧筛选）触发，客服在 <a href="admin-workbench.html">工作台</a> 聊天框输入时系统根据当前场景智能推荐；<br/>
-          ② 「关键词匹配」场景需配置触发关键词，支持部分匹配；命中后话术将出现在快捷回复列表顶部；<br/>
-          ③ 「进入会话」「客服离线」场景由系统自动触发，无需客服手动操作；<br/>
-          ④ 点击「+ 新建话术」可在弹窗中编辑话术内容、场景、关键词与业务分类；<br/>
-          ⑤ 使用次数统计帮助识别高频话术，持续优化话术质量；低频话术可定期清理。<br/>
-          ⑥ 关联 <a href="#">自动回复规则</a>：话术可作为规则的回复内容，实现场景化自动应答。
+          ① 话术按 <strong>业务分类</strong>（左侧树）组织，客服在 <a href="admin-workbench.html">工作台</a> 聊天框输入时，系统根据关键词智能推荐话术；<br/>
+          ② 配置触发关键词后，用户消息包含任一关键词时自动推荐该话术，支持部分匹配；命中后话术将出现在快捷回复列表顶部；<br/>
+          ③ 点击「+ 新建话术」可在弹窗中编辑话术内容、触发关键词与业务分类；<br/>
+          ④ 使用次数统计帮助识别高频话术，持续优化话术质量；低频话术可定期清理。<br/>
+          ⑤ 关联 <a href="#">自动回复规则</a>：话术可作为规则的回复内容，实现自动应答。
         </div>
       </div>
 
@@ -700,7 +672,7 @@
    admin-scripts.html 交互（话术库 · 左树右表）
    对齐兄弟页 admin-knowledge.html 的套路：
    - 工具 $/$$/toast 统一封装
-   - 行 data-scene / data-biz / data-status 从已渲染 badge class 推断
+   - 行 data-biz / data-status 从已渲染 badge class 推断
    - 分类树点击、工具条筛选、行操作全部走 document 委派
    - csModal.toast 作为统一反馈；新建/编辑走 modal-script.html 弹窗
    ============================================================ */
@@ -710,18 +682,12 @@
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
 
-  var SCENE_BYClass = { 'scene-enter': 'enter', 'scene-offline': 'offline', 'scene-keyword': 'keyword', 'scene-transfer': 'transfer', 'scene-general': 'general' };
   var BIZ_BYClass = { 'biz-presale': 'presale', 'biz-aftersale': 'aftersale', 'biz-complaint': 'complaint', 'biz-general': 'general' };
 
   /* ---------- 0. 行 data-* 标记（从 badge class 推断） ---------- */
   function rows() { return $$('.scripts-table tbody tr'); }
   rows().forEach(function (tr) {
-    var badges = $$('.scene-badge', tr);
-    var sBadge = badges[0];
-    if (sBadge) {
-      for (var k in SCENE_BYClass) { if (sBadge.classList.contains(k)) { tr.setAttribute('data-scene', SCENE_BYClass[k]); break; } }
-    }
-    var bBadge = badges[1];
+    var bBadge = $$('.scene-badge', tr)[0];
     if (bBadge) {
       for (var bk in BIZ_BYClass) { if (bBadge.classList.contains(bk)) { tr.setAttribute('data-biz', BIZ_BYClass[bk]); break; } }
     }
@@ -732,7 +698,6 @@
 
   /* ---------- 1. 筛选状态 ---------- */
   var currentCat = 'all';
-  var currentScene = '';
   var currentStatus = '';
   var currentKw = '';
 
@@ -740,7 +705,6 @@
     var visible = 0;
     rows().forEach(function (tr) {
       var ok = (currentCat === 'all' || tr.getAttribute('data-biz') === currentCat)
-            && (!currentScene || tr.getAttribute('data-scene') === currentScene)
             && (!currentStatus || tr.getAttribute('data-status') === currentStatus);
       if (ok && currentKw) { ok = (tr.textContent || '').toLowerCase().indexOf(currentKw) !== -1; }
       tr.style.display = ok ? '' : 'none';
@@ -762,13 +726,12 @@
   });
 
   /* ---------- 3. 工具条筛选 ---------- */
-  var elSearch = $('#scSearch'), elScene = $('#scSceneFilter'), elStatus = $('#scStatusFilter');
+  var elSearch = $('#scSearch'), elStatus = $('#scStatusFilter');
   function syncFromToolbar() {
-    currentScene = elScene ? elScene.value : '';
     currentStatus = elStatus ? elStatus.value : '';
     currentKw = elSearch ? elSearch.value.trim().toLowerCase() : '';
   }
-  [elSearch, elScene, elStatus].forEach(function (el) {
+  [elSearch, elStatus].forEach(function (el) {
     if (!el) return;
     el.addEventListener('change', function () { syncFromToolbar(); applyFilters(); });
     if (el === elSearch) el.addEventListener('input', function () { syncFromToolbar(); applyFilters(); });
@@ -776,7 +739,7 @@
   var btnQuery = $('#scBtnQuery'), btnReset = $('#scBtnReset');
   if (btnQuery) btnQuery.addEventListener('click', function () { syncFromToolbar(); applyFilters(); toast('已应用筛选条件'); });
   if (btnReset) btnReset.addEventListener('click', function () {
-    [elSearch, elScene, elStatus].forEach(function (el) { if (el) el.value = ''; });
+    [elSearch, elStatus].forEach(function (el) { if (el) el.value = ''; });
     syncFromToolbar(); applyFilters(); toast('已重置筛选');
   });
 
@@ -809,7 +772,6 @@
       var content = getRowContent(tr);
       csModal.open('modals/modal-script.html?title=' + encodeURIComponent('编辑话术') +
         '&content=' + encodeURIComponent(content) +
-        '&scene=' + (tr.getAttribute('data-scene') || '') +
         '&biz=' + (tr.getAttribute('data-biz') || '') +
         '&status=' + (tr.getAttribute('data-status') === 'off' ? 'disabled' : 'enabled'),
         { variant: 'center', width: 520, onConfirm: function () { toast('话术已保存'); } });

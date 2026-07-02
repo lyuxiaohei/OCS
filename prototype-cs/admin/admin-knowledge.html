@@ -173,9 +173,7 @@
     }
     .s-tag.published::before { background: var(--cs-success); }
     .s-tag.draft::before     { background: #bfbfbf; }
-    .s-tag.review::before    { background: var(--cs-warning); }
     .s-tag.offline::before   { background: var(--cs-danger); }
-    .s-tag.rejected::before  { background: var(--cs-danger); }
 
     /* 操作列扩展 */
     .row-actions a.danger { color: var(--cs-danger); }
@@ -449,11 +447,10 @@
       <!-- 页面标题 + 操作按钮 -->
       <div class="flex-between mb-16">
         <div>
-          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">维护 FAQ / 帮助文档，按分类组织，供客服查阅与用户端自助查询</p>
+          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">维护帮助文档，按分类组织，供客服查阅与用户端自助查询</p>
         </div>
         <div class="flex gap-8" style="flex-shrink:0;">
           <button class="btn-default">导入文档</button>
-          <button class="btn-default">分类管理</button>
           <button class="btn-primary" onclick="document.getElementById('editor-section').style.display='block';">+ 新建文章</button>
         </div>
       </div>
@@ -557,20 +554,10 @@
               <!-- 工具条：搜索 + 筛选 -->
               <div class="kb-toolbar">
                 <input type="text" id="kbSearch" class="ipt input-search" placeholder="搜索文章标题 / 关键词" style="min-width:260px;color:var(--cs-text);" />
-                <select id="kbCategory" class="select" style="min-width:110px;">
-                  <option value="">全部分类</option>
-                  <option value="order">订单</option>
-                  <option value="return">退换货</option>
-                  <option value="pay">支付</option>
-                  <option value="logistic">物流</option>
-                  <option value="account">账户</option>
-                </select>
                 <select id="kbStatus" class="select" style="min-width:110px;">
                   <option value="">全部状态</option>
                   <option value="published">已发布</option>
                   <option value="draft">草稿</option>
-                  <option value="review">待审核</option>
-                  <option value="rejected">已驳回</option>
                   <option value="offline">已下线</option>
                 </select>
                 <select id="kbTime" class="select" style="min-width:110px;">
@@ -705,12 +692,12 @@
                         </div>
                       </td>
                       <td><span class="cat-tag return"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 退换货</span></td>
-                      <td><span class="s-tag rejected">已驳回</span></td>
+                      <td><span class="s-tag draft">草稿</span></td>
                       <td>0</td>
                       <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">17:51</span></td>
                       <td class="row-actions">
-                        <a title="内容需要补充退换货时间限制说明">查看驳回原因</a><span class="divider">|</span>
-                        <a>修改并重新提交</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>发布</a><span class="divider">|</span>
                         <a class="danger">删除</a>
                       </td>
                     </tr>
@@ -723,13 +710,13 @@
                         </div>
                       </td>
                       <td><span class="cat-tag order"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 订单</span></td>
-                      <td><span class="s-tag review">待审核</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
                       <td>0</td>
                       <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">14:22</span></td>
                       <td class="row-actions">
                         <a>预览</a><span class="divider">|</span>
                         <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
-                        <a class="kb-review-btn" data-title="如何申请开具发票？">审核</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
                         <a class="danger">删除</a>
                       </td>
                     </tr>
@@ -974,11 +961,8 @@
 <script src="js/cs-icons.js"></script>
 <script src="nav.js"></script>
 <script>
-    // ===== cs-modal 接线：快捷回复 / 审核 / 删除确认 =====
+    // ===== cs-modal 接线：删除确认 =====
     (function () {
-      // 记录最近一次审核的行（点击审核链接时设置）
-      var _currentReviewRow = null;
-
       function openDeleteConfirm(articleTitle) {
         csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该文章？') +
           '&desc=' + encodeURIComponent(articleTitle ? ('文章《' + articleTitle + '》删除后不可恢复。') : '删除后不可恢复，请谨慎操作。'),
@@ -986,34 +970,8 @@
             onConfirm: function () { /* 原型：删除即时反馈 */ } });
       }
 
-      // 审核链接（含动态生成的）
+      // 删除链接（静态 .danger 与动态 .kb-del-btn 统一走删除确认）
       document.addEventListener('click', function (e) {
-        var reviewBtn = e.target.closest('.kb-review-btn');
-        if (reviewBtn) {
-          e.preventDefault();
-          var title = reviewBtn.getAttribute('data-title') || '文章审核';
-          _currentReviewRow = reviewBtn.closest('tr');
-          csModal.open('modals/modal-review.html?title=' + encodeURIComponent(title) +
-            '&preview=' + encodeURIComponent('文章内容预览区域，供审核人查看文章核心内容后再做审核决定。'),
-            { variant: 'center', width: 620,
-              onConfirm: function (data) {
-                if (!_currentReviewRow) return;
-                var statusCell = _currentReviewRow.querySelectorAll('td')[2];
-                var actionsCell = _currentReviewRow.querySelectorAll('td')[5];
-                if (data.decision === 'approve') {
-                  if (statusCell) statusCell.innerHTML = '<span class="s-tag published">已发布</span>';
-                  if (actionsCell) actionsCell.innerHTML = '<a>预览</a><span class="divider">|</span><a class="kb-edit-btn">编辑</a><span class="divider">|</span><a>下线</a><span class="divider">|</span><a class="kb-del-btn danger" data-title="' + title + '">删除</a>';
-                } else {
-                  if (statusCell) statusCell.innerHTML = '<span class="s-tag rejected">已驳回</span>';
-                  var reasonDisplay = data.reason ? ' title="' + data.reason.replace(/"/g, '&quot;') + '"' : '';
-                  if (actionsCell) actionsCell.innerHTML = '<a' + reasonDisplay + '>查看驳回原因</a><span class="divider">|</span><a>修改并重新提交</a><span class="divider">|</span><a class="kb-del-btn danger" data-title="' + title + '">删除</a>';
-                }
-                _currentReviewRow = null;
-              }
-            });
-          return;
-        }
-        // 删除链接（静态 .danger 与动态 .kb-del-btn 统一走删除确认）
         var delBtn = e.target.closest('a.danger, a.kb-del-btn');
         if (delBtn && delBtn.classList.contains('danger')) {
           e.preventDefault();
@@ -1050,7 +1008,7 @@
   var $k = function (s, c) { return (c || document).querySelector(s); };
   var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
   var CATByCls = { 'order': 'order', 'return': 'return', 'pay': 'pay', 'logistic': 'logistic', 'account': 'account' };
-  var STByCls = { 'published': 'published', 'draft': 'draft', 'review': 'review', 'rejected': 'rejected', 'offline': 'offline' };
+  var STByCls = { 'published': 'published', 'draft': 'draft', 'offline': 'offline' };
   function kbRows() { return $$k('#panel-knowledge .data-table tbody tr'); }
   kbRows().forEach(function (tr) {
     var catTag = $k('.cat-tag', tr);
@@ -1062,9 +1020,10 @@
     if (sTag) { for (var kk in STByCls) { if (sTag.classList.contains(kk)) { stKey = STByCls[kk]; break; } } }
     tr.setAttribute('data-kbstatus', stKey);
   });
+  var _kbCat = '';
   function applyKbFilters() {
     var kw = ($k('#kbSearch') ? $k('#kbSearch').value : '').trim().toLowerCase();
-    var cat = $k('#kbCategory') ? $k('#kbCategory').value : '';
+    var cat = _kbCat;
     var st = $k('#kbStatus') ? $k('#kbStatus').value : '';
     kbRows().forEach(function (tr) {
       var ok = (!cat || tr.getAttribute('data-cat') === cat)
@@ -1073,7 +1032,7 @@
       tr.style.display = ok ? '' : 'none';
     });
   }
-  [$k('#kbSearch'), $k('#kbCategory'), $k('#kbStatus')].forEach(function (el) {
+  [$k('#kbSearch'), $k('#kbStatus')].forEach(function (el) {
     if (!el) return;
     el.addEventListener('change', applyKbFilters);
     if (el.id === 'kbSearch') el.addEventListener('input', applyKbFilters);
@@ -1081,8 +1040,8 @@
   var kbQuery = $k('#kbBtnQuery'), kbReset = $k('#kbBtnReset');
   if (kbQuery) kbQuery.addEventListener('click', function () { applyKbFilters(); toast('已应用筛选条件'); });
   if (kbReset) kbReset.addEventListener('click', function () {
-    ['#kbSearch', '#kbCategory', '#kbStatus', '#kbTime'].forEach(function (id) { var el = $k(id); if (el) el.value = ''; });
-    applyKbFilters(); toast('已重置筛选');
+    ['#kbSearch', '#kbStatus', '#kbTime'].forEach(function (id) { var el = $k(id); if (el) el.value = ''; });
+    _kbCat = ''; applyKbFilters(); toast('已重置筛选');
   });
   // 分类树点击 > 按分类过滤
   $$k('.tree-node[data-cat]').forEach(function (node) {
@@ -1090,7 +1049,7 @@
       $$k('.tree-node').forEach(function (n) { n.classList.remove('active'); });
       node.classList.add('active');
       var cat = node.getAttribute('data-cat');
-      var sel = $k('#kbCategory'); if (sel) { sel.value = cat || ''; }
+      _kbCat = cat || '';
       applyKbFilters(); toast('已筛选分类：' + node.querySelector('.tree-label').textContent.trim());
     });
   });
@@ -1104,12 +1063,12 @@
     });
   });
 
-  // ===== 文章行操作委派（预览/下线/上线/发布/查看驳回原因/修改并重新提交） =====
+  // ===== 文章行操作委派（预览/下线/上线/发布） =====
   document.addEventListener('click', function (e) {
     var a = e.target.closest('.data-table .row-actions a');
     if (!a) return;
     if (a.classList.contains('danger') || a.classList.contains('kb-del-btn')) return; // 删除走原逻辑
-    if (a.classList.contains('kb-edit-btn') || a.classList.contains('kb-review-btn')) return; // 编辑/审核走原逻辑
+    if (a.classList.contains('kb-edit-btn')) return; // 编辑走原逻辑
     var txt = (a.textContent || '').trim();
     var tr = a.closest('tr');
     e.preventDefault();
@@ -1127,17 +1086,10 @@
       if (st3) { st3.className = 's-tag published'; st3.textContent = '已发布'; if (tr) tr.setAttribute('data-kbstatus', 'published'); }
       var cell = a.closest('td'); if (cell) cell.innerHTML = '<a>预览</a><span class="divider">|</span><a class="kb-edit-btn">编辑</a><span class="divider">|</span><a>下线</a><span class="divider">|</span><a class="danger">删除</a>';
       toast('文章已发布');
-    } else if (txt === '查看驳回原因') {
-      toast(a.getAttribute('title') ? '驳回原因：' + a.getAttribute('title') : '查看审核驳回原因');
-    } else if (txt === '修改并重新提交') {
-      var ed = $k('#editor-section'); if (ed) { ed.style.display = 'block'; ed.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      toast('请在编辑器中修改后重新提交审核');
     }
   });
 
 })();
-
-// ===== Review modal functions =====
 
 /* ============================================================
    分类树 增/删/改（CRUD）

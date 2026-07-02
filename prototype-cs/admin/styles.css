@@ -208,7 +208,7 @@ a { color: var(--cs-primary); text-decoration: none; }
 .admin-sidebar .nav-group-head .gp-chev { width: 12px; height: 12px; opacity: 0.4; transition: transform 0.2s; }
 .admin-sidebar .nav-group.collapsed .gp-chev { transform: rotate(-90deg); }
 .admin-sidebar .nav-group.collapsed .nav-group-body { display: none; }
-.admin-sidebar .menu-item.nav-sub { padding-left: 48px; color: var(--cs-text-secondary); font-size: var(--cs-font-size-base); }
+.admin-sidebar .menu-item.nav-sub { padding-left: 48px; color: var(--cs-text-secondary); }
 .admin-sidebar .menu-item.nav-sub:hover { background: var(--cs-bg-hover); color: var(--cs-primary); }
 .admin-sidebar .menu-item.nav-sub.active { color: var(--cs-primary); background: var(--cs-primary-bg); font-weight: var(--cs-font-weight-medium); }
 
