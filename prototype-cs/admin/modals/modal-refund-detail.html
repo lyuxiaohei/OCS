@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>退款详情 · 预览</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    html, body { background: var(--cs-bg-card); margin: 0; }
+    body { font-family: inherit; color: var(--cs-text); }
+    .rd-wrap { width: 420px; }
+    .rd-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--cs-border-light); }
+    .rd-head .title { font-size: 16px; font-weight: 600; }
+    .rd-head .close { font-size: 20px; color: var(--cs-text-tertiary); cursor: pointer; line-height: 1; }
+    .rd-body { padding: 16px 20px; max-height: 460px; overflow-y: auto; }
+    .rd-status-bar { display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: #fff7e6; border-radius: var(--cs-radius-md); margin-bottom: 16px; }
+    .rd-status-bar .sb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cs-orange); }
+    .rd-status-bar.done { background: #f6ffed; }
+    .rd-status-bar.done .sb-dot { background: var(--cs-success); }
+    .rd-status-bar .sb-text { font-size: 14px; font-weight: 600; }
+    .rd-section { margin-bottom: 16px; }
+    .rd-section-title { font-size: 12px; color: var(--cs-text-tertiary); margin-bottom: 8px; font-weight: 500; }
+    .rd-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
+    .rd-row .k { color: var(--cs-text-tertiary); }
+    .rd-row .v { color: var(--cs-text); font-weight: 500; }
+    .rd-row .v.price { color: var(--cs-danger); font-weight: 600; font-size: 15px; }
+    .rd-timeline { position: relative; padding-left: 4px; }
+    .rd-timeline::before { content: ''; position: absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: var(--cs-border-light); }
+    .rd-tl-item { display: flex; gap: 12px; padding: 6px 0; position: relative; }
+    .rd-tl-dot { width: 10px; height: 10px; border-radius: 50%; background: #d9d9d9; flex-shrink: 0; margin-top: 4px; position: relative; z-index: 1; border: 2px solid var(--cs-bg-card); }
+    .rd-tl-item.active .rd-tl-dot { background: var(--cs-orange); }
+    .rd-tl-item.done .rd-tl-dot { background: var(--cs-success); }
+    .rd-tl-content { font-size: 12px; color: var(--cs-text-secondary); }
+    .rd-tl-item.active .rd-tl-content { color: var(--cs-text); font-weight: 500; }
+    .rd-tl-time { font-size: 11px; color: var(--cs-text-tertiary); margin-top: 2px; }
+    .rd-foot { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--cs-border-light); }
+    .rd-btn { flex: 1; padding: 8px 0; border-radius: var(--cs-radius-sm); font-size: 13px; cursor: pointer; border: 1px solid var(--cs-border); background: #fff; color: var(--cs-text-secondary); }
+    .rd-btn.primary { background: var(--cs-primary); border-color: var(--cs-primary); color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="rd-wrap">
+    <div class="rd-head">
+      <div class="title">退款详情</div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="rd-body">
+      <div class="rd-status-bar"><span class="sb-dot"></span><span class="sb-text">审核中 · 等待商家处理</span></div>
+      <div class="rd-section">
+        <div class="rd-section-title">退款信息</div>
+        <div class="rd-row"><span class="k">退款单号</span><span class="v">AS20260611001</span></div>
+        <div class="rd-row"><span class="k">关联订单</span><span class="v">#20260605</span></div>
+        <div class="rd-row"><span class="k">退款类型</span><span class="v">退货退款</span></div>
+        <div class="rd-row"><span class="k">退款原因</span><span class="v">商品有色差</span></div>
+        <div class="rd-row"><span class="k">退款金额</span><span class="v price">¥199.00</span></div>
+      </div>
+      <div class="rd-section">
+        <div class="rd-section-title">处理进度</div>
+        <div class="rd-timeline">
+          <div class="rd-tl-item active"><span class="rd-tl-dot"></span><div><div class="rd-tl-content">商家审核中，预计 24 小时内处理</div><div class="rd-tl-time">2026-06-11 10:00</div></div></div>
+          <div class="rd-tl-item done"><span class="rd-tl-dot"></span><div><div class="rd-tl-content">用户提交退款申请，上传了 2 张凭证</div><div class="rd-tl-time">2026-06-11 09:30</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="rd-foot">
+      <button class="rd-btn" onclick="window.csModalBridge.close()">关闭</button>
+      <button class="rd-btn primary" id="btnNote">添加处理备注</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    document.getElementById('btnNote').addEventListener('click', function () {
+      if (window.csModalBridge) window.csModalBridge.confirm({ action: 'addNote' });
+    });
+    if (window.csModalBridge && window.csModalBridge.reportHeight) {
+      requestAnimationFrame(function () { try { window.csModalBridge.reportHeight(document.documentElement.offsetHeight); } catch (e) {} });
+    }
+  </script>
+</body>
+</html>

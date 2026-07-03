@@ -563,15 +563,15 @@
 
         <!-- ===== Profile Header ===== -->
         <div class="profile-header">
-          <div class="back-link" onclick="alert('返回工作台')">
+          <div class="back-link" onclick="location.href='admin-workbench.html'">
             <span>&lt;</span> 返回工作台
           </div>
           <div class="profile-header-inner">
             <div class="profile-avatar">李</div>
             <div class="profile-main">
               <div class="profile-name-row">
-                <h1 class="profile-name">李雯雯</h1>
-                <span class="profile-phone"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> 138****6688</span>
+                <h1 class="profile-name">李晓红</h1>
+                <span class="profile-phone"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> 138****6621</span>
               </div>
               <div class="profile-badges">
                 <span class="tag-chip">高活跃</span>
@@ -581,9 +581,9 @@
               </div>
             </div>
             <div class="profile-actions">
-              <button class="btn-glass" onclick="alert('发送快捷消息')">发消息</button>
-              <button class="btn-glass" onclick="alert('创建工单')">建工单</button>
-              <button class="btn-glass" onclick="alert('添加标签')">加标签</button>
+              <button class="btn-glass" onclick="location.href='admin-workbench.html'">发消息</button>
+              <button class="btn-glass" onclick="location.href='admin-ticket.html'">建工单</button>
+              <button class="btn-glass" onclick="location.href='admin-customer-info.html'">加标签</button>
             </div>
           </div>
         </div>
@@ -591,9 +591,9 @@
         <!-- ===== Tabs ===== -->
         <div class="tabs-bar">
           <div class="tab-item active" data-tab="basic">基础信息</div>
-          <div class="tab-item" data-tab="behavior">行为轨迹 <span class="count">28</span></div>
-          <div class="tab-item" data-tab="trade">交易记录 <span class="count">15</span></div>
-          <div class="tab-item" data-tab="service">服务历史 <span class="count">6</span></div>
+          <div class="tab-item" data-tab="behavior">行为数据 <span class="count">28</span></div>
+          <div class="tab-item" data-tab="trade">交易数据 <span class="count">15</span></div>
+          <div class="tab-item" data-tab="service">服务数据 <span class="count">6</span></div>
         </div>
 
         <!-- ===== Tab: 基础信息 (US-MVP-07) ===== -->
@@ -612,15 +612,15 @@
             <div class="card info-card">
               <div class="card-title">
                 <span>个人资料</span>
-                <span class="edit-link" onclick="alert('编辑资料（需权限）')">编辑</span>
+                <span class="edit-link" onclick="csModal.toast('编辑资料（需权限）')">编辑</span>
               </div>
               <div class="info-row">
                 <span class="info-label">用户昵称</span>
-                <span class="info-value">李雯雯</span>
+                <span class="info-value">李晓红</span>
               </div>
               <div class="info-row">
                 <span class="info-label">手机号</span>
-                <span class="info-value">138****6688</span>
+                <span class="info-value">138****6621</span>
               </div>
               <div class="info-row">
                 <span class="info-label">注册时间</span>
@@ -689,7 +689,7 @@
               </div>
               <div class="info-row">
                 <span class="info-label">手机号</span>
-                <span class="info-value">138****6688</span>
+                <span class="info-value">138****6621</span>
               </div>
               <div class="info-row">
                 <span class="info-label">邮箱</span>
@@ -713,7 +713,7 @@
             <div class="card info-card">
               <div class="card-title">
                 <span>客户标签</span>
-                <span class="edit-link" onclick="alert('管理标签')">管理</span>
+                <span class="edit-link" onclick="location.href='admin-customer-info.html'">管理</span>
               </div>
               <div class="cust-tag-list" style="display:flex; flex-wrap:wrap; gap:8px; padding:4px 0;">
                 <span class="pill pill-info">高活跃</span>
@@ -922,7 +922,7 @@
                     <td>¥ 289.00</td>
                     <td>2026-06-10 20:48</td>
                     <td><span class="pill pill-warning">待付款</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                   <tr>
                     <td class="order-no">#CS202606051230</td>
@@ -930,7 +930,7 @@
                     <td>¥ 458.00</td>
                     <td>2026-06-05 11:20</td>
                     <td><span class="pill pill-info">配送中</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                   <tr>
                     <td class="order-no">#CS202605289012</td>
@@ -938,7 +938,7 @@
                     <td>¥ 326.50</td>
                     <td>2026-05-28 16:33</td>
                     <td><span class="pill pill-success">已完成</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                   <tr>
                     <td class="order-no">#CS202605205544</td>
@@ -946,7 +946,7 @@
                     <td>¥ 174.00</td>
                     <td>2026-05-20 09:15</td>
                     <td><span class="pill pill-danger">已退款</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                   <tr>
                     <td class="order-no">#CS202605123311</td>
@@ -954,7 +954,7 @@
                     <td>¥ 698.00</td>
                     <td>2026-05-12 14:50</td>
                     <td><span class="pill pill-success">已完成</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                   <tr>
                     <td class="order-no">#CS202605018890</td>
@@ -962,7 +962,7 @@
                     <td>¥ 1,299.00</td>
                     <td>2026-05-01 19:22</td>
                     <td><span class="pill pill-success">已完成</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                   <tr>
                     <td class="order-no">#CS202604241100</td>
@@ -970,7 +970,7 @@
                     <td>¥ 528.00</td>
                     <td>2026-04-24 10:08</td>
                     <td><span class="pill pill-danger">已换货</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                   <tr>
                     <td class="order-no">#CS202604152299</td>
@@ -978,13 +978,13 @@
                     <td>¥ 199.00</td>
                     <td>2026-04-15 13:40</td>
                     <td><span class="pill pill-success">已完成</span></td>
-                    <td><a href="javascript:alert('查看订单详情')">详情</a></td>
+                    <td><a href="javascript:void(0)" onclick="csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 460 })">详情</a></td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div style="text-align:center; margin-top:16px;">
-              <button class="btn-default" onclick="alert('加载更多订单')">加载更多</button>
+              <button class="btn-default" onclick="csModal.toast('已加载更多订单')">加载更多</button>
             </div>
           </div>
         </div>

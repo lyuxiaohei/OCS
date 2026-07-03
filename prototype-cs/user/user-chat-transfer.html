@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>会话转接 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="chat.css" />
+  <script src="js/cs-common.js"></script>
+  <style>
+    body { background: var(--cs-bg-page); margin: 0; display: flex; justify-content: center; padding: 20px 0; }
+    .msg-sender { font-size: 11px; color: var(--cs-text-tertiary); margin: 0 4px 3px; font-weight: 500; }
+
+    /* ===== 消息行布局（头像对齐到文字顶部 · 左上方） ===== */
+    .msg-row { display: flex; gap: 8px; margin-bottom: 14px; align-items: flex-start; }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar { width: 34px; height: 34px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: var(--cs-font-size-md); font-weight: var(--cs-font-weight-semibold); color: #fff; }
+    .msg-avatar.agent { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
+    .msg-avatar.user { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
+    .msg-content { max-width: 72%; display: flex; flex-direction: column; }
+    .msg-row.user .msg-content { align-items: flex-end; }
+    .msg-bubble-agent { background: #fff; color: var(--cs-text); padding: 9px 14px; border-radius: var(--cs-radius-md); border-top-left-radius: 2px; font-size: var(--cs-font-size-md); border: 1px solid #eee; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.04); }
+    .msg-bubble-user { background: #95ec69; color: var(--cs-text); padding: 9px 14px; border-radius: var(--cs-radius-md); border-top-right-radius: 2px; font-size: var(--cs-font-size-md); word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.04); }
+    .msg-meta { font-size: 10px; color: var(--cs-text-tertiary); margin: 4px 4px 0; }
+
+    /* ===== 转接流程卡片 ===== */
+    .transfer-card {
+      margin: 12px 8px;
+      background: var(--cs-bg-card);
+      border: 1px solid var(--cs-border-light);
+      border-radius: 12px;
+      padding: 16px 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .transfer-flow { display: flex; align-items: center; gap: 6px; }
+    .tf-peer { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+    .tf-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600;
+    }
+    .tf-avatar.target { background: linear-gradient(135deg, #1677ff, #4096ff); }
+    .tf-name { font-size: 12px; color: var(--cs-text); font-weight: 500; text-align: center; }
+    .tf-role { font-size: 10px; color: var(--cs-text-tertiary); }
+    .tf-arrow { flex: 0 0 auto; color: var(--cs-text-tertiary); width: 28px; display: flex; justify-content: center; }
+    .tf-arrow svg { animation: tf-pulse 1.4s ease-in-out infinite; }
+    @keyframes tf-pulse {
+      0%, 100% { opacity: .3; transform: translateX(-3px); }
+      50% { opacity: 1; transform: translateX(3px); }
+    }
+    .transfer-status {
+      margin-top: 12px; text-align: center;
+      font-size: 12px; color: var(--cs-text-secondary);
+    }
+    .transfer-status .dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--cs-warning); margin-right: 5px;
+      animation: blink 1s infinite; vertical-align: 1px;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+    .transfer-tip { margin-top: 6px; text-align: center; font-size: 11px; color: var(--cs-text-tertiary); line-height: 1.5; }
+
+    /* 转接中输入条（禁用态） */
+    .transfer-input-bar {
+      padding: 10px 12px;
+      border-top: 1px solid var(--cs-border-light);
+      background: #fff;
+      flex-shrink: 0;
+    }
+    .transfer-input-bar .ti-inner {
+      background: #f5f5f5; border-radius: 18px;
+      padding: 9px 14px; color: var(--cs-text-tertiary);
+      font-size: 13px; text-align: center;
+    }
+
+    /* 快捷卡片入口条 + 输入区（对齐 basic，转接中禁用） */
+    .quick-cards-bar { display:flex; gap:8px; padding:8px 10px; overflow-x:auto; scrollbar-width:none; background:#f5f5f5; border-top:1px solid #f0f0f0; }
+    .quick-cards-bar::-webkit-scrollbar { display:none; }
+    .quick-card { display:flex; align-items:center; gap:5px; flex-shrink:0; padding:6px 12px; background:#fff; border:1px solid #e8e8e8; border-radius:16px; font-size:12px; color:var(--cs-text-secondary); cursor:pointer; transition:all .15s; font-family:inherit; white-space:nowrap; }
+    .quick-card:hover { border-color:var(--cs-primary); color:var(--cs-primary); background:var(--cs-primary-bg); }
+    .quick-card svg { width:14px; height:14px; flex-shrink:0; }
+    .chat-input-area { height:54px; padding:0 10px; gap:4px; display:flex; align-items:center; background:#f7f7f7; border-top:1px solid #dcdcdc; flex-shrink:0; }
+    .chat-input-area .input-icon { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:var(--cs-radius-sm); flex-shrink:0; cursor:pointer; }
+    .chat-input-area .input-icon:hover { background:rgba(0,0,0,.06); }
+    .chat-input-area .input-icon svg { width:22px; height:22px; }
+    .chat-input-area .input-icon svg path { fill: var(--cs-text-secondary); }
+    .chat-input-area input { flex:1; height:34px; border-radius:var(--cs-radius-sm); border:1px solid #e0e0e0; padding:0 12px; font-size:var(--cs-font-size-md); background:#fff; color:var(--cs-text); outline:none; }
+    .chat-input-area input:focus { border-color:var(--cs-primary); }
+    .chat-input-area .send-btn { height:30px; padding:0 12px; border-radius:var(--cs-radius-sm); background:var(--cs-primary); color:#fff; font-size:var(--cs-font-size-sm); display:flex; align-items:center; cursor:pointer; flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Mobile chat container ===== -->
+  <div class="cs-phone">
+
+    <!-- 小程序状态栏 -->
+    <script>document.write(CsCommon.statusBar())</script>
+
+    <!-- 会话导航栏（与其他页一致：在线客服） -->
+    <div class="cs-nav-bar chat-nav">
+      <div class="cs-back" title="返回" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="nav-peer">
+        <div class="agent-avatar">客</div>
+        <div class="peer-info">
+          <span class="peer-name">在线客服</span>
+        </div>
+      </div>
+      <script>document.write(CsCommon.capsule())</script>
+    </div>
+
+    <!-- ============ 消息列表 ============ -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg-system">— 已为您接入在线客服 · 售后咨询 —</div>
+
+      <!-- 用户提出转接请求 -->
+      <div class="msg-row user">
+        <div class="msg-avatar user">我</div>
+        <div class="msg-content">
+          <div class="msg-bubble-user">退款问题之前那位客服说帮我转给售后，麻烦了</div>
+          <div class="msg-meta">10:30</div>
+        </div>
+      </div>
+
+      <!-- 原客服发起转接 -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">客</div>
+        <div class="msg-content">
+          <div class="msg-sender">客服 王小明</div>
+          <div class="msg-bubble-agent">好的，退款问题需要售后组跟进，我这就为您转接，请稍候。</div>
+          <div class="msg-meta">10:30</div>
+        </div>
+      </div>
+
+      <!-- 转接中状态卡（原客服 → 售后组·李静，箭头动画） -->
+      <div class="transfer-card">
+        <div class="transfer-flow">
+          <div class="tf-peer">
+            <div class="tf-avatar">客</div>
+            <div class="tf-name">在线客服</div>
+            <div class="tf-role">原客服</div>
+          </div>
+          <div class="tf-arrow">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="tf-peer">
+            <div class="tf-avatar target">售</div>
+            <div class="tf-name">售后组·李静</div>
+            <div class="tf-role">目标客服</div>
+          </div>
+        </div>
+        <div class="transfer-status"><span class="dot"></span>正在转接，预计等待 &lt; 1 分钟</div>
+        <div class="transfer-tip">转接后原客服退出，由新客服继续为您服务，历史消息保留</div>
+      </div>
+
+      <!-- 转接完成系统消息 -->
+      <div class="msg-system">— 售后客服 李静 已接入 —</div>
+
+      <!-- 新客服接入问候 -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">客</div>
+        <div class="msg-content">
+          <div class="msg-sender">售后 李静</div>
+          <div class="msg-bubble-agent">您好，我是售后李静，已收到您的转接信息。关于订单退款进度我来为您跟进，请稍等。</div>
+          <div class="msg-meta">10:31</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 快捷卡片入口条（公共组件） + 输入区（对齐 basic，转接中可输入） -->
+    <script>document.write(CsCommon.quickCardsBar())</script>
+    <div class="chat-input-area">
+      <div class="input-icon" title="语音">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+      </div>
+      <input type="text" id="msgInput" placeholder="转接中，请稍候…" />
+      <div class="input-icon" title="更多">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/><path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div class="send-btn" id="sendBtn">发送</div>
+    </div>
+    <script>
+      (function () {
+        var M = { transfer: '转人工', order: '发送订单', refund: '发送售后', logistics: '查看物流', cart: '购物车', rating: '服务评价' };
+        CsCommon.bindQuickCards(function (action) {
+          alert('转接中，已选择' + (M[action] || '') + '卡片（演示）');
+        });
+      })();
+    </script>
+
+  </div>
+</body>
+</html>

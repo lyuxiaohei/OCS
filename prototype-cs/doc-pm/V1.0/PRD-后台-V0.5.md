@@ -37,7 +37,7 @@
 | 编号 | 模块 | 简称 | 页面文件 | 功能点 | 优先级 |
 |------|------|:-:|------|--------|:-:|
 | B-01 | 数据仪表盘 | 仪表盘 | `admin-dashboard.html` | 运营驾驶舱：4 核心指标卡 + 会话量趋势 + 满意度排行 + 待办汇总 + 今日概况 | P0 |
-| B-02 | 客服工作台 | 工作台 | `admin-workbench.html` | 三栏接待：会话列表（4 状态 Tab + [新增] warn/transferred 标签）+ 聊天窗（收发/撤回/脱敏/富媒体卡片）+ 客户信息（4 Tab）+ 挂起/转接/结束 | P0 |
+| B-02 | 客服工作台 | 工作台 | `admin-workbench.html` | 三栏接待：会话列表（4 状态 Tab + 5 状态标签：超时/即将超时/转接入/挂起/等待）+ 聊天窗（收发/撤回/脱敏/富媒体卡片）+ 客户信息（4 Tab）+ 挂起/转接/结束 + 接受转接/备注标签/客服状态切换 | P0 |
 | B-03 | 待办事项 | 待办 | `admin-todo.html` | 三列集中处理：未回复消息 / 超时预警（3 类阈值）/ 待评价会话（3 态含 [新增] skipped + 催评/一键催评） | P0 |
 | B-04 | 会话记录 | 会话记录 | `admin-session-record.html` | 会话记录多维筛选（**含离线待处理/offline 留言态**）+ 详情/转接记录/查看评价/差评追踪 + 导出。**V0.3 合并原「历史会话」+「留言管理」**（ADR-0012） | P0 |
 | B-05 | 客户信息 | 客户信息 | `admin-customer-info.html` | 360° 画像 4 Tab（基础/行为/交易/服务），多源聚合 + 按源独立降级 | P0 |
@@ -209,17 +209,20 @@ flowchart LR
 | UC-工作台-02 | A | 选中会话 | 点击会话项 | 全栏联动：顶栏客户名/标签、中栏消息流、右栏**基础信息**刷新 |
 | UC-工作台-03 | A | 未读查看 | 会话项带 `.unread-badge` | 红底数字徽标；查看后（WS `read`）消失 |
 | UC-工作台-04 | A | 发送文字 | 输入框输入 -> Enter | 清空输入框；空内容（`.trim().length===0`）不发送；Shift+Enter 换行 |
-| UC-工作台-05 | A | 快捷回复 | 点「快捷回复 ▾」-> 选话术 | 话术覆盖写入输入框，面板关闭，输入框获焦 |
-| UC-工作台-06 | A | 撤回客服消息 | hover 客服消息「⋯」->「撤回」 | 2 分钟内：替换为「[超时] 你撤回了一条消息」，触发器隐藏；超 2 分钟：拒绝。**用户侧同步提示「客服撤回了一条消息」（双向，ADR-0006）** |
+| UC-工作台-05 | A | 快捷回复 | 点「快捷回复 ▾」-> 选话术 | 话术覆盖写入输入框，面板关闭，输入框获焦。**工作台内联快捷回复下拉为 5 条扁平条目 + 搜索框（无分类）；完整分类话术走「话术库 ▾」抽屉** |
+| UC-工作台-06 | A | 撤回客服消息 | hover 客服消息「⋯」->「撤回」 | 2 分钟内：替换为「你撤回了一条消息」（配时钟图标 `.recall-icon`，无 `[超时]` 前缀），触发器隐藏；超 2 分钟：拒绝。**用户侧同步提示「客服撤回了一条消息」（双向，ADR-0006）** |
 | UC-工作台-07 | A | 隐藏用户消息 | hover 用户消息「⋯」->「隐藏」 | 替换为「该消息已被管理员隐藏」（灰斜体）。**用户侧同步提示「您的消息已被管理员隐藏」（双向，ADR-0006）** |
 | UC-工作台-08 | A | 脱敏用户消息 | hover 用户消息「⋯」->「脱敏」 | 手机号 `1[3-9]\d{9}`->前3****后4；地址->`****`；消息变黄底左橙边。**脱敏单向：用户侧仍看自己原文明文，仅客服侧/审计脱敏；原文留痕（ADR-0006）** |
-| UC-工作台-09 | A | 发送富媒体卡片 | 点工具栏卡片按钮（订单/商品/优惠券/图片/**购物车/物流/售后**[V2.2 补]）| 生成对应卡片（颜色仅表示状态，非卡片类型）|
+| UC-工作台-09 | A | 发送富媒体卡片/图片 | 点工具栏 6 按钮（发送订单 order / 发送商品 product / FAQ faq / 图片 image / 查看物流 logistics / 发送售后 refund）| 生成对应卡片或图片消息。**order/product/logistics/refund 走抽屉选择器选单后渲染、faq 直接插模板、image 走原生文件选择以 `<img>` 发送**。CARD_TEMPLATES 仅 order/product/logistics/refund/faq 5 类卡片（无 coupon/cart），颜色仅表示状态非卡片类型 |
 | UC-工作台-10 | A | 挂起会话 | 顶栏「挂起」-> 填原因 + 选恢复时间 | status=accept->pending；消息流追加挂起条；暂停无响应超时 |
 | UC-工作台-11 | A | 恢复挂起 | 点挂起会话项 / 用户发新消息 / 恢复时间到期 | status=pending->accept；消息流追加恢复条；重新计入超时。**恢复回原客服；若恢复瞬间原客服已离线则进重分；挂起期间用户消息不丢（ADR-0009）** |
 | UC-工作台-12 | A | 转接会话 | 顶栏「转接」-> 选目标 + 原因 + 备注 | 创建转接单，消息流追加转接条。**源进入「转接中」只读态、不可发消息、用户消息进队列（ADR-0003）** |
-| UC-工作台-13 | A | 结束会话 | 顶栏「结束」-> 确认 | status=close；向用户推送满意度评价邀请 |
-| UC-工作台-14 | A | 查看客户信息 | 右栏切 4 Tab（基础/行为/交易/服务）| 切换对应面板 |
+| UC-工作台-13 | A | 结束会话 | 顶栏「结束」-> 确认 | status=close；消息流追加 `.resume-notice`「✓ 会话已结束 · 已向用户推送满意度评价邀请」+ 独立 `.msg-system`「— 本次会话已结束 · 如有需要请重新发起咨询 —」（与用户端结束提示一致）；向用户推送满意度评价邀请 |
+| UC-工作台-14 | A | 查看客户信息 | 右栏切 4 Tab（基础信息/行为数据/订单数据/服务数据）| 切换对应面板。**订单数据 Tab 含「近三个月/全部」切换（默认近三个月），订单记录按 `data-range` 显隐、统计卡数值随切换变** |
 | UC-工作台-15 | A | 新消息提醒（V2.2）| 非焦点会话收到用户新消息 | **弹窗提示（昵称+消息预览+「立即查看」）+ 提示音**；会话项未读徽标 +1。会议硬性要求「声音+弹窗」双通道（参考四川气鱼），防止客服页面多/接电话时遗漏 |
+| UC-工作台-16 | A | 接受转接 | 顶栏「接受转接」按钮（`#btnAcceptTransfer`，仅当前会话列表存在「转接入」标签时显示，带红点计数）| 点击：定位首个待接受转接会话并切为当前 -> 移除「转接入」标签 -> 消息流追加 `.resume-notice`「✓ 已接受转接 · 会话已接入，可继续与客户沟通」+ toast「已接受转接」；写权由源客服转给当前客服（ADR-0003）；刷新按钮状态（可能仍有其他待接受） |
+| UC-工作台-17 | A | 备注与标签 | 顶栏「备注/标签」-> 下拉面板(`#moreDropdown`)填客户备注(`#mdNote` textarea)+增删标签(`#mdTags`/`#mdTagInput`)-> 保存 | 保存后 toast「已保存客户备注与标签」；右栏基础信息 Tab「客户备注」区(`#custNoteBox`)回填备注内容。备注/标签仅客服可见 |
+| UC-工作台-18 | A | 客服状态切换 | 顶栏头像区状态切换器(`#agentStatusSwitch`)切「在线/小休/离线」 | 三态切换：在线->toast「已切换为「在线」，将正常接收新会话」；小休->toast「已切换为「小休」，新会话将转给其他客服」；离线->toast「已切换为「离线」，不再接收新会话」。状态影响接单逻辑（小休/离线不再接收新会话分配） |
 
 ### 5.1.1 验收标准
 
@@ -228,13 +231,17 @@ flowchart LR
 | AC-工作台-01 | UC-工作台-01 | 会话列表 | 点 Tab | active Tab 加 `.active`（下划线 60% 宽）；按 `data-status` 显隐；accept Tab 显示无 data-status 项 |
 | AC-工作台-02 | UC-工作台-02 | 会话列表 | 点会话项 | 当前项加 `.active`（左 3px 主色条 + 主色底）；顶栏/消息流/右栏**基础信息**联动刷新 |
 | AC-工作台-03 | UC-工作台-04 | 输入框 | 输入文字按 Enter | 清空输入框（注释：无真实后端）；空 trim 不清空；Shift+Enter 换行 |
-| AC-工作台-04 | UC-工作台-06 | 客服消息（sent_ts 存在）| 点撤回 | `elapsed ≤ 120s`：气泡/卡片替换为 `.msg-recalled`「[超时]你撤回了一条消息」，`.msg-content` 加 `.is-recalled`，触发器隐藏；`elapsed > 120s`：alert「撤回失败…仅允许 2 分钟内消息撤回」并 return |
+| AC-工作台-04 | UC-工作台-06 | 客服消息（sent_ts 存在）| 点撤回 | `elapsed ≤ 120s`：气泡/卡片替换为 `.msg-recalled`「你撤回了一条消息」（配时钟 `.recall-icon`，无 `[超时]` 前缀），`.msg-content` 加 `.is-recalled`，触发器隐藏；`elapsed > 120s`：alert「撤回失败…仅允许 2 分钟内消息撤回」并 return |
 | AC-工作台-05 | UC-工作台-08 | 用户消息含手机号 | 点脱敏 | 手机号正则 `1[3-9]\d{9}`->`前3****后4`；地址正则->`****`；替换为 `.msg-redacted`（黄底 + 左 3px 橙边）|
 | AC-工作台-06 | UC-工作台-10 | accept 会话 | 点挂起 -> 原因为空点确认 | 原因框 `borderColor: danger` + focus（必填）；填后确认 -> status=pending，追加 `.suspend-notice` |
 | AC-工作台-07 | UC-工作台-11 | pending 会话 | 用户发新消息 / 恢复到期 / 点恢复 | status->accept，追加 `.resume-notice`「重新计入超时」|
 | AC-工作台-08 | UC-工作台-12 | accept 会话 | 转接 -> 目标为空点确认 | 目标框红边（必填）；填后确认 -> 追加 `.suspend-notice` 转接条 |
-| AC-工作台-09 | UC-工作台-13 | accept/pending 会话 | 点结束 -> 确认 | status=close，追加 `.resume-notice`「已向用户推送满意度评价邀请」|
+| AC-工作台-09 | UC-工作台-13 | accept/pending 会话 | 点结束 -> 确认 | status=close，追加 `.resume-notice`「✓ 会话已结束 · 已向用户推送满意度评价邀请」+ 独立 `.msg-system`「— 本次会话已结束 · 如有需要请重新发起咨询 —」|
 | AC-工作台-10 | UC-工作台-15 | 非焦点会话 | WS `receive-message` 到达 | 弹消息提醒弹窗 + 播放提示音；**当前焦点会话仅徽标 +1 不弹窗**（免打扰）；工作台处于非激活页签/窗口最小化时弹窗+声音必达 |
+| AC-工作台-11 | UC-工作台-16 | 会话列表存在「转接入」标签项 | 渲染 | `#btnAcceptTransfer` 显示并带 `.accept-dot` 红点计数（=待接受数）；无则 `display:none` |
+| AC-工作台-12 | UC-工作台-16 | 点接受转接 | 点击 | 定位首个 `.s-tag.transferred` 会话 -> 切为 active + 移除该标签 + 追加 `.resume-notice`「✓ 已接受转接 · 会话已接入，可继续与客户沟通」+ toast「已接受转接」；刷新红点计数 |
+| AC-工作台-13 | UC-工作台-17 | 顶栏「备注/标签」 | 点保存 | toast「已保存客户备注与标签」；右栏 `#custNoteBox` 回填备注（无备注显「暂无备注，点击右上角「备注/标签」编辑添加」）|
+| AC-工作台-14 | UC-工作台-18 | 状态切换器 | 切 online/break/offline | `#agentStatusBadge` 切换 `.online`/`.break`/`.offline` + 对应 toast（在线正常接收/小休转其他客服/离线不再接收）|
 
 ## 5.2 核心流程
 
@@ -278,14 +285,23 @@ flowchart LR
 | 字段 | 类型 | 取值 | 来源 | 去向 |
 |------|------|------|------|------|
 | 会话状态 | data-status | accept/wait/pending/close | 状态机 | 左栏 Tab 分组 + 会话项样式 |
+| 会话标签 s-tag | enum | 5 种：timeout(超时)/warn(即将超时)/transferred(转接入)/pending(挂起)/waiting(等待) | 状态机/转接/挂起/超时扫描 | 会话项第三行 `.session-status-row` 标签；接受转接后移除 transferred |
 | 未读数 | number | ≥0 | messages `is_read=0` 且来源=用户 | `.unread-badge` |
 | 撤回窗 | constant | 120 秒 | `RECALL_WINDOW` | 撤回校验 |
 | 恢复时间 | enum | 15/30/60 分钟（默认 30）| 挂起弹窗 `.sm-radio` | pending 倒计时；对应系统设置 `pending_resume_default` |
-| 富媒体卡片 type | enum | order/product/coupon/**cart/logistic/refund**（V2.2 补 3 类）| 工具栏 | 中栏卡片渲染 |
+| 富媒体卡片 type | enum | order/product/faq/image/logistics/refund（6 类，以工作台工具栏 6 按钮为准；无 coupon/cart）| 工具栏 `data-card` | 中栏卡片/图片渲染；CARD_TEMPLATES 键仅 order/product/logistics/refund/faq 5 类卡片，image 走原生文件选择 |
+| 客户备注 | text | 自由文本 | 客服在「备注/标签」面板(`#mdNote`)录入 | 保存后回填右栏基础信息 Tab `#custNoteBox`；仅客服可见 |
+| 客户标签 | tag[] | 自由标签（maxlength 10）| 客服在「备注/标签」面板(`#mdTags`/`#mdTagInput`)增删 | 右栏基础信息 Tab 标签区；仅客服可见 |
+| 订单数据时间范围 | enum | 3m(近三个月，默认)/all(全部) | 订单数据 Tab `#orderRangeTabs` `.rt[data-range]` | 切换时 `.order-mini[data-range]` 显隐 + 统计卡 `.sv` 数值随 `data-3m/data-all` 变 |
+| 客服状态 | enum | online(在线)/break(小休)/offline(离线) | 顶栏 `#agentStatusSwitch` | 状态徽标 + toast 联动；影响新会话分配（小休/离线不接新会话）|
 | 客户基础字段 | — | 手机号(脱敏)/会员等级/积分/归属(企业客户/品牌商城/应用端)/地区/实名/标签 | 会员库 | 右栏基础 Tab |
 | 渠道归属 | belong | 三层：企业客户(顶) / 品牌商城(中) / 应用端(叶，小程序/H5/PC) | 会话创建时落 `entry_channel` + 租户归属 | 会话项/历史会话 应用端标签 + 客户信息/会话详情 三层归属 |
 
-> 富媒体卡片 JSON（订单/商品/优惠券）字段以工作台 DOM 还原为准，含 `type/type_label/state(状态色)/body(订单号/商品/SKU/金额…)/footer(操作按钮)`。用户端卡片渲染口径见用户端 PRD；后台发送侧字段须与之对齐。
+> 富媒体卡片 JSON（order/product/logistics/refund/faq）字段以工作台 DOM 还原为准，含 `type/type_label/state(状态色)/body(订单号/商品/SKU/金额…)/footer(操作按钮)`；image 为基础图片消息（非卡片）。用户端卡片渲染口径见用户端 PRD；后台发送侧字段须与之对齐。
+>
+> **物流卡片多包裹**：`renderLogisticCard` 支持多包裹——当订单 `packages` 字段为多元素数组时，按 `.pkg-block` 循环渲染各包裹（包裹号/承运商/运单号/商品/轨迹提示，虚线分隔）；单包裹/无 packages 走单运单布局（运单号+承运商+轨迹步骤）。
+>
+> **售后卡片状态收敛 3 态**：退款选择抽屉 `drawer-refund-picker.html` 将退款单状态映射收敛为 3 态展示——审核中(s-warn)/待退货(s-proc)/已完成(s-done)；退款卡片字段精简为 退款单号(+关联订单/退款金额可选) + 查看进度按钮（补充说明/撤销申请为用户端操作，客服侧置灰）。
 >
 > **渠道归属 3 层模型（V2.2 两层模型扩展，决策见 ADR-0011）**：归属分三层——**顶层 = 企业客户**（客户A/客户B/客户C，组织维度）；**中层 = 品牌商城**（品牌商城1/2/3，按租户 `customer_id` 归属）；**叶层 = 应用端**（小程序 / H5 / PC，按用户进线入口判定，会话创建时落 `entry_channel`）。列表（会话项 / 历史会话 / 转接 / 评价 / 留言 / AI 报表）展示「应用端」叶层标签；客户信息页 + 会话详情弹窗展示完整三层归属。[注意] 残留问题（ADR-0011）：「企业客户」是否为把多个 `customer_id`/品牌商城租户归组的「超级租户」、及其与现有一对一租户隔离模型的关系，待后端确认；本轮原型仅展示归属，不建顶栏「企业客户/品牌」切换器。
 
@@ -1001,7 +1017,7 @@ stateDiagram-v2
 | user-transfer | S->C | 转接 | 通知目标客服 |
 | error-message | S->C | 错误 | 推送错误 |
 
-> 消息类型：text / image / audio / video / pdf / navigator / rate / notice（+ 一期富媒体：order_card / product_card / coupon_card / **cart_card / logistic_card / refund_card**[V2.2 补]）。
+> 消息类型：text / image / audio / video / pdf / navigator / rate / notice（+ 一期富媒体卡片：order_card / product_card / faq_card / logistic_card / refund_card；工具栏「图片」复用基础 image 类型发送。以工作台工具栏 6 按钮为准，**无 coupon_card / cart_card**）。
 > 消息来源：0=用户 / 1=客服 / 2=系统（AI=3 属 3 期，一期 source=0/1/2）。
 
 > [待补] 原型工作台未硬编码 WS action（发送为视觉占位），上表为后台一期 IM 口径，供后端实现。

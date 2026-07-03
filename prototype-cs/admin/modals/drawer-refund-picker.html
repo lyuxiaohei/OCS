@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>选择退款单发送 · 抽屉</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: #fff; margin: 0; }
+    .dw-body { display: flex; flex-direction: column; min-height: 100vh; }
+    .drawer-head {
+      padding: 16px 24px; border-bottom: 1px solid var(--cs-border-light);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-head .title { font-size: 16px; font-weight: 600; }
+    .drawer-head .title .sub { font-size: 12px; font-weight: 400; color: var(--cs-text-tertiary); margin-left: 8px; }
+    .drawer-head .close { font-size: 20px; color: var(--cs-text-tertiary); cursor: pointer; line-height: 1; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 16px 24px; }
+
+    .refund-list { display: flex; flex-direction: column; gap: 10px; }
+    .refund-item {
+      border: 1px solid var(--cs-border-light); border-radius: var(--cs-radius-md);
+      padding: 12px 14px; cursor: pointer; background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s; position: relative;
+    }
+    .refund-item:hover { border-color: var(--cs-primary); }
+    .refund-item.selected {
+      border-color: var(--cs-primary); background: var(--cs-primary-bg);
+      box-shadow: 0 0 0 2px rgba(22,119,255,0.12);
+    }
+    .refund-item.selected::after {
+      content: "✓"; position: absolute; top: 10px; right: 12px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--cs-primary); color: #fff;
+      font-size: 12px; line-height: 18px; text-align: center;
+    }
+    .refund-item .ri-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .refund-item .ri-id { font-size: 13px; font-weight: 600; color: var(--cs-text); }
+    .refund-item .ri-state { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; }
+    .refund-item .ri-state::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+    .refund-item .ri-state.s-warn::before { background: var(--cs-orange); } .refund-item .ri-state.s-warn { color: var(--cs-orange); }
+    .refund-item .ri-state.s-proc::before { background: var(--cs-primary); } .refund-item .ri-state.s-proc { color: var(--cs-primary); }
+    .refund-item .ri-state.s-done::before { background: var(--cs-success); } .refund-item .ri-state.s-done { color: var(--cs-success); }
+    .refund-item .ri-state.s-danger::before { background: var(--cs-danger); } .refund-item .ri-state.s-danger { color: var(--cs-danger); }
+    .refund-item .ri-goods { font-size: 12px; color: var(--cs-text-secondary); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .refund-item .ri-bottom { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--cs-text-tertiary); }
+    .refund-item .ri-amount { font-size: 14px; font-weight: 600; color: var(--cs-text); }
+
+    .empty-state { text-align: center; padding: 48px 16px; color: var(--cs-text-tertiary); }
+    .empty-state .es-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.5; }
+    .empty-state .es-text { font-size: 13px; }
+
+    .drawer-foot {
+      padding: 12px 24px; border-top: 1px solid var(--cs-border-light);
+      display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0;
+    }
+    .drawer-foot .btn-default {
+      padding: 7px 16px; border: 1px solid var(--cs-border); border-radius: var(--cs-radius-sm);
+      background: #fff; font-size: 13px; cursor: pointer; color: var(--cs-text-secondary);
+    }
+    .drawer-foot .btn-primary {
+      padding: 7px 16px; border: none; border-radius: var(--cs-radius-sm);
+      background: var(--cs-primary); color: #fff; font-size: 13px; cursor: pointer;
+    }
+    .drawer-foot .btn-primary:disabled { background: var(--cs-border); cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="dw-body">
+    <div class="drawer-head">
+      <div class="title">选择退款单发送<span class="sub" id="custName"></span></div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="drawer-body">
+      <div class="refund-list" id="refundList"><!-- JS 渲染 --></div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn" disabled>发送退款卡片</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    // 退款状态 -> 徽标 class（与 admin-workbench.html 的 STATE_MAP 对齐）
+    var REFUND_STATE_MAP = {
+      '审核中': 's-warn', '待退货': 's-proc', '退款中': 's-proc',
+      '已完成': 's-done', '已退款': 's-done',
+      '已拒绝': 's-danger', '已取消': 's-danger'
+    };
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    // 订单 state -> 退款单展示状态
+    function mapRefundState(os) {
+      if (/退款中|审核/.test(os)) return '审核中';
+      if (/退货/.test(os)) return '待退货';
+      if (/已退款|完成/.test(os)) return '已完成';
+      return '审核中';
+    }
+
+    // 从 URL ?d= 读取客户数据（父窗口序列化传入）
+    var cust = {};
+    try {
+      var qs = new URLSearchParams(location.search);
+      var raw = qs.get('d');
+      if (raw) cust = JSON.parse(decodeURIComponent(raw));
+    } catch (e) { cust = {}; }
+    var nameEl = document.getElementById('custName');
+    if (cust.name) nameEl.textContent = '· ' + cust.name;
+
+    // 退款单来源：优先 cust.refunds；否则从 orders 派生（state 含 退款/退货/售后）；都没有则给一条演示数据
+    var refunds = [];
+    if (cust.refunds && cust.refunds.length) {
+      refunds = cust.refunds;
+    } else if (cust.orders && cust.orders.length) {
+      cust.orders.forEach(function (o) {
+        if (/退款|退货|售后/.test(o.state || '')) {
+          var digits = String(o.id || '').replace(/[^0-9]/g, '') || '202604080001';
+          refunds.push({ id: 'RF' + digits, relatedOrder: o.id, goods: o.goods, amount: o.amount, state: mapRefundState(o.state) });
+        }
+      });
+    }
+    if (!refunds.length) {
+      refunds = [{ id: 'RF202604080001', relatedOrder: '#20260402', goods: '便携充电宝 10000mAh ×1', amount: '¥129.00', state: '审核中' }];
+    }
+
+    var listEl = document.getElementById('refundList');
+    var confirmBtn = document.getElementById('confirmBtn');
+    var selected = null;
+
+    if (refunds.length === 0) {
+      listEl.innerHTML = '<div class="empty-state"><div class="es-icon">📭</div><div class="es-text">该客户暂无退款单</div></div>';
+    } else {
+      refunds.forEach(function (r, idx) {
+        var sc = REFUND_STATE_MAP[r.state] || 's-warn';
+        var div = document.createElement('div');
+        div.className = 'refund-item';
+        div.setAttribute('data-idx', idx);
+        div.innerHTML =
+            '<div class="ri-top">'
+          +   '<span class="ri-id">' + esc(r.id) + '</span>'
+          +   '<span class="ri-state ' + sc + '">' + esc(r.state) + '</span>'
+          + '</div>'
+          + '<div class="ri-goods">关联订单 ' + esc(r.relatedOrder || '—') + ' · ' + esc(r.goods || '') + '</div>'
+          + '<div class="ri-bottom"><span>退款金额</span><span class="ri-amount">' + esc(r.amount || '') + '</span></div>';
+        div.addEventListener('click', function () {
+          var all = listEl.querySelectorAll('.refund-item');
+          for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
+          div.classList.add('selected');
+          selected = r;
+          confirmBtn.disabled = false;
+        });
+        listEl.appendChild(div);
+      });
+    }
+
+    confirmBtn.addEventListener('click', function () {
+      if (!selected) return;
+      window.csModalBridge.confirm({
+        id: selected.id, relatedOrder: selected.relatedOrder,
+        amount: selected.amount, state: selected.state,
+        sCls: REFUND_STATE_MAP[selected.state] || 's-warn'
+      });
+    });
+  </script>
+</body>
+</html>

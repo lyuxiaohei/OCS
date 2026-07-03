@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>购物车明细 · 预览</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    html, body { background: var(--cs-bg-card); margin: 0; }
+    body { font-family: inherit; color: var(--cs-text); }
+    .cd-wrap { width: 420px; }
+    .cd-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--cs-border-light); }
+    .cd-head .title { font-size: 16px; font-weight: 600; }
+    .cd-head .close { font-size: 20px; color: var(--cs-text-tertiary); cursor: pointer; line-height: 1; }
+    .cd-body { padding: 16px 20px; max-height: 440px; overflow-y: auto; }
+    .cd-item { display: flex; gap: 10px; align-items: center; padding: 10px; background: var(--cs-bg-header); border-radius: var(--cs-radius-sm); margin-bottom: 8px; }
+    .cd-thumb { width: 48px; height: 48px; border-radius: 6px; background: #fff; border: 1px solid var(--cs-border-light); display: flex; align-items: center; justify-content: center; color: var(--cs-text-tertiary); flex-shrink: 0; }
+    .cd-info { flex: 1; min-width: 0; }
+    .cd-name { font-size: 13px; color: var(--cs-text); margin-bottom: 2px; }
+    .cd-spec { font-size: 12px; color: var(--cs-text-tertiary); }
+    .cd-qty { font-size: 12px; color: var(--cs-text-secondary); }
+    .cd-price { font-size: 13px; color: var(--cs-text); font-weight: 600; flex-shrink: 0; }
+    .cd-summary { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cs-border-lighter); }
+    .cd-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+    .cd-row .k { color: var(--cs-text-tertiary); }
+    .cd-row .v { color: var(--cs-text); }
+    .cd-row.total .v { font-size: 16px; font-weight: 600; color: var(--cs-danger); }
+    .cd-foot { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--cs-border-light); }
+    .cd-btn { flex: 1; padding: 8px 0; border-radius: var(--cs-radius-sm); font-size: 13px; cursor: pointer; border: 1px solid var(--cs-border); background: #fff; color: var(--cs-text-secondary); }
+    .cd-btn.primary { background: var(--cs-primary); border-color: var(--cs-primary); color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="cd-wrap">
+    <div class="cd-head">
+      <div class="title">购物车明细</div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="cd-body">
+      <div class="cd-item"><div class="cd-thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></div><div class="cd-info"><div class="cd-name">无线蓝牙耳机（白色）</div><div class="cd-spec">颜色:白 / 降噪款</div></div><div class="cd-qty">×1</div><div class="cd-price">¥299.00</div></div>
+      <div class="cd-item"><div class="cd-thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></div><div class="cd-info"><div class="cd-name">硅胶手机壳</div><div class="cd-spec">型号:iPhone 15</div></div><div class="cd-qty">×1</div><div class="cd-price">¥39.00</div></div>
+      <div class="cd-item"><div class="cd-thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></div><div class="cd-info"><div class="cd-name">数据线（1米）</div><div class="cd-spec">接口:Type-C</div></div><div class="cd-qty">×1</div><div class="cd-price">¥20.00</div></div>
+      <div class="cd-summary">
+        <div class="cd-row"><span class="k">商品件数</span><span class="v">3 件</span></div>
+        <div class="cd-row"><span class="k">商品总额</span><span class="v">¥358.00</span></div>
+        <div class="cd-row"><span class="k">优惠</span><span class="v">-¥0.00</span></div>
+        <div class="cd-row total"><span class="k">合计</span><span class="v">¥358.00</span></div>
+      </div>
+    </div>
+    <div class="cd-foot">
+      <button class="cd-btn" onclick="window.csModalBridge.close()">关闭</button>
+      <button class="cd-btn primary" id="btnCopy">复制明细</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    document.getElementById('btnCopy').addEventListener('click', function () {
+      this.textContent = '已复制'; var self = this; setTimeout(function () { self.textContent = '复制明细'; }, 1500);
+    });
+    if (window.csModalBridge && window.csModalBridge.reportHeight) {
+      requestAnimationFrame(function () { try { window.csModalBridge.reportHeight(document.documentElement.offsetHeight); } catch (e) {} });
+    }
+  </script>
+</body>
+</html>

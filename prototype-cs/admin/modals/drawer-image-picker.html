@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>选择图片发送 · 抽屉</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: #fff; margin: 0; }
+    .dw-body { display: flex; flex-direction: column; min-height: 100vh; }
+    .drawer-head {
+      padding: 16px 24px; border-bottom: 1px solid var(--cs-border-light);
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .drawer-head .title { font-size: 16px; font-weight: 600; }
+    .drawer-head .title .sub { font-size: 12px; font-weight: 400; color: var(--cs-text-tertiary); margin-left: 8px; }
+    .drawer-head .close { font-size: 20px; color: var(--cs-text-tertiary); cursor: pointer; line-height: 1; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 16px 24px; }
+    .drawer-body .tip { font-size: 12px; color: var(--cs-text-tertiary); margin-bottom: 12px; }
+
+    /* 图片网格（复用 styles.css 中 .cp-img-grid/.cp-img-tile/.cp-img-upload 视觉规范） */
+    .img-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .img-tile {
+      aspect-ratio: 1 / 1;
+      border: 1.5px solid var(--cs-border); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+      background: linear-gradient(135deg,#f5f7fa,#e8ecf1);
+      transition: border-color .15s;
+    }
+    .img-tile:hover { border-color: var(--cs-primary); }
+    .img-tile.selected { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.18); }
+    .img-tile.selected::after {
+      content: "✓"; position: absolute; top: 4px; right: 4px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--cs-primary); color: #fff;
+      font-size: 12px; line-height: 18px; text-align: center;
+    }
+    .img-tile svg { color: var(--cs-text-tertiary); }
+    .img-tile .tile-name {
+      position: absolute; bottom: 4px; left: 4px; right: 4px;
+      font-size: 10px; color: var(--cs-text-tertiary);
+      text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    /* 上传占位（虚线框） */
+    .img-upload {
+      aspect-ratio: 1 / 1;
+      border: 1.5px dashed var(--cs-border); border-radius: 8px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; color: var(--cs-text-tertiary); cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .img-upload:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .img-upload .up-text { font-size: 11px; }
+
+    .drawer-foot {
+      padding: 12px 24px; border-top: 1px solid var(--cs-border-light);
+      display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0;
+    }
+    .drawer-foot .btn-default { padding: 7px 16px; border: 1px solid var(--cs-border); border-radius: var(--cs-radius-sm); background: #fff; font-size: 13px; cursor: pointer; color: var(--cs-text-secondary); }
+    .drawer-foot .btn-primary { padding: 7px 16px; border: none; border-radius: var(--cs-radius-sm); background: var(--cs-primary); color: #fff; font-size: 13px; cursor: pointer; }
+    .drawer-foot .btn-primary:disabled { background: var(--cs-border); cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="dw-body">
+    <div class="drawer-head">
+      <div class="title">选择图片发送<span class="sub">从图库选或上传本地图片</span></div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="drawer-body">
+      <div class="tip">点击图片选中，或点击虚线框上传本地图片（演示用，上传为占位）。</div>
+      <div class="img-grid" id="imgGrid"></div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn" disabled>发送图片</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    // 6 张图库占位图（不同主题色，模拟常见客服图片）
+    var PHOTOS = [
+      { name: '商品正面图', bg: 'linear-gradient(135deg,#fff7e6,#ffe7ba)', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ad6800" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg>' },
+      { name: '商品细节', bg: 'linear-gradient(135deg,#e6fffb,#b5f5ec)', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#08979c" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' },
+      { name: '尺寸对比', bg: 'linear-gradient(135deg,#f9f0ff,#efdbff)', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#722ed1" stroke-width="1.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>' },
+      { name: '物流面单', bg: 'linear-gradient(135deg,#f0f5ff,#d6e4ff)', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2f54eb" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' },
+      { name: '破损凭证', bg: 'linear-gradient(135deg,#fff1f0,#ffccc7)', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cf1322" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' },
+      { name: '退款截图', bg: 'linear-gradient(135deg,#f6ffed,#d9f7be)', svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#389e0d" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>' }
+    ];
+    var selected = null;
+    var grid = document.getElementById('imgGrid');
+    var confirmBtn = document.getElementById('confirmBtn');
+
+    PHOTOS.forEach(function (p, idx) {
+      var tile = document.createElement('div');
+      tile.className = 'img-tile';
+      tile.style.background = p.bg;
+      tile.innerHTML = p.svg + '<span class="tile-name">' + p.name + '</span>';
+      tile.addEventListener('click', function () {
+        var all = grid.querySelectorAll('.img-tile');
+        for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
+        tile.classList.add('selected');
+        selected = p;
+        confirmBtn.disabled = false;
+      });
+      grid.appendChild(tile);
+    });
+
+    // 上传占位（演示：点击后作为新图选中）
+    var up = document.createElement('div');
+    up.className = 'img-upload';
+    up.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span class="up-text">上传本地图片</span>';
+    up.addEventListener('click', function () {
+      var all = grid.querySelectorAll('.img-tile');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
+      selected = {
+        name: '本地图片',
+        bg: 'linear-gradient(135deg,#f5f7fa,#e8ecf1)',
+        svg: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#595959" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg>'
+      };
+      confirmBtn.disabled = false;
+      if (csModalBridge && csModalBridge.reportHeight) { try { csModalBridge.reportHeight(); } catch (e) {} }
+    });
+    grid.appendChild(up);
+
+    confirmBtn.addEventListener('click', function () {
+      if (!selected) return;
+      // 用图块的视觉(SVG+背景色)作为发送内容
+      window.csModalBridge.confirm({ name: selected.name, svg: '<div style="width:160px;height:120px;border-radius:6px;background:' + selected.bg + ';display:flex;align-items:center;justify-content:center;">' + selected.svg + '</div>' });
+    });
+  </script>
+</body>
+</html>
