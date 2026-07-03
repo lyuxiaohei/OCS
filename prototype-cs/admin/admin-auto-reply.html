@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>自动回复 — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/settings.css" />
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="autoreply"></aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">客服设置 / <span style="color:var(--cs-text);font-weight:600;">自动回复</span></div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:13px;color:var(--cs-text-secondary);">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置各场景下自动推送给用户的回复文案：机器人接待、客服接入、转接客服、离线留言</p>
+        </div>
+      </div>
+
+      <!-- 锚点导航（电梯导航：吸顶 + 快捷跳转） -->
+      <div class="settings-anchor">
+        <a class="active" href="#robot-welcome">机器人欢迎语</a>
+        <a href="#staff-welcome">客服欢迎语</a>
+        <a href="#transfer-welcome">转接客服欢迎语</a>
+        <a href="#offline">离线自动回复</a>
+      </div>
+
+      <!-- ========== 1. 机器人欢迎语 ========== -->
+      <div class="card setting-section" id="robot-welcome">
+        <div class="section-head">
+          <h3>机器人欢迎语
+            <span class="head-desc">机器人接待（未转人工）时，用户进入会话自动推送的欢迎语</span>
+          </h3>
+        </div>
+
+        <div class="timeout-card">
+          <div class="tc-title">欢迎语内容</div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>机器人欢迎语</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">您好，我是 AI 助手，可以为您查询订单、解答常见问题。请问有什么可以帮您？转人工请回复"转人工"。</textarea>
+              <div class="flex-between" style="margin-top:4px;">
+                <span class="form-hint" style="margin:0;">机器人接待时进入会话的欢迎语，支持变量 {用户昵称}。</span>
+                <span class="char-count"><span style="color:var(--cs-text);">48</span> / 200</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 预览 -->
+          <div class="welcome-preview">
+            <div class="preview-label">用户端预览（机器人）</div>
+            <div class="bubble">您好，我是 AI 助手，可以为您查询订单、解答常见问题。请问有什么可以帮您？转人工请回复"转人工"。</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">机器人 FAQ 命中策略</div>
+          <div class="form-control">
+            <div class="radio-card-group" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="radio-card checked">
+                <div class="rc-title">推送首条</div>
+                <div class="rc-desc">命中多个 FAQ 时，机器人只推送相关度最高的一条</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">推送全部</div>
+                <div class="rc-desc">命中几个推送几个（最多 3 条，避免刷屏）</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">按优先级</div>
+                <div class="rc-desc">按 FAQ 配置的优先级 / 权重选取</div>
+                <div class="rc-check"></div>
+              </div>
+            </div>
+            <p class="form-hint">机器人对话中命中多个 FAQ 关键词时，按此策略推送 FAQ 卡片</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 2. 客服欢迎语 ========== -->
+      <div class="card setting-section" id="staff-welcome">
+        <div class="section-head">
+          <h3>客服欢迎语
+            <span class="head-desc">人工客服接入会话后自动推送的欢迎语</span>
+          </h3>
+        </div>
+
+        <div class="timeout-card">
+          <div class="tc-title">欢迎语内容</div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>客服欢迎语</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？</textarea>
+              <div class="flex-between" style="margin-top:4px;">
+                <span class="form-hint" style="margin:0;">支持文字与表情符号，不支持图片。</span>
+                <span class="char-count"><span style="color:var(--cs-text);">42</span> / 200</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label">推送时机</div>
+            <div class="form-control">
+              <div class="radio-card-group">
+                <div class="radio-card checked">
+                  <div class="rc-title">进入会话立即推送</div>
+                  <div class="rc-desc">用户点击咨询入口，建立会话后立刻发送欢迎语</div>
+                  <div class="rc-check"></div>
+                </div>
+                <div class="radio-card">
+                  <div class="rc-title">客服接入后推送</div>
+                  <div class="rc-desc">客服点击「接入」会话后才发送，避免排队期间打扰</div>
+                  <div class="rc-check"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 预览 -->
+          <div class="welcome-preview">
+            <div class="preview-label">用户端预览</div>
+            <div class="bubble">您好，欢迎联系商城客服中心！我是您的专属客服，请问有什么可以帮您？</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 3. 转接客服欢迎语 ========== -->
+      <div class="card setting-section" id="transfer-welcome">
+        <div class="section-head">
+          <h3>转接客服欢迎语
+            <span class="head-desc">会话转接到另一位客服后自动推送的欢迎语</span>
+          </h3>
+        </div>
+
+        <div class="timeout-card">
+          <div class="tc-title">欢迎语内容</div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>转接欢迎语</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">您好，我是客服 {客服昵称}，您的会话已转接给我，将继续为您服务，请问有什么可以帮您？</textarea>
+              <div class="flex-between" style="margin-top:4px;">
+                <span class="form-hint" style="margin:0;">转接成功后推送，支持变量 {客服昵称}、{客服工号}。</span>
+                <span class="char-count"><span style="color:var(--cs-text);">56</span> / 200</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label">推送时机</div>
+            <div class="form-control">
+              <div class="radio-card-group">
+                <div class="radio-card checked">
+                  <div class="rc-title">转接成功立即推送</div>
+                  <div class="rc-desc">目标客服接受转接后，立刻向用户推送欢迎语</div>
+                  <div class="rc-check"></div>
+                </div>
+                <div class="radio-card">
+                  <div class="rc-title">目标客服首次回复时推送</div>
+                  <div class="rc-desc">目标客服首次发送消息时附带欢迎语，避免转接等待期打扰</div>
+                  <div class="rc-check"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 预览 -->
+          <div class="welcome-preview">
+            <div class="preview-label">用户端预览（转接后）</div>
+            <div class="bubble">您好，我是客服 李静，您的会话已转接给我，将继续为您服务，请问有什么可以帮您？</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 4. 离线自动回复 ========== -->
+      <div class="card setting-section" id="offline">
+        <div class="section-head">
+          <h3>离线自动回复
+            <span class="head-desc">所有客服离线/忙碌时，用户进入会话展示的回复与留言通知</span>
+          </h3>
+        </div>
+
+        <div class="timeout-card">
+          <div class="tc-title">离线语</div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>离线语内容</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">当前无客服在线（工作时间 9:00-21:00），您可以留下问题和联系方式，客服上线后将第一时间为您处理。</textarea>
+              <div class="flex-between" style="margin-top:4px;">
+                <span class="form-hint" style="margin:0;">触发条件：所有客服处于「离线」或「忙碌」状态时展示。</span>
+                <span class="char-count"><span style="color:var(--cs-text);">58</span> / 200</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label">留言通知方式</div>
+            <div class="form-control">
+              <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
+                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--cs-font-size-base);">
+                  <input type="checkbox" checked /> 企业微信推送客服
+                </label>
+                <label title="暂不支持" style="display:inline-flex; align-items:center; gap:6px; cursor:not-allowed; font-size:var(--cs-font-size-base); color:var(--cs-text-placeholder);">
+                  <input type="checkbox" disabled /> 短信通知客服（暂不支持）
+                </label>
+              </div>
+              <p class="form-hint">新离线留言到达时，按勾选方式通知客服（可多选）</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label">企业微信推送模板</div>
+            <div class="form-control">
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <div class="select-field" style="min-width:240px;">客服留言通知模板 v1.0</div>
+                <a href="#" style="font-size:var(--cs-font-size-sm); color:var(--cs-primary);">前往模板管理</a>
+              </div>
+              <p class="form-hint">企业微信推送客服使用的消息模板，支持在模板管理中新建/编辑变量占位（用户昵称、留言摘要、客服工号等）</p>
+            </div>
+          </div>
+
+          <!-- 预览 -->
+          <div class="welcome-preview">
+            <div class="preview-label">用户端预览（离线态）</div>
+            <div class="bubble">当前无客服在线（工作时间 9:00-21:00），您可以留下问题和联系方式，客服上线后将第一时间为您处理。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 开发说明（数据来源/技术引用，折叠收纳，不进产品 UI 文案） -->
+      <details style="margin-top:12px; font-size:12px; color:var(--cs-text-tertiary);">
+        <summary style="cursor:pointer; color:var(--cs-text-tertiary);">开发说明（数据来源 / 技术引用）</summary>
+        <div style="margin-top:6px; line-height:1.8; padding:10px 14px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); color:var(--cs-text-tertiary);">
+          数据来源：customer_chat_settings（staff_welcome_content 客服欢迎语 / robot_welcome_content 机器人欢迎语 / transfer_welcome_content 转接欢迎语 / offline_content 离线语）· 机器人 FAQ 命中策略与话术库/FAQ 联动 · 留言通知对应 customer_chat_leaves + 企业微信推送模板
+        </div>
+      </details>
+
+      <!-- 吸底操作栏 -->
+      <div class="settings-footer">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div class="footer-tip">修改后请点击「保存设置」生效，欢迎语/离线语将在对应触发时机（进入会话/接入/转接/离线）生效</div>
+          <span class="save-hint" id="saveHint" style="display:none;">&#x26A0;&#xFE0F; 有 <span id="dirtyCount">0</span> 个模块已修改</span>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-default">重置默认</button>
+          <button class="btn-default">取消</button>
+          <button class="btn-primary" id="btnSave">保存设置</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  // === Dirty state tracking for admin-auto-reply.html ===
+  var dirtySections = new Set();
+  var saveHint = document.getElementById('saveHint');
+  var dirtyCountEl = document.getElementById('dirtyCount');
+
+  function updateDirtyUI() {
+    var count = dirtySections.size;
+    if (count > 0) {
+      saveHint.style.display = '';
+      dirtyCountEl.textContent = count;
+    } else {
+      saveHint.style.display = 'none';
+    }
+  }
+
+  function findSection(el) {
+    var node = el;
+    while (node && node !== document.body) {
+      if (node.classList && node.classList.contains('setting-section')) {
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  function markDirty(section) {
+    if (!section) return;
+    var id = section.id;
+    if (!id) return;
+    dirtySections.add(id);
+    section.classList.add('dirty');
+    updateDirtyUI();
+  }
+
+  var sections = document.querySelectorAll('.card.setting-section');
+  sections.forEach(function(section) {
+    section.addEventListener('input', function(e) {
+      if (e.target.matches('textarea, input[type="text"], input:not([type])')) {
+        markDirty(section);
+      }
+    });
+    section.addEventListener('change', function(e) {
+      markDirty(section);
+    });
+    section.addEventListener('click', function(e) {
+      var sw = e.target.closest('.switch');
+      if (sw) {
+        markDirty(section);
+      }
+      var rc = e.target.closest('.radio-card');
+      if (rc) {
+        var group = rc.parentNode;
+        Array.prototype.forEach.call(group.querySelectorAll('.radio-card'), function (c) { c.classList.remove('checked'); });
+        rc.classList.add('checked');
+        setTimeout(function() { markDirty(section); }, 0);
+      }
+    });
+  });
+
+  // === 电梯导航：点击快捷跳转 + 吸顶滚动高亮 ===
+  var anchorLinks = Array.prototype.slice.call(document.querySelectorAll('.settings-anchor a'));
+  var anchorSections = Array.prototype.slice.call(document.querySelectorAll('.setting-section[id]'));
+  var scrollRoot = document.querySelector('.admin-content');
+
+  function setActiveAnchor(id) {
+    anchorLinks.forEach(function(l) {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+    });
+  }
+  anchorLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var id = (link.getAttribute('href') || '').replace('#', '');
+      var sec = id && document.getElementById(id);
+      if (!sec) return;
+      e.preventDefault();
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveAnchor(id);
+    });
+  });
+
+  if ('IntersectionObserver' in window && anchorSections.length) {
+    var ratios = {};
+    var spy = new IntersectionObserver(function(entries) {
+      entries.forEach(function(en) { ratios[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0; });
+      var bestId = null, best = 0;
+      anchorSections.forEach(function(s) {
+        var r = ratios[s.id] || 0;
+        if (r <= 0) {
+          var rect = s.getBoundingClientRect();
+          if (rect.top < 120) r = 0.1;
+        }
+        if (r > best) { best = r; bestId = s.id; }
+      });
+      if (bestId) setActiveAnchor(bestId);
+    }, { root: scrollRoot, rootMargin: '-56px 0px -55% 0px', threshold: [0, 0.2, 0.5, 1] });
+    anchorSections.forEach(function(s) { spy.observe(s); });
+  }
+
+  // === Save clears dirty state ===
+  var btnSave = document.getElementById('btnSave');
+  if (btnSave) {
+    btnSave.addEventListener('click', function() {
+      dirtySections.clear();
+      sections.forEach(function(section) {
+        section.classList.remove('dirty');
+      });
+      updateDirtyUI();
+    });
+  }
+})();
+</script>
+<script src="js/cs-icons.js"></script>
+<script src="nav.js"></script>
+</body>
+</html>

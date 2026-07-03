@@ -205,6 +205,16 @@
     @media (max-width: 768px) {
       .admin-sidebar { display: none; }
     }
+
+    /* 指标卡子指标组：主指标下方横向排列的子项 */
+    .metric-sub {
+      display: flex; gap: var(--cs-space-4);
+      padding-top: var(--cs-space-3); margin-top: var(--cs-space-3);
+      border-top: 1px solid var(--cs-border-lighter);
+    }
+    .metric-sub .sub-item { display: flex; flex-direction: column; gap: 2px; flex: 1 1 0; min-width: 0; }
+    .metric-sub .sub-label { font-size: var(--cs-font-size-xs); color: var(--cs-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .metric-sub .sub-val { font-size: var(--cs-font-size-md); font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); }
   </style>
 </head>
 <body>
@@ -230,38 +240,77 @@
       <!-- Content -->
       <main class="admin-content">
 
+        <!-- ===== 统一筛选条（日期范围 / 客服）——驱动下方指标 + 前2图 ===== -->
+        <div class="card mb-16" style="padding:12px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <span style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); font-weight:var(--cs-font-weight-medium);">数据范围</span>
+          <input type="date" id="dashDateStart" class="ipt" style="padding:6px 10px; min-width:150px; color:var(--cs-text);" />
+          <span style="color:var(--cs-text-tertiary);">~</span>
+          <input type="date" id="dashDateEnd" class="ipt" style="padding:6px 10px; min-width:150px; color:var(--cs-text);" />
+          <select id="dashStaff" class="select" style="min-width:140px;">
+            <option value="all">全部客服</option>
+            <option value="lj">李静</option>
+            <option value="zxm">张小明</option>
+            <option value="wl">王磊</option>
+            <option value="zl">赵丽</option>
+            <option value="ch">陈昊</option>
+          </select>
+          <span id="freshness-hint" style="margin-left:auto; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary);">指标与会话量趋势近实时（约 5 分钟），满意度排行每小时更新</span>
+        </div>
+
         <!-- ===== 顶部指标卡片 ===== -->
         <div class="grid grid-4 mb-24">
 
+          <!-- 总会话量：主 + 接入/未接入/客服发起 -->
           <div class="metric-card">
             <div class="metric-body">
-              <div class="metric-value">1,286<span class="unit">次</span></div>
-              <div class="metric-label">今日会话数</div>
-              <div class="metric-trend up">▲ 12.5% 较昨日</div>
+              <div class="metric-value" id="m-sessions">1,286<span class="unit">次</span></div>
+              <div class="metric-label" id="m-sessions-label">今日总会话量</div>
+              <div class="metric-trend up" id="m-sessions-trend">▲ 12.5% 较昨日</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">接入会话</span><span class="sub-val" id="m-sessions-pickup">1,180</span></div>
+                <div class="sub-item"><span class="sub-label">未接入</span><span class="sub-val" id="m-sessions-miss">58</span></div>
+                <div class="sub-item"><span class="sub-label">客服发起</span><span class="sub-val" id="m-sessions-cs">48</span></div>
+              </div>
             </div>
           </div>
 
+          <!-- 在线客服数：主 + 总客服数/离线客服数 -->
           <div class="metric-card">
             <div class="metric-body">
-              <div class="metric-value">18<span class="unit">/ 24</span></div>
+              <div class="metric-value" id="m-online">18<span class="unit">人</span></div>
               <div class="metric-label">在线客服数</div>
-              <div class="metric-trend up">▲ 3 人新上线</div>
+              <div class="metric-trend up" id="m-online-trend">▲ 3 人新上线</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">总客服数</span><span class="sub-val" id="m-online-total">24</span></div>
+                <div class="sub-item"><span class="sub-label">离线客服</span><span class="sub-val" id="m-online-offline">6</span></div>
+              </div>
             </div>
           </div>
 
+          <!-- 平均首次响应时间：主 + 平均响应时间/15s应答率 -->
           <div class="metric-card">
             <div class="metric-body">
-              <div class="metric-value">42<span class="unit">秒</span></div>
-              <div class="metric-label">平均响应时长</div>
-              <div class="metric-trend down">▼ 8.3% 提速</div>
+              <div class="metric-value" id="m-response">42<span class="unit">秒</span></div>
+              <div class="metric-label">平均首次响应时间</div>
+              <div class="metric-trend down" id="m-response-trend">▼ 8.3% 提速</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">平均响应时间</span><span class="sub-val" id="m-response-avg">38秒</span></div>
+                <div class="sub-item"><span class="sub-label">15s应答率</span><span class="sub-val" id="m-response-rate">92.5%</span></div>
+              </div>
             </div>
           </div>
 
+          <!-- 满意度：主 + 参评率/邀评率/邀评成功率 -->
           <div class="metric-card">
             <div class="metric-body">
-              <div class="metric-value">4.82<span class="unit">/ 5.0</span></div>
+              <div class="metric-value" id="m-sat">4.82<span class="unit">/ 5.0</span></div>
               <div class="metric-label">满意度评分</div>
-              <div class="metric-trend up">▲ 0.06 较昨日</div>
+              <div class="metric-trend up" id="m-sat-trend">▲ 0.06 较昨日</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">参评率</span><span class="sub-val" id="m-sat-join">78%</span></div>
+                <div class="sub-item"><span class="sub-label">邀评率</span><span class="sub-val" id="m-sat-invite">85%</span></div>
+                <div class="sub-item"><span class="sub-label">邀评成功率</span><span class="sub-val" id="m-sat-ok">92%</span></div>
+              </div>
             </div>
           </div>
 
@@ -274,13 +323,10 @@
           <div class="card chart-card">
             <div class="section-row">
               <h3>会话量趋势</h3>
-              <div class="flex gap-8">
-                <button class="btn-default" style="padding:2px 10px; font-size:var(--cs-font-size-sm);">近7天</button>
-                <button class="btn-primary" style="padding:2px 10px; font-size:var(--cs-font-size-sm);">今天</button>
-              </div>
+              <span id="trend-hint" style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">今天 · 全部客服</span>
             </div>
             <div class="chart-canvas">
-                <div class="fake-bars">
+                <div class="fake-bars" id="trend-bars">
                   <div class="bar" style="height:55%;">
                     <span class="bar-val">98</span>
                     <span class="bar-label">09:00</span>
@@ -321,38 +367,41 @@
           <div class="card">
             <div class="section-row">
               <h3>客服满意度排行</h3>
-              <button class="btn-default" style="padding:2px 10px; font-size:var(--cs-font-size-sm);">本月</button>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); background:var(--cs-bg-header); padding:2px 8px; border-radius:10px;">每小时更新</span>
+                <span id="rank-hint" style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">今日</span>
+              </div>
             </div>
             <table class="data-table" style="font-size:var(--cs-font-size-base);">
               <thead>
                 <tr><th>客服</th><th>评价数</th><th>平均分</th><th>差评数</th></tr>
               </thead>
               <tbody>
-                <tr>
+                <tr data-staff="lj">
                   <td><div class="col-user"><div class="mini-avatar green">李</div><div>李静</div></div></td>
                   <td>286</td>
                   <td><span class="stars">★★★★★</span></td>
                   <td><span style="color:var(--cs-text-tertiary);">3</span></td>
                 </tr>
-                <tr>
+                <tr data-staff="zxm">
                   <td><div class="col-user"><div class="mini-avatar">张</div><div>张小明</div></div></td>
                   <td>342</td>
                   <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.7</span></td>
                   <td><span style="color:var(--cs-warning);">9</span></td>
                 </tr>
-                <tr>
+                <tr data-staff="wl">
                   <td><div class="col-user"><div class="mini-avatar orange">王</div><div>王磊</div></div></td>
                   <td>198</td>
                   <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.4</span></td>
                   <td><span style="color:var(--cs-danger);">12</span></td>
                 </tr>
-                <tr>
+                <tr data-staff="zl">
                   <td><div class="col-user"><div class="mini-avatar purple">赵</div><div>赵丽</div></div></td>
                   <td>151</td>
                   <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.2</span></td>
                   <td><span style="color:var(--cs-danger);">10</span></td>
                 </tr>
-                <tr>
+                <tr data-staff="ch">
                   <td><div class="col-user"><div class="mini-avatar green">陈</div><div>陈昊</div></div></td>
                   <td>106</td>
                   <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.0</span></td>
@@ -432,7 +481,7 @@
                 <span>1,280</span>
               </div>
               <div class="info-row">
-                <span class="info-label">已关闭会话</span>
+                <span class="info-label">已结束会话</span>
                 <span>1,124</span>
               </div>
               <div class="info-row">
@@ -461,30 +510,197 @@
 <script src="nav.js"></script>
 <script>
 /* ============================================================
-   admin-dashboard.html 轻交互（纯展示页）
-   仅给图表/排行的切换按钮接上 toast 反馈，不过度改造。
+   admin-dashboard.html 交互
+   - 顶部统一筛选（时间 / 客服）驱动：4 指标卡 + 会话量趋势 + 客服满意度排行
+   - 待处理事项 / 今日概况 为实时/今日快照，不受筛选影响
    ============================================================ */
 (function () {
   'use strict';
+  var $ = function (s) { return document.querySelector(s); };
   var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
-  // 会话量趋势：近7天 / 今天
-  var trendGroup = document.querySelectorAll('.chart-card .section-row button');
-  trendGroup.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      trendGroup.forEach(function (b) { b.classList.remove('btn-primary'); b.classList.add('btn-default'); });
-      btn.classList.remove('btn-default'); btn.classList.add('btn-primary');
-      toast('已切换至 ' + btn.textContent.trim() + ' 视图');
-    });
-  });
-  // 客服绩效排行：本月
-  var rankSection = document.querySelectorAll('.card .section-row');
-  rankSection.forEach(function (row) {
-    var h3 = row.querySelector('h3');
-    var btn = row.querySelector('button');
-    if (h3 && btn && h3.textContent.indexOf('满意度') !== -1) {
-      btn.addEventListener('click', function () { toast('当前展示：' + btn.textContent.trim() + ' 满意度排行'); });
+  var fmt = function (n) { return Math.round(n).toLocaleString('en-US'); };
+
+  var STAFF = {
+    all: {
+      sessions: { total: 1286, pickup: 1180, miss: 58, cs: 48 },
+      response: { first: 42, avg: 38, rate: '92.5%' },
+      sat:      { score: 4.82, join: '78%', invite: '85%', ok: '92%' },
+      sessionTrend: '▲ 12.5% 较昨日', respTrend: '▼ 8.3% 提速', satTrend: '▲ 0.06 较昨日'
+    },
+    lj: {
+      sessions: { total: 286, pickup: 260, miss: 12, cs: 14 },
+      response: { first: 38, avg: 35, rate: '95.0%' },
+      sat:      { score: 4.90, join: '82%', invite: '88%', ok: '93%' },
+      sessionTrend: '▲ 9.2% 较昨日', respTrend: '▼ 5.1% 提速', satTrend: '▲ 0.04 较昨日'
+    },
+    zxm: {
+      sessions: { total: 342, pickup: 318, miss: 10, cs: 14 },
+      response: { first: 45, avg: 42, rate: '88.0%' },
+      sat:      { score: 4.70, join: '75%', invite: '82%', ok: '90%' },
+      sessionTrend: '▲ 15.6% 较昨日', respTrend: '▲ 2.0% 变慢', satTrend: '▼ 0.03 较昨日'
+    },
+    wl: {
+      sessions: { total: 198, pickup: 175, miss: 15, cs: 8 },
+      response: { first: 51, avg: 48, rate: '80.0%' },
+      sat:      { score: 4.40, join: '70%', invite: '78%', ok: '86%' },
+      sessionTrend: '▲ 6.8% 较昨日', respTrend: '▲ 4.5% 变慢', satTrend: '▼ 0.08 较昨日'
+    },
+    zl: {
+      sessions: { total: 151, pickup: 135, miss: 13, cs: 3 },
+      response: { first: 48, avg: 45, rate: '82.0%' },
+      sat:      { score: 4.20, join: '72%', invite: '80%', ok: '85%' },
+      sessionTrend: '▼ 3.2% 较昨日', respTrend: '▼ 1.2% 提速', satTrend: '▼ 0.05 较昨日'
+    },
+    ch: {
+      sessions: { total: 106, pickup: 94, miss: 9, cs: 3 },
+      response: { first: 55, avg: 52, rate: '75.0%' },
+      sat:      { score: 4.00, join: '68%', invite: '76%', ok: '84%' },
+      sessionTrend: '▲ 11.0% 较昨日', respTrend: '▲ 6.0% 变慢', satTrend: '▲ 0.02 较昨日'
     }
+  };
+  var STAFF_NAME = { all: '全部客服', lj: '李静', zxm: '张小明', wl: '王磊', zl: '赵丽', ch: '陈昊' };
+  var ONLINE = { total: 24, online: 18, offline: 6, trend: '▲ 3 人新上线' }; /* 团队实时快照，不随筛选变化 */
+
+  var TREND_TODAY = { labels: ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'], vals: [98,128,156,168,138,176,149,117] };
+  var WAVE = [0.85, 1.00, 0.92, 1.08, 0.96, 1.04, 0.88, 1.02, 0.94, 1.10, 0.90, 1.00];
+
+  var dashStart = $('#dashDateStart'), dashEnd = $('#dashDateEnd'), dashStaff = $('#dashStaff');
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function iso(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function todayISO() { return iso(new Date()); }
+  function fmtMD(s) { var d = new Date(s); return (d.getMonth() + 1) + '.' + d.getDate(); }
+  function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000) + 1; }
+
+  function trendClass(txt) { return txt.indexOf('▲') !== -1 ? 'up' : 'down'; }
+  function setVal(id, val, unit) { var el = $('#' + id); if (el) el.innerHTML = val + '<span class="unit">' + unit + '</span>'; }
+  function setText(id, val) { var el = $('#' + id); if (el) el.textContent = val; }
+  function setTrend(id, txt) { var el = $('#' + id); if (el) { el.textContent = txt; el.className = 'metric-trend ' + trendClass(txt); } }
+
+  function renderBars(labels, vals) {
+    var max = Math.max.apply(null, vals);
+    var html = '';
+    for (var i = 0; i < vals.length; i++) {
+      var h = max > 0 ? Math.round(vals[i] / max * 100) : 0;
+      html += '<div class="bar" style="height:' + Math.max(h, 3) + '%;">' +
+              '<span class="bar-val">' + fmt(vals[i]) + '</span>' +
+              '<span class="bar-label">' + labels[i] + '</span></div>';
+    }
+    $('#trend-bars').innerHTML = html;
+  }
+
+  /* 按日期范围生成趋势柱：1 天=按小时，2-7 天=按日，>7 天=按周 */
+  function buildTrend(startStr, days, dailyAvg) {
+    if (days <= 1) return { labels: TREND_TODAY.labels.slice(), vals: TREND_TODAY.vals.slice() };
+    if (days <= 7) {
+      var labels = [], vals = [], base = new Date(startStr);
+      for (var i = 0; i < days; i++) {
+        var d = new Date(base.getTime()); d.setDate(d.getDate() + i);
+        labels.push(fmtMD(iso(d)));
+        vals.push(Math.round(dailyAvg * WAVE[i % WAVE.length]));
+      }
+      return { labels: labels, vals: vals };
+    }
+    var weeks = Math.min(Math.ceil(days / 7), 5), wlabels = [], wvals = [];
+    for (var j = 0; j < weeks; j++) {
+      wlabels.push('第' + (j + 1) + '周');
+      wvals.push(Math.round(dailyAvg * 7 * WAVE[j % WAVE.length]));
+    }
+    return { labels: wlabels, vals: wvals };
+  }
+
+  function render() {
+    var startStr = dashStart.value, endStr = dashEnd.value, staff = dashStaff.value;
+    if (startStr > endStr) { var tmp = startStr; startStr = endStr; endStr = tmp; }
+    var days = Math.max(1, daysBetween(startStr, endStr));
+    var todayStr = todayISO();
+    var span = addOneMonth(startStr); if (span > todayStr) span = todayStr;
+    if (endStr > span) { endStr = span; if (dashEnd && dashEnd.value !== span) dashEnd.value = span; days = Math.max(1, daysBetween(startStr, endStr)); }
+    var hasToday = startStr <= todayStr && todayStr <= endStr;
+    var s = STAFF[staff], ses = s.sessions;
+    var isToday = (startStr === todayStr && endStr === todayStr);
+    var title = isToday ? '今天' : (startStr === endStr ? fmtMD(startStr) : fmtMD(startStr) + ' ~ ' + fmtMD(endStr));
+
+    // —— 卡1 总会话量（主 + 子，按天数 × 客服体量）——
+    setVal('m-sessions', fmt(ses.total * days), '次');
+    setText('m-sessions-label', isToday ? '今日总会话量' : title + '总会话量');
+    setText('m-sessions-pickup', fmt(ses.pickup * days));
+    setText('m-sessions-miss', fmt(ses.miss * days));
+    setText('m-sessions-cs', fmt(ses.cs * days));
+    setTrend('m-sessions-trend', s.sessionTrend);
+
+    // —— 卡2 在线客服数（团队实时快照，不随筛选变化）——
+    setVal('m-online', ONLINE.online, '人');
+    setText('m-online-total', ONLINE.total);
+    setText('m-online-offline', ONLINE.offline);
+    setTrend('m-online-trend', ONLINE.trend);
+
+    // —— 卡3 平均首次响应时间（主 + 平均响应/15s应答率，随客服）——
+    var rs = s.response;
+    setVal('m-response', rs.first, '秒');
+    setText('m-response-avg', rs.avg + '秒');
+    setText('m-response-rate', rs.rate);
+    setTrend('m-response-trend', s.respTrend);
+
+    // —— 卡4 满意度（主 + 参评/邀评/邀评成功，随客服）——
+    var st = s.sat;
+    setVal('m-sat', st.score.toFixed(2), '/ 5.0');
+    setText('m-sat-join', st.join);
+    setText('m-sat-invite', st.invite);
+    setText('m-sat-ok', st.ok);
+    setTrend('m-sat-trend', s.satTrend);
+
+    // —— 会话量趋势：按日期范围生成柱子，客服按体量缩放 ——
+    var trend = buildTrend(startStr, days, STAFF.all.sessions.total);
+    var scale = staff === 'all' ? 1 : ses.total / STAFF.all.sessions.total;
+    renderBars(trend.labels, trend.vals.map(function (v) { return v * scale; }));
+    $('#trend-hint').textContent = title + ' · ' + STAFF_NAME[staff];
+
+    // —— 客服满意度排行：选具体客服只显示该行 ——
+    Array.prototype.forEach.call(document.querySelectorAll('.data-table tbody tr'), function (tr) {
+      tr.style.display = (staff === 'all' || tr.getAttribute('data-staff') === staff) ? '' : 'none';
+    });
+    $('#rank-hint').textContent = title;
+
+    // —— 时效说明：含今天 → 近实时；纯历史 → T+1 ——
+    setText('freshness-hint', hasToday
+      ? '指标与会话量趋势近实时（约 5 分钟），满意度排行每小时更新'
+      : '历史数据已结算（T+1），满意度排行每小时更新');
+
+    toast('已切换：' + title + ' · ' + STAFF_NAME[staff]);
+  }
+
+  function addOneMonth(dateStr) {
+    var d = new Date(dateStr), day = d.getDate();
+    d.setMonth(d.getMonth() + 1);
+    if (d.getDate() !== day) d.setDate(0); /* 月末溢出（如 1/31 +1 月）回退到 N+1 月末 */
+    return iso(d);
+  }
+  /* 限制结束日：不早于开始日、不晚于「开始日 + 1 月」、不晚于今天 */
+  function syncEndMax() {
+    var s = dashStart.value;
+    if (!s) return;
+    if (dashEnd.value && dashEnd.value < s) dashEnd.value = s;
+    var lim = addOneMonth(s);
+    var today = todayISO();
+    if (lim > today) lim = today;
+    dashEnd.max = lim;
+    if (dashEnd.value > lim) dashEnd.value = lim;
+  }
+
+  [dashStart, dashEnd, dashStaff].forEach(function (el) {
+    if (!el) return;
+    if (el === dashStart) el.addEventListener('change', function () { syncEndMax(); render(); });
+    else el.addEventListener('change', render);
   });
+
+  /* 初始化：默认当日、禁止选未来日期、跨度上限一个月（N 月 X 日 ~ N+1 月 X 日） */
+  var _t = todayISO();
+  if (dashStart) { dashStart.value = _t; dashStart.max = _t; }
+  if (dashEnd) { dashEnd.value = _t; dashEnd.max = _t; }
+  syncEndMax();
+
+  render();
 })();
 </script>
 </body>

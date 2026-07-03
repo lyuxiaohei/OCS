@@ -136,6 +136,11 @@ a { color: var(--cs-primary); text-decoration: none; }
   padding: 0;
   flex-shrink: 0;
   border-right: 1px solid var(--cs-border-light);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
 }
 .admin-sidebar .logo {
   height: 56px;

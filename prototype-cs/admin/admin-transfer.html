@@ -223,7 +223,7 @@
     /* ---------- 双栏布局（转接记录 + 在线客服） ---------- */
     .two-col-layout {
       display: grid;
-      grid-template-columns: 1fr 360px;
+      grid-template-columns: 1fr 300px;
       gap: var(--cs-space-4);
       align-items: start;
     }
@@ -231,10 +231,7 @@
       .two-col-layout { grid-template-columns: 1fr; }
     }
 
-    .agents-panel {
-      position: sticky;
-      top: 80px;
-    }
+    /* .agents-panel：不使用 sticky（会导致初始顶部偏移）；与左栏顶部对齐由 .two-col-layout 的 align-items: start 保证 */
     .agents-panel .panel-head {
       display: flex;
       align-items: center;
@@ -307,7 +304,6 @@
         </div>
         <div class="flex gap-8">
           <button class="btn-default" id="btnExport">导出记录</button>
-          <button class="btn-primary" id="btnNewTransfer">发起转接</button>
         </div>
       </div>
 
@@ -759,31 +755,8 @@
               <span class="live-count">5 在线</span>
             </div>
           </div>
-          <p style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);margin:0 0 var(--cs-space-3);">实时负载概览，供发起转接时参考目标客服（发起转接请点上方「发起转接」）</p>
 
-          <div class="agent-sort mb-16">
-            <span class="sort-item active">按负载</span>
-            <span class="sort-item">按技能</span>
-            <span class="sort-item">按评分</span>
-          </div>
-
-          <!-- 转接超时设置 -->
-          <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:8px;padding:12px 16px;margin-bottom:16px;">
-            <div style="font-size:13px;font-weight:600;color:#1677ff;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              转接超时设置
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#666;">
-              待处理转接超过
-              <input type="number" value="5" min="1" max="60" style="width:48px;padding:4px 6px;border:1px solid #d9d9d9;border-radius:4px;text-align:center;font-size:13px;">
-              分钟未响应，自动
-              <select style="padding:4px 6px;border:1px solid #d9d9d9;border-radius:4px;font-size:12px;">
-                <option>回退至原客服</option>
-                <option>重新排队分配</option>
-                <option>自动取消并通知</option>
-              </select>
-            </div>
-          </div>
+          <!-- 转接超时设置已在「会话规则 · 会话超时 · 转接超时」统一配置 -->
 
           <div class="agents-grid" style="grid-template-columns: 1fr;">
 
@@ -798,11 +771,6 @@
                   <div class="agent-name">李静</div>
                   <div class="agent-role">高级客服 · 售后组</div>
                 </div>
-              </div>
-              <div class="agent-tags">
-                <span class="skill-tag">VIP接待</span>
-                <span class="skill-tag">售后退款</span>
-                <span class="skill-tag">物流</span>
               </div>
               <div class="capacity-bar">
                 <div class="fill" style="width: 30%;"></div>
@@ -839,10 +807,6 @@
                   <div class="agent-role">客服专员 · 售前组</div>
                 </div>
               </div>
-              <div class="agent-tags">
-                <span class="skill-tag">商品咨询</span>
-                <span class="skill-tag">优惠券</span>
-              </div>
               <div class="capacity-bar">
                 <div class="fill warn" style="width: 60%;"></div>
               </div>
@@ -877,10 +841,6 @@
                   <div class="agent-name">王磊</div>
                   <div class="agent-role">客服专员 · 物流组</div>
                 </div>
-              </div>
-              <div class="agent-tags">
-                <span class="skill-tag">物流追踪</span>
-                <span class="skill-tag">投诉处理</span>
               </div>
               <div class="capacity-bar">
                 <div class="fill full" style="width: 100%;"></div>
@@ -917,10 +877,6 @@
                   <div class="agent-role">客服专员 · 品控组</div>
                 </div>
               </div>
-              <div class="agent-tags">
-                <span class="skill-tag">质量问题</span>
-                <span class="skill-tag">退换货</span>
-              </div>
               <div class="capacity-bar">
                 <div class="fill" style="width: 20%;"></div>
               </div>
@@ -955,10 +911,6 @@
                   <div class="agent-name">孙莉</div>
                   <div class="agent-role">客服专员 · 技术组</div>
                 </div>
-              </div>
-              <div class="agent-tags">
-                <span class="skill-tag">技术支持</span>
-                <span class="skill-tag">支付问题</span>
               </div>
               <div class="capacity-bar">
                 <div class="fill" style="width: 40%;"></div>
@@ -1115,22 +1067,6 @@
     var foot = $('.agent-footer', c); if (foot) foot.innerHTML = footerStatus(pct, cur);
   });
 
-  /* ---------- 4. 排序（负载/技能/评分） ---------- */
-  $$('.sort-item').forEach(function (item) {
-    item.addEventListener('click', function () {
-      $$('.sort-item').forEach(function (x) { x.classList.remove('active'); });
-      item.classList.add('active');
-      var key = item.textContent.replace('按', '').trim();
-      var grid = $('.agents-grid');
-      cards.slice().sort(function (a, b) {
-        if (key === '负载') return (parseInt(a.getAttribute('data-load'), 10) || 0) - (parseInt(b.getAttribute('data-load'), 10) || 0);
-        if (key === '评分') return (parseFloat(b.getAttribute('data-rating')) || 0) - (parseFloat(a.getAttribute('data-rating')) || 0);
-        return (a.getAttribute('data-group') || '').localeCompare(b.getAttribute('data-group') || '', 'zh');
-      }).forEach(function (c) { grid.appendChild(c); });
-      toast('已按' + key + '排序');
-    });
-  });
-
   /* ---------- 5. 发起 / 确认转接（新增待处理记录 + 计数自增） ---------- */
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
   function escapeHtml(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
@@ -1182,14 +1118,20 @@
     bumpStat('accent', 1); bumpStat('warn', 1);
     bumpPgInfo(1);
   }
-  var btnNew = $('#btnNewTransfer');
-  if (btnNew) btnNew.addEventListener('click', function () {
-    csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420,
-      onConfirm: function (d) {
-        addPendingRow({ target: d.target, reason: d.reason, note: d.note });
-        toast('已向 ' + (d.target || '目标客服') + ' 发起转接，等待响应');
-      }
-    });
+  /* 发起转接入口：注入到每行会话操作栏（取代原右上角全局按钮）*/
+  rows.forEach(function (tr) {
+    var act = $('.row-actions', tr);
+    if (!act || act.querySelector('.new-transfer')) return;
+    var a = document.createElement('a');
+    a.className = 'new-transfer';
+    a.textContent = '发起转接';
+    act.insertBefore(a, act.firstChild);
+    if (act.children.length > 1) {
+      var div = document.createElement('span');
+      div.className = 'divider';
+      div.textContent = '|';
+      act.insertBefore(div, a.nextSibling);
+    }
   });
   var btnExp = $('#btnExport');
   if (btnExp) btnExp.addEventListener('click', function () { toast('正在导出转接记录…'); });
@@ -1201,7 +1143,15 @@
     e.preventDefault();
     var txt = (a.textContent || '').trim();
     var tr = a.closest('tr');
-    if (txt === '详情') {
+    if (txt === '发起转接') {
+      var sid = tr ? ($('.col-id', tr) ? $('.col-id', tr).textContent.trim() : '') : '';
+      csModal.open('modals/modal-transfer.html?session=' + encodeURIComponent(sid), { variant: 'center', width: 420,
+        onConfirm: function (d) {
+          addPendingRow({ target: d.target, reason: d.reason, note: d.note });
+          toast('已向 ' + (d.target || '目标客服') + ' 发起转接，等待响应');
+        }
+      });
+    } else if (txt === '详情') {
       csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 });
     } else if (txt === '查看会话') {
       var sid = tr ? ($('.col-id', tr) ? $('.col-id', tr).textContent.trim() : '') : '';

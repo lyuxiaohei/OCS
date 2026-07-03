@@ -1402,7 +1402,7 @@
         <div class="tab active" data-status="accept">进行中 <span class="num">8</span></div>
         <div class="tab" data-status="wait">等待中 <span class="num">3</span></div>
         <div class="tab" data-status="pending">挂起 <span class="num">2</span></div>
-        <div class="tab" data-status="close">已关闭 <span class="num">13</span></div>
+        <div class="tab" data-status="close">已结束 <span class="num">13</span></div>
       </div>
 
       <div class="session-list">
@@ -2388,7 +2388,7 @@
     // accept = 进行中(默认显示，无 data-status 的进行中项 + accept 项)
     // wait = 等待中(waiting 头像 / 等待标签)
     // pending = 挂起
-    // close = 已关闭
+    // close = 已结束
     document.querySelectorAll('.wb-tabs .tab').forEach(function(t){
       t.addEventListener('click', function(){
         document.querySelectorAll('.wb-tabs .tab').forEach(function(x){x.classList.remove('active');});

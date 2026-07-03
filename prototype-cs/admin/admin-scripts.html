@@ -202,6 +202,17 @@
       .kb-sidebar { width: 100%; }
       .script-stats { grid-template-columns: repeat(2, 1fr); }
     }
+
+    /* 表格列宽：fixed 贴容器宽、长内容换行不溢出；操作列稳定宽 + nowrap 防按钮竖排 */
+    .scripts-table { table-layout: fixed; width: 100%; min-width: 0; }
+    .scripts-table .col-title { max-width: 100%; }
+    .scripts-table .col-title .title-sub {
+      max-width: 100% !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+    }
+    .scripts-table td.row-actions { flex-wrap: nowrap; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -328,11 +339,11 @@
               <table class="data-table scripts-table">
                 <thead>
                   <tr>
-                    <th style="width:40%;">话术内容</th>
-                    <th>业务分类</th>
-                    <th>使用次数</th>
-                    <th>状态</th>
-                    <th style="width:190px; white-space:nowrap;">操作</th>
+                    <th>话术内容</th>
+                    <th style="width:120px;">业务分类</th>
+                    <th style="width:100px;">使用次数</th>
+                    <th style="width:80px;">状态</th>
+                    <th style="width:190px;">操作</th>
                   </tr>
                 </thead>
                 <tbody>
