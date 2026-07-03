@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>订单详情</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    html, body { background: #fff; margin: 0; }
+    body { font-family: inherit; color: var(--cs-text); }
+    .od-wrap { width: 420px; }
+    .od-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--cs-border-light);
+    }
+    .od-head .title { font-size: 16px; font-weight: 600; }
+    .od-head .close {
+      font-size: 22px; color: var(--cs-text-tertiary); cursor: pointer; line-height: 1;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background .15s;
+    }
+    .od-head .close:hover { background: var(--cs-bg-hover); }
+    .od-body { padding: 0; max-height: 560px; overflow-y: auto; }
+
+    /* 商品列表 */
+    .od-goods-list { padding: 12px 20px; }
+    .od-goods-item {
+      display: flex; gap: 12px; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--cs-border-light);
+    }
+    .od-goods-item:last-child { border-bottom: none; }
+    .od-goods-thumb {
+      width: 56px; height: 56px; border-radius: 6px; background: var(--cs-bg-header);
+      border: 1px solid var(--cs-border-light); display: flex; align-items: center; justify-content: center;
+      color: var(--cs-text-tertiary); flex-shrink: 0;
+    }
+    .od-goods-info { flex: 1; min-width: 0; }
+    .od-goods-name { font-size: 14px; color: var(--cs-text); margin-bottom: 4px; }
+    .od-goods-spec { font-size: 12px; color: var(--cs-text-tertiary); }
+    .od-goods-price { text-align: right; flex-shrink: 0; }
+    .od-goods-unit { font-size: 14px; color: var(--cs-text); font-weight: 500; }
+    .od-goods-qty { font-size: 12px; color: var(--cs-text-tertiary); }
+
+    /* 分区标题 */
+    .od-section-title {
+      font-size: 13px; color: var(--cs-text-secondary); font-weight: 600;
+      padding: 12px 20px 8px; background: var(--cs-bg-header);
+    }
+
+    /* 字段行 */
+    .od-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 8px 20px; font-size: 13px;
+    }
+    .od-row .k { color: var(--cs-text-tertiary); flex-shrink: 0; }
+    .od-row .v { color: var(--cs-text); text-align: right; word-break: break-all; }
+    .od-row.total {
+      border-top: 1px solid var(--cs-border-light);
+      padding-top: 12px; margin-top: 4px;
+    }
+    .od-row.total .k { color: var(--cs-text); font-weight: 600; font-size: 14px; }
+    .od-row.total .v { font-size: 16px; font-weight: 700; color: var(--cs-danger); }
+
+    /* 备注 */
+    .od-note {
+      font-size: 13px; color: var(--cs-text-secondary);
+      padding: 8px 20px 16px; line-height: 1.6;
+    }
+
+    /* 底部按钮 */
+    .od-foot {
+      display: flex; gap: 10px; padding: 12px 20px;
+      border-top: 1px solid var(--cs-border-light); background: #fff;
+    }
+    .od-btn {
+      flex: 1; padding: 10px 0; border-radius: 6px; font-size: 14px;
+      cursor: pointer; border: 1px solid var(--cs-border); background: #fff;
+      color: var(--cs-text-secondary); transition: all .15s;
+    }
+    .od-btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .od-btn.primary {
+      background: var(--cs-primary); border-color: var(--cs-primary); color: #fff;
+    }
+    .od-btn.primary:hover { background: #1a6dff; }
+  </style>
+</head>
+<body>
+  <div class="od-wrap">
+    <div class="od-head">
+      <div class="title">订单详情</div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="od-body" id="odBody"></div>
+    <div class="od-foot">
+      <button class="od-btn" onclick="window.csModalBridge.close()">关闭</button>
+      <button class="od-btn primary" id="btnCopy">复制订单号</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var qs = new URLSearchParams(location.search);
+      var raw = qs.get('d');
+      var order = null;
+      try { order = raw ? JSON.parse(decodeURIComponent(raw)) : null; } catch (e) {}
+      // 默认演示数据（与小程序 order_detail 字段集对齐）
+      order = Object.assign({
+        id: '#20260611', time: '2026-06-11 09:12',
+        amount: '¥299.00', cash: '¥279.00', bean: '20(抵¥20.00)', freight: '¥0.00',
+        payTime: '2026-06-11 09:12:35', payMethod: '微信支付',
+        receiver: '李晓红 138****6621',
+        address: '北京市朝阳区建国路88号 苏银豆大厦 1203室',
+        note: '客户备注：请尽快发货，收货时电话联系，谢谢。',
+        goods: [
+          { name: '无线蓝牙耳机（白色）', spec: '颜色:白色 / 主动降噪款', price: '¥299.00', qty: 1 },
+          { name: '硅胶保护壳', spec: '型号:耳机专用', price: '¥19.00', qty: 1 }
+        ]
+      }, order || {});
+
+      function esc(s) { return String(s == null ? '' : s).replace(/</g, '&lt;'); }
+      var thumbSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+
+      var html = '';
+
+      // 商品列表
+      html += '<div class="od-goods-list">';
+      (order.goods || []).forEach(function (g) {
+        html += '<div class="od-goods-item">'
+          + '<div class="od-goods-thumb">' + thumbSvg + '</div>'
+          + '<div class="od-goods-info"><div class="od-goods-name">' + esc(g.name) + '</div><div class="od-goods-spec">' + esc(g.spec || '') + '</div></div>'
+          + '<div class="od-goods-price"><div class="od-goods-unit">' + esc(g.price || '') + '</div><div class="od-goods-qty">×' + esc(g.qty || 1) + '</div></div>'
+          + '</div>';
+      });
+      html += '</div>';
+
+      // 订单信息
+      html += '<div class="od-section-title">订单信息</div>';
+      html += '<div class="od-row"><span class="k">订单编号</span><span class="v">' + esc(order.id) + '</span></div>';
+      html += '<div class="od-row"><span class="k">下单时间</span><span class="v">' + esc(order.time || '—') + '</span></div>';
+      html += '<div class="od-row"><span class="k">支付时间</span><span class="v">' + esc(order.payTime || '—') + '</span></div>';
+      html += '<div class="od-row"><span class="k">支付方式</span><span class="v">' + esc(order.payMethod || '—') + '</span></div>';
+      html += '<div class="od-row"><span class="k">苏银豆抵扣</span><span class="v">' + esc(order.bean || '—') + '</span></div>';
+      html += '<div class="od-row"><span class="k">现金支付</span><span class="v">' + esc(order.cash || '—') + '</span></div>';
+      html += '<div class="od-row"><span class="k">运费</span><span class="v">' + esc(order.freight || '¥0.00') + '</span></div>';
+      html += '<div class="od-row total"><span class="k">实付金额</span><span class="v">' + esc(order.amount || '—') + '</span></div>';
+
+      // 收货信息
+      html += '<div class="od-section-title">收货信息</div>';
+      html += '<div class="od-row"><span class="k">收货人</span><span class="v">' + esc(order.receiver || '—') + '</span></div>';
+      html += '<div class="od-row"><span class="k">收货地址</span><span class="v">' + esc(order.address || '—') + '</span></div>';
+
+      // 订单备注
+      html += '<div class="od-section-title">订单备注</div>';
+      html += '<div class="od-note">' + esc(order.note || '无备注') + '</div>';
+
+      document.getElementById('odBody').innerHTML = html;
+      document.getElementById('btnCopy').addEventListener('click', function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(order.id);
+        this.textContent = '已复制'; var self = this; setTimeout(function () { self.textContent = '复制订单号'; }, 1500);
+      });
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () { try { window.csModalBridge.reportHeight(document.documentElement.offsetHeight); } catch (e) {} });
+      }
+    })();
+  </script>
+</body>
+</html>

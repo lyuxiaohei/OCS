@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>物流轨迹 · 半屏预览</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .lg-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 8px;
+    }
+    .lg-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
+    .lg-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 440px;
+      -webkit-overflow-scrolling: touch;
+      
+      
+    }
+    /* 状态头 */
+    .lg-status-hero {
+      padding: 18px 16px 14px;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+    }
+    .lg-status-hero.done {
+      background: linear-gradient(135deg, #52c41a, #73d13d);
+    }
+    .lg-status-text {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .lg-status-sub {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    /* 运单信息 */
+    .lg-courier-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--cs-bg-header);
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .lg-courier-bar .lc-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .lg-courier-bar .lc-info { flex: 1; min-width: 0; }
+    .lg-courier-bar .lc-name { font-size: 13px; color: var(--cs-text); font-weight: 500; }
+    .lg-courier-bar .lc-no { font-size: 11px; color: var(--cs-text-tertiary); font-family: "SFMono-Regular", Consolas, monospace; }
+    .lg-courier-bar .lc-copy {
+      font-size: 11px;
+      color: var(--cs-primary);
+      padding: 4px 10px;
+      border: 1px solid var(--cs-primary);
+      border-radius: 999px;
+      background: var(--cs-bg-card);
+      cursor: pointer;
+    }
+    /* 商品缩略 */
+    .lg-products {
+      display: flex;
+      gap: 6px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .lg-products::-webkit-scrollbar { display: none; }
+    .lg-product-thumb {
+      width: 48px; height: 48px;
+      border-radius: 6px;
+      background: var(--cs-bg-header);
+      border: 1px solid var(--cs-border-light);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--cs-text-placeholder);
+    }
+    .lg-product-thumb svg { width: 18px; height: 18px; }
+    /* 时间线 */
+    .lg-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cs-text);
+      padding: 14px 16px 8px;
+      border-top: 1px solid var(--cs-border-lighter);
+      background: var(--cs-bg-card);
+    }
+    .lg-timeline {
+      padding: 0 16px 16px;
+      position: relative;
+    }
+    .lg-timeline::before {
+      content: '';
+      position: absolute;
+      left: 22px;
+      top: 8px;
+      bottom: 16px;
+      width: 2px;
+      background: var(--cs-border-light);
+    }
+    .lg-tl-item {
+      display: flex;
+      gap: 12px;
+      padding: 8px 0;
+      position: relative;
+    }
+    .lg-tl-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #d9d9d9;
+      flex-shrink: 0;
+      margin-top: 3px;
+      position: relative;
+      z-index: 1;
+      border: 2px solid var(--cs-bg-card);
+    }
+    .lg-tl-item.active .lg-tl-dot {
+      background: var(--cs-primary);
+      box-shadow: 0 0 0 3px rgba(238,10,36,0.2);
+    }
+    .lg-tl-item.done .lg-tl-dot {
+      background: var(--cs-success);
+    }
+    .lg-tl-content { flex: 1; min-width: 0; }
+    .lg-tl-text {
+      font-size: 13px;
+      color: var(--cs-text-secondary);
+      line-height: 1.5;
+    }
+    .lg-tl-item.active .lg-tl-text {
+      color: var(--cs-text);
+      font-weight: 600;
+    }
+    .lg-tl-time {
+      font-size: 11px;
+      color: var(--cs-text-tertiary);
+      margin-top: 2px;
+    }
+    /* 底部 */
+    .lg-foot {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px 14px;
+      border-top: 1px solid var(--cs-border-light);
+      background: var(--cs-bg-card);
+      flex-shrink: 0;
+    }
+    .lg-btn {
+      flex: 1;
+      height: 40px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: opacity .15s;
+    }
+    .lg-btn:active { opacity: 0.8; }
+    .lg-btn-secondary {
+      background: var(--cs-bg-header);
+      color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border);
+    }
+    .lg-btn-primary {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="lg-modal">
+    <div class="lg-handle"></div>
+    <div class="lg-body" id="lgBody">
+      <!-- 由 JS 渲染 -->
+    </div>
+    <div class="lg-foot">
+      <button class="lg-btn lg-btn-secondary" id="btnCopy">复制运单号</button>
+      <button class="lg-btn lg-btn-primary" id="btnRefresh">刷新物流</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      // ===== 物流 mock 库（按 tracking_no 查询）=====
+      var LOGISTICS = {
+        # 数据源：logistics.html 的真实 packages[]
+        'SF1234567890': {
+          status: '运输中', statusType: 'shipping',
+          sub: '快件已到达 北京朝阳区营业点，正在派送中',
+          carrier: '顺丰速运', carrierShort: '顺丰',
+          products: 2,
+          timeline: [
+            { text: '【北京市】 快件已到达 北京朝阳区营业点，正在派送中，快递员：李师傅 138****6666', time: '2026-04-08 08:35', state: 'active' },
+            { text: '【北京市】 快件已从 北京转运中心 发出，下一站 北京朝阳区营业点', time: '2026-04-08 05:22', state: 'done' },
+            { text: '【南京市】 快件已从 南京转运中心 发出', time: '2026-04-07 22:15', state: 'done' },
+            { text: '【南京市】 快件已从 江苏银行仓库 发出', time: '2026-04-07 16:30', state: 'done' }
+          ]
+        },
+        'ZT2026040700001': {
+          status: '已签收', statusType: 'done',
+          sub: '已签收，签收人：本人签收',
+          carrier: '中通快递', carrierShort: '中通',
+          products: 1,
+          timeline: [
+            { text: '【北京市】 已签收，签收人：本人签收', time: '2026-04-09 14:20', state: 'active' },
+            { text: '【北京市】 快件正在派送中，快递员：王师傅 139****7777', time: '2026-04-09 08:10', state: 'done' },
+            { text: '【北京市】 快件已到达 北京朝阳区营业点', time: '2026-04-09 06:30', state: 'done' },
+            { text: '【南京市】 快件已从 南京转运中心 发出', time: '2026-04-08 20:00', state: 'done' }
+          ]
+        }
+      };
+      var DEFAULT = LOGISTICS['SF1234567890'];
+
+      var qs = new URLSearchParams(location.search);
+      var tno = qs.get('id') || qs.get('tracking_no') || 'SF1234567890';
+      var lg = LOGISTICS[tno] || DEFAULT;
+      var isDone = lg.statusType === 'done';
+
+      function esc(s) { return String(s).replace(/</g, '&lt;'); }
+
+      var body = document.getElementById('lgBody');
+      var html = '';
+
+      // 状态头
+      html += '<div class="lg-status-hero' + (isDone ? ' done' : '') + '">';
+      html +=   '<div class="lg-status-text">' + esc(lg.status) + '</div>';
+      html +=   '<div class="lg-status-sub">' + esc(lg.sub) + '</div>';
+      html += '</div>';
+
+      // 运单信息
+      html += '<div class="lg-courier-bar">';
+      html +=   '<div class="lc-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>';
+      html +=   '<div class="lc-info">';
+      html +=     '<div class="lc-name">' + esc(lg.carrier) + '</div>';
+      html +=     '<div class="lc-no">运单号 ' + esc(tno) + '</div>';
+      html +=   '</div>';
+      html +=   '<button class="lc-copy" id="lcCopyBtn">复制</button>';
+      html += '</div>';
+
+      // 商品缩略
+      var thumbSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+      html += '<div class="lg-products">';
+      for (var i = 0; i < lg.products; i++) {
+        html += '<div class="lg-product-thumb">' + thumbSvg + '</div>';
+      }
+      html += '</div>';
+
+      // 时间线
+      html += '<div class="lg-section-title">物流轨迹</div>';
+      html += '<div class="lg-timeline">';
+      lg.timeline.forEach(function (item) {
+        html += '<div class="lg-tl-item ' + (item.state === 'active' ? 'active' : (item.state === 'done' ? 'done' : '')) + '">';
+        html +=   '<div class="lg-tl-dot"></div>';
+        html +=   '<div class="lg-tl-content">';
+        html +=     '<div class="lg-tl-text">' + esc(item.text) + '</div>';
+        html +=     '<div class="lg-tl-time">' + esc(item.time) + '</div>';
+        html +=   '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      body.innerHTML = html;
+
+      // 复制按钮（弹窗内）
+      document.getElementById('lcCopyBtn').addEventListener('click', function () {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(tno);
+        }
+        this.textContent = '已复制';
+        var self = this;
+        setTimeout(function () { self.textContent = '复制'; }, 1500);
+      });
+
+      // 底部按钮
+      document.getElementById('btnCopy').addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'copyTracking', trackingNo: tno });
+      });
+      document.getElementById('btnRefresh').addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'refreshLogistics', trackingNo: tno });
+      });
+    
+      // 主动上报高度（覆盖 autoHeight 早期错误测量）
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try {
+            window.csModalBridge.reportHeight(document.documentElement.offsetHeight);
+          } catch (e) {}
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>

@@ -6,6 +6,7 @@
   <title>帮助中心 — CS 商城客服系统</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="mobile.css" />
+  <script src="js/cs-common.js"></script>
   <style>
     /* ===== user-faq.html 专属样式 ===== */
 
@@ -130,16 +131,7 @@
       line-height: 1.5;
     }
     .faq-hit {
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      font-size: var(--cs-font-size-xs);
-      color: var(--cs-orange);
-      background: var(--cs-orange-bg);
-      padding: 2px 7px;
-      border-radius: 10px;
-      white-space: nowrap;
+      display: none;
     }
     .faq-hit .fire { display: inline-flex; align-items: center; }
 
@@ -152,25 +144,30 @@
     }
     .faq-item.expanded .faq-answer { display: block; }
     .faq-answer-bubble {
-      background: var(--cs-success-bg);
+      position: relative;
+      background: #f6ffed;
       border: 1px solid #d9f7be;
+      border-left: 3px solid var(--cs-success);
       border-radius: var(--cs-radius-md);
-      border-top-left-radius: 2px;
-      padding: 10px var(--cs-space-3);
+      padding: 12px var(--cs-space-3) 12px 14px;
       font-size: var(--cs-font-size-base);
       color: var(--cs-text);
-      line-height: 1.6;
+      line-height: 1.7;
     }
     .faq-answer-bubble .label {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 18px;
       font-size: var(--cs-font-size-xs);
-      color: var(--cs-success);
-      background: var(--cs-success-bg);
-      border: 1px solid #b7eb8f;
-      border-radius: 3px;
-      padding: 1px 6px;
-      margin-bottom: 6px;
-      font-weight: var(--cs-font-weight-medium);
+      color: #fff;
+      background: var(--cs-success);
+      border-radius: 9px;
+      padding: 0 7px;
+      margin-bottom: 8px;
+      font-weight: var(--cs-font-weight-semibold);
+      letter-spacing: 0.5px;
     }
     .faq-answer-actions {
       display: flex;
@@ -196,7 +193,7 @@
     }
     .faq-answer-actions .useful:hover { background: var(--cs-primary-hover); }
 
-    /* （HOT 角标已移除：热度统一用右侧热度数字表达） */
+    /* （热度展示已移除：HOT 角标与右侧热度数字均不再显示） */
 
     /* 底部提示 */
     .faq-footer-tip {
@@ -439,13 +436,7 @@
     <div class="cs-phone">
 
       <!-- 小程序状态栏 -->
-      <div class="cs-status-bar">
-        <span class="sb-time">09:41</span>
-        <div class="sb-icons">
-          <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
-        </div>
-      </div>
+      <script>document.write(CsCommon.statusBar())</script>
 
       <!-- 小程序导航栏 -->
       <div class="cs-nav-bar">
@@ -453,9 +444,7 @@
           &lt;
         </div>
         <span class="cs-nav-title">帮助中心</span>
-        <div class="cs-capsule" title="微信胶囊">
-          <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
-        </div>
+        <script>document.write(CsCommon.capsule())</script>
       </div>
 
       <!-- Search Bar -->
@@ -474,7 +463,6 @@
         <span class="faq-tab" data-cat="pay">支付</span>
         <span class="faq-tab" data-cat="logistics">物流</span>
         <span class="faq-tab" data-cat="account">账户</span>
-        <span class="faq-tab" data-cat="guide">服务指南</span>
       </div>
 
       <!-- ===== FAQ Panel ===== -->
@@ -483,7 +471,7 @@
       <!-- FAQ List -->
       <div class="faq-list" id="faqList">
 
-        <div class="faq-section-label">热门问题</div>
+        <div class="faq-section-label">全部问题</div>
 
         <!-- FAQ Item 1 -->
         <div class="faq-item" data-cat="refund">
@@ -493,7 +481,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               在「我的订单」中找到对应订单，点击「申请售后」&gt; 选择「退货退款」&gt; 填写退货原因并提交。商品需保持全新未使用状态，附带完整配件与包装。审核通过后将自动生成退货物流单。
             </div>
             <div class="faq-answer-actions">
@@ -511,7 +499,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               物流单号一般在商家发货后 2-4 小时内更新。若超过 24 小时仍无更新，可能是物流公司系统延迟，建议您耐心等待；如急需处理可点击下方「联系客服」转人工咨询。
             </div>
             <div class="faq-answer-actions">
@@ -529,7 +517,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               退款审核通过后：支付宝/微信原路退回 1-3 个工作日；银行卡 3-7 个工作日；余额即时到账。节假日可能顺延，请以银行实际入账时间为准。
             </div>
             <div class="faq-answer-actions">
@@ -539,8 +527,6 @@
           </div>
         </div>
 
-        <div class="faq-section-label">全部问题</div>
-
         <!-- FAQ Item 4 -->
         <div class="faq-item" data-cat="pay">
           <div class="faq-item-row" onclick="toggleFaq(this)">
@@ -549,7 +535,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               目前支持微信支付、支付宝、银联云闪付、信用卡分期及商城余额支付。部分商品支持花呗与白条，具体以结算页可选方式为准。
             </div>
             <div class="faq-answer-actions">
@@ -567,7 +553,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               订单超过支付时效（通常 30 分钟）会自动关闭。请在「我的订单」中找到该订单重新发起支付，或重新下单。如金额已扣款但订单关闭，系统将在 1 个工作日内原路退回。
             </div>
             <div class="faq-answer-actions">
@@ -585,7 +571,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               订单在「待付款」状态可直接取消；已付款未发货的订单，请在订单详情页点击「申请取消」，商家审核通过后自动退款。已发货订单无法取消，需在收货后申请退货。
             </div>
             <div class="faq-answer-actions">
@@ -603,7 +589,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               订单未发货前，可在订单详情页点击「修改地址」更新收货信息。已发货订单无法修改，建议联系收件人或快递员沟通改派。
             </div>
             <div class="faq-answer-actions">
@@ -621,7 +607,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               在登录页点击「忘记密码」，输入注册手机号获取验证码，验证通过后即可设置新密码。建议使用 8-20 位含字母与数字的组合密码。
             </div>
             <div class="faq-answer-actions">
@@ -639,7 +625,7 @@
           </div>
           <div class="faq-answer">
             <div class="faq-answer-bubble">
-              <span class="label">A</span>
+              <span class="label">答</span>
               请在签收后 7 天内通过「申请售后」提交，并上传商品问题的照片/视频凭证。客服将在 24 小时内审核，质量问题产生的退换货运费由商家承担。
             </div>
             <div class="faq-answer-actions">
@@ -866,19 +852,12 @@
         var panelFaq = document.getElementById('panelFaq');
         var panelGuide = document.getElementById('panelGuide');
 
-        if (cat === 'guide') {
-          // 切换到服务指南面板
-          panelFaq.classList.remove('active');
-          panelGuide.classList.add('active');
-        } else {
-          // FAQ 列表按分类筛选
-          panelGuide.classList.remove('active');
-          panelFaq.classList.add('active');
-          document.querySelectorAll('.faq-item').forEach(function(item) {
-            var itemCat = item.getAttribute('data-cat');
-            item.style.display = (cat === 'all' || itemCat === cat) ? '' : 'none';
-          });
-        }
+        // FAQ 列表按分类筛选（服务指南已下线）
+        panelFaq.classList.add('active');
+        document.querySelectorAll('.faq-item').forEach(function(item) {
+          var itemCat = item.getAttribute('data-cat');
+          item.style.display = (cat === 'all' || itemCat === cat) ? '' : 'none';
+        });
       });
     });
   </script>

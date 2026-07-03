@@ -129,6 +129,19 @@
   display: block;
 }
 
+/* --- 会话头 chat-nav（头像+名称，叠加在导航栏第二行） --- */
+.chat-nav .nav-peer { position:absolute; top:44px; left:56px; height:44px; display:flex; align-items:center; gap:8px; max-width:calc(100% - 200px); min-width:0; }
+.chat-nav .nav-peer .agent-avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-semibold); flex-shrink:0; }
+.chat-nav .peer-info { display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.chat-nav .peer-name { font-size:var(--cs-font-size-lg); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chat-nav .peer-status { font-size:var(--cs-font-size-xs); display:flex; align-items:center; gap:3px; }
+.chat-nav .peer-status.online { color:var(--cs-success); }
+.chat-nav .peer-status.online::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--cs-success); display:inline-block; }
+.chat-nav .nav-actions { position:absolute; top:44px; right:95px; height:44px; display:flex; align-items:center; gap:2px; }
+.chat-nav .nav-action { width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:50%; transition:background .15s; }
+.chat-nav .nav-action:hover { background:rgba(0,0,0,.06); }
+.chat-nav .nav-action svg { width:20px; height:20px; }
+
 /* --- 可滚动内容区 (消息/表单/列表) --- */
 .cs-content {
   flex: 1;
@@ -263,36 +276,92 @@
 }
 
 /* ============================================================
-   16. Rich Media Cards (order/product/coupon)
+   quick-cards-bar 快捷卡片入口条（公共样式，7 页面共享）
+   隐藏横向滚动条，保持视觉简洁
    ============================================================ */
-.thread-card {
-  width: 240px;
-  background: #fff;
-  border-radius: var(--cs-radius-md);
+.quick-cards-bar {
+  overflow-x: auto;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+.quick-cards-bar::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* ============================================================
+   会话内评价卡片 .msg-rating-card（公共组件，5 页面共享）
+   从 user-rating.html 内联样式抽取，改一处全部生效
+   ============================================================ */
+.msg-rating-card {
+  align-self: center;
+  width: 252px;
+  background: var(--cs-bg-card);
   border: 1px solid var(--cs-border-light);
-  overflow: hidden;
+  border-radius: var(--cs-radius-lg);
+  box-shadow: var(--cs-shadow-md);
+  padding: 14px;
+}
+.msg-rating-card .rc-title {
   font-size: var(--cs-font-size-base);
+  font-weight: var(--cs-font-weight-semibold);
+  color: var(--cs-text);
+  margin-bottom: 2px;
 }
-.thread-card .card-banner {
-  height: 90px;
-  background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--cs-font-size-sm);
+.msg-rating-card .rc-sub {
+  font-size: var(--cs-font-size-xs);
+  color: var(--cs-text-tertiary);
+  margin-bottom: 10px;
 }
-.thread-card.order .card-banner { background: linear-gradient(135deg, var(--cs-orange), var(--cs-orange-hover)); }
-.thread-card.coupon .card-banner { background: linear-gradient(135deg, var(--cs-danger), var(--cs-danger-hover)); }
-.thread-card.product .card-banner { background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover)); }
-.thread-card .card-body { padding: 10px 12px; }
-.thread-card .card-row { display: flex; justify-content: space-between; margin: 4px 0; }
-.thread-card .card-action {
-  text-align: center;
+.msg-rating-card .rc-stars { display: flex; gap: 4px; margin-bottom: 12px; }
+.msg-rating-card .rc-star {
+  font-size: 28px; color: #d9d9d9; cursor: pointer; line-height: 1;
+  transition: color .15s;
+}
+.msg-rating-card .rc-star.active { color: #faad14; }
+.msg-rating-card .rc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.msg-rating-card .rc-tag {
+  font-size: var(--cs-font-size-xs);
+  padding: 4px 10px;
+  border: 1px solid var(--cs-border-light);
+  border-radius: 12px;
+  color: var(--cs-text-secondary);
+  cursor: pointer;
+  transition: all .15s;
+}
+.msg-rating-card .rc-tag.active {
+  background: var(--cs-primary-bg);
+  border-color: var(--cs-primary);
+  color: var(--cs-primary);
+}
+.msg-rating-card .rc-submit {
+  width: 100%;
   padding: 8px;
   background: var(--cs-primary);
   color: #fff;
-  margin-top: var(--cs-space-2);
+  border: none;
+  border-radius: var(--cs-radius-sm);
+  font-size: var(--cs-font-size-base);
+  font-weight: var(--cs-font-weight-medium);
   cursor: pointer;
-  border-radius: 0 0 var(--cs-radius-md) var(--cs-radius-md);
+  font-family: inherit;
+  transition: opacity .15s;
 }
+.msg-rating-card .rc-submit:disabled { background: #d9d9d9; cursor: not-allowed; }
+.msg-rating-card .rc-thanks {
+  display: none;
+  margin-top: 10px;
+  padding: 8px;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: var(--cs-radius-sm);
+  color: var(--cs-success);
+  font-size: var(--cs-font-size-sm);
+  text-align: center;
+}
+.msg-rating-card.done .rc-thanks { display: block; }
+.msg-rating-card.done .rc-star { pointer-events: none; }
+.msg-rating-card.done .rc-tags,
+.msg-rating-card.done .rc-submit { display: none; }
+
+/* ============================================================
+   16. Rich Media Cards — 已迁移至 styles.css「Thread Card」权威块。
+   原 banner 版(240px/card-banner/贴底实底按钮)废弃删除，避免与权威版冲突。
+   ============================================================ */

@@ -372,6 +372,80 @@ a { color: var(--cs-primary); text-decoration: none; }
 .status-badge.online::before { background: var(--cs-success); }
 .status-badge.offline::before { background: #bfbfbf; }
 .status-badge.waiting::before { background: var(--cs-warning); }
+.status-badge.break::before { background: var(--cs-orange); }
+
+/* --- Agent Status Switcher (客服状态切换器) --- */
+.agent-status-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.agent-status-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  background: var(--cs-bg-card);
+  cursor: pointer;
+  font-size: var(--cs-font-size-sm);
+  user-select: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.agent-status-trigger:hover { border-color: var(--cs-primary); }
+.agent-status-trigger .caret {
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  margin-left: 2px;
+  opacity: .6;
+  transition: transform .2s;
+}
+.agent-status-switch.open .agent-status-trigger .caret { transform: rotate(180deg); }
+.agent-status-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 168px;
+  background: var(--cs-bg-card);
+  border: 1px solid var(--cs-border-light);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.12);
+  padding: 6px;
+  z-index: 100;
+  display: none;
+}
+.agent-status-switch.open .agent-status-menu { display: block; }
+.agent-status-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: var(--cs-font-size-sm);
+  color: var(--cs-text);
+  transition: background .15s;
+}
+.agent-status-option:hover { background: var(--cs-bg-hover); }
+.agent-status-option.active { background: var(--cs-primary-bg); color: var(--cs-primary); }
+.agent-status-option .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.agent-status-option[data-status="online"] .dot { background: var(--cs-success); }
+.agent-status-option[data-status="break"]  .dot { background: var(--cs-orange); }
+.agent-status-option[data-status="offline"] .dot { background: #bfbfbf; }
+.agent-status-option .desc {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--cs-text-tertiary);
+}
+.agent-status-option.active .desc { color: var(--cs-primary); opacity: .8; }
 
 /* --- Stars Rating --- */
 .stars { color: var(--cs-warning); letter-spacing: 1px; font-size: var(--cs-font-size-base); }

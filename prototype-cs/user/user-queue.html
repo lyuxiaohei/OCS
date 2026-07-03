@@ -6,6 +6,8 @@
   <title>排队等待 — CS 商城客服系统</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="chat.css" />
+  <script src="js/cs-common.js"></script>
   <style>
     /* ===== user-queue.html 专属样式 ===== */
     body {
@@ -113,7 +115,7 @@
       display: flex;
       gap: 8px;
       margin-bottom: 14px;
-      align-items: flex-end;
+      align-items: flex-start;
     }
     .msg-avatar {
       width: 34px; height: 34px;
@@ -215,38 +217,30 @@
   <div class="cs-phone">
 
     <!-- 小程序状态栏 -->
-    <div class="cs-status-bar">
-      <span class="sb-time">09:41</span>
-      <div class="sb-icons">
-        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
-      </div>
-    </div>
+    <script>document.write(CsCommon.statusBar())</script>
 
     <!-- 小程序导航栏 -->
-    <div class="cs-nav-bar">
+    <div class="cs-nav-bar chat-nav">
       <div class="cs-back" title="返回" onclick="history.back()">
-        &lt;
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
       <div class="nav-peer">
         <div class="agent-avatar">客</div>
         <div class="peer-info">
           <span class="peer-name">在线客服</span>
-          <span class="peer-status busy" id="peerStatus">排队中</span>
+          <span class="peer-status busy" id="peerStatus" style="display:none;">排队中</span>
         </div>
       </div>
-      <div class="cs-capsule" title="微信胶囊">
-        <svg viewBox="0 0 2808 1024" xmlns="http://www.w3.org/2000/svg"><path d="M2296.677184 1023.997952h-1784.679086a511.998098 511.998098 0 0 1-362.026541-874.024639A508.633539 508.633539 0 0 1 511.998098 0.001755h1784.679086a511.998098 511.998098 0 0 1 362.026541 874.02464A508.662796 508.662796 0 0 1 2296.677184 1023.997952z m-1784.679086-994.739162a482.741064 482.741064 0 0 0 0 965.482128h1784.679086a482.741064 482.741064 0 1 0 0-965.482128z"/><path d="M614.397718 492.075813a120.890065 117.78882 90 1 0 235.577639 0 120.890065 117.78882 90 1 0-235.577639 0Z"/><path d="M483.531004 508.225696m-78.52588 0a78.52588 78.52588 0 1 0 157.05176 0 78.52588 78.52588 0 1 0-157.05176 0Z"/><path d="M967.822691 495.147802m-65.447986 0a65.447985 65.447985 0 1 0 130.895971 0 65.447985 65.447985 0 1 0-130.895971 0Z"/><path d="M2065.400329 370.512836a145.934087 145.934087 0 0 0-145.758545 145.758545 145.934087 145.934087 0 0 0 145.758545 145.758544 145.934087 145.934087 0 0 0 145.758544-145.758544 145.934087 145.934087 0 0 0-145.758544-145.758545m0-117.028136a262.786681 262.786681 0 1 1 0 525.573362 262.786681 262.786681 0 0 1 0-525.573362z" fill="#000"/><path d="M2070.374024 521.332848m-91.633031 0a91.633031 91.633031 0 1 0 183.266062 0 91.633031 91.633031 0 1 0-183.266062 0Z"/><path d="M1404.337641 204.800995h29.257034v585.140684h-29.257034z"/></svg>
-      </div>
+      <script>document.write(CsCommon.capsule())</script>
     </div>
 
     <!-- ============ 消息列表 ============ -->
     <div class="chat-messages" id="chatMessages">
-      <div class="msg-system">— 您已进入排队队列 —</div>
+      <div class="msg-system">— 已为您接入在线客服 —</div>
 
-      <!-- 排队提示（中间一行小字） -->
-      <div class="queue-tip" id="queueTip">
-        排队中，前面还有 <b id="aheadNumber">3</b> 位用户，预计 <span id="etaTime">02:30</span>
+      <!-- 排队提示（隐藏，JS 引用占位） -->
+      <div class="queue-tip" id="queueTip" style="display:none;">
+        <b id="aheadNumber">3</b><span id="etaTime">02:30</span>
       </div>
 
       <div class="msg-row">
@@ -258,10 +252,15 @@
     </div>
 
     <!-- ============ 底部输入区（排队中禁用） ============ -->
-    <div class="queue-input-bar" id="queueInputBar">
-      <input type="text" disabled placeholder="排队中，暂无法发送消息" />
-      <button class="btn-leave-msg" onclick="location.href='user-offline.html'">转留言</button>
+    <!-- 快捷卡片入口条（公共组件，排队中） -->
+    <script>document.write(CsCommon.quickCardsBar())</script>
+    <div class="chat-input-area" id="queueInputBar" style="height:54px;padding:0 10px;gap:4px;display:flex;align-items:center;background:#f7f7f7;border-top:1px solid #dcdcdc;flex-shrink:0;">
+      <div class="input-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div>
+      <input type="text" placeholder="请输入消息..." style="flex:1;height:34px;border-radius:var(--cs-radius-sm);border:1px solid #e0e0e0;padding:0 12px;font-size:var(--cs-font-size-md);background:#fff;color:var(--cs-text);outline:none;" />
+      <div class="input-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/><path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="send-btn" style="height:30px;padding:0 12px;border-radius:var(--cs-radius-sm);background:var(--cs-primary);color:#fff;font-size:var(--cs-font-size-sm);display:flex;align-items:center;flex-shrink:0;cursor:pointer;">发送</div>
     </div>
+    <script>(function(){var M={transfer:'转人工',order:'发送订单',refund:'发送售后',logistics:'查看物流',cart:'购物车',rating:'服务评价'};CsCommon.bindQuickCards(function(action){alert('排队中，已选择'+(M[action]||'')+'卡片（演示）');});})();</script>
 
     <!-- Toast -->
     <div class="cs-toast" id="csToast"></div>
