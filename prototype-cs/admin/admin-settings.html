@@ -232,6 +232,20 @@
               <p class="form-hint">客服点击「挂起」时，在挂起弹窗中从这些预设恢复时间里 N 选 一；超时未手动恢复则按上方「超时动作」处理</p>
             </div>
           </div>
+
+          <!-- 子卡片：评价卡片过期时间 -->
+          <div class="timeout-card">
+            <div class="tc-title">评价卡片过期 <span class="tc-tag">rating · 评价</span></div>
+            <div class="tc-row">
+              <div class="tc-field"><span class="tc-label">过期时间</span>
+                <div class="input-with-unit"><input type="text" value="72" /><select class="unit-select"><option value="秒">秒</option><option value="分">分</option><option value="小时" selected>小时</option></select></div>
+              </div>
+              <div class="tc-field"><span class="tc-label">过期后动作</span>
+                <div class="select-field" style="min-width:160px;">标记已过期，不可再催评</div>
+              </div>
+            </div>
+            <p class="tc-hint">会话结束后下发给用户的评价卡片，超过该时长未填写则自动标记为「已过期」，不再计入待评价、不可再发送催评邀请</p>
+          </div>
         </div>
 
       </div>
