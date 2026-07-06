@@ -247,7 +247,7 @@
     <script>document.write(CsCommon.statusBar())</script>
 
     <!-- 小程序导航栏 -->
-    <div class="cs-nav-bar">
+    <div class="cs-nav-bar chat-nav">
       <div class="cs-back" title="返回" onclick="history.back()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
@@ -256,12 +256,20 @@
           <span class="peer-name">苏银豆客服</span>
         </div>
       </div>
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
       <script>document.write(CsCommon.capsule())</script>
     </div>
 
     <!-- ============ 消息列表 ============ -->
     <div class="chat-messages" id="chatMessages">
-      <div class="msg-system">— 已为您接入苏银豆客服 · 订单咨询 —</div>
 
       <!-- 客服欢迎语（最后一条来自客服的消息，从此开始计时用户无响应） -->
       <div class="msg-row">
@@ -277,11 +285,15 @@
 
     <!-- ============ 快捷卡片入口条（公共组件） + 底部输入区（对齐 basic） ============ -->
     <script>document.write(CsCommon.quickCardsBar())</script>
-    <div class="chat-input-area" id="inputArea" style="height:54px;padding:0 10px;gap:4px;display:flex;align-items:center;background:#f7f7f7;border-top:1px solid #dcdcdc;flex-shrink:0;">
-      <div class="input-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div>
-      <input type="text" id="msgInput" placeholder="请输入消息..." style="flex:1;height:34px;border-radius:var(--cs-radius-sm);border:1px solid #e0e0e0;padding:0 12px;font-size:var(--cs-font-size-md);background:#fff;color:var(--cs-text);outline:none;" />
-      <div class="input-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/><path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-      <div class="send-btn" id="sendBtn" style="height:30px;padding:0 12px;border-radius:var(--cs-radius-sm);background:var(--cs-primary);color:#fff;font-size:var(--cs-font-size-sm);display:flex;align-items:center;flex-shrink:0;cursor:pointer;">发送</div>
+    <div class="chat-input-area" id="inputArea">
+      <div class="input-icon" id="voiceIcon" title="语音">
+        <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+      </div>
+      <input type="text" id="msgInput" placeholder="请输入消息..." />
+      <div class="input-icon" id="moreIcon" title="更多">
+        <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/><path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div class="send-btn" id="sendBtn">发送</div>
     </div>
     <script>(function(){var M={transfer:'转人工',order:'发送订单',refund:'发送售后',logistics:'查看物流',cart:'购物车',rating:'服务评价'};CsCommon.bindQuickCards(function(action){alert('已选择'+(M[action]||'')+'卡片（演示）');});})();</script>
 
@@ -342,7 +354,6 @@
       state.reminded = true;
       // 以客服身份发送超时提醒
       appendAgentMsg(REMIND_TEXT);
-      appendSystemMsg('— 客服等待中，会话即将超时 —');
       scrollBottom();
     }
 
@@ -352,7 +363,6 @@
       clearInterval(state.tickId);
       // 以客服身份发送关闭提示
       appendAgentMsg('会话已自动关闭（用户长时间未回复），感谢您的咨询。');
-      appendSystemMsg('— 本次会话已结束 —');
       // 关闭后禁用输入（不置灰）
       var mi = document.getElementById('msgInput');
       if (mi) { mi.disabled = true; mi.placeholder = '会话已关闭'; }

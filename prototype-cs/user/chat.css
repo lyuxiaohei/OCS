@@ -261,8 +261,8 @@
 .msg-rating-card {
   background: #fff;
   border-radius: 12px;
-  padding: 16px;
-  max-width: 280px;
+  padding: 14px;
+  max-width: 270px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   border: 1px solid #f0f0f0;
 }
@@ -284,16 +284,17 @@
 .msg-rating-card .rc-star.active { color: #ffa940; }
 .msg-rating-card .rc-star:hover { transform: scale(1.15); }
 .msg-rating-card .rc-resolve {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; margin-bottom: 12px;
+  margin-bottom: 12px;
 }
 .msg-rating-card .rc-resolve-q {
-  font-size: 12px; color: var(--cs-text-secondary); flex-shrink: 0;
+  font-size: 12px; color: var(--cs-text-secondary);
+  display: block; margin-bottom: 8px;
 }
-.msg-rating-card .rc-resolve-btns { display: flex; gap: 6px; }
+.msg-rating-card .rc-resolve-btns { display: flex; gap: 12px; }
 .msg-rating-card .rc-resolve-btn {
-  font-size: 11px; padding: 4px 10px;
-  border: 1px solid #d9d9d9; border-radius: 12px;
+  flex: 1; text-align: center;
+  font-size: 12px; padding: 8px 0;
+  border: 1px solid #d9d9d9; border-radius: 8px;
   background: #fff; color: var(--cs-text-secondary);
   cursor: pointer; font-family: inherit; transition: all .15s;
 }
@@ -320,6 +321,19 @@
   font-size: 13px; font-weight: 500; display: none;
 }
 .msg-rating-card.done .rc-thanks { display: block; }
+/* ---- 评价卡片（已过期，灰色禁用）---- */
+.msg-rating-card.expired { background: #fafafa; border-color: #e8e8e8; opacity: 0.75; }
+.msg-rating-card.expired .rc-title { color: var(--cs-text-tertiary); }
+.msg-rating-card.expired .rc-sub { color: var(--cs-text-placeholder); }
+.msg-rating-card.expired .rc-star { color: #e0e0e0; cursor: not-allowed; pointer-events: none; }
+.msg-rating-card.expired .rc-star:hover { transform: none; }
+.msg-rating-card.expired .rc-resolve-q { color: var(--cs-text-placeholder); }
+.msg-rating-card.expired .rc-resolve-btn {
+  background: #f5f5f5; color: #bfbfbf; border-color: #e8e8e8; cursor: not-allowed;
+}
+.msg-rating-card.expired .rc-submit {
+  background: #f0f0f0; color: #bfbfbf; cursor: not-allowed;
+}
 /* ---- 系统提示带按钮（关闭引导留言）---- */
 .msg-system-with-action {
   text-align: center; padding: 10px 16px; margin: 8px 12px;

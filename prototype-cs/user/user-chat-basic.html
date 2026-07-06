@@ -200,8 +200,8 @@
     var CARD_REPLIES = {
       order: '好的，已收到您的订单信息，请问这笔订单有什么问题？',
       product: '好的，您咨询的是这款商品，请问有什么可以帮您？',
-      logistics: '好的，已为您查询物流，包裹正在运输中。',
-      refund: '好的，已收到您的退款信息，我来为您查看进度。',      camera:    '已打开相机（演示）',
+      refund: '好的，已收到您的退款信息，我来为您查看进度。',
+      camera:    '已打开相机（演示）',
       file:      '已打开文件选择（演示）',
       phone:     '是否拨打客服热线 400-888-8888？',
       transfer:  '已为您转接人工客服（演示）',
@@ -226,9 +226,8 @@
       btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>结束会话';
       btn.addEventListener('click', function () {
         if (!window.confirm('确认结束本次会话？')) return;
-        // 推送关闭提示（带留言引导）+ 评价卡片
+        // 推送关闭提示 + 评价卡片
         if (window.csChat) {
-          window.csChat.sendSystem('本次会话已结束，如有需要请重新发起咨询', true);
           setTimeout(function () {
             window.csChat.sendText('感谢您的咨询，欢迎下次再来～', 'agent');
             window.csChat.sendRating();
@@ -457,11 +456,14 @@
 
     // 场景 -> 卡片类型 + 卡片数据映射
     var SCENES = {
-      home:      { card: null },
+      home:      { card: 'faq', data: {} },
       product:   { card: 'product', data: { product_id: params.product_id || '10086', product_name: params.product_name || '日本进口保温杯 不锈钢真空便携水杯', price: params.price || '68' } },
       order:     { card: 'order', data: { order_id: params.order_id || 'JS2026040888001', order_status: params.order_status || '运输中', amount: params.amount || '196.90' } },
+      cart:      { card: 'faq', data: {} },
       logistics: { card: 'logistics', data: { tracking_no: params.tracking_no || 'SF1234567890', carrier: params.carrier || '顺丰速运' } },
       refund:    { card: 'refund', data: { refund_id: params.refund_id || 'RF202604080001', refund_type: params.refund_type || '退货退款' } },
+      refund_list: { card: 'faq', data: {} },
+      profile:   { card: 'faq', data: {} },
       help:      { card: 'faq', data: {} }
     };
 
@@ -494,6 +496,8 @@
           '</div>';
         box.appendChild(cardRow);
         box.scrollTop = box.scrollHeight;
+        // 绑定 FAQ 卡片交互（换一换 + 问题点击推送答案）
+        if (scene.card === 'faq' && CsCommon.bindFaqRefresh) CsCommon.bindFaqRefresh(cardRow);
       }, 400);
     }
 
@@ -785,22 +789,7 @@
         }
         return;
       }
-      // FAQ 卡片里的单个问题项
-      var faqItem = e.target.closest('.faq-item');
-      if (faqItem) {
-        e.preventDefault();
-        var q = faqItem.textContent.replace('>', '').trim();
-        // 反向匹配 FAQ key（简化：用文本映射）
-        var KEY_MAP = {
-          '如何注册苏银豆商城账号？': 'register',
-          '积分如何获取和使用？': 'points',
-          '退款多久能到账？': 'refund_time',
-          '忘记密码怎么办？': 'password'
-        };
-        var fk = KEY_MAP[q] || q;
-        var url = buildUrl('modals/modal-faq-answer.html', 'q', fk);
-        window.csModal.open(url, { variant: 'sheet', width: 375, onConfirm: handleCardAction });
-      }
+      // 注：FAQ 卡片内问题项的点击由 CsCommon.bindFaqItemClicks 处理（用户气泡+客服答案，无弹窗）
     });
   })();
 </script>

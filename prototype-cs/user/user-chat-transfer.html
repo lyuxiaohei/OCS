@@ -109,12 +109,20 @@
           <span class="peer-name">苏银豆客服</span>
         </div>
       </div>
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
       <script>document.write(CsCommon.capsule())</script>
     </div>
 
     <!-- ============ 消息列表 ============ -->
     <div class="chat-messages" id="chatMessages">
-      <div class="msg-system">— 已为您接入苏银豆客服 · 售后咨询 —</div>
 
       <!-- 用户提出转接请求 -->
       <div class="msg-row user">
@@ -155,9 +163,6 @@
         <div class="transfer-status"><span class="dot"></span>正在转接，预计等待 &lt; 1 分钟</div>
         <div class="transfer-tip">转接后原客服退出，由新客服继续为您服务，历史消息保留</div>
       </div>
-
-      <!-- 转接完成系统消息 -->
-      <div class="msg-system">— 售后客服 李静 已接入 —</div>
 
       <!-- 新客服接入问候 -->
       <div class="msg-row">

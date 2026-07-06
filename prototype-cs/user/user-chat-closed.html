@@ -151,7 +151,7 @@
     <script>document.write(CsCommon.statusBar())</script>
 
     <!-- 小程序导航栏 -->
-    <div class="cs-nav-bar">
+    <div class="cs-nav-bar chat-nav">
       <div class="cs-back" title="返回" onclick="history.back()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
@@ -160,12 +160,20 @@
           <span class="peer-name">苏银豆客服</span>
         </div>
       </div>
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
       <script>document.write(CsCommon.capsule())</script>
     </div>
 
     <!-- ============ 消息列表 ============ -->
     <div class="chat-messages" id="chatMessages">
-      <div class="msg-system">— 已为您接入苏银豆客服 · 订单咨询 —</div>
 
       <div class="msg-row">
         <div class="msg-avatar agent">客</div>
@@ -175,11 +183,17 @@
         </div>
       </div>
 
-      <!-- 会话结束系统消息 -->
-      <div class="msg-system">— 本次会话已结束 · 如有需要请重新发起咨询 —</div>
+      <!-- 会话关闭告别问候语（后台可配置） -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">客</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">感谢您的咨询，本次会话已结束。如果您还有其他问题，欢迎随时再联系我，祝您生活愉快～</div>
+          <div class="msg-meta">10:48</div>
+        </div>
+      </div>
 
-      <!-- 会话内评价卡片（核心交互） -->
-      <script>document.write(CsCommon.ratingCard())</script>
+      <!-- 会话内评价卡片（已过期，不可评价） -->
+      <script>document.write(CsCommon.ratingCardExpired())</script>
     </div>
 
     <!-- 快捷卡片入口条（公共组件） + 输入区（对齐 basic） -->
@@ -198,9 +212,8 @@
   </div>
 
   <script>
-    // ===== 评价卡片交互（由 CsCommon.bindRating 绑定） =====
+    // ===== 评价卡片已过期，无需绑定交互 =====
     var chatMessages = document.getElementById('chatMessages');
-    CsCommon.bindRating(chatMessages);
 
     function scrollBottom() {
       chatMessages.scrollTop = chatMessages.scrollHeight;

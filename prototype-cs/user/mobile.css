@@ -299,12 +299,12 @@
    ============================================================ */
 .msg-rating-card {
   align-self: center;
-  width: 252px;
+  width: 260px;
   background: var(--cs-bg-card);
   border: 1px solid var(--cs-border-light);
   border-radius: var(--cs-radius-lg);
   box-shadow: var(--cs-shadow-md);
-  padding: 14px;
+  padding: 12px;
 }
 .msg-rating-card .rc-title {
   font-size: var(--cs-font-size-base);
@@ -324,20 +324,22 @@
 }
 .msg-rating-card .rc-star.active { color: #faad14; }
 .msg-rating-card .rc-resolve {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; margin-bottom: 12px;
+  margin-bottom: 12px;
 }
 .msg-rating-card .rc-resolve-q {
   font-size: var(--cs-font-size-xs);
   color: var(--cs-text-secondary);
-  flex-shrink: 0;
+  display: block;
+  margin-bottom: 8px;
 }
-.msg-rating-card .rc-resolve-btns { display: flex; gap: 6px; }
+.msg-rating-card .rc-resolve-btns { display: flex; gap: 12px; }
 .msg-rating-card .rc-resolve-btn {
+  flex: 1;
+  text-align: center;
   font-size: var(--cs-font-size-xs);
-  padding: 4px 10px;
+  padding: 8px 0;
   border: 1px solid var(--cs-border-light);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--cs-bg-card);
   color: var(--cs-text-secondary);
   cursor: pointer;
@@ -379,6 +381,18 @@
 .msg-rating-card.done .rc-star { pointer-events: none; }
 .msg-rating-card.done .rc-resolve,
 .msg-rating-card.done .rc-submit { display: none; }
+/* 评价卡片（已过期，灰色禁用） */
+.msg-rating-card.expired { background: #fafafa; border-color: #e8e8e8; opacity: 0.75; }
+.msg-rating-card.expired .rc-title { color: var(--cs-text-tertiary); }
+.msg-rating-card.expired .rc-sub { color: var(--cs-text-placeholder); }
+.msg-rating-card.expired .rc-star { color: #e0e0e0; cursor: not-allowed; pointer-events: none; }
+.msg-rating-card.expired .rc-resolve-q { color: var(--cs-text-placeholder); }
+.msg-rating-card.expired .rc-resolve-btn {
+  background: #f5f5f5; color: #bfbfbf; border-color: #e8e8e8; cursor: not-allowed;
+}
+.msg-rating-card.expired .rc-submit {
+  background: #f0f0f0; color: #bfbfbf; cursor: not-allowed;
+}
 
 /* ============================================================
    16. Rich Media Cards — 已迁移至 styles.css「Thread Card」权威块。

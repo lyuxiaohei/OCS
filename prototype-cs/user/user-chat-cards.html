@@ -363,6 +363,11 @@
       <div class="sample-body" id="rating-2"></div>
     </div>
 
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">评价卡片（已过期）</span><span class="sh-tag">过期禁用态</span></div>
+      <div class="sample-body" id="rating-3"></div>
+    </div>
+
     <!-- ===== 媒体消息 ===== -->
     <div class="section-title">媒体消息 · 图片 / 语音</div>
 
@@ -443,6 +448,9 @@
 
   // 评价卡片：未提交态（HTML 由 CsCommon.ratingCard 生成）
   render('rating-1', CsCommon.ratingCard());
+
+  // 评价卡片：已过期态（HTML 由 CsCommon.ratingCardExpired 生成，灰色禁用）
+  render('rating-3', CsCommon.ratingCardExpired());
 
   // 评价卡片：已提交态
   render('rating-2',

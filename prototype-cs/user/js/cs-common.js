@@ -234,13 +234,13 @@
       }
       action = '<div class="card-actions">' + refundBtns.join('') + '</div>';
     } else if (type === 'faq') {
-      // 任务4：FAQ 卡片右上角加"换一换"按钮
+      // FAQ 卡片：题库 FAQ_LIBRARY 按"点击次数"排序，一张卡片显示前 FAQ_PAGE_SIZE 条
       h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>常见问题</span></div><span class="faq-refresh" data-cs-action="faqRefresh" title="换一换" style="font-size:var(--cs-font-size-xs);color:var(--cs-primary);cursor:pointer;display:inline-flex;align-items:center;gap:2px;font-weight:500;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>换一换</span></div>';
       body += '<div class="faq-list">';
-      body += '<div class="faq-item" onclick="location.href=\'' + MINI_BASE + 'help.html\'">如何注册苏银豆商城账号？<span class="q-arrow">></span></div>';
-      body += '<div class="faq-item" onclick="location.href=\'' + MINI_BASE + 'help.html\'">积分如何获取和使用？<span class="q-arrow">></span></div>';
-      body += '<div class="faq-item" onclick="location.href=\'' + MINI_BASE + 'help.html\'">退款多久能到账？<span class="q-arrow">></span></div>';
-      body += '<div class="faq-item" onclick="location.href=\'' + MINI_BASE + 'help.html\'">忘记密码怎么办？<span class="q-arrow">></span></div>';
+      // 默认显示第 0 屏（题库前 FAQ_PAGE_SIZE 条）
+      faqPageSlice(0).forEach(function (q) {
+        body += '<div class="faq-item" data-cs-faq-q="' + q.replace(/"/g, '&quot;') + '">' + q + '<span class="q-arrow">></span></div>';
+      });
       body += '</div>';
     } else {
       return '';
@@ -249,35 +249,103 @@
     return h + body + action + '</div>';
   }
 
-  // ---- FAQ 卡片换一换（任务4） ----
-  // 3 组问题，点击换一换循环切换
-  var FAQ_GROUPS = [
-    ['如何注册苏银豆商城账号？', '积分如何获取和使用？', '退款多久能到账？', '忘记密码怎么办？'],
-    ['如何修改收货地址？', '优惠券如何使用？', '订单如何取消？', '发票如何开具？'],
-    ['会员等级有哪些权益？', '商品退换货流程？', '如何联系人工客服？', '订单多久自动确认收货？']
+  // ---- FAQ 卡片题库与换一换（任务4 升级版） ----
+  // FAQ_LIBRARY：按"点击次数"从高到低排序的问答库（题库来源：06-FAQ机器人客服.md §6.4.4）
+  // FAQ_PAGE_SIZE：一张卡片显示的问题条数
+  // 换一换：按题库顺序逐屏往后翻，到末尾不足一屏时循环回开头
+  var FAQ_PAGE_SIZE = 4;
+  var FAQ_LIBRARY = [
+    { q: '如何申请七天无理由退货？', a: '在「我的订单」中找到对应订单，点击「申请售后」> 选择「退货退款」> 填写退货原因并提交。商品需保持全新未使用状态，附带完整配件与包装。审核通过后将自动生成退货物流单。' },
+    { q: '订单显示"已发货"但查不到物流信息？', a: '物流单号一般在商家发货后 2-4 小时内更新。若超过 24 小时仍无更新，可能是物流公司系统延迟，建议耐心等待；如急需处理可点击下方「联系客服」转人工咨询。' },
+    { q: '退款多久能到账？', a: '退款审核通过后：支付宝/微信原路退回 1-3 个工作日；银行卡 3-7 个工作日；余额即时到账。节假日可能顺延，以银行实际入账时间为准。' },
+    { q: '支持哪些支付方式？', a: '目前支持微信支付、支付宝、银联云闪付、信用卡分期及商城余额支付。部分商品支持花呗与白条，具体以结算页可选方式为准。' },
+    { q: '支付时提示"交易关闭"怎么办？', a: '订单超过支付时效（通常 30 分钟）会自动关闭。请在「我的订单」中找到该订单重新发起支付，或重新下单。如金额已扣款但订单关闭，系统将在 1 个工作日内原路退回。' },
+    { q: '可以修改或取消已下的订单吗？', a: '订单在「待付款」状态可直接取消；已付款未发货的订单，请在订单详情页点击「申请取消」，商家审核通过后自动退款。已发货订单无法取消，需在收货后申请退货。' },
+    { q: '可以修改收货地址吗？', a: '订单未发货前，可在订单详情页点击「修改地址」更新收货信息。已发货订单无法修改，建议联系收件人或快递员沟通改派。' },
+    { q: '忘记登录密码怎么找回？', a: '在登录页点击「忘记密码」，输入注册手机号获取验证码，验证通过后即可设置新密码。建议使用 8-20 位含字母与数字的组合密码。' },
+    { q: '收到的商品有质量问题如何处理？', a: '请在签收后 7 天内通过「申请售后」提交，并上传商品问题的照片/视频凭证。客服将在 24 小时内审核，质量问题产生的退换货运费由商家承担。' }
   ];
+  // 取第 page 屏（每屏 FAQ_PAGE_SIZE 条），不足一屏时从开头补齐循环
+  function faqPageSlice(page) {
+    var len = FAQ_LIBRARY.length;
+    var start = (page * FAQ_PAGE_SIZE) % len;
+    var slice = [];
+    for (var i = 0; i < FAQ_PAGE_SIZE; i++) {
+      slice.push(FAQ_LIBRARY[(start + i) % len].q);
+    }
+    return slice;
+  }
+  function faqAnswerOf(q) {
+    for (var i = 0; i < FAQ_LIBRARY.length; i++) {
+      if (FAQ_LIBRARY[i].q === q) return FAQ_LIBRARY[i].a;
+    }
+    return '';
+  }
+  // FAQ 卡片内问题点击 → 把答案追加到当前聊天消息流（不跳页、不弹窗）
+  function bindFaqItemClicks(card) {
+    var items = card.querySelectorAll('.faq-item');
+    items.forEach(function (item) {
+      item.addEventListener('click', function () {
+        var q = item.getAttribute('data-cs-faq-q') || '';
+        var a = faqAnswerOf(q);
+        if (!a) return;
+        var box = document.getElementById('chatMessages');
+        if (!box) return;
+        var t = new Date().toTimeString().slice(0, 5);
+
+        // 1. 用户气泡：发出点击的问题（像用户自己发送）
+        var userRow = document.createElement('div');
+        userRow.className = 'msg-row user';
+        userRow.innerHTML =
+          '<div class="msg-content">' +
+            '<div class="msg-bubble-user">' + q + '</div>' +
+            '<div class="msg-meta">' + t + '</div>' +
+          '</div>';
+        box.appendChild(userRow);
+        box.scrollTop = box.scrollHeight;
+
+        // 2. 延迟后客服气泡：回复该问题的答案
+        setTimeout(function () {
+          var agentRow = document.createElement('div');
+          agentRow.className = 'msg-row';
+          var t2 = new Date().toTimeString().slice(0, 5);
+          agentRow.innerHTML =
+            '<div class="msg-avatar agent">智</div>' +
+            '<div class="msg-content">' +
+              '<div class="msg-sender">智能客服小助手</div>' +
+              '<div class="msg-bubble-agent">' + a + '</div>' +
+              '<div class="msg-meta">' + t2 + '</div>' +
+            '</div>';
+          box.appendChild(agentRow);
+          box.scrollTop = box.scrollHeight;
+        }, 500);
+      });
+    });
+  }
   function bindFaqRefresh(container) {
     if (!container) container = document;
     var refreshBtns = container.querySelectorAll('.faq-refresh[data-cs-action="faqRefresh"]');
     refreshBtns.forEach(function (btnEl) {
       if (btnEl.dataset.bound === '1') return;
       btnEl.dataset.bound = '1';
+      var card = btnEl.closest('.thread-card');
+      if (card) bindFaqItemClicks(card);   // 初始屏也绑定点击
       var gi = 0;
       btnEl.addEventListener('click', function (e) {
         e.stopPropagation();
-        gi = (gi + 1) % FAQ_GROUPS.length;
-        var card = btnEl.closest('.thread-card');
+        gi = gi + 1;   // 下一屏（faqPageSlice 内部已做循环）
         if (!card) return;
         var list = card.querySelector('.faq-list');
         if (!list) return;
         list.innerHTML = '';
-        FAQ_GROUPS[gi].forEach(function (q) {
+        faqPageSlice(gi).forEach(function (q) {
           var item = document.createElement('div');
           item.className = 'faq-item';
-          item.setAttribute('onclick', "location.href='" + MINI_BASE + "help.html'");
+          item.setAttribute('data-cs-faq-q', q);
           item.innerHTML = q + '<span class="q-arrow">></span>';
           list.appendChild(item);
         });
+        bindFaqItemClicks(card);   // 新一屏重新绑定点击
         var icon = btnEl.querySelector('svg');
         if (icon) {
           icon.style.transition = 'transform .45s';
@@ -309,6 +377,32 @@
       '  </div>',
       '  <button class="rc-submit" disabled>提交评价</button>',
       '  <div class="rc-thanks">感谢您的评价，祝您生活愉快！</div>',
+      '</div>'
+    ].join('\n');
+  }
+
+  // ---- 评价卡片（已过期，不可评价） ----
+  // 复用正常评价卡片结构，整体灰色禁用；加 .expired 类触发灰色样式
+  function ratingCardExpired() {
+    return [
+      '<div class="msg-rating-card expired">',
+      '  <div class="rc-title">服务评价</div>',
+      '  <div class="rc-sub">该会话评价已过期</div>',
+      '  <div class="rc-stars">',
+      '    <span class="rc-star">★</span>',
+      '    <span class="rc-star">★</span>',
+      '    <span class="rc-star">★</span>',
+      '    <span class="rc-star">★</span>',
+      '    <span class="rc-star">★</span>',
+      '  </div>',
+      '  <div class="rc-resolve">',
+      '    <span class="rc-resolve-q">请问您的问题解决了吗?</span>',
+      '    <div class="rc-resolve-btns">',
+      '      <button type="button" class="rc-resolve-btn" disabled>已解决</button>',
+      '      <button type="button" class="rc-resolve-btn" disabled>未解决</button>',
+      '    </div>',
+      '  </div>',
+      '  <button class="rc-submit" disabled>评价已过期</button>',
       '</div>'
     ].join('\n');
   }
@@ -520,6 +614,7 @@
     ensureSender: ensureSender,
     cardHtml: cardHtml,
     ratingCard: ratingCard,
+    ratingCardExpired: ratingCardExpired,
     bindRating: bindRating,
     bindFaqRefresh: bindFaqRefresh,
     bindRecall: bindRecall,

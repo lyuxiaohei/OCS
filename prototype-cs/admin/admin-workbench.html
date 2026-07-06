@@ -1472,9 +1472,9 @@
     }
     .suspend-notice {
       align-self: center;
-      background: #e6f4ff;
-      border: 1px solid #d3adf7;
-      color: #531dab;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      color: #666;
       font-size: 12px;
       padding: 4px 14px;
       border-radius: 4px;
@@ -2094,23 +2094,6 @@
             <div class="qr-trigger" onclick="document.getElementById('qrdd').classList.toggle('open')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>快捷回复 ▾</div>
             <div class="qr-panel">
               <div class="qr-search"><input type="text" placeholder="搜索快捷回复..." id="qrSearch"></div>
-              <div class="qr-cat">— 售前咨询 —</div>
-              <div class="qr-item">您好，请问有什么可以帮您？</div>
-              <div class="qr-item">这款商品目前有货，您可以直接下单，预计X天到达。</div>
-              <div class="qr-item">商品详情页有规格/参数说明，您可参考选购，有其他疑问也可随时问我。</div>
-              <div class="qr-cat">— 售后服务 —</div>
-              <div class="qr-item">您的订单已发货，预计X天到达，物流单号：XXXXXX，请注意查收。</div>
-              <div class="qr-item">退换货申请已提交，预计 3-5 个工作日处理，请耐心等待。</div>
-              <div class="qr-item">您的退款已受理，预计 1-3 个工作日原路退回，请注意查收。</div>
-              <div class="qr-cat">— 物流查询 —</div>
-              <div class="qr-item">您的订单已揽收，正在运送途中，可点击"查看物流"查看实时轨迹。</div>
-              <div class="qr-item">物流显示已签收，如未收到包裹请核实收件人/代收点，我们可帮您联系承运商核实。</div>
-              <div class="qr-cat">— 退款/换货 —</div>
-              <div class="qr-item">退款金额将原路退回，到账时间以银行/支付渠道为准，一般 1-3 个工作日。</div>
-              <div class="qr-item">换货商品将在收到退回商品后 1-2 个工作日内重新发出，请留意物流更新。</div>
-              <div class="qr-cat">— 通用结束语 —</div>
-              <div class="qr-item">感谢您的咨询，祝您购物愉快！如有其他问题随时联系我们。</div>
-              <div class="qr-item">本次会话已结束，如需再次咨询欢迎随时发起，祝您生活愉快！</div>
             </div>
           </div>
           <div class="quick-reply-dd" id="libdd" style="margin-left:6px;">
@@ -2555,11 +2538,6 @@
                 notice.className = 'resume-notice';
                 notice.innerHTML = '✓ 会话已结束 · 已向用户推送满意度评价邀请';
                 thread.appendChild(notice);
-                // 与 user 端一致的会话结束系统消息（让客服看到用户端实际看到的提示）
-                var sysMsg = document.createElement('div');
-                sysMsg.className = 'msg-system';
-                sysMsg.textContent = '— 本次会话已结束 · 如有需要请重新发起咨询 —';
-                thread.appendChild(sysMsg);
                 thread.scrollTop = thread.scrollHeight;
               }
             }
@@ -3219,8 +3197,7 @@
           images: [{ name: '质量问题.jpg', size: '198 KB' }], msgs: [
           { k: 'time', v: '今天 13:10' },
           { s: 'user', from: '郑丽华', text: '我要申请退款，商品有质量问题' },
-          { s: 'agent', from: '客服 王小明', text: '已为您发起退款申请。为加快处理，麻烦补充上传商品问题的照片凭证。' },
-          { k: 'sys', v: '⏸ 会话已挂起 · 等待用户提供退款凭证' }
+          { s: 'agent', from: '客服 王小明', text: '已为您发起退款申请。为加快处理，麻烦补充上传商品问题的照片凭证。' }
         ]},
         { name: '何静', av: '何', custId: 'U20240606', reg: '注册 365 天', phone: '13900003333', level: '白银会员', points: '1,200', pointsUsed: '380', pointsExpire: '90', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '',
           orders: [],
@@ -3233,8 +3210,7 @@
           images: [], msgs: [
           { k: 'time', v: '今天 12:45' },
           { s: 'user', from: '何静', text: '这个商品什么时候能补货？急需' },
-          { s: 'agent', from: '客服 王小明', text: '正在协同仓库核实补货时间，请稍候。' },
-          { k: 'sys', v: '⏸ 会话已挂起 · 协同仓库核实库存中' }
+          { s: 'agent', from: '客服 王小明', text: '正在协同仓库核实补货时间，请稍候。' }
         ]}
       ];
 
@@ -3786,13 +3762,7 @@
             window.open('admin-customer-info.html', '_blank');
           }
         });
-        // FAQ 项点击 -> FAQ 答案弹窗
-        thread.addEventListener('click', function (e) {
-          var faq = e.target.closest('.faq-item');
-          if (!faq) return;
-          var q = (faq.textContent || '').replace('>', '').trim();
-          csModal.open('modals/modal-faq-answer.html?q=' + encodeURIComponent(q), { variant: 'center', width: 380 });
-        });
+        // 注：FAQ 卡片在客服端仅展示，不可点击（用户提问推荐，由用户端自行跳转查看答案）
       }
       // 从订单卡片 DOM 提取订单数据(供订单详情弹窗)
       function extractCardOrder(card) {
