@@ -53,8 +53,6 @@
     }
     .ac-head .ac-order-status.s-warn { background: #fff7e6; color: var(--cs-orange); }
     .ac-head .ac-order-status.s-warn::before { background: var(--cs-orange); }
-    .ac-head .ac-order-status.s-proc { background: var(--cs-primary-bg); color: var(--cs-primary); }
-    .ac-head .ac-order-status.s-proc::before { background: var(--cs-primary); }
     .ac-head .ac-order-status.s-done { background: var(--cs-success-bg); color: var(--cs-success); }
     .ac-head .ac-order-status.s-done::before { background: var(--cs-success); }
 
@@ -154,11 +152,11 @@
       // ===== 订单 mock 库（用于显示状态徽标）=====
       var ORDERS = {
         // 数据源：order_detail.html 的真实订单号
-        'JS2026040888001': { status: '运输中', statusType: 's-proc' },
+        'JS2026040888001': { status: '运输中', statusType: 's-warn' },
         'JS202604110002': { status: '待发货', statusType: 's-warn' },
         'JS2026031011006': { status: '已签收', statusType: 's-done' }
       };
-      var DEFAULT = { status: '运输中', statusType: 's-proc' };
+      var DEFAULT = { status: '运输中', statusType: 's-warn' };
 
       var qs = new URLSearchParams(location.search);
       var oid = qs.get('id') || qs.get('order_id') || 'JS2026040888001';

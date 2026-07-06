@@ -234,9 +234,6 @@
     .s-tag.urgent::before { background: var(--cs-danger); }
     .s-tag.transferred::before,
     .s-tag.pending::before { background: var(--cs-purple); }
-    .s-tag.channel.ch-weixin { background: #07c160; color: #fff; border-color: #07c160; display: inline-flex; align-items: center; gap: 2px; }
-    .s-tag.channel.ch-app { background: #1677ff; color: #fff; border-color: #1677ff; }
-    .s-tag.channel.ch-h5 { background: #fa8c16; color: #fff; border-color: #fa8c16; }
     .s-tag.closed { color: var(--cs-text-tertiary); }
 .s-tag.channel { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 3px; background: var(--cs-primary-bg); color: var(--cs-primary); border: 1px solid #91caff; }
     .s-tag.channel::before { display: none; }
@@ -246,15 +243,12 @@
     .s-tag.warn::before { background: var(--cs-warning); }
     .s-tag.timeout { color: var(--cs-danger); }
     .s-tag.timeout::before { background: var(--cs-danger); }
-    /* 临超时会话项：淡橙底 + 左侧橙条 */
-    .session-item.is-timeout { background: #fffbe6; }
-    .session-item.is-timeout::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--cs-warning);
-    }
+    .s-tag.rejected { color: var(--cs-orange); }
+    .s-tag.rejected::before { background: var(--cs-orange); }
+    .s-tag.transfer-timeout { color: var(--cs-danger); }
+    .s-tag.transfer-timeout::before { background: var(--cs-danger); }
+    /* 临超时会话项：无特殊背景（仅状态标签提示）*/
+    .session-item.is-timeout { background: transparent; }
 
     /* 挂起会话项视觉：整行淡紫底，左侧紫条 */
     .session-item.is-pending { background: #faf5ff; }
@@ -535,14 +529,10 @@
     .thread-card .status-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
     .thread-card .status-badge.s-warn::before { background: var(--cs-orange); }
     .thread-card .status-badge.s-warn { color: var(--cs-orange); }
-    .thread-card .status-badge.s-proc::before { background: var(--cs-primary); }
-    .thread-card .status-badge.s-proc { color: var(--cs-primary); }
     .thread-card .status-badge.s-done::before { background: var(--cs-success); }
     .thread-card .status-badge.s-done { color: var(--cs-success); }
     .thread-card .status-badge.s-danger::before { background: var(--cs-danger); }
     .thread-card .status-badge.s-danger { color: var(--cs-danger); }
-    .thread-card .status-badge.s-closed::before { background: #bfbfbf; }
-    .thread-card .status-badge.s-closed { color: var(--cs-text-tertiary); }
     .thread-card .card-body { padding: 10px 12px; }
     .thread-card .card-row {
       display: flex;
@@ -661,6 +651,8 @@
       position: absolute;
       bottom: 36px; left: 0;
       width: 320px;
+      max-height: 380px;
+      overflow-y: auto;
       background: #fff;
       border: 1px solid var(--cs-border);
       border-radius: 8px;
@@ -670,6 +662,12 @@
       z-index: 5;
     }
     .quick-reply-dd.open .qr-panel { display: block; }
+    /* 自定义滚动条（右侧滑动条） */
+    .quick-reply-dd .qr-panel::-webkit-scrollbar { width: 6px; }
+    .quick-reply-dd .qr-panel::-webkit-scrollbar-track { background: transparent; }
+    .quick-reply-dd .qr-panel::-webkit-scrollbar-thumb { background: #d9d9d9; border-radius: 3px; }
+    .quick-reply-dd .qr-panel::-webkit-scrollbar-thumb:hover { background: #bfbfbf; }
+    .quick-reply-dd .qr-panel { scrollbar-width: thin; scrollbar-color: #d9d9d9 transparent; }
     .quick-reply-dd .qr-panel .qr-cat {
       font-size: 11px;
       color: var(--cs-text-tertiary);
@@ -1307,8 +1305,9 @@
       flex-shrink: 0;
     }
     .om-status.done::before { background: var(--cs-success); }
-    .om-status.shipping::before { background: var(--cs-primary); }
+    .om-status.shipping::before { background: var(--cs-orange); }
     .om-status.refund::before { background: var(--cs-danger); }
+    .om-status.cancelled::before { background: var(--cs-danger); }
     .order-mini .om-row {
       display: flex;
       justify-content: space-between;
@@ -1446,22 +1445,6 @@
     }
     .msg-recalled .recall-icon {
       flex-shrink: 0;
-    }
-    .msg-hidden {
-      color: #999;
-      font-style: italic;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .msg-redacted {
-      background: #fffbe6;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #666;
-      border-left: 3px solid #e6a23c;
     }
 
     /* back link */
@@ -1640,10 +1623,10 @@
       </div>
 
       <div class="wb-tabs">
-        <div class="tab active" data-status="accept">进行中 <span class="num">8</span></div>
+        <div class="tab active" data-status="accept">进行中 <span class="num">6</span></div>
         <div class="tab" data-status="wait">等待中 <span class="num">3</span></div>
         <div class="tab" data-status="pending">挂起 <span class="num">2</span></div>
-        <div class="tab" data-status="close">已结束 <span class="num">13</span></div>
+        <div class="tab" data-status="close">已结束 <span class="num">6</span></div>
       </div>
 
       <div class="session-list">
@@ -1662,32 +1645,36 @@
           </div>
         </div>
 
-        <div class="session-item" data-status="accept">
-          <div class="session-avatar">张</div>
+        <div class="session-item" data-status="wait">
+          <div class="session-avatar waiting">张</div>
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">张伟</span>
               <span class="s-tag channel">小程序·品牌商城1</span>
             </div>
             <div class="session-bottom-row">
-              <span class="session-last-msg">好的，谢谢客服</span>
-              <span class="unread-badge">2</span>
-              <span class="session-time">14:28</span>
+              <span class="session-last-msg">等待客服接入…</span>
+              <span class="session-time">排队中</span>
+            </div>
+            <div class="session-status-row">
+              <span class="s-tag waiting">等待</span>
             </div>
           </div>
         </div>
 
-        <div class="session-item" data-status="accept">
-          <div class="session-avatar">陈</div>
+        <div class="session-item" data-status="close">
+          <div class="session-avatar" style="background:#bfbfbf;">陈</div>
           <div class="session-meta">
             <div class="session-top-row">
-              <span class="session-name">陈芳</span>
-              <span class="s-tag channel">H5·品牌商城2</span>
+              <span class="session-name" style="color:var(--cs-text-tertiary);">陈芳</span>
+              <span class="s-tag" style="color:var(--cs-text-tertiary);font-weight:400;">H5·品牌商城2</span>
             </div>
             <div class="session-bottom-row">
-              <span class="session-last-msg">退款什么时候到账？</span>
-              <span class="unread-badge">5</span>
-              <span class="session-time">14:15</span>
+              <span class="session-last-msg" style="color:var(--cs-text-tertiary);">退款已到账，谢谢客服</span>
+              <span class="session-time" style="color:var(--cs-text-tertiary);">昨天</span>
+            </div>
+            <div class="session-status-row">
+              <span class="s-tag transferred">已结束</span>
             </div>
           </div>
         </div>
@@ -1726,31 +1713,36 @@
           </div>
         </div>
 
-        <div class="session-item" data-status="accept">
-          <div class="session-avatar">赵</div>
+        <div class="session-item" data-status="close">
+          <div class="session-avatar" style="background:#bfbfbf;">赵</div>
           <div class="session-meta">
             <div class="session-top-row">
-              <span class="session-name">赵敏</span>
-              <span class="s-tag channel">小程序·品牌商城2</span>
+              <span class="session-name" style="color:var(--cs-text-tertiary);">赵敏</span>
+              <span class="s-tag" style="color:var(--cs-text-tertiary);font-weight:400;">小程序·品牌商城2</span>
             </div>
             <div class="session-bottom-row">
-              <span class="session-last-msg">已经收到货了，非常满意！</span>
-              <span class="session-time">12:30</span>
+              <span class="session-last-msg" style="color:var(--cs-text-tertiary);">已经收到货了，非常满意！</span>
+              <span class="session-time" style="color:var(--cs-text-tertiary);">昨天</span>
+            </div>
+            <div class="session-status-row">
+              <span class="s-tag transferred">已结束</span>
             </div>
           </div>
         </div>
 
-        <div class="session-item" data-status="accept">
-          <div class="session-avatar">孙</div>
+        <div class="session-item" data-status="wait">
+          <div class="session-avatar waiting">孙</div>
           <div class="session-meta">
             <div class="session-top-row">
               <span class="session-name">孙建国</span>
               <span class="s-tag channel">H5·品牌商城3</span>
             </div>
             <div class="session-bottom-row">
-              <span class="session-last-msg">发票能开企业抬头的吗</span>
-              <span class="unread-badge">1</span>
-              <span class="session-time">11:58</span>
+              <span class="session-last-msg">等待客服接入…</span>
+              <span class="session-time">排队中</span>
+            </div>
+            <div class="session-status-row">
+              <span class="s-tag waiting">等待</span>
             </div>
           </div>
         </div>
@@ -1768,6 +1760,42 @@
             </div>
             <div class="session-status-row">
               <span class="s-tag warn">即将超时</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 转接被拒样例：会话已归还，待客服继续跟进 -->
+        <div class="session-item" data-status="accept">
+          <div class="session-avatar">林</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">林小娟</span>
+              <span class="s-tag channel">小程序·品牌商城1</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">转接被拒 · 客服赵敏拒绝了转接</span>
+              <span class="session-time">10:45</span>
+            </div>
+            <div class="session-status-row">
+              <span class="s-tag rejected">转接被拒</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 转接超时样例：目标客服超时未响应，会话已回退 -->
+        <div class="session-item" data-status="accept">
+          <div class="session-avatar">许</div>
+          <div class="session-meta">
+            <div class="session-top-row">
+              <span class="session-name">许磊</span>
+              <span class="s-tag channel">H5·品牌商城2</span>
+            </div>
+            <div class="session-bottom-row">
+              <span class="session-last-msg">转接超时 · 5 分钟未响应已回退</span>
+              <span class="session-time">10:12</span>
+            </div>
+            <div class="session-status-row">
+              <span class="s-tag transfer-timeout">转接超时</span>
             </div>
           </div>
         </div>
@@ -1947,17 +1975,6 @@
         <div class="msg-row user">
           <div class="msg-avatar">李</div>
           <div class="msg-content">
-            <button class="msg-actions-trigger" title="审核操作"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
-            <div class="msg-actions-menu">
-              <div class="ma-item" data-action="hide">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                隐藏消息
-              </div>
-              <div class="ma-item" data-action="redact">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                脱敏处理
-              </div>
-            </div>
             <div class="msg-sender">李晓红</div>
             <div class="msg-bubble">你好，我昨天下的单 #20260611 还没发货吗？我的手机号是 13812345678，地址是浦东新区张江路88号。</div>
           </div>
@@ -2020,17 +2037,6 @@
         <div class="msg-row user">
           <div class="msg-avatar">李</div>
           <div class="msg-content">
-            <button class="msg-actions-trigger" title="审核操作"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
-            <div class="msg-actions-menu">
-              <div class="ma-item" data-action="hide">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                隐藏消息
-              </div>
-              <div class="ma-item" data-action="redact">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                脱敏处理
-              </div>
-            </div>
             <div class="msg-sender">李晓红</div>
             <div class="msg-bubble">就是这个，颜色发错了我收到的是黑色的，下单是白色。我是深圳市南山区科技园的，电话 13987654321。</div>
           </div>
@@ -2113,10 +2119,10 @@
           <div class="tool-divider"></div>
           <button class="card-btn" data-card="order" title="发送订单"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span class="card-btn-label">发送订单</span></button>
           <button class="card-btn" data-card="product" title="发送商品"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="card-btn-label">发送商品</span></button>
-          <button class="card-btn" data-card="faq" title="发送常见问题"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="card-btn-label">FAQ</span></button>
-          <button class="card-btn" data-card="image" title="发送图片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg><span class="card-btn-label">图片</span></button>
           <button class="card-btn" data-card="logistics" title="查看物流"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><span class="card-btn-label">查看物流</span></button>
           <button class="card-btn" data-card="refund" title="发送售后"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg><span class="card-btn-label">发送售后</span></button>
+          <button class="card-btn" data-card="faq" title="发送常见问题"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="card-btn-label">FAQ</span></button>
+          <button class="card-btn" data-card="image" title="发送图片"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg><span class="card-btn-label">图片</span></button>
         </div>
         <div class="input-box">
           <textarea id="msgInput" placeholder="请输入消息内容…"></textarea>
@@ -2146,14 +2152,11 @@
             <div class="cs">用户ID: U20240318 · 注册 730 天</div>
           </div>
 
-          <div class="info-row"><span class="k">手机号</span><span class="v">138****6621</span></div>
+          <div class="info-row"><span class="k">手机号</span><span class="v">13812346621</span></div>
           <div class="info-row"><span class="k">积分</span><span class="v">3,280</span></div>
           <div class="info-row"><span class="k">企业客户</span><span class="v">客户A</span></div>
           <div class="info-row"><span class="k">品牌商城</span><span class="v">品牌商城1</span></div>
           <div class="info-row"><span class="k">应用端</span><span class="v">小程序</span></div>
-
-          <div class="section-label">客户备注</div>
-          <div id="custNoteBox" style="font-size:13px;color:var(--cs-text-secondary);background:var(--cs-bg-hover);padding:10px 12px;border-radius:6px;line-height:1.6;white-space:pre-wrap;">暂无备注，点击右上角「备注/标签」编辑添加</div>
 
           <div class="section-label">积分信息</div>
           <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;">
@@ -2180,6 +2183,9 @@
             <span class="tag-urgent">易流失</span>
             <span class="tag-normal">复购用户</span>
           </div>
+
+          <div class="section-label">客户备注</div>
+          <div id="custNoteBox" style="font-size:13px;color:var(--cs-text-secondary);background:var(--cs-bg-hover);padding:10px 12px;border-radius:6px;line-height:1.6;white-space:pre-wrap;">暂无备注，点击右上角「备注/标签」编辑添加</div>
         </div>
 
         <!-- ===== 行为数据 ===== -->
@@ -2709,6 +2715,20 @@
       }
     })();
 
+    // Agent 消息撤回时间窗：超过 2 分钟（120 秒）的消息隐藏三点触发器（不显示撤回入口）
+    // - 静态 HTML 初始消息在此处理；切换客户后的消息由 bindMsgActions() 处理
+    (function () {
+      var RECALL_WINDOW = 120; // 秒
+      var nowSec = Math.floor(Date.now() / 1000);
+      document.querySelectorAll('.msg-row.agent .msg-content').forEach(function (mc) {
+        var trigger = mc.querySelector('.msg-actions-trigger');
+        if (!trigger) return;
+        var sentTs = parseInt(mc.getAttribute('data-sent-ts') || '0', 10);
+        var elapsed = sentTs ? (nowSec - sentTs) : Infinity;
+        if (elapsed > RECALL_WINDOW) trigger.style.display = 'none';
+      });
+    })();
+
     // Session list tab switching — filter by data-status
     // accept = 进行中(默认显示，无 data-status 的进行中项 + accept 项)
     // wait = 等待中(waiting 头像 / 等待标签)
@@ -2742,10 +2762,13 @@
         var name = (item.querySelector('.session-name') || {}).textContent || '';
         var msg = (item.querySelector('.session-last-msg') || {}).textContent || '';
         var kwOk = !searchKw || name.toLowerCase().indexOf(searchKw) >= 0 || msg.toLowerCase().indexOf(searchKw) >= 0;
-        var stOk = (currentFilter === 'accept') ? (itemStatus !== 'close') : (itemStatus === currentFilter);
+        // 严格按 data-status 匹配：进行中只显示 accept，等待中只显示 wait，挂起只显示 pending，已结束只显示 close
+        var stOk = (itemStatus === currentFilter);
         item.style.display = (kwOk && stOk) ? '' : 'none';
       });
     }
+    // 页面加载时主动筛选一次（默认进行中），避免全部会话都显示
+    applyFilter();
     document.querySelectorAll('.wb-tabs .tab').forEach(function (t) {
       t.addEventListener('click', function () {
         document.querySelectorAll('.wb-tabs .tab').forEach(function (x) { x.classList.remove('active'); });
@@ -2918,45 +2941,6 @@
         }
       });
 
-      // ===== User Message Moderation (隐藏/脱敏) =====
-      document.querySelectorAll('.msg-row.user .ma-item[data-action="hide"]').forEach(function(item){
-        item.addEventListener('click', function(e){
-          e.stopPropagation();
-          var msgContent = item.closest('.msg-content');
-          if(!msgContent) return;
-          var bubble = msgContent.querySelector('.msg-bubble');
-          if(bubble){
-            bubble.innerHTML = '<span class="msg-hidden">该消息已被管理员隐藏</span>';
-          }
-          var trigger = msgContent.querySelector('.msg-actions-trigger');
-          var menu = msgContent.querySelector('.msg-actions-menu');
-          if(trigger) trigger.style.display = 'none';
-          if(menu) menu.classList.remove('show');
-        });
-      });
-
-      document.querySelectorAll('.msg-row.user .ma-item[data-action="redact"]').forEach(function(item){
-        item.addEventListener('click', function(e){
-          e.stopPropagation();
-          var msgContent = item.closest('.msg-content');
-          if(!msgContent) return;
-          var bubble = msgContent.querySelector('.msg-bubble');
-          if(bubble){
-            var originalText = bubble.textContent || '';
-            // Redact phone numbers: 1xx-xxxx-xxxx pattern
-            var redacted = originalText.replace(/1[3-9]\d{9}/g, function(m){ return m.substring(0,3) + '****' + m.substring(7); });
-            // Redact addresses
-            redacted = redacted.replace(/[一-龥]+[路街区园村号楼室][一-龥0-9]*\d+/g, '****');
-            bubble.innerHTML = '<span class="msg-redacted">消息已脱敏：' + redacted + '</span>';
-          }
-          var trigger = msgContent.querySelector('.msg-actions-trigger');
-          var menu = msgContent.querySelector('.msg-actions-menu');
-          if(trigger) trigger.style.display = 'none';
-          if(menu) menu.classList.remove('show');
-        });
-      });
-      // ===== End User Message Moderation =====
-
 
       // Handle recall action — 2 分钟时间窗校验（AC-W-03 / W.2.3）
       document.querySelectorAll('.ma-item[data-action="recall"]').forEach(function(item2){
@@ -3011,10 +2995,24 @@
       var recallSvg = '<svg class="recall-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
       var triggerSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
       var recallMenu = '<div class="msg-actions-menu"><div class="ma-item danger" data-action="recall"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h10a5 5 0 0 1 0 10H9"/><polyline points="7 6 3 10 7 14"/></svg>撤回</div></div>';
-      var moderateMenu = '<div class="msg-actions-menu"><div class="ma-item" data-action="hide"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>隐藏消息</div><div class="ma-item" data-action="redact"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>脱敏处理</div></div>';
 
       /* 绑定消息操作（撤回/隐藏/脱敏）—— 切换客户替换消息 DOM 后需重新调用 */
       function bindMsgActions() {
+        // Agent 消息撤回时间窗校验：超过 2 分钟（120 秒）的 agent 消息隐藏三点触发器（不显示撤回入口）
+        var RECALL_WINDOW = 120; // 秒
+        var nowSec = Math.floor(Date.now() / 1000);
+        document.querySelectorAll('.msg-row.agent .msg-content').forEach(function (mc) {
+          var trigger = mc.querySelector('.msg-actions-trigger');
+          if (!trigger) return;
+          var sentTs = parseInt(mc.getAttribute('data-sent-ts') || '0', 10);
+          var elapsed = sentTs ? (nowSec - sentTs) : Infinity;
+          if (elapsed > RECALL_WINDOW) {
+            trigger.style.display = 'none';
+          } else {
+            trigger.style.display = '';
+          }
+        });
+
         document.querySelectorAll('.msg-actions-trigger').forEach(function (trigger) {
           if (trigger.__csBound) return; trigger.__csBound = true;
           trigger.addEventListener('click', function (e) {
@@ -3024,33 +3022,6 @@
             var isOpen = menu.classList.contains('show');
             document.querySelectorAll('.msg-actions-menu.show').forEach(function (m) { m.classList.remove('show'); });
             if (!isOpen) menu.classList.add('show');
-          });
-        });
-        document.querySelectorAll('.msg-row.user .ma-item[data-action="hide"]').forEach(function (item) {
-          if (item.__csBound) return; item.__csBound = true;
-          item.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var mc = item.closest('.msg-content'); if (!mc) return;
-            var bubble = mc.querySelector('.msg-bubble');
-            if (bubble) bubble.innerHTML = '<span class="msg-hidden">该消息已被管理员隐藏</span>';
-            var tr = mc.querySelector('.msg-actions-trigger'); var mn = mc.querySelector('.msg-actions-menu');
-            if (tr) tr.style.display = 'none'; if (mn) mn.classList.remove('show');
-          });
-        });
-        document.querySelectorAll('.msg-row.user .ma-item[data-action="redact"]').forEach(function (item) {
-          if (item.__csBound) return; item.__csBound = true;
-          item.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var mc = item.closest('.msg-content'); if (!mc) return;
-            var bubble = mc.querySelector('.msg-bubble');
-            if (bubble) {
-              var t = bubble.textContent || '';
-              t = t.replace(/1[3-9]\d{9}/g, function (m) { return m.substring(0, 3) + '****' + m.substring(7); });
-              t = t.replace(/[一-龥]+[路街区园村号楼室][一-龥0-9]*\d+/g, '****');
-              bubble.innerHTML = '<span class="msg-redacted">消息已脱敏：' + t + '</span>';
-            }
-            var tr = mc.querySelector('.msg-actions-trigger'); var mn = mc.querySelector('.msg-actions-menu');
-            if (tr) tr.style.display = 'none'; if (mn) mn.classList.remove('show');
           });
         });
         document.querySelectorAll('.ma-item[data-action="recall"]').forEach(function (item) {
@@ -3098,7 +3069,7 @@
             { name: '商品实拍图.jpg', size: '128 KB' },
             { name: '物流截图.png', size: '86 KB' }
           ] },
-        { name: '张伟', av: '张', custId: 'U20240112', reg: '注册 1.5 年', phone: '137****8830', level: '白银会员', points: '860', pointsUsed: '240', pointsExpire: '60', channel: '微信小程序', region: '浙江 · 杭州', verified: true, custTags: [['高复购', 'tag-normal']], topTags: '',
+        { name: '张伟', av: '张', custId: 'U20240112', reg: '注册 1.5 年', phone: '13700008830', level: '白银会员', points: '860', pointsUsed: '240', pointsExpire: '60', channel: '微信小程序', region: '浙江 · 杭州', verified: true, custTags: [['高复购', 'tag-normal']], topTags: '',
           orders: [
             { id: '#20260605', goods: '运动跑鞋（42 码）×1', amount: '¥459.00', time: '2026-06-05 18:22', state: '已签收', sCls: 's-done' },
             { id: '#20260520', goods: '速干 T 恤 ×2', amount: '¥158.00', time: '2026-05-20 10:05', state: '已签收', sCls: 's-done' }
@@ -3115,7 +3086,7 @@
           { s: 'user', from: '张伟', text: '好的，谢谢客服，问题已经解决了' },
           { s: 'agent', from: '客服 王小明', text: '不客气～后续有任何问题随时联系我，祝您生活愉快！' }
         ]},
-        { name: '陈芳', av: '陈', custId: 'U20231220', reg: '注册 2.5 年', phone: '139****4471', level: '黄金会员', points: '5,120', pointsUsed: '1,580', pointsExpire: '320', channel: 'APP', region: '江苏 · 南京', verified: true, custTags: [['售后频繁', 'tag-urgent'], ['高价值', 'tag-normal']], topTags: '',
+        { name: '陈芳', av: '陈', custId: 'U20231220', reg: '注册 2.5 年', phone: '13900004471', level: '黄金会员', points: '5,120', pointsUsed: '1,580', pointsExpire: '320', channel: 'APP', region: '江苏 · 南京', verified: true, custTags: [['售后频繁', 'tag-urgent'], ['高价值', 'tag-normal']], topTags: '',
           orders: [
             { id: '#20260588', goods: '真丝连衣裙 ×1', amount: '¥899.00', time: '2026-05-26 14:30', state: '退款中', sCls: 's-refund' },
             { id: '#20260410', goods: '羊绒围巾 ×1', amount: '¥329.00', time: '2026-04-10 09:18', state: '已签收', sCls: 's-done' }
@@ -3133,7 +3104,7 @@
           { s: 'agent', from: '客服 王小明', text: '陈女士您好，查到退款已审核通过，预计 1-3 个工作日原路退回，请留意账户变动。' },
           { s: 'user', from: '陈芳', text: '好的，那我再等等，谢谢' }
         ]},
-        { name: '刘强', av: '刘', custId: 'U20240807', reg: '注册 365 天', phone: '135****2298', level: '普通会员', points: '320', pointsUsed: '80', pointsExpire: '40', channel: '微信小程序', region: '北京 · 朝阳', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '',
+        { name: '刘强', av: '刘', custId: 'U20240807', reg: '注册 365 天', phone: '13500002298', level: '普通会员', points: '320', pointsUsed: '80', pointsExpire: '40', channel: '微信小程序', region: '北京 · 朝阳', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '',
           orders: [
             { id: '#20260609', goods: '蓝牙音箱（黑）×1', amount: '¥199.00', time: '2026-06-09 11:42', state: '待发货', sCls: 's-warn' },
             { id: '#20260521', goods: '运动手环 ×1', amount: '¥159.00', time: '2026-05-21 16:30', state: '已签收', sCls: 's-done' },
@@ -3151,7 +3122,7 @@
           { s: 'user', from: '刘强', text: '[商品图片]' },
           { s: 'agent', from: '客服 王小明', text: '收到，规格确认无误，是您下单的白色款，预计明天发出。' }
         ]},
-        { name: '王丽娟', av: '王', custId: 'U20230518', reg: '注册 3 年', phone: '138****6612', level: '铂金会员', points: '12,400', pointsUsed: '5,600', pointsExpire: '800', channel: 'APP', region: '上海 · 浦东', verified: true, custTags: [['高价值', 'tag-normal']], topTags: '<span class="tag-transferred">转接入</span>',
+        { name: '王丽娟', av: '王', custId: 'U20230518', reg: '注册 3 年', phone: '13800006612', level: '铂金会员', points: '12,400', pointsUsed: '5,600', pointsExpire: '800', channel: 'APP', region: '上海 · 浦东', verified: true, custTags: [['高价值', 'tag-normal']], topTags: '<span class="tag-transferred">转接入</span>',
           orders: [
             { id: '#20260608', goods: '高端护肤套装 ×1', amount: '¥1,280.00', time: '2026-06-08 16:50', state: '已签收', sCls: 's-done' },
             { id: '#20260530', goods: '香氛蜡烛 ×2', amount: '¥268.00', time: '2026-05-30 20:12', state: '已签收', sCls: 's-done' }
@@ -3170,7 +3141,7 @@
           { s: 'agent', from: '客服 王小明', text: '您好，这张券需满足满 200 元门槛，当前订单 188 元，建议再加件小商品凑单～' },
           { s: 'user', from: '王丽娟', text: '好的我再去挑挑，谢谢' }
         ]},
-        { name: '赵敏', av: '赵', custId: 'U20240229', reg: '注册 1.5 年', phone: '136****0085', level: '黄金会员', points: '2,800', pointsUsed: '760', pointsExpire: '180', channel: '微信小程序', region: '广东 · 广州', verified: true, custTags: [['满意用户', 'tag-normal']], topTags: '',
+        { name: '赵敏', av: '赵', custId: 'U20240229', reg: '注册 1.5 年', phone: '13600000085', level: '黄金会员', points: '2,800', pointsUsed: '760', pointsExpire: '180', channel: '微信小程序', region: '广东 · 广州', verified: true, custTags: [['满意用户', 'tag-normal']], topTags: '',
           orders: [
             { id: '#20260607', goods: '儿童积木套装 ×1', amount: '¥168.00', time: '2026-06-07 09:30', state: '已签收', sCls: 's-done' },
             { id: '#20260519', goods: '儿童绘本套装(10册) ×1', amount: '¥89.00', time: '2026-05-19 14:22', state: '已签收', sCls: 's-done' },
@@ -3187,11 +3158,11 @@
           { s: 'user', from: '赵敏', text: '已经收到货了，非常满意！包装也很好～' },
           { s: 'agent', from: '客服 王小明', text: '感谢您的认可！欢迎为本次服务做个评价，您的反馈是我们进步的动力 ❤️' }
         ]},
-        { name: '孙建国', av: '孙', custId: 'U20230901', reg: '注册 2.5 年', phone: '137****5566', level: '企业用户', points: '6,600', pointsUsed: '2,200', pointsExpire: '500', channel: 'APP', region: '四川 · 成都', verified: true, custTags: [['企业客户', 'tag-normal']], topTags: '',
+        { name: '孙建国', av: '孙', custId: 'U20230901', reg: '注册 2.5 年', phone: '13700005566', level: '企业用户', points: '6,600', pointsUsed: '2,200', pointsExpire: '500', channel: 'APP', region: '四川 · 成都', verified: true, custTags: [['企业客户', 'tag-normal']], topTags: '',
           orders: [
             { id: '#20260606', goods: '办公椅（人体工学）×10', amount: '¥4,990.00', time: '2026-06-06 10:15', state: '已签收', sCls: 's-done' },
             { id: '#20260512', goods: '升降办公桌 ×4', amount: '¥3,596.00', time: '2026-05-12 11:00', state: '已签收', sCls: 's-done' },
-            { id: '#20260408', goods: 'A4打印纸(5箱) ×5', amount: '¥520.00', time: '2026-04-08 15:40', state: '运输中', sCls: 's-proc', packages: [
+            { id: '#20260408', goods: 'A4打印纸(5箱) ×5', amount: '¥520.00', time: '2026-04-08 15:40', state: '运输中', sCls: 's-warn', packages: [
               { no: '包裹1', carrier: '顺丰速运', waybillNo: 'SF2026040888001', status: 'shipping', statusText: '运输中', traceTip: '【成都】快件运输中，正发往分拨中心', goods: 'A4打印纸 ×3' },
               { no: '包裹2', carrier: '中通快递', waybillNo: 'ZT2026040888002', status: 'delivered', statusText: '已签收', traceTip: '【成都】已签收，签收人：本人签收', goods: 'A4打印纸 ×2' }
             ] }
@@ -3207,7 +3178,7 @@
           { s: 'user', from: '孙建国', text: '发票能开企业抬头的吗？需要增值税专票' },
           { s: 'agent', from: '客服 王小明', text: '可以的，请在订单详情页申请增值税专用发票，填写公司名称、税号、注册地址等，审核通过后 7 个工作日内开具并邮寄。' }
         ]},
-        { name: '周婷婷', av: '周', custId: 'U20241115', reg: '注册 183 天', phone: '134****7788', level: '普通会员', points: '150', pointsUsed: '30', pointsExpire: '20', channel: '微信小程序', region: '湖北 · 武汉', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '',
+        { name: '周婷婷', av: '周', custId: 'U20241115', reg: '注册 183 天', phone: '13400007788', level: '普通会员', points: '150', pointsUsed: '30', pointsExpire: '20', channel: '微信小程序', region: '湖北 · 武汉', verified: false, custTags: [['新用户', 'tag-normal']], topTags: '',
           orders: [],
           products: [
             { name: '马克杯（蓝色）', sku: 'MUG-BLUE-350', spec: '颜色:蓝 / 350ml', price: '¥49.00', stock: '36 件' }
@@ -3220,7 +3191,7 @@
           { s: 'user', from: '周婷婷', text: '请问这个颜色还有货吗？蓝色款' },
           { s: 'agent', from: '客服 王小明', text: '您好，蓝色款目前有货，库存 36 件，下单后 24 小时内发出～' }
         ]},
-        { name: '吴鹏', av: '吴', custId: 'U20240330', reg: '注册 365 天', phone: '135****1234', level: '白银会员', points: '980', pointsUsed: '220', pointsExpire: '50', channel: '微信小程序', region: '福建 · 福州', verified: true, custTags: [['普通', 'tag-normal']], topTags: '',
+        { name: '吴鹏', av: '吴', custId: 'U20240330', reg: '注册 365 天', phone: '13500001234', level: '白银会员', points: '980', pointsUsed: '220', pointsExpire: '50', channel: '微信小程序', region: '福建 · 福州', verified: true, custTags: [['普通', 'tag-normal']], topTags: '',
           orders: [
             { id: '#20260610', goods: '机械键盘（青轴）×1', amount: '¥329.00', time: '2026-06-10 19:25', state: '待发货', sCls: 's-warn' },
             { id: '#20260525', goods: '电竞鼠标 ×1', amount: '¥189.00', time: '2026-05-25 20:10', state: '已签收', sCls: 's-done' }
@@ -3235,7 +3206,7 @@
           { k: 'sys', v: '⏳ 用户正在排队等待客服接入…' },
           { s: 'user', from: '吴鹏', text: '你好，想咨询一下物流问题' }
         ]},
-        { name: '郑丽华', av: '郑', custId: 'U20230101', reg: '注册 3 年', phone: '138****9999', level: '黄金会员', points: '4,500', pointsUsed: '1,200', pointsExpire: '300', channel: 'APP', region: '山东 · 青岛', verified: true, custTags: [['退款中', 'tag-urgent']], topTags: '',
+        { name: '郑丽华', av: '郑', custId: 'U20230101', reg: '注册 3 年', phone: '13800009999', level: '黄金会员', points: '4,500', pointsUsed: '1,200', pointsExpire: '300', channel: 'APP', region: '山东 · 青岛', verified: true, custTags: [['退款中', 'tag-urgent']], topTags: '',
           orders: [
             { id: '#20260603', goods: '陶瓷炖锅 ×1', amount: '¥259.00', time: '2026-06-03 13:40', state: '退款中', sCls: 's-refund' }
           ],
@@ -3251,7 +3222,7 @@
           { s: 'agent', from: '客服 王小明', text: '已为您发起退款申请。为加快处理，麻烦补充上传商品问题的照片凭证。' },
           { k: 'sys', v: '⏸ 会话已挂起 · 等待用户提供退款凭证' }
         ]},
-        { name: '何静', av: '何', custId: 'U20240606', reg: '注册 365 天', phone: '139****3333', level: '白银会员', points: '1,200', pointsUsed: '380', pointsExpire: '90', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '',
+        { name: '何静', av: '何', custId: 'U20240606', reg: '注册 365 天', phone: '13900003333', level: '白银会员', points: '1,200', pointsUsed: '380', pointsExpire: '90', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '',
           orders: [],
           products: [
             { name: '智能台灯（白）', sku: 'LAMP-WHITE', spec: '颜色:白 / 触控调光', price: '¥159.00', stock: '0 件' }
@@ -3279,7 +3250,9 @@
         '周婷婷': ['客户A', '品牌商城1', '小程序'],
         '吴鹏':   ['客户B', '品牌商城2', '小程序'],
         '郑丽华': ['客户C', '品牌商城3', 'PC'],
-        '何静':   ['客户A', '品牌商城1', '小程序']
+        '何静':   ['客户A', '品牌商城1', '小程序'],
+        '林小娟': ['客户A', '品牌商城1', '小程序'],
+        '许磊':   ['客户B', '品牌商城2', 'H5']
       };
 
       function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -3291,13 +3264,15 @@
           if (m.k === 'time' || m.k === 'sys') { html += '<div class="msg-time-divider">' + esc(m.v) + '</div>'; return; }
           var side = m.s;
           var avChar = side === 'user' ? esc(d.av) : '王';
-          var menu = side === 'agent' ? recallMenu : moderateMenu;
-          var title = side === 'agent' ? '更多操作' : '审核操作';
+          // 仅 agent 消息带「⋯」触发器（撤回）；user 消息无操作菜单
+          var triggerAndMenu = '';
+          if (side === 'agent') {
+            triggerAndMenu = '<button class="msg-actions-trigger" title="更多操作">' + triggerSvg + '</button>' + recallMenu;
+          }
           html += '<div class="msg-row ' + side + '">'
             + '<div class="msg-avatar">' + avChar + '</div>'
             + '<div class="msg-content">'
-            + '<button class="msg-actions-trigger" title="' + title + '">' + triggerSvg + '</button>'
-            + menu
+            + triggerAndMenu
             + '<div class="msg-sender">' + esc(m.from) + '</div>'
             + '<div class="msg-bubble">' + esc(m.text) + '</div>'
             + '</div></div>';
@@ -3329,8 +3304,6 @@
               + '<div class="info-row"><span class="k">企业客户</span><span class="v">' + esc(b[0]) + '</span></div>'
               + '<div class="info-row"><span class="k">品牌商城</span><span class="v">' + esc(b[1]) + '</span></div>'
               + '<div class="info-row"><span class="k">应用端</span><span class="v">' + esc(b[2]) + '</span></div>'
-              + '<div class="section-label">客户备注</div>'
-              + '<div id="custNoteBox" style="font-size:13px;color:var(--cs-text-secondary);background:var(--cs-bg-hover);padding:10px 12px;border-radius:6px;line-height:1.6;white-space:pre-wrap;">' + (d.note ? esc(d.note) : '暂无备注，点击右上角「备注/标签」编辑添加') + '</div>'
               + '<div class="section-label">积分信息</div>'
               + '<div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;">'
               +   '<div class="stat-mini"><div class="sv">' + esc(d.points || '0') + '</div><div class="sl">总积分</div></div>'
@@ -3338,7 +3311,9 @@
               +   '<div class="stat-mini"><div class="sv" style="color:#fa8c16">' + esc(d.pointsExpire || '0') + '</div><div class="sl">即将失效</div></div>'
               + '</div>'
               + '<div class="section-label">客户标签</div>'
-              + '<div class="cust-tag-list" style="display:flex;gap:6px;flex-wrap:wrap;">' + tagsHtml + '</div>';
+              + '<div class="cust-tag-list" style="display:flex;gap:6px;flex-wrap:wrap;">' + tagsHtml + '</div>'
+              + '<div class="section-label">客户备注</div>'
+              + '<div id="custNoteBox" style="font-size:13px;color:var(--cs-text-secondary);background:var(--cs-bg-hover);padding:10px 12px;border-radius:6px;line-height:1.6;white-space:pre-wrap;">' + (d.note ? esc(d.note) : '暂无备注，点击右上角「备注/标签」编辑添加') + '</div>';
           })();
           // 保持当前选中的tab不变（不强制切回基础信息）
           var currentActiveTab = document.querySelector('.info-tabs .itab.active');
@@ -3507,17 +3482,29 @@
           renderList();
         }
 
-        // 拒绝：移除标签 + 重新渲染（演示态简化）
+        // 拒绝：替换为临时「转接被拒」标签 + 通知原客服（系统消息 + toast）
         function rejectByName(name) {
           var items = document.querySelectorAll('.session-list .session-item');
           items.forEach(function (item) {
             var n = (item.querySelector('.session-name') || {}).textContent;
             if (n === name && item.querySelector('.s-tag.transferred')) {
               var tag = item.querySelector('.session-status-row .s-tag.transferred');
-              if (tag) tag.parentNode.removeChild(tag);
+              if (tag) {
+                tag.className = 's-tag rejected';
+                tag.textContent = '转接被拒';
+              }
             }
           });
-          if (window.csModal && csModal.toast) csModal.toast('已拒绝 ' + name + ' 的转接');
+          // 通知原客服：消息流追加系统消息
+          var thread = document.querySelector('.msg-thread');
+          if (thread) {
+            var notice = document.createElement('div');
+            notice.className = 'resume-notice';
+            notice.innerHTML = '✗ 转接被拒绝 · 会话已归还给您，请继续跟进';
+            thread.appendChild(notice);
+            thread.scrollTop = thread.scrollHeight;
+          }
+          if (window.csModal && csModal.toast) csModal.toast('已拒绝 ' + name + ' 的转接，原客服已收到通知');
           renderList();
         }
 
@@ -3607,12 +3594,12 @@
       var PROD_THUMB_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>';
       // 状态文字 -> 徽标 class 映射（与 user 端 orderStatusMap 一致）
       var STATE_MAP = {
-        '待发货': 's-warn', '运输中': 's-proc', '运送中': 's-proc', '已签收': 's-done',
+        '待发货': 's-warn', '运输中': 's-warn', '运送中': 's-warn', '已签收': 's-done',
         '已完成': 's-done', '在售': 's-done', '有货': 's-done',
         '售后中': 's-danger', '已退款': 's-danger', '已取消': 's-danger',
-        '处理中': 's-danger', '审核中': 's-warn', '待退货': 's-proc'
+        '处理中': 's-danger', '审核中': 's-warn', '待退货': 's-warn'
       };
-      function stateCls(txt, fallback) { return STATE_MAP[txt] || fallback || 's-proc'; }
+      function stateCls(txt, fallback) { return STATE_MAP[txt] || fallback || 's-warn'; }
 
       // 把当前客户数据序列化为 URL query（绕开 iframe 跨窗口访问限制）
       function custQuery() {
@@ -3630,19 +3617,25 @@
         if (!thread) return;
         var row = document.createElement('div');
         row.className = 'msg-row agent';
+        var nowSec = Math.floor(Date.now() / 1000);
         row.innerHTML = '<div class="msg-avatar">王</div>'
-          + '<div class="msg-content"><div class="msg-sender">客服 王小明</div>'
+          + '<div class="msg-content" data-sent-ts="' + nowSec + '">'
+          + '<button class="msg-actions-trigger" title="更多操作">' + triggerSvg + '</button>'
+          + recallMenu
+          + '<div class="msg-sender">客服 王小明</div>'
           + innerHtml + '</div>';
         thread.appendChild(row);
         thread.scrollTop = thread.scrollHeight;
+        // 新插入的消息在 2 分钟内，触发器可见；绑定事件
+        if (typeof bindMsgActions === 'function') bindMsgActions();
       }
 
       var CARD_TEMPLATES = {
         order: '<div class="thread-card order"><div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span>订单</span></div><span class="status-badge s-warn">待发货</span></div><div class="card-body"><div class="card-row"><span class="label">订单编号</span><span class="value">#20260611</span></div><div class="card-row"><span class="label">实付金额</span><span class="value">¥299.00</span></div></div><div class="card-actions"><div class="card-action-btn">查看详情</div><div class="card-action-btn" disabled title="该操作需用户在小程序端完成">申请退款</div><div class="card-action-btn" disabled title="该操作需用户在小程序端完成">取消订单</div></div></div>',
         product: '<div class="thread-card product"><div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span><span>商品</span></div><span class="status-badge s-done">在售</span></div><div class="card-body"><div class="product-info"><div class="product-thumb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div><div class="product-detail"><div class="product-name">无线蓝牙耳机（白色）</div><div class="product-desc">颜色:白 / 降噪款</div></div></div><div class="price-line"><span class="now">¥299.00</span></div></div><div class="card-action">查看商品</div></div>',
-        logistics: '<div class="thread-card logistics"><div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span><span>物流</span></div><span class="status-badge s-proc">运输中</span></div><div class="card-body"><div class="card-row"><span class="label">运单号</span><span class="value">SF1234567890</span></div><div class="card-row"><span class="label">承运商</span><span class="value">顺丰速运</span></div><div class="track-step"><span class="track-dot done"></span><div class="track-line">已揽收<span class="track-time">06-10 09:00</span></div></div><div class="track-step"><span class="track-dot active"></span><div class="track-line">运输中<span class="track-time">06-11 14:20</span></div></div></div><div class="card-action">查看物流详情</div></div>',
+        logistics: '<div class="thread-card logistics"><div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span><span>物流</span></div><span class="status-badge s-warn">运输中</span></div><div class="card-body"><div class="card-row"><span class="label">运单号</span><span class="value">SF1234567890</span></div><div class="card-row"><span class="label">承运商</span><span class="value">顺丰速运</span></div><div class="track-step"><span class="track-dot done"></span><div class="track-line">已揽收<span class="track-time">06-10 09:00</span></div></div><div class="track-step"><span class="track-dot active"></span><div class="track-line">运输中<span class="track-time">06-11 14:20</span></div></div></div><div class="card-action">查看物流详情</div></div>',
         refund: '<div class="thread-card refund"><div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span><span>退款</span></div><span class="status-badge s-warn">审核中</span></div><div class="card-body"><div class="card-row"><span class="label">退款单号</span><span class="value">RF202604080001</span></div></div><div class="card-actions"><div class="card-action-btn">查看进度</div><div class="card-action-btn" disabled title="该操作需用户在小程序端完成">补充说明</div><div class="card-action-btn" disabled title="该操作需用户在小程序端完成">撤销申请</div></div></div>',
-        faq: '<div class="thread-card faq"><div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>常见问题</span></div><span class="status-badge s-proc">推荐</span></div><div class="card-body"><div class="faq-item">如何注册苏银豆商城账号？<span class="q-arrow">></span></div><div class="faq-item">积分如何获取和使用？<span class="q-arrow">></span></div><div class="faq-item">退款多久能到账？<span class="q-arrow">></span></div><div class="faq-item">忘记密码怎么办？<span class="q-arrow">></span></div></div></div>'
+        faq: '<div class="thread-card faq"><div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>常见问题</span></div><span class="status-badge s-done">推荐</span></div><div class="card-body"><div class="faq-item">如何注册苏银豆商城账号？<span class="q-arrow">></span></div><div class="faq-item">积分如何获取和使用？<span class="q-arrow">></span></div><div class="faq-item">退款多久能到账？<span class="q-arrow">></span></div><div class="faq-item">忘记密码怎么办？<span class="q-arrow">></span></div></div></div>'
       };
 
 
@@ -3678,8 +3671,8 @@
         o = o || {};
         var rawId = String(o.id || '#20260611').replace(/[^0-9]/g, '') || '20260611';
         var pkgs = (o.packages && o.packages.length) ? o.packages : null;
-        var headStatus = '运输中', headCls = 's-proc', foundActive = false;
-        if (pkgs) { for (var pi = 0; pi < pkgs.length; pi++) { if (pkgs[pi].statusText !== '已签收') { headStatus = pkgs[pi].statusText; headCls = pkgs[pi].status === 'shipping' ? 's-proc' : (pkgs[pi].status === 'pending' ? 's-warn' : 's-proc'); foundActive = true; break; } } if (!foundActive) { headStatus = '已签收'; headCls = 's-done'; } } else if (o.state === '已签收') { headStatus = '已签收'; headCls = 's-done'; }
+        var headStatus = '运输中', headCls = 's-warn', foundActive = false;
+        if (pkgs) { for (var pi = 0; pi < pkgs.length; pi++) { if (pkgs[pi].statusText !== '已签收') { headStatus = pkgs[pi].statusText; headCls = pkgs[pi].status === 'pending' ? 's-warn' : 's-warn'; foundActive = true; break; } } if (!foundActive) { headStatus = '已签收'; headCls = 's-done'; } } else if (o.state === '已签收') { headStatus = '已签收'; headCls = 's-done'; }
         var trackingNo = 'SF' + rawId;
         var carrier = '顺丰速运';
         var h = '<div class="thread-card logistics">';
@@ -3687,7 +3680,7 @@
         h += '<div class="card-body">';
         if (pkgs && pkgs.length > 1) {
           pkgs.forEach(function (p, idx) {
-            var pCls = p.status === 'delivered' ? 's-done' : (p.status === 'pending' ? 's-warn' : 's-proc');
+            var pCls = p.status === 'delivered' ? 's-done' : 's-warn';
             h += '<div class="pkg-block"' + (idx > 0 ? ' style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--cs-border-light);"' : '') + '>';
             h += '<div class="pkg-head"><span class="pkg-no">' + esc(p.no || ('包裹' + (idx + 1))) + '</span><span class="status-badge ' + pCls + '">' + esc(p.statusText || '') + '</span></div>';
             if (p.carrier) h += '<div class="card-row"><span class="label">承运商</span><span class="value">' + esc(p.carrier) + '</span></div>';
@@ -3932,15 +3925,58 @@
         { name: '周婷婷', preview: '请问这个颜色还有货吗？' }
       ];
       var simBtn = document.getElementById('btnSimulateMsg');
-      /* 模拟新消息 · 两场景：a.新接入（新用户发起咨询、接入当前客服） b.新转接（其他客服把会话转接给你） */
+      /* 模拟新消息 · 四场景：
+         a.新接入（新用户发起咨询、接入当前客服）
+         b.新转接（其他客服把会话转接给你）
+         c.转接被拒绝（我发起的转接被目标客服拒绝，会话归还）
+         d.转接超时未应答（我发起的转接目标客服超时未响应，会话回退） */
+
+      // 给当前选中会话项追加/替换临时状态标签（转接被拒/转接超时）
+      function setTempSessionTag(cls, text) {
+        var cur = document.querySelector('.session-list .session-item.active');
+        if (!cur) return;
+        var row = cur.querySelector('.session-status-row');
+        if (!row) { row = document.createElement('div'); row.className = 'session-status-row'; cur.querySelector('.session-meta').appendChild(row); }
+        // 移除已有的 rejected / transfer-timeout 临时标签
+        row.querySelectorAll('.s-tag.rejected, .s-tag.transfer-timeout').forEach(function (t) { t.parentNode.removeChild(t); });
+        var tag = document.createElement('span');
+        tag.className = 's-tag ' + cls;
+        tag.textContent = text;
+        row.appendChild(tag);
+      }
+
       function simulateScenario(kind) {
         if (window.csNotify) { csNotify.unlockAudio(); csNotify.playBeep(); }
         if (kind === 'accept') {
           if (window.csNotify) csNotify.popup({ name: '新用户 · 林小娟', preview: '您好，在吗？想咨询下退换货的问题', onOpen: function () {} });
           if (window.csModal && csModal.toast) csModal.toast('模拟场景 a · 新接入：新用户发起咨询，会话进入当前客服');
-        } else {
+        } else if (kind === 'transfer') {
           if (window.csNotify) csNotify.popup({ name: '转接 · 王志强（来自 李静）', preview: '（转接）订单 #20260611039 退款问题，需售后组跟进', onOpen: function () {} });
           if (window.csModal && csModal.toast) csModal.toast('模拟场景 b · 新转接：其他客服把会话转接给你');
+        } else if (kind === 'rejected') {
+          if (window.csNotify) csNotify.popup({ name: '转接 · 王志强 拒绝了您的转接', preview: '转接被拒绝，会话已归还给您', onOpen: function () {} });
+          setTempSessionTag('rejected', '转接被拒');
+          var thread1 = document.querySelector('.msg-thread');
+          if (thread1) {
+            var notice1 = document.createElement('div');
+            notice1.className = 'resume-notice';
+            notice1.innerHTML = '✗ 转接被拒绝 · 会话已归还给您，请继续跟进';
+            thread1.appendChild(notice1);
+            thread1.scrollTop = thread1.scrollHeight;
+          }
+          if (window.csModal && csModal.toast) csModal.toast('王志强 拒绝了您的转接，会话已归还');
+        } else if (kind === 'timeout') {
+          if (window.csNotify) csNotify.popup({ name: '转接超时 · 王志强 未在 5 分钟内响应', preview: '转接已超时，会话已自动回退给您', onOpen: function () {} });
+          setTempSessionTag('transfer-timeout', '转接超时');
+          var thread2 = document.querySelector('.msg-thread');
+          if (thread2) {
+            var notice2 = document.createElement('div');
+            notice2.className = 'resume-notice';
+            notice2.innerHTML = '⏱ 转接超时 · 目标客服 5 分钟未响应，会话已回退给您';
+            thread2.appendChild(notice2);
+            thread2.scrollTop = thread2.scrollHeight;
+          }
+          if (window.csModal && csModal.toast) csModal.toast('转接超时，会话已退回');
         }
       }
       if (simBtn) {
@@ -3964,6 +4000,8 @@
           }
           addItem('a. 新接入', '新用户发起咨询、接入当前客服', function () { simulateScenario('accept'); });
           addItem('b. 新转接', '其他客服把会话转接给你', function () { simulateScenario('transfer'); });
+          addItem('c. 转接被拒绝', '我发起的转接被目标客服拒绝，会话归还', function () { simulateScenario('rejected'); });
+          addItem('d. 转接超时未应答', '目标客服超时未响应，会话自动回退', function () { simulateScenario('timeout'); });
           document.body.appendChild(menu);
         });
         document.addEventListener('click', function () { var m = document.getElementById('simMenu'); if (m) m.remove(); });
@@ -3986,6 +4024,30 @@
         break:   { acceptNew: false, toast: '已切换为「小休」，新会话将转给其他客服' },
         offline: { acceptNew: false, toast: '已切换为「离线」，不再接收新会话' }
       };
+
+      // ===== 小休计时器（合并到状态徽章内显示） =====
+      var breakStartedAt = 0;   // 进入小休时的时间戳
+      var breakTickHandle = null;
+
+      function pad2(n) { return (n < 10 ? '0' : '') + n; }
+      function formatElapsed(ms) {
+        var total = Math.floor(ms / 1000);
+        var m = Math.floor(total / 60);
+        var s = total % 60;
+        return pad2(m) + ':' + pad2(s);
+      }
+      function startBreakTimer() {
+        breakStartedAt = Date.now();
+        badge.textContent = '小休 ' + formatElapsed(0);
+        if (breakTickHandle) clearInterval(breakTickHandle);
+        breakTickHandle = setInterval(function () {
+          badge.textContent = '小休 ' + formatElapsed(Date.now() - breakStartedAt);
+        }, 1000);
+      }
+      function stopBreakTimer() {
+        if (breakTickHandle) { clearInterval(breakTickHandle); breakTickHandle = null; }
+        breakStartedAt = 0;
+      }
 
       // 切换触发器展开/收起
       trigger.addEventListener('click', function (e) {
@@ -4013,6 +4075,10 @@
 
           // 收起菜单
           sw.classList.remove('open');
+
+          // 小休计时器：进入小休启动，切回在线/离线停止
+          if (status === 'break') startBreakTimer();
+          else stopBreakTimer();
 
           // 提示（复用 notify.js，若不存在则降级为 alert）
           var effect = STATUS_EFFECT[status];

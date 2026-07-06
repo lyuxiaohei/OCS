@@ -39,7 +39,6 @@
     .refund-item .ri-state { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; }
     .refund-item .ri-state::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
     .refund-item .ri-state.s-warn::before { background: var(--cs-orange); } .refund-item .ri-state.s-warn { color: var(--cs-orange); }
-    .refund-item .ri-state.s-proc::before { background: var(--cs-primary); } .refund-item .ri-state.s-proc { color: var(--cs-primary); }
     .refund-item .ri-state.s-done::before { background: var(--cs-success); } .refund-item .ri-state.s-done { color: var(--cs-success); }
     .refund-item .ri-state.s-danger::before { background: var(--cs-danger); } .refund-item .ri-state.s-danger { color: var(--cs-danger); }
     .refund-item .ri-goods { font-size: 12px; color: var(--cs-text-secondary); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -84,7 +83,7 @@
   <script>
     // 退款状态 -> 徽标 class（与 admin-workbench.html 的 STATE_MAP 对齐）
     var REFUND_STATE_MAP = {
-      '审核中': 's-warn', '待退货': 's-proc', '退款中': 's-proc',
+      '审核中': 's-warn', '待退货': 's-warn', '退款中': 's-warn',
       '已完成': 's-done', '已退款': 's-done',
       '已拒绝': 's-danger', '已取消': 's-danger'
     };

@@ -77,7 +77,6 @@
       flex-shrink: 0;
     }
     .pk-badge.s-warn { background: #fff7e6; color: #fa8c16; }
-    .pk-badge.s-proc { background: var(--cs-primary-bg); color: var(--cs-primary); }
     .pk-badge.s-done { background: #f6ffed; color: #52c41a; }
     .pk-badge.s-danger { background: #fff1f0; color: #f5222d; }
     .pk-arrow { color: var(--cs-text-placeholder); font-size: 16px; flex-shrink: 0; }
@@ -122,7 +121,7 @@
           title: '选择订单', sub: '请选择要咨询的订单',
           thumbColor: 'linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover))',
           list: [
-            { id: 'JS2026040888001', name: '日本进口保温杯 + 纯棉T恤', meta: '¥196.90 · 下单 04-08', badge: '运输中', badgeType: 's-proc' },
+            { id: 'JS2026040888001', name: '日本进口保温杯 + 纯棉T恤', meta: '¥196.90 · 下单 04-08', badge: '运输中', badgeType: 's-warn' },
             { id: 'JS202604110002', name: '无线蓝牙降噪耳机', meta: '¥89.00 · 下单 04-11', badge: '待发货', badgeType: 's-warn' },
             { id: 'JS2026031011006', name: '潮流太阳眼镜', meta: '¥128.00 · 下单 03-10', badge: '售后中', badgeType: 's-danger' },
             { id: 'JS2026022000033', name: '智能运动手环', meta: '¥199.00 · 下单 02-20', badge: '已签收', badgeType: 's-done' },
@@ -144,7 +143,7 @@
           title: '选择退款单', sub: '请选择要咨询的退款申请',
           thumbColor: 'linear-gradient(135deg, #fa8c16, #ffa726)',
           list: [
-            { id: 'RF202604080001', name: '保温杯退货退款', meta: '¥68.00 · 申请 04-08', badge: '待退货', badgeType: 's-proc' },
+            { id: 'RF202604080001', name: '保温杯退货退款', meta: '¥68.00 · 申请 04-08', badge: '待退货', badgeType: 's-warn' },
             { id: 'RF202604110002', name: '耳机仅退款', meta: '¥89.00 · 申请 04-11', badge: '审核中', badgeType: 's-warn' },
             { id: 'RF202602280004', name: 'T恤退货退款', meta: '¥39.90 · 申请 02-28', badge: '已完成', badgeType: 's-done' },
             { id: 'RF202603150003', name: '眼镜退货退款', meta: '¥128.00 · 申请 03-15', badge: '已拒绝', badgeType: 's-danger' }
@@ -154,7 +153,7 @@
           title: '选择物流', sub: '请选择要查询的包裹',
           thumbColor: 'linear-gradient(135deg, #52c41a, #73d13d)',
           list: [
-            { id: 'SF1234567890', name: '顺丰速运 · 保温杯+T恤', meta: '运单 SF1234567890', badge: '运输中', badgeType: 's-proc' },
+            { id: 'SF1234567890', name: '顺丰速运 · 保温杯+T恤', meta: '运单 SF1234567890', badge: '运输中', badgeType: 's-warn' },
             { id: 'ZT2026040700001', name: '中通快递 · 蓝牙耳机', meta: '运单 ZT2026040700001', badge: '已签收', badgeType: 's-done' },
             { id: 'YT2026031000042', name: '圆通速递 · 太阳眼镜', meta: '运单 YT2026031000042', badge: '已签收', badgeType: 's-done' }
           ]
@@ -182,7 +181,7 @@
           html +=     '<div class="pk-name">' + esc(item.name) + '</div>';
           html +=     '<div class="pk-meta"><span class="pk-id">' + esc(item.meta) + '</span></div>';
           html +=   '</div>';
-          html +=   '<span class="pk-badge ' + (item.badgeType || 's-proc') + '">' + esc(item.badge) + '</span>';
+          html +=   '<span class="pk-badge ' + (item.badgeType || 's-warn') + '">' + esc(item.badge) + '</span>';
           html +=   '<span class="pk-arrow">›</span>';
           html += '</button>';
         });

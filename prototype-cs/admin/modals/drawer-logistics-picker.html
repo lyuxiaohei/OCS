@@ -43,7 +43,6 @@
     .order-item .oi-state { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; }
     .order-item .oi-state::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
     .order-item .oi-state.s-warn::before { background: var(--cs-orange); } .order-item .oi-state.s-warn { color: var(--cs-orange); }
-    .order-item .oi-state.s-proc::before { background: var(--cs-primary); } .order-item .oi-state.s-proc { color: var(--cs-primary); }
     .order-item .oi-state.s-done::before { background: var(--cs-success); } .order-item .oi-state.s-done { color: var(--cs-success); }
     .order-item .oi-state.s-danger::before { background: var(--cs-danger); } .order-item .oi-state.s-danger { color: var(--cs-danger); }
     .order-item .oi-goods { font-size: 12px; color: var(--cs-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
@@ -82,7 +81,7 @@
   <script src="../js/cs-modal.js"></script>
   <script>
     var STATE_MAP = {
-      '待发货': 's-warn', '运输中': 's-proc', '已签收': 's-done',
+      '待发货': 's-warn', '运输中': 's-warn', '已签收': 's-done',
       '已完成': 's-done', '已退款': 's-danger', '退款中': 's-danger', '已取消': 's-danger'
     };
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -107,7 +106,7 @@
     } else {
       orders.forEach(function (o, idx) {
         var st = o.state || '待发货';
-        var sc = STATE_MAP[st] || 's-proc';
+        var sc = STATE_MAP[st] || 's-warn';
         var div = document.createElement('div');
         div.className = 'order-item';
         div.setAttribute('data-idx', idx);

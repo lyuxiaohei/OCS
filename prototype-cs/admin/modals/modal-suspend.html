@@ -66,13 +66,12 @@
       <span class="sm-close" onclick="window.csModalBridge.close()">×</span>
     </div>
     <div class="sm-body">
-      <div class="sm-tip">⏸ 挂起后会话状态变为 <strong>pending</strong>，暂停无响应超时计时；恢复时间到期或用户发新消息时自动恢复为 <strong>accept</strong>。</div>
       <div class="sm-row">
         <div class="sm-label"><span class="req">*</span>挂起原因</div>
         <textarea class="sm-textarea" id="suspendReason" placeholder="请填写挂起原因，如：等待用户提供退款凭证 / 协同仓库核实库存"></textarea>
       </div>
       <div class="sm-row">
-        <div class="sm-label">恢复时间（默认 30 分钟，对应客服设置 pending_resume_default）</div>
+        <div class="sm-label">恢复时间</div>
         <div class="sm-radio-row" id="resumeRow">
           <div class="sm-radio" data-resume="15">15 分钟<span class="sm-sub">快速</span></div>
           <div class="sm-radio checked" data-resume="30">30 分钟<span class="sm-sub">默认</span></div>

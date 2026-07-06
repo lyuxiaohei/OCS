@@ -1092,14 +1092,10 @@ a { color: var(--cs-primary); text-decoration: none; }
 .thread-card .status-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
 .thread-card .status-badge.s-warn::before { background: var(--cs-orange); }
 .thread-card .status-badge.s-warn { color: var(--cs-orange); }
-.thread-card .status-badge.s-proc::before { background: var(--cs-primary); }
-.thread-card .status-badge.s-proc { color: var(--cs-primary); }
 .thread-card .status-badge.s-done::before { background: var(--cs-success); }
 .thread-card .status-badge.s-done { color: var(--cs-success); }
 .thread-card .status-badge.s-danger::before { background: var(--cs-danger); }
 .thread-card .status-badge.s-danger { color: var(--cs-danger); }
-.thread-card .status-badge.s-closed::before { background: #bfbfbf; }
-.thread-card .status-badge.s-closed { color: var(--cs-text-tertiary); }
 .thread-card .card-body { padding: 10px 12px; }
 .thread-card .card-row {
   display: flex;

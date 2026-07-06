@@ -323,20 +323,32 @@
   transition: color .15s;
 }
 .msg-rating-card .rc-star.active { color: #faad14; }
-.msg-rating-card .rc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.msg-rating-card .rc-tag {
+.msg-rating-card .rc-resolve {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 12px;
+}
+.msg-rating-card .rc-resolve-q {
+  font-size: var(--cs-font-size-xs);
+  color: var(--cs-text-secondary);
+  flex-shrink: 0;
+}
+.msg-rating-card .rc-resolve-btns { display: flex; gap: 6px; }
+.msg-rating-card .rc-resolve-btn {
   font-size: var(--cs-font-size-xs);
   padding: 4px 10px;
   border: 1px solid var(--cs-border-light);
   border-radius: 12px;
+  background: var(--cs-bg-card);
   color: var(--cs-text-secondary);
   cursor: pointer;
+  font-family: inherit;
   transition: all .15s;
 }
-.msg-rating-card .rc-tag.active {
-  background: var(--cs-primary-bg);
-  border-color: var(--cs-primary);
-  color: var(--cs-primary);
+.msg-rating-card .rc-resolve-btn.active[data-v="resolved"] {
+  background: var(--cs-success-bg); border-color: var(--cs-success); color: var(--cs-success);
+}
+.msg-rating-card .rc-resolve-btn.active[data-v="unresolved"] {
+  background: var(--cs-orange-bg); border-color: var(--cs-orange); color: var(--cs-orange);
 }
 .msg-rating-card .rc-submit {
   width: 100%;
@@ -365,7 +377,7 @@
 }
 .msg-rating-card.done .rc-thanks { display: block; }
 .msg-rating-card.done .rc-star { pointer-events: none; }
-.msg-rating-card.done .rc-tags,
+.msg-rating-card.done .rc-resolve,
 .msg-rating-card.done .rc-submit { display: none; }
 
 /* ============================================================

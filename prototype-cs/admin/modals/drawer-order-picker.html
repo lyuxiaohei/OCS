@@ -48,8 +48,6 @@
     .order-item .oi-state::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
     .order-item .oi-state.s-warn::before { background: var(--cs-orange); }
     .order-item .oi-state.s-warn { color: var(--cs-orange); }
-    .order-item .oi-state.s-proc::before { background: var(--cs-primary); }
-    .order-item .oi-state.s-proc { color: var(--cs-primary); }
     .order-item .oi-state.s-done::before { background: var(--cs-success); }
     .order-item .oi-state.s-done { color: var(--cs-success); }
     .order-item .oi-state.s-danger::before { background: var(--cs-danger); }
@@ -108,7 +106,7 @@
   <script>
     // 状态文字 -> 徽标 class（与 admin-workbench.html 的 STATE_MAP 一致）
     var STATE_MAP = {
-      '待发货': 's-warn', '运输中': 's-proc', '已签收': 's-done',
+      '待发货': 's-warn', '运输中': 's-warn', '已签收': 's-done',
       '已完成': 's-done', '已退款': 's-danger', '退款中': 's-danger', '已取消': 's-danger'
     };
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -134,7 +132,7 @@
     } else {
       orders.forEach(function (o, idx) {
         var st = o.state || '待发货';
-        var sc = STATE_MAP[st] || 's-proc';
+        var sc = STATE_MAP[st] || 's-warn';
         var div = document.createElement('div');
         div.className = 'order-item';
         div.setAttribute('data-idx', idx);
@@ -161,7 +159,7 @@
       window.csModalBridge.confirm({
           id: selectedOrder.id, goods: selectedOrder.goods, amount: selectedOrder.amount,
           time: selectedOrder.time, state: selectedOrder.state,
-          sCls: STATE_MAP[selectedOrder.state] || 's-proc'
+          sCls: STATE_MAP[selectedOrder.state] || 's-warn'
         });
     });
   </script>

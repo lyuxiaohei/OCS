@@ -375,6 +375,8 @@ a { color: var(--cs-primary); text-decoration: none; }
 .status-badge.break::before { background: var(--cs-orange); }
 
 /* --- Agent Status Switcher (客服状态切换器) --- */
+/* 小休状态下徽章内嵌计时器，等宽数字防抖动 */
+.status-badge.break { font-variant-numeric: tabular-nums; }
 .agent-status-switch {
   position: relative;
   display: inline-flex;

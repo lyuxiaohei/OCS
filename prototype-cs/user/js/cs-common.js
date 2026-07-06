@@ -123,11 +123,11 @@
       action = '<div class="card-actions">' + btn('查看商品', 'viewDetail_product') + '</div>';
     } else if (type === 'order') {
       var orderStatusMap = {
-        '待发货': 's-warn', '运输中': 's-proc', '已签收': 's-done',
+        '待发货': 's-warn', '运输中': 's-warn', '已签收': 's-done',
         '售后中': 's-danger', '已完成': 's-done', '已取消': 's-danger'
       };
       var os = p.order_status || '运输中';
-      var osBadge = orderStatusMap[os] || 's-proc';
+      var osBadge = orderStatusMap[os] || 's-warn';
       h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span><span>订单</span></div><span class="status-badge ' + osBadge + '">' + esc(os) + '</span></div>';
       body += '<div class="card-row"><span class="label">订单编号</span><span class="value">' + esc(p.order_id || 'JS2026040888001') + '</span></div><div class="card-row"><span class="label">实付金额</span><span class="value">¥' + esc(p.amount || '196.90') + '</span></div>';
       var orderBtns = [btn('查看详情', 'viewDetail_order')];
@@ -144,13 +144,13 @@
     } else if (type === 'logistics') {
       // 多包裹支持：p.packages 为数组时按包裹分组渲染（对齐小程序 order_detail 包裹块）
       var pkgs = (p.packages && p.packages.length) ? p.packages : null;
-      var lgHeadStatus = '运输中', lgHeadCls = 's-proc';
+      var lgHeadStatus = '运输中', lgHeadCls = 's-warn';
       if (pkgs) {
         var allDelivered = true;
         for (var pi = 0; pi < pkgs.length; pi++) {
           if (pkgs[pi].status_text !== '已签收') {
             lgHeadStatus = pkgs[pi].status_text || '运输中';
-            lgHeadCls = pkgs[pi].status === 'delivered' ? 's-done' : (pkgs[pi].status === 'pending' ? 's-warn' : 's-proc');
+            lgHeadCls = pkgs[pi].status === 'delivered' ? 's-done' : 's-warn';
             allDelivered = false;
             break;
           }
@@ -161,7 +161,7 @@
       if (pkgs && pkgs.length > 1) {
         // 多包裹：按包裹分组渲染（对齐小程序 order_detail 包裹块）
         pkgs.forEach(function (pkg, idx) {
-          var pCls = pkg.status === 'delivered' ? 's-done' : (pkg.status === 'pending' ? 's-warn' : 's-proc');
+          var pCls = pkg.status === 'delivered' ? 's-done' : 's-warn';
           body += '<div class="pkg-block"' + (idx > 0 ? ' style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--cs-border-light);"' : '') + '>';
           body += '<div class="pkg-head"><span class="pkg-no">' + esc(pkg.no || ('包裹' + (idx + 1))) + '</span><span class="status-badge ' + pCls + '">' + esc(pkg.status_text || '') + '</span></div>';
           if (pkg.carrier) body += '<div class="card-row"><span class="label">承运商</span><span class="value">' + esc(pkg.carrier) + '</span></div>';
@@ -190,13 +190,13 @@
       // 状态徽标映射（与小程序 statusText / timeline 文案对齐）
       var aftersaleStatusMap = {
         '待商家审核': 's-warn',
-        '商家已审核': 's-proc',
-        '待寄回商品': 's-proc', '已寄回商品': 's-proc',
-        '待商家收货': 's-proc', '商家已收货': 's-proc',
+        '商家已审核': 's-warn',
+        '待寄回商品': 's-warn', '已寄回商品': 's-warn',
+        '待商家收货': 's-warn', '商家已收货': 's-warn',
         '待退款': 's-warn',
-        '待商家重新发货': 's-warn', '商家已发货': 's-proc',
+        '待商家重新发货': 's-warn', '商家已发货': 's-warn',
         '已退款': 's-done', '完成': 's-done', '已完成': 's-done',
-        '申请已拒绝': 's-danger', '已取消': 's-closed'
+        '申请已拒绝': 's-danger', '已取消': 's-danger'
       };
       var rsBadge = aftersaleStatusMap[rs] || 's-warn';
       h += '<div class="card-header"><div class="h-left"><span class="h-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span><span>售后 · ' + esc(aftersaleType) + '</span></div><span class="status-badge ' + rsBadge + '">' + esc(rs) + '</span></div>';
@@ -300,11 +300,12 @@
       '    <span class="rc-star" data-v="4">★</span>',
       '    <span class="rc-star" data-v="5">★</span>',
       '  </div>',
-      '  <div class="rc-tags">',
-      '    <span class="rc-tag">响应迅速</span>',
-      '    <span class="rc-tag">态度友好</span>',
-      '    <span class="rc-tag">专业能力强</span>',
-      '    <span class="rc-tag">问题已解决</span>',
+      '  <div class="rc-resolve">',
+      '    <span class="rc-resolve-q">请问您的问题解决了吗?</span>',
+      '    <div class="rc-resolve-btns">',
+      '      <button type="button" class="rc-resolve-btn" data-v="resolved">已解决</button>',
+      '      <button type="button" class="rc-resolve-btn" data-v="unresolved">未解决</button>',
+      '    </div>',
       '  </div>',
       '  <button class="rc-submit" disabled>提交评价</button>',
       '  <div class="rc-thanks">感谢您的评价，祝您生活愉快！</div>',
@@ -321,7 +322,6 @@
 
     var rating = 0;
     var stars = card.querySelectorAll('.rc-star');
-    var tags = card.querySelectorAll('.rc-tag');
     var submit = card.querySelector('.rc-submit');
 
     stars.forEach(function (star) {
@@ -334,9 +334,11 @@
       });
     });
 
-    tags.forEach(function (tag) {
-      tag.addEventListener('click', function () {
-        tag.classList.toggle('active');
+    // 问题解决确认：单选互斥（已解决 / 未解决）
+    var resolveBtns = card.querySelectorAll('.rc-resolve-btn');
+    resolveBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        resolveBtns.forEach(function (b) { b.classList.toggle('active', b === btn); });
       });
     });
 
@@ -406,7 +408,10 @@
       if (msgText) {
         html += '<div class="recall-popover-item" data-action="copy">复制</div>';
       }
-      html += '<div class="recall-popover-item danger' + (canRecall ? '' : ' disabled') + '" data-action="recall">撤回</div>';
+      // 仅 2 分钟内显示撤回项；超过 2 分钟不显示撤回
+      if (canRecall) {
+        html += '<div class="recall-popover-item danger" data-action="recall">撤回</div>';
+      }
       menu.innerHTML = html;
       document.body.appendChild(menu);
 
