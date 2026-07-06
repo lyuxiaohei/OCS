@@ -104,6 +104,10 @@
       var order = null;
       try { order = raw ? JSON.parse(decodeURIComponent(raw)) : null; } catch (e) {}
       // 默认演示数据（与小程序 order_detail 字段集对齐）
+      var defaultGoods = [
+        { name: '无线蓝牙耳机（白色）', spec: '颜色:白色 / 主动降噪款', price: '¥299.00', qty: 1 },
+        { name: '硅胶保护壳', spec: '型号:耳机专用', price: '¥19.00', qty: 1 }
+      ];
       order = Object.assign({
         id: '#20260611', time: '2026-06-11 09:12',
         amount: '¥299.00', cash: '¥279.00', bean: '20(抵¥20.00)', freight: '¥0.00',
@@ -111,11 +115,10 @@
         receiver: '李晓红 138****6621',
         address: '北京市朝阳区建国路88号 苏银豆大厦 1203室',
         note: '客户备注：请尽快发货，收货时电话联系，谢谢。',
-        goods: [
-          { name: '无线蓝牙耳机（白色）', spec: '颜色:白色 / 主动降噪款', price: '¥299.00', qty: 1 },
-          { name: '硅胶保护壳', spec: '型号:耳机专用', price: '¥19.00', qty: 1 }
-        ]
+        goods: defaultGoods
       }, order || {});
+      // goods 必须是数组，否则用默认值（避免字符串覆盖导致 forEach 报错）
+      if (!Array.isArray(order.goods)) order.goods = defaultGoods;
 
       function esc(s) { return String(s == null ? '' : s).replace(/</g, '&lt;'); }
       var thumbSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';

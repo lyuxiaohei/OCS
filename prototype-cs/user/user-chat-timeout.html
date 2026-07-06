@@ -85,7 +85,7 @@
     .msg-row.user { flex-direction: row-reverse; }
     .msg-avatar {
       width: 34px; height: 34px;
-      border-radius: 6px;
+      border-radius: 50%;
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: var(--cs-font-size-md);
@@ -252,9 +252,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </div>
       <div class="nav-peer">
-        <div class="agent-avatar">客</div>
         <div class="peer-info">
-          <span class="peer-name">在线客服</span>
+          <span class="peer-name">苏银豆客服</span>
         </div>
       </div>
       <script>document.write(CsCommon.capsule())</script>
@@ -262,22 +261,13 @@
 
     <!-- ============ 消息列表 ============ -->
     <div class="chat-messages" id="chatMessages">
-      <div class="msg-system">— 已为您接入在线客服 · 订单咨询 —</div>
+      <div class="msg-system">— 已为您接入苏银豆客服 · 订单咨询 —</div>
 
-      <!-- 用户咨询 -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">我</div>
-        <div class="msg-content">
-          <div class="msg-bubble-user">您好，订单 JS20260408002 什么时候发货？</div>
-          <div class="msg-meta">10:24</div>
-        </div>
-      </div>
-
-      <!-- 客服回复（最后一条来自客服的消息，从此开始计时用户无响应） -->
+      <!-- 客服欢迎语（最后一条来自客服的消息，从此开始计时用户无响应） -->
       <div class="msg-row">
         <div class="msg-avatar agent">客</div>
         <div class="msg-content">
-          <div class="msg-bubble-agent">您好，已为您查询，订单 JS20260408002 已打包完成，预计今天下午 18:00 前发出，您可以在「我的订单」中查看物流单号。请问还有其他需要帮助的吗？</div>
+          <div class="msg-bubble-agent">您好，欢迎联系苏银豆商城客服中心！我是您的专属客服，请问有什么可以帮您？</div>
           <div class="msg-meta">10:25</div>
         </div>
       </div>

@@ -1280,6 +1280,12 @@
       padding: 10px;
       margin-bottom: 8px;
       font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .order-mini:hover {
+      border-color: var(--cs-primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
     .order-mini .om-head {
       display: flex;
@@ -1896,9 +1902,6 @@
       <!-- Chat top bar -->
       <div class="chat-topbar">
         <span class="cust-name">李晓红</span>
-        <span class="cust-tags">
-          <span class="tag-urgent">紧急</span>
-        </span>
         <div class="topbar-actions">
           <button class="btn-sm" id="btnSuspend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>挂起</button>
           <button class="btn-sm" id="btnTransfer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转接</button>
@@ -2836,6 +2839,24 @@
       });
     })();
 
+    // 订单记录条目点击 → 打开订单详情弹窗（与聊天卡片「查看详情」一致）
+    (function () {
+      var tradePane = document.querySelector('.info-pane[data-pane="trade"]');
+      if (!tradePane) return;
+      tradePane.addEventListener('click', function (e) {
+        var om = e.target.closest('.order-mini');
+        if (!om) return;
+        var noEl = om.querySelector('.om-no');
+        var statusEl = om.querySelector('.om-status');
+        var amountEl = om.querySelector('.om-amount');
+        var d = {};
+        if (noEl) d.id = noEl.textContent.trim();
+        if (amountEl) d.amount = amountEl.textContent.trim();
+        if (statusEl) d.state = statusEl.textContent.trim();
+        csModal.open('modals/modal-order-detail.html' + (d.id ? '?d=' + encodeURIComponent(JSON.stringify(d)) : ''), { variant: 'center', width: 460 });
+      });
+    })();
+
     // Session item selection > 客户切换逻辑（含顶栏/客户信息/聊天记录联动）已移至页面底部独立脚本
 
     // Close quick reply panel on outside click
@@ -3057,7 +3078,7 @@
       var initialThread = document.querySelector('.msg-thread').innerHTML;
       var initialBasic = document.querySelector('.info-pane[data-pane="basic"]').innerHTML;
       var SESSIONS = [
-        { name: '李晓红', isDefault: true, custTags: [['高价值','tag-normal'],['易流失','tag-urgent'],['复购用户','tag-normal']], topTags: '<span class="tag-urgent">紧急</span><span class="tag-normal">VIP</span>',
+        { name: '李晓红', isDefault: true, custTags: [['高价值','tag-normal'],['复购用户','tag-normal']], topTags: '',
           orders: [
             { id: '#20260611', goods: '无线蓝牙耳机（白色）×1', amount: '¥299.00', time: '2026-06-11 09:12', state: '待发货', sCls: 's-warn' },
             { id: '#20260588', goods: '硅胶手机壳（黑）×2', amount: '¥78.00', time: '2026-05-28 21:40', state: '已签收', sCls: 's-done' },
@@ -3130,7 +3151,7 @@
           { s: 'user', from: '刘强', text: '[商品图片]' },
           { s: 'agent', from: '客服 王小明', text: '收到，规格确认无误，是您下单的白色款，预计明天发出。' }
         ]},
-        { name: '王丽娟', av: '王', custId: 'U20230518', reg: '注册 3 年', phone: '138****6612', level: '铂金会员', points: '12,400', pointsUsed: '5,600', pointsExpire: '800', channel: 'APP', region: '上海 · 浦东', verified: true, custTags: [['VIP', 'tag-normal'], ['高价值', 'tag-normal']], topTags: '<span class="tag-normal">VIP</span><span class="tag-transferred">转接入</span>',
+        { name: '王丽娟', av: '王', custId: 'U20230518', reg: '注册 3 年', phone: '138****6612', level: '铂金会员', points: '12,400', pointsUsed: '5,600', pointsExpire: '800', channel: 'APP', region: '上海 · 浦东', verified: true, custTags: [['高价值', 'tag-normal']], topTags: '<span class="tag-transferred">转接入</span>',
           orders: [
             { id: '#20260608', goods: '高端护肤套装 ×1', amount: '¥1,280.00', time: '2026-06-08 16:50', state: '已签收', sCls: 's-done' },
             { id: '#20260530', goods: '香氛蜡烛 ×2', amount: '¥268.00', time: '2026-05-30 20:12', state: '已签收', sCls: 's-done' }
@@ -3199,7 +3220,7 @@
           { s: 'user', from: '周婷婷', text: '请问这个颜色还有货吗？蓝色款' },
           { s: 'agent', from: '客服 王小明', text: '您好，蓝色款目前有货，库存 36 件，下单后 24 小时内发出～' }
         ]},
-        { name: '吴鹏', av: '吴', custId: 'U20240330', reg: '注册 365 天', phone: '135****1234', level: '白银会员', points: '980', pointsUsed: '220', pointsExpire: '50', channel: '微信小程序', region: '福建 · 福州', verified: true, custTags: [['普通', 'tag-normal']], topTags: '<span class="tag-waiting">等待中</span>',
+        { name: '吴鹏', av: '吴', custId: 'U20240330', reg: '注册 365 天', phone: '135****1234', level: '白银会员', points: '980', pointsUsed: '220', pointsExpire: '50', channel: '微信小程序', region: '福建 · 福州', verified: true, custTags: [['普通', 'tag-normal']], topTags: '',
           orders: [
             { id: '#20260610', goods: '机械键盘（青轴）×1', amount: '¥329.00', time: '2026-06-10 19:25', state: '待发货', sCls: 's-warn' },
             { id: '#20260525', goods: '电竞鼠标 ×1', amount: '¥189.00', time: '2026-05-25 20:10', state: '已签收', sCls: 's-done' }
@@ -3214,7 +3235,7 @@
           { k: 'sys', v: '⏳ 用户正在排队等待客服接入…' },
           { s: 'user', from: '吴鹏', text: '你好，想咨询一下物流问题' }
         ]},
-        { name: '郑丽华', av: '郑', custId: 'U20230101', reg: '注册 3 年', phone: '138****9999', level: '黄金会员', points: '4,500', pointsUsed: '1,200', pointsExpire: '300', channel: 'APP', region: '山东 · 青岛', verified: true, custTags: [['退款中', 'tag-urgent']], topTags: '<span class="tag-pending">挂起</span>',
+        { name: '郑丽华', av: '郑', custId: 'U20230101', reg: '注册 3 年', phone: '138****9999', level: '黄金会员', points: '4,500', pointsUsed: '1,200', pointsExpire: '300', channel: 'APP', region: '山东 · 青岛', verified: true, custTags: [['退款中', 'tag-urgent']], topTags: '',
           orders: [
             { id: '#20260603', goods: '陶瓷炖锅 ×1', amount: '¥259.00', time: '2026-06-03 13:40', state: '退款中', sCls: 's-refund' }
           ],
@@ -3230,7 +3251,7 @@
           { s: 'agent', from: '客服 王小明', text: '已为您发起退款申请。为加快处理，麻烦补充上传商品问题的照片凭证。' },
           { k: 'sys', v: '⏸ 会话已挂起 · 等待用户提供退款凭证' }
         ]},
-        { name: '何静', av: '何', custId: 'U20240606', reg: '注册 365 天', phone: '139****3333', level: '白银会员', points: '1,200', pointsUsed: '380', pointsExpire: '90', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '<span class="tag-pending">挂起</span>',
+        { name: '何静', av: '何', custId: 'U20240606', reg: '注册 365 天', phone: '139****3333', level: '白银会员', points: '1,200', pointsUsed: '380', pointsExpire: '90', channel: '微信小程序', region: '湖南 · 长沙', verified: true, custTags: [['库存核实', 'tag-normal']], topTags: '',
           orders: [],
           products: [
             { name: '智能台灯（白）', sku: 'LAMP-WHITE', spec: '颜色:白 / 触控调光', price: '¥159.00', stock: '0 件' }

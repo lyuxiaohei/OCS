@@ -131,7 +131,6 @@
 
 /* --- 会话头 chat-nav（头像+名称，叠加在导航栏第二行） --- */
 .chat-nav .nav-peer { position:absolute; top:44px; left:56px; height:44px; display:flex; align-items:center; gap:8px; max-width:calc(100% - 200px); min-width:0; }
-.chat-nav .nav-peer .agent-avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-semibold); flex-shrink:0; }
 .chat-nav .peer-info { display:flex; flex-direction:column; line-height:1.25; min-width:0; }
 .chat-nav .peer-name { font-size:var(--cs-font-size-lg); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .chat-nav .peer-status { font-size:var(--cs-font-size-xs); display:flex; align-items:center; gap:3px; }
@@ -245,25 +244,33 @@
    ============================================================ */
 .msg-bubble-user {
   align-self: flex-end;
-  max-width: var(--chat-card-width);
+  max-width: var(--chat-card-width, 252px);
   background: #95ec69;
   color: var(--cs-text);
   padding: 9px 14px;
   border-radius: var(--cs-radius-md);
   border-top-right-radius: 2px;
   font-size: var(--cs-font-size-md);
+  line-height: 1.6;
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 .msg-bubble-agent {
   align-self: flex-start;
-  max-width: 72%;
+  max-width: var(--chat-card-width, 252px);
   background: #fff;
   color: var(--cs-text);
   padding: 9px 14px;
   border-radius: var(--cs-radius-md);
   border-top-left-radius: 2px;
   font-size: var(--cs-font-size-md);
+  line-height: 1.6;
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
   border: 1px solid #eee;
 }
 .msg-bubble-system {

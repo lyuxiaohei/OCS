@@ -35,9 +35,8 @@
       </div>
 
       <div class="nav-peer">
-        <div class="agent-avatar" id="navAvatar">智</div>
         <div class="peer-info">
-          <span class="peer-name" id="navPeerName">智能客服</span>
+          <span class="peer-name" id="navPeerName">苏银豆客服</span>
         </div>
       </div>
 
@@ -56,105 +55,8 @@
     <!-- Message list -->
     <div class="chat-messages" id="chatMessages">
 
-      <!-- 上拉加载提示条 -->
-      <div class="history-loader" id="historyLoader">↑ 向上滚动加载更早消息</div>
-
-      <!-- 系统分界条 + 问候语 + 场景卡片由场景化初始化脚本动态注入 -->
-      <!-- 默认机器人客服问候；转人工后追加人工问候 -->
-
-      <!-- User text -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">我</div>
-        <div class="msg-content">
-          <div class="msg-bubble-user">你好，我想咨询一下昨天下的订单</div>
-          <div class="msg-meta">10:25</div>
-        </div>
-      </div>
-
-      <!-- Agent text -->
-      <div class="msg-row">
-        <div class="msg-avatar agent">客</div>
-        <div class="msg-content">
-          <div class="msg-bubble-agent">好的，请稍等，我帮您查询一下订单状态～</div>
-          <div class="msg-meta">10:25</div>
-        </div>
-      </div>
-
-      <!-- User: image message -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">我</div>
-        <div class="msg-content">
-          <div class="msg-image"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bfbfbf" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg></div>
-          <div class="msg-meta">10:28</div>
-        </div>
-      </div>
-
-      <!-- User text -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">我</div>
-        <div class="msg-content">
-          <div class="msg-bubble-user">这是商品详情页截图，麻烦帮我看下规格对不对</div>
-          <div class="msg-meta">10:28</div>
-        </div>
-      </div>
-
-      <!-- Agent text -->
-      <div class="msg-row">
-        <div class="msg-avatar agent">客</div>
-        <div class="msg-content">
-          <div class="msg-bubble-agent">收到您的截图，规格确认无误，是您下单的白色降噪款。还有其他问题吗？</div>
-          <div class="msg-meta">10:30</div>
-        </div>
-      </div>
-
-      <!-- User: Voice message (US-MVP-14) -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">我</div>
-        <div class="msg-content">
-          <div class="msg-bubble-user">
-            <div class="msg-voice">
-              <span class="voice-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>
-              <div class="voice-wave">
-                <svg viewBox="0 0 70 18" preserveAspectRatio="none" aria-hidden="true">
-                  <rect x="0"   y="7"  width="4" height="4"  rx="2"/>
-                  <rect x="9"   y="4"  width="4" height="10" rx="2"/>
-                  <rect x="18"  y="1"  width="4" height="16" rx="2"/>
-                  <rect x="27"  y="6"  width="4" height="6"  rx="2"/>
-                  <rect x="36"  y="3"  width="4" height="12" rx="2"/>
-                  <rect x="45"  y="5"  width="4" height="8"  rx="2"/>
-                  <rect x="54"  y="8"  width="4" height="2"  rx="2"/>
-                </svg>
-              </div>
-              <span class="voice-duration">8"</span>
-            </div>
-          </div>
-          <div class="msg-meta">10:33</div>
-        </div>
-      </div>
-
-      <!-- Agent text -->
-      <div class="msg-row">
-        <div class="msg-avatar agent">客</div>
-        <div class="msg-content">
-          <div class="msg-bubble-agent">好的，已收到您的语音反馈，我会帮您跟进处理。还有其他问题吗？</div>
-          <div class="msg-meta">10:34</div>
-        </div>
-      </div>
-
-      <!-- User text -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">我</div>
-        <div class="msg-content">
-          <div class="msg-bubble-user">没有了，谢谢～</div>
-          <div class="msg-meta">10:35</div>
-        </div>
-      </div>
-
-      <!-- 撤回提示：客服撤回了一条消息（与 PC 端工作台 2 分钟撤回联动） -->
-      <div class="msg-recalled-notice">
-        <svg class="recall-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        对方撤回了一条消息
-      </div>
+      <!-- 系统分界条 + 机器人欢迎语 + 场景卡片由场景化初始化脚本动态注入 -->
+      <!-- 默认机器人客服问候；转人工后追加人工客服欢迎语 -->
 
     </div>
 
@@ -224,124 +126,6 @@
         else alert('正在拨打 400-888-8888…');
       }
     });
-  })();
-
-  // 向上滚动加载更早的历史消息
-  (function () {
-    var box = document.getElementById('chatMessages');
-    var loader = document.getElementById('historyLoader');
-    if (!box || !loader) return;
-
-    var loading = false;
-    var allLoaded = false;
-    var batch = 0;
-    var MAX_BATCH = 3;
-
-    var SAMPLE = [
-      {
-        date: '昨天 18:30',
-        msgs: [
-          { who: 'agent', text: '您好，我是客服王小明，请问有什么可以帮您？', time: '18:30' },
-          { who: 'user', text: '想了解一下这款耳机的保修政策', time: '18:31' },
-          { who: 'agent', text: '这款耳机整机保修一年，保修期内非人为损坏可免费维修～', time: '18:32' }
-        ]
-      },
-      {
-        date: '06-15 周日',
-        msgs: [
-          { who: 'user', text: '请问你们周末发货吗？', time: '15:02' },
-          { who: 'agent', text: '周末正常发货哦，下午 4 点前的订单当天发出～', time: '15:03' }
-        ]
-      },
-      {
-        date: '06-12 周四',
-        msgs: [
-          { who: 'user', text: '可以用花呗分期吗？', time: '20:11' },
-          { who: 'agent', text: '支持的，满 200 元可选 3 / 6 / 12 期免息～', time: '20:12' }
-        ]
-      }
-    ];
-
-    function avatarText(who) { return who === 'agent' ? '王' : '我'; }
-
-    function makeRow(who, text, time) {
-      var row = document.createElement('div');
-      row.className = 'msg-row' + (who === 'user' ? ' user' : '');
-      row.innerHTML =
-        '<div class="msg-avatar ' + who + '">' + avatarText(who) + '</div>' +
-        '<div class="msg-content">' +
-          '<div class="msg-bubble-' + (who === 'user' ? 'user' : 'agent') + '">' + text + '</div>' +
-          '<div class="msg-meta">' + time + '</div>' +
-        '</div>';
-      return row;
-    }
-
-    function makeDivider(text) {
-      var d = document.createElement('div');
-      d.className = 'msg-system';
-      d.textContent = '— ' + text + ' —';
-      return d;
-    }
-
-    // 插入撤回提示（对方撤回了一条消息，与 PC 端工作台撤回联动）
-    function appendRecalledNotice(text) {
-      var box = document.getElementById('chatMessages');
-      if (!box) return;
-      var el = document.createElement('div');
-      el.className = 'msg-recalled-notice';
-      el.innerHTML =
-        '<svg class="recall-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
-        (text || '对方撤回了一条消息');
-      box.appendChild(el);
-      box.scrollTop = box.scrollHeight;
-    }
-
-
-    function loadMore() {
-      if (loading || allLoaded) return;
-      loading = true;
-      loader.textContent = '正在加载更早的消息…';
-      loader.classList.add('loading');
-
-      setTimeout(function () {
-        var data = SAMPLE[batch];
-        var prevHeight = box.scrollHeight;
-        var prevTop = box.scrollTop;
-
-        if (!data) {
-          allLoaded = true;
-          loader.textContent = '没有更早的消息了';
-          loader.classList.remove('loading');
-          loader.classList.add('done');
-          loading = false;
-          return;
-        }
-
-        var frag = document.createDocumentFragment();
-        frag.appendChild(makeDivider(data.date));
-        data.msgs.forEach(function (m) { frag.appendChild(makeRow(m.who, m.text, m.time)); });
-        loader.insertAdjacentElement('afterend', frag);
-        batch++;
-
-        box.scrollTop = prevTop + (box.scrollHeight - prevHeight);
-
-        if (batch >= MAX_BATCH) {
-          allLoaded = true;
-          loader.textContent = '没有更早的消息了';
-          loader.classList.add('done');
-        } else {
-          loader.textContent = '↑ 继续向上滚动加载更早消息';
-        }
-        loader.classList.remove('loading');
-        loading = false;
-      }, 600);
-    }
-
-    box.addEventListener('scroll', function () {
-      if (box.scrollTop < 50) loadMore();
-    });
-
-    box.scrollTop = box.scrollHeight;
   })();
 
   // 输入框：有内容时显示「发送」按钮，隐藏「+」
@@ -612,7 +396,7 @@
       var navAvatar = document.getElementById('navAvatar');
       var navPeerName = document.getElementById('navPeerName');
       if (navAvatar) navAvatar.textContent = '客';
-      if (navPeerName) navPeerName.textContent = '在线客服';
+      if (navPeerName) navPeerName.textContent = '苏银豆客服';
       // 插入系统消息 + 人工问候语 + 场景摘要（如有）
       if (window.csChat) {
         var box = document.getElementById('chatMessages');
@@ -622,7 +406,11 @@
         box.appendChild(sys);
         box.scrollTop = box.scrollHeight;
         // 人工客服问候语
-        window.csChat.sendText('您好，我是人工客服王小明，很高兴为您服务！请问有什么可以帮您？', 'agent');
+        window.csChat.sendText('您好，欢迎联系苏银豆商城客服中心！我是您的专属客服，请问有什么可以帮您？', 'agent');
+        // 客服跟进消息
+        setTimeout(function () {
+          window.csChat.sendText('您好，您的问题已收到，稍后为您处理～', 'agent');
+        }, 600);
         // 如有场景数据，发送场景摘要卡片（让客服看到用户带着什么场景进来）
         if (scene && scene !== 'home' && payload) {
           setTimeout(function () {
@@ -665,7 +453,7 @@
     var tag = params.entry_tag || 'home';
 
     // 机器人默认问候语
-    var ROBOT_GREETING = '您好，我是智能客服小助手，很高兴为您服务！请问有什么可以帮您？';
+    var ROBOT_GREETING = '您好，我是 AI 助手，可以为您查询订单、解答常见问题。请问有什么可以帮您？转人工请回复"转人工"。';
 
     // 场景 -> 卡片类型 + 卡片数据映射
     var SCENES = {
@@ -678,19 +466,6 @@
     };
 
     var scene = SCENES[tag] || SCENES.home;
-
-    // 场景标签
-    var sceneLabels = {
-      home: '首页咨询', product: '商品咨询', order: '订单咨询',
-      logistics: '物流查询', refund: '退款咨询',
-      help: '常见问题'
-    };
-
-    // 系统消息：已为您接入智能客服
-    var sysEl = document.createElement('div');
-    sysEl.className = 'msg-system';
-    sysEl.textContent = '已为您接入智能客服 · ' + (sceneLabels[tag] || '在线咨询');
-    box.appendChild(sysEl);
 
     // 机器人问候语（客服气泡，发送者显示"智能客服"）
     var robotRow = document.createElement('div');
@@ -705,8 +480,8 @@
     box.appendChild(robotRow);
     box.scrollTop = box.scrollHeight;
 
-    // 场景卡片（机器人发送，延迟 400ms）
-    if (scene.card) {
+    // 场景卡片（机器人发送，延迟 400ms）—— auto_transfer 模式下跳过卡片推送
+    if (scene.card && params.auto_transfer !== '1') {
       setTimeout(function () {
         var cardRow = document.createElement('div');
         cardRow.className = 'msg-row';
@@ -721,18 +496,13 @@
         box.scrollTop = box.scrollHeight;
       }, 400);
     }
-  })();
 
-  // ============================================================
-  // 超时提示演示（5 秒后模拟客服繁忙提示）
-  // 真实场景：用户发消息后 3 分钟无客服回复触发
-  // ============================================================
-  (function () {
-    setTimeout(function () {
-      if (window.csChat) {
-        window.csChat.sendSystem('客服当前咨询量较大，可能需要稍等片刻，感谢您的耐心');
-      }
-    }, 5000);
+    // auto_transfer=1：机器人问候语后延迟自动转人工（从 FAQ 页"联系客服"入口进入）
+    if (params.auto_transfer === '1') {
+      setTimeout(function () {
+        window.transferToHuman(tag, scene.data || null);
+      }, 800);
+    }
   })();
 
   // 全局：留言引导按钮点击
@@ -826,7 +596,7 @@
         viewDetail_order: '已在新标签页打开订单详情',
         refund: '已在新标签页打开退款/售后申请页',
         cancel: '订单已取消，关联的退款申请已自动撤销',
-        modifyAddress: '修改收货地址请联系在线客服协助处理',
+        modifyAddress: '修改收货地址请联系苏银豆客服协助处理',
         trackLogistics: '已在新标签页打开物流追踪',
         contact: '已返回会话继续沟通',
         // 退款

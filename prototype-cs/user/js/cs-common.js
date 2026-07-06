@@ -348,9 +348,9 @@
     });
   }
 
-  // ---- 用户消息撤回（2 分钟内，长按/右键触发）----
+  // ---- 用户消息撤回（2 分钟内，长按/右键触发，微信式弹出菜单）----
   // 用法：CsCommon.bindRecall(document.getElementById('chatMessages'))
-  // 仅对 .msg-row.user 内的气泡生效；撤回后替换为「你撤回了一条消息」提示
+  // 仅对 .msg-row.user 内的气泡生效；长按后弹出小菜单（复制/撤回），点「撤回」直接执行
   var RECALL_WINDOW = 2 * 60 * 1000; // 2 分钟
   function bindRecall(container) {
     if (!container || container.dataset.recallBound === '1') return;
@@ -362,22 +362,88 @@
       if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
     }
 
-    // 触发撤回确认
-    function tryRecall(row) {
-      if (!row || !row.classList.contains('user')) return;
-      // 时间校验：data-ts 缺失则视为当前可撤回（静态演示消息）
-      var ts = parseInt(row.getAttribute('data-ts') || '0', 10);
-      if (ts && (Date.now() - ts > RECALL_WINDOW)) {
-        if (window.csModal) csModal.toast('发送超过 2 分钟，无法撤回');
-        else alert('发送超过 2 分钟，无法撤回');
-        return;
-      }
-      if (!window.confirm('确认撤回这条消息？')) return;
-      // 替换为撤回提示
+    // 关闭已存在的撤回菜单
+    function closeRecallMenu() {
+      var existing = document.getElementById('recallPopover');
+      if (existing) existing.remove();
+      var mask = document.getElementById('recallPopoverMask');
+      if (mask) mask.remove();
+    }
+
+    // 执行撤回（无二次确认）
+    function doRecall(row) {
       var notice = document.createElement('div');
       notice.className = 'msg-recalled-notice';
       notice.innerHTML = '<svg class="recall-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>你撤回了一条消息';
       row.parentNode.replaceChild(notice, row);
+    }
+
+    // 弹出长按菜单（微信式）
+    function showRecallMenu(row) {
+      if (!row || !row.classList.contains('user')) return;
+      closeRecallMenu();
+
+      // 时间校验
+      var ts = parseInt(row.getAttribute('data-ts') || '0', 10);
+      var canRecall = !ts || (Date.now() - ts <= RECALL_WINDOW);
+
+      // 获取消息文本
+      var bubble = row.querySelector('.msg-bubble-user');
+      var msgText = bubble ? bubble.textContent.trim() : '';
+
+      // 创建遮罩（点击外部关闭）
+      var mask = document.createElement('div');
+      mask.id = 'recallPopoverMask';
+      mask.className = 'recall-popover-mask';
+      document.body.appendChild(mask);
+
+      // 创建菜单
+      var menu = document.createElement('div');
+      menu.id = 'recallPopover';
+      menu.className = 'recall-popover';
+
+      var html = '';
+      if (msgText) {
+        html += '<div class="recall-popover-item" data-action="copy">复制</div>';
+      }
+      html += '<div class="recall-popover-item danger' + (canRecall ? '' : ' disabled') + '" data-action="recall">撤回</div>';
+      menu.innerHTML = html;
+      document.body.appendChild(menu);
+
+      // 定位：消息气泡右上方
+      var rect = row.getBoundingClientRect();
+      var menuRect = menu.getBoundingClientRect();
+      var top = rect.top - menuRect.height - 8;
+      if (top < 10) top = rect.bottom + 8; // 空间不够则放下方
+      menu.style.top = top + 'px';
+      // 用户消息右对齐，菜单也靠右
+      var left = rect.right - menuRect.width;
+      if (left < 10) left = 10;
+      menu.style.left = left + 'px';
+
+      // 菜单项点击
+      menu.addEventListener('click', function (e) {
+        var item = e.target.closest('.recall-popover-item');
+        if (!item) return;
+        var action = item.getAttribute('data-action');
+        closeRecallMenu();
+
+        if (action === 'copy' && msgText) {
+          if (navigator.clipboard) navigator.clipboard.writeText(msgText);
+          if (window.csModal) csModal.toast('已复制');
+        } else if (action === 'recall') {
+          if (!canRecall) {
+            if (window.csModal) csModal.toast('发送超过 2 分钟，无法撤回');
+            else alert('发送超过 2 分钟，无法撤回');
+            return;
+          }
+          doRecall(row);
+        }
+      });
+
+      // 遮罩点击关闭
+      mask.addEventListener('click', closeRecallMenu);
+      mask.addEventListener('touchstart', closeRecallMenu, { passive: true });
     }
 
     // 长按（移动端）
@@ -388,7 +454,7 @@
       if (!bubble) return;
       clearPress();
       pressTimer = setTimeout(function () {
-        tryRecall(row);
+        showRecallMenu(row);
       }, 500);
     }, { passive: true });
     container.addEventListener('touchend', clearPress);
@@ -401,7 +467,7 @@
       var bubble = e.target.closest('.msg-bubble, .msg-bubble-user, .msg-content');
       if (!bubble) return;
       e.preventDefault();
-      tryRecall(row);
+      showRecallMenu(row);
     });
   }
 
