@@ -385,7 +385,6 @@
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
                   <a>查看会话</a><span class="divider">|</span>
-                  <a class="warn sl-track">差评追踪</a>
                 </td>
               </tr>
 
@@ -459,7 +458,6 @@
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
                   <a>查看会话</a><span class="divider">|</span>
-                  <a class="warn sl-track">差评追踪</a>
                 </td>
               </tr>
 
@@ -533,7 +531,6 @@
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
                   <a>查看会话</a><span class="divider">|</span>
-                  <a class="warn sl-track">差评追踪</a>
                 </td>
               </tr>
             </tbody>
@@ -594,16 +591,6 @@
   }
   var rows = refreshRows();
   rows.forEach(annotateRow);
-
-  /* 每行均提供「差评追踪」入口（不再仅 ≤2 星行） */
-  rows.forEach(function (tr) {
-    var act = $('.row-actions', tr);
-    if (act && !$('.sl-track', tr)) {
-      var div = document.createElement('span'); div.className = 'divider'; div.textContent = '|';
-      var a = document.createElement('a'); a.className = 'warn sl-track'; a.textContent = '差评追踪';
-      act.appendChild(div); act.appendChild(a);
-    }
-  });
 
   /* ---------- 1. 状态 Tab 过滤（好评 / 中评 / 差评） ---------- */
   function classifyTab(tab) {
@@ -706,8 +693,6 @@
       csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 });
     } else if (txt === '查看会话') {
       toast('正在打开会话工作台…');
-    } else if (txt === '差评追踪') {
-      csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 });
     }
   });
 

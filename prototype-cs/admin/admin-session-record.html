@@ -182,7 +182,7 @@
                 <th>状态</th>
                 <th>客服 / 处理人</th>
                 <th>时间</th>
-                <th>摘要</th>
+                <th>用户最后消息</th>
                 <th>评分</th>
                 <th>操作</th>
               </tr>
@@ -197,7 +197,7 @@
                 <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:24</span></td>
                 <td class="col-summary"><div class="leave-msg">我想问下我的订单什么时候能发货，已经下单两天了还没看到物流信息</div></td>
                 <td><span class="no-rate">未评价</span></td>
-                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-recontact">再次联系</a></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-recontact">再次联系</a><span class="divider">|</span><a class="sr-transfer-do">发起转接</a></td>
               </tr>
 
               <!-- 离线待处理（留言态） -->
@@ -245,7 +245,7 @@
                 <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:18</span></td>
                 <td class="col-summary"><div class="leave-msg">我是VIP会员，这个商品能给我优惠点吗？或者送个赠品也行</div></td>
                 <td><span class="stars">★★★★★</span></td>
-                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-transfer">转接记录</a></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-transfer">查看转接</a></td>
               </tr>
 
               <!-- 已结束 -->
@@ -293,7 +293,7 @@
                 <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">10:08</span></td>
                 <td class="col-summary"><div class="leave-msg">你们这个服务太差了，等了半天都没人理，我要投诉</div></td>
                 <td><span class="stars">★★<span class="empty">★★★</span></span></td>
-                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-badrate">差评追踪</a></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-rating">查看评价</a></td>
               </tr>
 
               <!-- 已转接 -->
@@ -305,7 +305,7 @@
                 <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">19:55</span></td>
                 <td class="col-summary"><div class="leave-msg">商品收到发现有质量问题，麻烦安排售后换货</div></td>
                 <td><span class="stars">★★★★<span class="empty">★</span></span></td>
-                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-transfer">转接记录</a></td>
+                <td class="row-actions"><a class="sr-detail">详情</a><span class="divider">|</span><a class="sr-transfer">查看转接</a></td>
               </tr>
             </tbody>
           </table>
@@ -408,12 +408,12 @@
     var txt = (a.textContent || '').trim();
     if (txt === '详情') {
       csModal.open('modals/modal-session-detail.html?type=detail', { variant: 'center', width: 540 });
-    } else if (txt === '转接记录') {
-      csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 });
+    } else if (txt === '发起转接') {
+      csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420 });
+    } else if (txt === '查看转接') {
+      location.href = 'admin-transfer.html';
     } else if (txt === '查看评价') {
-      csModal.open('modals/modal-session-detail.html?type=rating', { variant: 'center', width: 540 });
-    } else if (txt === '差评追踪') {
-      csModal.open('modals/modal-bad-rating.html', { variant: 'center', width: 520 });
+      location.href = 'admin-rating-mgmt.html';
     } else if (txt === '分配') {
       /* 离线待处理会话：客服上线后走正常分配（原型以分配弹窗示意） */
       var tr = a.closest('tr');

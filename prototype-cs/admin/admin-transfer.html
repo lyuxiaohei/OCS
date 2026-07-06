@@ -1118,21 +1118,6 @@
     bumpStat('accent', 1); bumpStat('warn', 1);
     bumpPgInfo(1);
   }
-  /* 发起转接入口：注入到每行会话操作栏（取代原右上角全局按钮）*/
-  rows.forEach(function (tr) {
-    var act = $('.row-actions', tr);
-    if (!act || act.querySelector('.new-transfer')) return;
-    var a = document.createElement('a');
-    a.className = 'new-transfer';
-    a.textContent = '发起转接';
-    act.insertBefore(a, act.firstChild);
-    if (act.children.length > 1) {
-      var div = document.createElement('span');
-      div.className = 'divider';
-      div.textContent = '|';
-      act.insertBefore(div, a.nextSibling);
-    }
-  });
   var btnExp = $('#btnExport');
   if (btnExp) btnExp.addEventListener('click', function () { toast('正在导出转接记录…'); });
 
@@ -1143,15 +1128,7 @@
     e.preventDefault();
     var txt = (a.textContent || '').trim();
     var tr = a.closest('tr');
-    if (txt === '发起转接') {
-      var sid = tr ? ($('.col-id', tr) ? $('.col-id', tr).textContent.trim() : '') : '';
-      csModal.open('modals/modal-transfer.html?session=' + encodeURIComponent(sid), { variant: 'center', width: 420,
-        onConfirm: function (d) {
-          addPendingRow({ target: d.target, reason: d.reason, note: d.note });
-          toast('已向 ' + (d.target || '目标客服') + ' 发起转接，等待响应');
-        }
-      });
-    } else if (txt === '详情') {
+    if (txt === '详情') {
       csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 });
     } else if (txt === '查看会话') {
       var sid = tr ? ($('.col-id', tr) ? $('.col-id', tr).textContent.trim() : '') : '';
