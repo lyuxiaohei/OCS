@@ -125,6 +125,35 @@
 
     /* ---------- 操作列扩展 ---------- */
     .row-actions a.warn { color: var(--cs-orange); }
+
+    /* ---------- 评分多选下拉 ---------- */
+    .multi-select { position: relative; display: inline-block; }
+    .ms-trigger {
+      height: 32px; min-width: 120px; padding: 0 28px 0 11px;
+      border: 1px solid var(--cs-border); border-radius: var(--cs-radius-sm);
+      background: var(--cs-bg-card); font-size: var(--cs-font-size-base);
+      color: var(--cs-text-secondary); cursor: pointer;
+      display: inline-flex; align-items: center; position: relative;
+    }
+    .ms-trigger::after {
+      content: "▾"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--cs-text-placeholder); font-size: 10px;
+    }
+    .ms-trigger.open { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .ms-panel {
+      position: absolute; top: calc(100% + 4px); left: 0; z-index: 30;
+      min-width: 100%; background: var(--cs-bg-card);
+      border: 1px solid var(--cs-border); border-radius: var(--cs-radius-sm);
+      box-shadow: var(--cs-shadow-card); padding: 4px 0;
+    }
+    .ms-opt {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; cursor: pointer; white-space: nowrap;
+      font-size: var(--cs-font-size-sm); color: var(--cs-text);
+    }
+    .ms-opt:hover { background: var(--cs-bg-hover); }
+    .ms-opt input { accent-color: var(--cs-primary); }
+    .ms-opt span { color: var(--cs-warning); }
   </style>
 </head>
 <body>
@@ -213,13 +242,16 @@
             </select>
           </div>
           <div class="field">
-            <span class="field-label">评分范围</span>
-            <div class="rating-range">
-              <span class="star-pill active">全部</span>
-              <span class="star-pill"><span class="pill-star">★★★★★</span> 5星</span>
-              <span class="star-pill"><span class="pill-star">★★★★</span> 4星</span>
-              <span class="star-pill"><span class="pill-star">★★★</span> 3星</span>
-              <span class="star-pill">差评 ≤2星</span>
+            <span class="field-label">评分</span>
+            <div class="multi-select" id="fScoreMulti">
+              <div class="ms-trigger">评分</div>
+              <div class="ms-panel" hidden>
+                <label class="ms-opt"><input type="checkbox" value="5"><span>★★★★★ 5星</span></label>
+                <label class="ms-opt"><input type="checkbox" value="4"><span>★★★★ 4星</span></label>
+                <label class="ms-opt"><input type="checkbox" value="3"><span>★★★ 3星</span></label>
+                <label class="ms-opt"><input type="checkbox" value="2"><span>★★ 2星</span></label>
+                <label class="ms-opt"><input type="checkbox" value="1"><span>★ 1星</span></label>
+              </div>
             </div>
           </div>
           <div class="field">
@@ -253,8 +285,7 @@
                 <th>用户</th>
                 <th>客服</th>
                 <th>评分</th>
-                <th>评价标签</th>
-                <th>评论内容</th>
+                <th>问题解决情况</th>
                 <th>评价时间</th>
                 <th>操作</th>
               </tr>
@@ -267,7 +298,7 @@
                     <div class="mini-avatar">李</div>
                     <div>
                       <div>李小红</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">VIP3 · 138****2891</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">138****2891</div>
                     </div>
                   </div>
                 </td>
@@ -276,11 +307,7 @@
                   <span class="stars">★★★★★</span>
                   <span class="score-num">5.0</span>
                 </td>
-                <td>
-                  <span class="rtag positive">态度好</span>
-                  <span class="rtag positive">回复快</span>
-                </td>
-                <td><div class="comment-text">客服非常专业，问题一下就解决了，体验很棒！</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">已解决</span></td>
                 <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">09:37:02</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -295,7 +322,7 @@
                     <div class="mini-avatar orange">王</div>
                     <div>
                       <div>王志强</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">普通会员 · 159****6601</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">159****6601</div>
                     </div>
                   </div>
                 </td>
@@ -304,11 +331,7 @@
                   <span class="stars">★★★★<span class="empty">★</span></span>
                   <span class="score-num">4.0</span>
                 </td>
-                <td>
-                  <span class="rtag positive">态度好</span>
-                  <span class="rtag neutral">基本解决</span>
-                </td>
-                <td><div class="comment-text">服务态度不错，退款流程讲得清楚，就是稍慢了点。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">已解决</span></td>
                 <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">08:58:14</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -323,7 +346,7 @@
                     <div class="mini-avatar purple">陈</div>
                     <div>
                       <div>陈思雨</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">VIP2 · 186****0452</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">186****0452</div>
                     </div>
                   </div>
                 </td>
@@ -332,11 +355,7 @@
                   <span class="stars">★★★★★</span>
                   <span class="score-num">5.0</span>
                 </td>
-                <td>
-                  <span class="rtag positive">专业</span>
-                  <span class="rtag positive">有耐心</span>
-                </td>
-                <td><div class="comment-text">转接后很快处理完，非常满意，给五星好评！</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">已解决</span></td>
                 <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">21:42:55</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -352,7 +371,7 @@
                     <div class="mini-avatar green">刘</div>
                     <div>
                       <div>刘大伟</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">普通会员 · 137****8839</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">137****8839</div>
                     </div>
                   </div>
                 </td>
@@ -361,11 +380,7 @@
                   <span class="stars">★★<span class="empty">★★★</span></span>
                   <span class="score-num low">2.0</span>
                 </td>
-                <td>
-                  <span class="rtag negative">回复慢</span>
-                  <span class="rtag negative">未解决</span>
-                </td>
-                <td><div class="comment-text">等了快十分钟才有人理，问题最后也没给解决，太差了。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-danger);">未解决</span></td>
                 <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">18:41:09</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -381,7 +396,7 @@
                     <div class="mini-avatar">赵</div>
                     <div>
                       <div>赵丽丽</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">VIP4 · 133****1278</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">133****1278</div>
                     </div>
                   </div>
                 </td>
@@ -390,11 +405,7 @@
                   <span class="stars">★★★★★</span>
                   <span class="score-num">5.0</span>
                 </td>
-                <td>
-                  <span class="rtag positive">态度好</span>
-                  <span class="rtag positive">专业</span>
-                </td>
-                <td><div class="comment-text">很专业，把订单异常的原因解释得很清楚，赞。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">已解决</span></td>
                 <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">15:14:33</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -409,7 +420,7 @@
                     <div class="mini-avatar orange">孙</div>
                     <div>
                       <div>孙建国</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">普通会员 · 188****6612</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">188****6612</div>
                     </div>
                   </div>
                 </td>
@@ -418,10 +429,7 @@
                   <span class="stars">★★★<span class="empty">★★</span></span>
                   <span class="score-num">3.0</span>
                 </td>
-                <td>
-                  <span class="rtag neutral">一般</span>
-                </td>
-                <td><div class="comment-text">问题解决了一半，让我自己去找商家，体验一般。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-danger);">未解决</span></td>
                 <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">11:48:51</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -437,7 +445,7 @@
                     <div class="mini-avatar purple">周</div>
                     <div>
                       <div>周晓彤</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">VIP1 · 150****3344</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">150****3344</div>
                     </div>
                   </div>
                 </td>
@@ -446,11 +454,7 @@
                   <span class="stars">★<span class="empty">★★★★</span></span>
                   <span class="score-num low">1.0</span>
                 </td>
-                <td>
-                  <span class="rtag negative">态度差</span>
-                  <span class="rtag negative">未解决</span>
-                </td>
-                <td><div class="comment-text">客服语气很敷衍，直接让我看帮助文档，完全没有在解决问题。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-danger);">未解决</span></td>
                 <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">20:03:17</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -466,7 +470,7 @@
                     <div class="mini-avatar green">吴</div>
                     <div>
                       <div>吴婷婷</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">VIP3 · 199****0098</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">199****0098</div>
                     </div>
                   </div>
                 </td>
@@ -475,11 +479,7 @@
                   <span class="stars">★★★★★</span>
                   <span class="score-num">5.0</span>
                 </td>
-                <td>
-                  <span class="rtag positive">回复快</span>
-                  <span class="rtag positive">有耐心</span>
-                </td>
-                <td><div class="comment-text">响应速度很快，物流异常很快就帮我联系核实了。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">已解决</span></td>
                 <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">14:30:42</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -494,7 +494,7 @@
                     <div class="mini-avatar">郑</div>
                     <div>
                       <div>郑国华</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">普通会员 · 131****5577</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">131****5577</div>
                     </div>
                   </div>
                 </td>
@@ -503,10 +503,7 @@
                   <span class="stars">★★★★<span class="empty">★</span></span>
                   <span class="score-num">4.0</span>
                 </td>
-                <td>
-                  <span class="rtag positive">态度好</span>
-                </td>
-                <td><div class="comment-text">客服态度挺好的，给了优惠券补偿，基本满意。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">已解决</span></td>
                 <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">10:24:08</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -522,7 +519,7 @@
                     <div class="mini-avatar orange">马</div>
                     <div>
                       <div>马晓军</div>
-                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">VIP2 · 176****2299</div>
+                      <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">176****2299</div>
                     </div>
                   </div>
                 </td>
@@ -531,11 +528,7 @@
                   <span class="stars">★★<span class="empty">★★★</span></span>
                   <span class="score-num low">2.0</span>
                 </td>
-                <td>
-                  <span class="rtag negative">未解决</span>
-                  <span class="rtag negative">转接混乱</span>
-                </td>
-                <td><div class="comment-text">转了两次客服，每个人都要重新描述问题，最后还是没解决。</div></td>
+                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-danger);">未解决</span></td>
                 <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">16:54:47</span></td>
                 <td class="row-actions">
                   <a>详情</a><span class="divider">|</span>
@@ -631,34 +624,41 @@
     });
   });
 
-  /* ---------- 2. 评分范围 pill 筛选 ---------- */
-  function classifyPill(pill) {
-    var t = pill.textContent;
-    if (t.indexOf('全部') >= 0) return 'all';
-    if (t.indexOf('差评') >= 0) return 'bad';
-    if (t.indexOf('5') >= 0) return '5';
-    if (t.indexOf('4') >= 0) return '4';
-    if (t.indexOf('3') >= 0) return '3';
-    return 'all';
+  /* ---------- 2. 评分多选下拉筛选 ---------- */
+  var scoreMulti = $('#fScoreMulti');
+  var scoreTrigger = scoreMulti ? $('.ms-trigger', scoreMulti) : null;
+  var scorePanel = scoreMulti ? $('.ms-panel', scoreMulti) : null;
+  var selectedScores = [];
+  function refreshScoreTrigger() {
+    if (!scoreTrigger) return;
+    if (!selectedScores.length) { scoreTrigger.textContent = '评分'; scoreTrigger.style.color = ''; return; }
+    scoreTrigger.textContent = selectedScores.slice().sort(function (a, b) { return b - a; }).join('、') + ' 星';
+    scoreTrigger.style.color = 'var(--cs-primary)';
   }
-  function matchPill(score, pill) {
-    if (pill === 'all') return true;
-    if (pill === 'bad') return !isNaN(score) && score <= 2;
-    if (pill === '5') return score === 5;
-    if (pill === '4') return score === 4;
-    if (pill === '3') return score === 3;
-    return true;
-  }
-  var starPills = $$('.star-pill');
-  var currentPill = 'all';
-  starPills.forEach(function (p) {
-    p.addEventListener('click', function () {
-      starPills.forEach(function (x) { x.classList.remove('active'); });
-      p.classList.add('active');
-      currentPill = classifyPill(p);
-      applyFilters();
+  if (scoreTrigger && scorePanel) {
+    scoreTrigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = !scorePanel.hidden;
+      scorePanel.hidden = open;
+      scoreTrigger.classList.toggle('open', !open);
     });
-  });
+    scorePanel.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('click', function () { scorePanel.hidden = true; scoreTrigger.classList.remove('open'); });
+    $$('.ms-opt input', scorePanel).forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var v = parseInt(cb.value, 10);
+        var idx = selectedScores.indexOf(v);
+        if (cb.checked && idx === -1) selectedScores.push(v);
+        if (!cb.checked && idx !== -1) selectedScores.splice(idx, 1);
+        refreshScoreTrigger();
+        applyFilters();
+      });
+    });
+  }
+  function matchScore(score) {
+    if (!selectedScores.length) return true;
+    return selectedScores.indexOf(Math.round(score)) !== -1;
+  }
 
   /* ---------- 3. 筛选（客服 / 关键词）+ 查询 / 重置 ---------- */
   var fAgent = $('#fAgent'), fKw = $('#fKw');
@@ -671,7 +671,7 @@
       var s = parseFloat(tr.getAttribute('data-score'));
       var bucket = isNaN(s) ? 'unknown' : (s >= 4 ? 'good' : (s === 3 ? 'mid' : 'bad'));
       var ok = (currentTab === 'all' || bucket === currentTab)
-        && matchPill(s, currentPill)
+        && matchScore(s)
         && (!agent || tr.getAttribute('data-agent') === agent)
         && (!kw || tr.textContent.toLowerCase().indexOf(kw) >= 0);
       tr.style.display = ok ? '' : 'none';
@@ -683,8 +683,9 @@
     if (fKw) fKw.value = '';
     currentTab = 'all';
     statusTabs.forEach(function (t) { t.classList.toggle('active', classifyTab(t) === 'all'); });
-    currentPill = 'all';
-    starPills.forEach(function (p) { p.classList.toggle('active', classifyPill(p) === 'all'); });
+    selectedScores = [];
+    if (scorePanel) $$('.ms-opt input', scorePanel).forEach(function (cb) { cb.checked = false; });
+    refreshScoreTrigger();
     applyFilters(); toast('已重置筛选');
   });
   if (fAgent) fAgent.addEventListener('change', applyFilters);
@@ -741,7 +742,7 @@
   document.querySelectorAll('.col-user').forEach(function (cu) {
     var phoneLine = null;
     Array.prototype.forEach.call(cu.querySelectorAll('div'), function (d) {
-      if (!phoneLine && d.children.length === 0 && /· ?\d{3}\*/.test(d.textContent)) phoneLine = d;
+      if (!phoneLine && d.children.length === 0 && /\d{3}\*/.test(d.textContent)) phoneLine = d;
     });
     if (!phoneLine) return;
     var b = belong[i % belong.length]; i++;

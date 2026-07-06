@@ -245,68 +245,53 @@
         <div class="kb-sidebar">
           <div class="category-tree">
             <div class="tree-header">
-              <span class="tree-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>业务分类</span>
-              <span class="tree-add" title="新增分类">+</span>
+              <span class="tree-title">业务分类</span>
+              
             </div>
 
             <div class="tree-node active" data-cat="all">
-              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+              
               <span class="tree-label">全部话术</span>
               <span class="tree-count">54</span>
             </div>
 
             <div class="tree-node" data-cat="quickreply">
-              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg></span>
+              
               <span class="tree-label">快捷回复</span>
               <span class="tree-count">6</span>
-              <span class="tree-actions">
-                <a title="编辑">&#9998;</a>
-                <a title="新增子类">+</a>
-              </span>
+              
             </div>
 
             <div class="tree-node" data-cat="presale">
-              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              
               <span class="tree-label">售前</span>
               <span class="tree-count">12</span>
-              <span class="tree-actions">
-                <a title="编辑">&#9998;</a>
-                <a title="新增子类">+</a>
-              </span>
+              
             </div>
 
             <div class="tree-node" data-cat="aftersale">
-              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              
               <span class="tree-label">售后</span>
               <span class="tree-count">18</span>
-              <span class="tree-actions">
-                <a title="编辑">&#9998;</a>
-                <a title="新增子类">+</a>
-              </span>
+              
             </div>
 
             <div class="tree-node" data-cat="complaint">
-              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              
               <span class="tree-label">投诉</span>
               <span class="tree-count">8</span>
-              <span class="tree-actions">
-                <a title="编辑">&#9998;</a>
-                <a title="新增子类">+</a>
-              </span>
+              
             </div>
 
             <div class="tree-node" data-cat="general">
-              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              
               <span class="tree-label">通用</span>
               <span class="tree-count">10</span>
-              <span class="tree-actions">
-                <a title="编辑">&#9998;</a>
-                <a title="新增子类">+</a>
-              </span>
+              
             </div>
 
             <div class="tree-node" data-cat="trash">
-              <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+              
               <span class="tree-label">回收站</span>
               <span class="tree-count">3</span>
             </div>
@@ -678,271 +663,7 @@
 
 </div>
 
-<script>
-/* ============================================================
-   admin-scripts.html 交互（话术库 · 左树右表）
-   对齐兄弟页 admin-knowledge.html 的套路：
-   - 工具 $/$$/toast 统一封装
-   - 行 data-biz / data-status 从已渲染 badge class 推断
-   - 分类树点击、工具条筛选、行操作全部走 document 委派
-   - csModal.toast 作为统一反馈；新建/编辑走 modal-script.html 弹窗
-   ============================================================ */
-(function () {
-  'use strict';
-  var $  = function (s, c) { return (c || document).querySelector(s); };
-  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
-  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
 
-  var BIZ_BYClass = { 'biz-presale': 'presale', 'biz-aftersale': 'aftersale', 'biz-complaint': 'complaint', 'biz-general': 'general' };
-
-  /* ---------- 0. 行 data-* 标记（从 badge class 推断） ---------- */
-  function rows() { return $$('.scripts-table tbody tr'); }
-  rows().forEach(function (tr) {
-    var bBadge = $$('.scene-badge', tr)[0];
-    if (bBadge) {
-      for (var bk in BIZ_BYClass) { if (bBadge.classList.contains(bk)) { tr.setAttribute('data-biz', BIZ_BYClass[bk]); break; } }
-    }
-    if (!tr.getAttribute('data-biz')) tr.setAttribute('data-biz', 'general');
-    var st = $('.st-tag', tr);
-    tr.setAttribute('data-status', st && st.classList.contains('off') ? 'off' : 'on');
-  });
-
-  /* ---------- 1. 筛选状态 ---------- */
-  var currentCat = 'all';
-  var currentStatus = '';
-  var currentKw = '';
-
-  function applyFilters() {
-    var visible = 0;
-    rows().forEach(function (tr) {
-      var ok = (currentCat === 'all' || tr.getAttribute('data-biz') === currentCat)
-            && (!currentStatus || tr.getAttribute('data-status') === currentStatus);
-      if (ok && currentKw) { ok = (tr.textContent || '').toLowerCase().indexOf(currentKw) !== -1; }
-      tr.style.display = ok ? '' : 'none';
-      if (ok) visible++;
-    });
-    var cnt = $('#list-count'); if (cnt) cnt.textContent = visible;
-  }
-
-  /* ---------- 2. 分类树点击 → 按业务分类联动 ---------- */
-  $$('.category-tree .tree-node').forEach(function (node) {
-    node.addEventListener('click', function () {
-      $$('.category-tree .tree-node').forEach(function (n) { n.classList.remove('active'); });
-      node.classList.add('active');
-      currentCat = node.getAttribute('data-cat') || 'all';
-      applyFilters();
-      var label = $('.tree-label', node);
-      toast('已筛选分类：' + (label ? label.textContent.trim() : '全部'));
-    });
-  });
-
-  /* ---------- 3. 工具条筛选 ---------- */
-  var elSearch = $('#scSearch'), elStatus = $('#scStatusFilter');
-  function syncFromToolbar() {
-    currentStatus = elStatus ? elStatus.value : '';
-    currentKw = elSearch ? elSearch.value.trim().toLowerCase() : '';
-  }
-  [elSearch, elStatus].forEach(function (el) {
-    if (!el) return;
-    el.addEventListener('change', function () { syncFromToolbar(); applyFilters(); });
-    if (el === elSearch) el.addEventListener('input', function () { syncFromToolbar(); applyFilters(); });
-  });
-  var btnQuery = $('#scBtnQuery'), btnReset = $('#scBtnReset');
-  if (btnQuery) btnQuery.addEventListener('click', function () { syncFromToolbar(); applyFilters(); toast('已应用筛选条件'); });
-  if (btnReset) btnReset.addEventListener('click', function () {
-    [elSearch, elStatus].forEach(function (el) { if (el) el.value = ''; });
-    syncFromToolbar(); applyFilters(); toast('已重置筛选');
-  });
-
-  /* ---------- 4. 新建话术 ---------- */
-  var btnAdd = $('#btnAddScript');
-  if (btnAdd) {
-    btnAdd.addEventListener('click', function () {
-      csModal.open('modals/modal-script.html', { variant: 'center', width: 520,
-        onConfirm: function () { toast('话术已保存'); } });
-    });
-  }
-
-  /* ---------- 5. 行操作委派 ---------- */
-  function getRowContent(tr) {
-    var el = $('.col-title', tr);
-    if (!el) return '';
-    var node = el.firstChild;
-    while (node && node.nodeType !== 3) node = node.nextSibling;
-    return node ? node.textContent.trim() : (el.textContent || '').trim();
-  }
-  function truncate(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
-
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest('.scripts-table .row-actions a');
-    if (!a) return;
-    var tr = a.closest('tr');
-    var txt = (a.textContent || '').trim();
-    e.preventDefault();
-    if (txt === '编辑') {
-      var content = getRowContent(tr);
-      csModal.open('modals/modal-script.html?title=' + encodeURIComponent('编辑话术') +
-        '&content=' + encodeURIComponent(content) +
-        '&biz=' + (tr.getAttribute('data-biz') || '') +
-        '&status=' + (tr.getAttribute('data-status') === 'off' ? 'disabled' : 'enabled'),
-        { variant: 'center', width: 520, onConfirm: function () { toast('话术已保存'); } });
-    } else if (txt === '复制') {
-      var text = getRowContent(tr);
-      if (text && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).catch(function () { /* 忽略剪贴板失败 */ });
-      }
-      toast('已复制到剪贴板');
-    } else if (txt === '停用' || txt === '启用') {
-      var st = $('.st-tag', tr);
-      if (st) {
-        if (txt === '停用') {
-          st.className = 'st-tag off'; st.textContent = '停用'; tr.setAttribute('data-status', 'off');
-          a.textContent = '启用'; toast('已停用该话术');
-        } else {
-          st.className = 'st-tag on'; st.textContent = '启用'; tr.setAttribute('data-status', 'on');
-          a.textContent = '停用'; toast('已启用该话术');
-        }
-      }
-    } else if (a.classList.contains('danger') || txt === '删除') {
-      var c = getRowContent(tr);
-      csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该话术？') +
-        '&desc=' + encodeURIComponent(c ? ('话术「' + truncate(c, 30) + '」删除后不可恢复。') : '删除后不可恢复，请谨慎操作。'),
-        { variant: 'center', width: 380 });
-    }
-  });
-
-  /* ---------- 6. 分页 active ---------- */
-  $$('.pagination .pg-num').forEach(function (n) {
-    n.addEventListener('click', function () {
-      $$('.pagination .pg-num').forEach(function (x) { x.classList.remove('active'); });
-      n.classList.add('active');
-    });
-  });
-
-  applyFilters();
-})();
-</script>
-
-<script src="js/cs-icons.js"></script>
-<script>
-/* ============================================================
-   分类树 增/删/改（CRUD）
-   - 头部「+」新增一级分类；节点 hover 显示 编辑/新增子类/删除
-   - 新增/编辑走 modals/modal-category.html；删除走 modal-delete-confirm.html
-   - 动作点击用捕获阶段拦截，避免触发既有节点筛选 handler
-   ============================================================ */
-(function () {
-  if (!window.csModal) return;
-  var $ = function (s, c) { return (c || document).querySelector(s); };
-  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
-  var toast = function (t) { if (csModal.toast) csModal.toast(t); };
-  var tree = document.querySelector('.category-tree');
-  if (!tree) return;
-  if (window.csInitTreeIcons) csInitTreeIcons();
-
-  function esc(s) {
-    return String(s).replace(/[&<>"]/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-    });
-  }
-  var seq = 1000;
-  function folderIcon() {
-    return '<span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>';
-  }
-  function buildNode(name, count, isChild) {
-    var icon = isChild ? '<span class="tree-icon">&#8629;</span>' : folderIcon();
-    var div = document.createElement('div');
-    div.className = 'tree-node';
-    div.setAttribute('data-cat', 'custom-' + (++seq));
-    if (isChild) div.style.paddingLeft = '38px';
-    div.innerHTML = icon +
-      '<span class="tree-label">' + esc(name) + '</span>' +
-      '<span class="tree-count">' + (count || 0) + '</span>' +
-      '<span class="tree-actions">' +
-        '<a title="编辑">' + csIcon('edit', 12) + '</a>' +
-        '<a title="新增子类">' + csIcon('plus', 12) + '</a>' +
-        '<a title="删除" class="cat-del">' + csIcon('trash', 12) + '</a>' +
-      '</span>';
-    return div;
-  }
-
-  // 1. 给既有业务分类节点补「删除」动作
-  $$('.tree-node .tree-actions', tree).forEach(function (act) {
-    if (act.querySelector('.cat-del')) return;
-    var del = document.createElement('a');
-    del.title = '删除'; del.className = 'cat-del'; del.innerHTML = '&#10006;';
-    act.appendChild(del);
-  });
-
-  function openCategoryModal(opts) {
-    csModal.open('modals/modal-category.html?mode=' + (opts.mode || 'add') +
-      '&title=' + encodeURIComponent(opts.title || '') +
-      '&name=' + encodeURIComponent(opts.name || '') +
-      '&parent=' + encodeURIComponent(opts.parent || '业务分类'),
-      { variant: 'center', width: 440,
-        onConfirm: function (d) { if (d && d.name) opts.onConfirm(d.name); } });
-  }
-  function deleteCategory(node) {
-    var name = $('.tree-label', node).textContent.trim();
-    var cnt = $('.tree-count', node);
-    var n = cnt ? (parseInt(cnt.textContent, 10) || 0) : 0;
-    csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该分类？') +
-      '&desc=' + encodeURIComponent(n > 0
-        ? '分类「' + name + '」下有 ' + n + ' 条内容，删除后内容将归入「全部」，且不可恢复。'
-        : '分类「' + name + '」删除后不可恢复。'),
-      { variant: 'center', width: 380,
-        onConfirm: function () { node.remove(); toast('已删除分类：' + name); } });
-  }
-
-  // 2. 头部「+」新增一级分类（插入到「其他」分组前）
-  var headerAdd = $('.tree-add', tree);
-  if (headerAdd) {
-    headerAdd.addEventListener('click', function () {
-      openCategoryModal({ mode: 'add', title: '新增分类', parent: '业务分类',
-        onConfirm: function (name) {
-          var ref = null;
-          $$('.tree-group-title', tree).forEach(function (t) { if (/其他/.test(t.textContent)) ref = ref || t; });
-          if (!ref) ref = tree.lastElementChild;
-          tree.insertBefore(buildNode(name, 0, false), ref);
-          toast('已新增分类：' + name);
-        }
-      });
-    });
-  }
-
-  // 3. 动作委派（捕获阶段，避免触发节点既有筛选 handler）
-  tree.addEventListener('click', function (e) {
-    var a = e.target.closest('.tree-actions a');
-    if (!a) return;
-    var title = a.getAttribute('title') || '';
-    if (title !== '编辑' && title !== '新增子类' && title !== '删除') return;
-    e.preventDefault();
-    e.stopPropagation();
-    var node = a.closest('.tree-node');
-    var name = $('.tree-label', node).textContent.trim();
-    if (title === '编辑') {
-      openCategoryModal({ mode: 'edit', title: '编辑分类', name: name, parent: '业务分类',
-        onConfirm: function (nm) { var lbl = $('.tree-label', node); if (lbl) lbl.textContent = nm; toast('分类已重命名为：' + nm); } });
-    } else if (title === '新增子类') {
-      openCategoryModal({ mode: 'add', title: '新增子分类', parent: name,
-        onConfirm: function (nm) { node.parentNode.insertBefore(buildNode(nm, 0, true), node.nextSibling); toast('已新增子分类：' + nm); } });
-    } else {
-      deleteCategory(node);
-    }
-  }, true);
-
-  // 4. 动态新增（custom-*）节点选中反馈
-  tree.addEventListener('click', function (e) {
-    if (e.target.closest('.tree-actions')) return;
-    var node = e.target.closest('.tree-node');
-    if (!node) return;
-    if ((node.getAttribute('data-cat') || '').indexOf('custom-') !== 0) return;
-    $$('.tree-node', tree).forEach(function (n) { n.classList.remove('active'); });
-    node.classList.add('active');
-    toast('已选择分类：' + $('.tree-label', node).textContent.trim() + '（暂无内容）');
-  });
-})();
-</script>
 
 <script src="nav.js"></script>
 </body>
