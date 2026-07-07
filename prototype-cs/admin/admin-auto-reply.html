@@ -42,6 +42,7 @@
         <a href="#staff-welcome">客服欢迎语</a>
         <a href="#transfer-welcome">转接客服欢迎语</a>
         <a href="#offline">离线自动回复</a>
+        <a href="#session-end">会话结束自动消息</a>
       </div>
 
       <!-- ========== 1. 机器人欢迎语 ========== -->
@@ -231,6 +232,35 @@
           <div class="welcome-preview">
             <div class="preview-label">用户端预览（离线态）</div>
             <div class="bubble">当前无客服在线（工作时间 9:00-21:00），您可以留下问题和联系方式，客服上线后将第一时间为您处理。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 5. 会话结束自动消息 ========== -->
+      <div class="card setting-section" id="session-end">
+        <div class="section-head">
+          <h3>会话结束自动消息
+            <span class="head-desc">客服主动关闭会话时，自动推送给用户的结束消息</span>
+          </h3>
+        </div>
+
+        <div class="timeout-card">
+          <div class="tc-title">结束消息内容</div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>结束消息</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">感谢您的咨询，本次会话已结束。如还有疑问，欢迎随时联系我们，祝您生活愉快！</textarea>
+              <div class="flex-between" style="margin-top:4px;">
+                <span class="form-hint" style="margin:0;">客服点击「关闭会话」时自动推送；支持变量 {用户昵称}、{客服昵称}。</span>
+                <span class="char-count"><span style="color:var(--cs-text);">44</span> / 200</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 预览 -->
+          <div class="welcome-preview">
+            <div class="preview-label">用户端预览（会话结束）</div>
+            <div class="bubble">感谢您的咨询，本次会话已结束。如还有疑问，欢迎随时联系我们，祝您生活愉快！</div>
           </div>
         </div>
       </div>

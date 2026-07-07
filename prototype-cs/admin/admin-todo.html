@@ -216,7 +216,7 @@
           <div>
             <div class="stat-num">5</div>
             <div class="stat-name">待评价会话</div>
-            <div id="evalBreakdown" style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);margin-top:2px;"><span data-eval-cnt="pending">3</span> 待评价 · <span data-eval-cnt="skipped">1</span> 已跳过</div>
+            <div id="evalBreakdown" style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);margin-top:2px;"><span data-eval-cnt="pending">3</span> 待评价 · <span data-eval-cnt="skipped">1</span> 已跳过 · <span data-eval-cnt="expired">1</span> 已过期</div>
           </div>
         </div>
         <div class="stat-card" id="statTotal">
@@ -257,7 +257,7 @@
               <div class="todo-main">
                 <div class="todo-top">
                   <span class="todo-name">张伟</span>
-                  <span class="urgency high"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f5222d" stroke-width="2" style="vertical-align:-1px;"><path d="M12 2c.5 2.5-.5 5-2 7 1 0 2.5.5 3 2 .5-2.5 2-4 3-5.5-.5 3-1.5 5.5-3 7.5 1.5-.5 3-1.5 4-3 0 3-2 6-5 7.5-3-1.5-5-4.5-5-7.5 1 1.5 2.5 2.5 4 3-1.5-2-2.5-4.5-3-7.5 1 1.5 2.5 3 3 5.5-.5-1.5-2-2-3-2 1.5-2 2.5-4.5 2-7z"/></svg> 紧急</span>
+                  <span class="urgency high">紧急</span>
                 </div>
                 <div class="todo-sub">商品破损，要求立刻换货</div>
               </div>
@@ -463,16 +463,17 @@
         <!-- ===== 3. 待评价会话 ===== -->
         <section class="card section-card" data-col="eval">
           <div class="section-head">
-            <div class="title">待评价会话 <span class="count-pill warn">4</span></div>
+            <div class="title">待评价会话 <span class="count-pill warn">5</span></div>
             <div class="head-actions"><a href="admin-rating-mgmt.html">查看全部 &gt;</a></div>
           </div>
           <div class="section-body">
 
             <!-- 状态筛选 -->
             <div style="display:flex;gap:8px;padding:10px 18px 0;">
-              <span class="eval-filter" data-filter="all" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-primary);color:#fff;cursor:pointer;">全部 4</span>
+              <span class="eval-filter" data-filter="all" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-primary);color:#fff;cursor:pointer;">全部 5</span>
               <span class="eval-filter" data-filter="pending" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-border-lighter);color:var(--cs-text-secondary);cursor:pointer;">待评价 3</span>
               <span class="eval-filter" data-filter="skipped" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-border-lighter);color:var(--cs-text-secondary);cursor:pointer;">已跳过 1</span>
+              <span class="eval-filter" data-filter="expired" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-border-lighter);color:var(--cs-text-secondary);cursor:pointer;">已过期 1</span>
             </div>
 
             <div class="todo-row" data-status="pending">
@@ -528,15 +529,23 @@
               </div>
             </div>
             <!-- 已评价行不再展示 -->
-
-            <!-- 底部汇总 -->
-            <div style="padding:var(--cs-space-3) 18px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light); display:flex; justify-content:flex-end; align-items:center;">
-              <button class="todo-btn-sm primary">一键催评全部</button>
+            <div class="todo-row" data-status="expired">
+              <div class="todo-avatar violet">许</div>
+              <div class="todo-main">
+                <div class="todo-top">
+                  <span class="todo-name">许文</span>
+                  <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:var(--cs-border-lighter);color:var(--cs-text-placeholder);">已过期</span>
+                </div>
+                <div class="todo-sub">会话已结束 · 评价卡片已过期</div>
+              </div>
+              <div class="todo-actions">
+                <span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-placeholder);">不可催评</span>
+              </div>
             </div>
 
             <!-- 跳过状态说明 -->
             <div style="margin:10px 18px 12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:8px 12px;font-size:12px;color:#1677ff;">
-              用户跳过评价后，系统记录为"已跳过"状态。管理员仍可发送催评邀请。
+              用户跳过评价记录为「已跳过」，管理员仍可催评；评价卡片超过「会话规则·评价卡片过期时间」未填写则记录为「已过期」，不再计入待评价、不可再催评。
             </div>
 
           </div>
@@ -617,7 +626,7 @@
   // 按当前可见行重算待评价三档细分 + 待评价统计卡总数
   function syncEvalBreakdown() {
     var bd = $('#evalBreakdown');
-    var cnt = { pending: 0, skipped: 0, done: 0 };
+    var cnt = { pending: 0, skipped: 0, expired: 0 };
     evalRows.forEach(function (r) {
       if (r.style.display === 'none') return;
       var s = r.getAttribute('data-status');
@@ -627,7 +636,7 @@
       sp.textContent = cnt[sp.getAttribute('data-eval-cnt')];
     });
     var card = $('.stat-card[data-target="eval"]');
-    if (card) { var n = $('.stat-num', card); if (n) n.textContent = cnt.pending + cnt.skipped + cnt.done; }
+    if (card) { var n = $('.stat-num', card); if (n) n.textContent = cnt.pending + cnt.skipped + cnt.expired; }
   }
 
   /* ---------- 3. 空状态 ---------- */
@@ -728,9 +737,6 @@
       csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420 });
     } else if (txt === '催评') {
       toast('已向「' + nm + '」发送催评邀请');
-    } else if (txt.indexOf('一键催评') >= 0) {
-      var n = evalRows.filter(function (r) { return !r.dataset.removed && r.getAttribute('data-status') === 'pending' && r.style.display !== 'none'; }).length;
-      toast('已向 ' + n + ' 位待评价用户发送催评邀请');
     }
   });
 

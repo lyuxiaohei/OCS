@@ -47,19 +47,8 @@
       <div class="card setting-section" id="routing">
         <div class="section-head">
           <h3>客服分配规则
-            <span class="head-desc">控制会话如何分配给客服，支持自动接入与智能分流</span>
+            <span class="head-desc">控制会话如何分配给客服，支持智能分流</span>
           </h3>
-        </div>
-
-        <div class="form-row">
-          <div class="form-label">自动接入</div>
-          <div class="form-control">
-            <div class="switch on">
-              <div class="switch-track"></div>
-              <span class="switch-label">开启自动接入</span>
-            </div>
-            <div class="switch-desc">开启后，新会话自动按分流策略分配给在线客服，无需客服手动点击「接入」</div>
-          </div>
         </div>
 
         <div class="form-row">
@@ -234,9 +223,23 @@
           </div>
         </div>
 
+        <!-- 子卡片：评价卡片过期（与挂起超时平级） -->
+        <div class="timeout-card">
+          <div class="tc-title">评价卡片过期 <span class="tc-tag">rating · 评价</span></div>
+          <div class="tc-row">
+            <div class="tc-field"><span class="tc-label">过期时间</span>
+              <div class="input-with-unit"><input type="text" value="72" /><select class="unit-select"><option value="秒">秒</option><option value="分">分</option><option value="小时" selected>小时</option></select></div>
+            </div>
+            <div class="tc-field"><span class="tc-label">过期后动作</span>
+              <div class="select-field" style="min-width:160px;">标记已过期，不可再催评</div>
+            </div>
+          </div>
+          <p class="tc-hint">会话结束后下发的评价卡片，超过该时长未填写则自动标记为「已过期」，不再计入待评价、不可再发送催评邀请</p>
+        </div>
+
       </div>
 
-      <!-- ========== 3. 紧急度设置 ========== -->
+      <!-- ========== 紧急度设置 ========== -->
       <div class="card setting-section" id="urgency">
         <div class="section-head">
           <h3>紧急度设置
