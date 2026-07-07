@@ -44,6 +44,7 @@
     var div = document.createElement('div');
     div.className = 'tree-node';
     div.setAttribute('data-cat', 'custom-' + (++seq));
+    div.style.paddingLeft = '38px'; // 二级分类缩进
     div.innerHTML =
       '<span class="tree-label">' + esc(name) + '</span>' +
       '<span class="tree-count">' + (count || 0) + '</span>' +
@@ -51,11 +52,12 @@
     return div;
   }
 
-  // 1. 给既有节点补操作按钮（按层级，skip 的不加）
+  // 1. 给既有节点补操作按钮 + 二级分类缩进
   $$('.tree-node', tree).forEach(function (node) {
     if (node.querySelector('.tree-actions')) return;
     var level = nodeLevel(node);
-    if (level === 'skip') return;
+    if (level === 'skip') { node.style.paddingLeft = '38px'; return; } // 快捷回复/回收站：缩进、无操作
+    if (level === 'leaf') node.style.paddingLeft = '38px'; // 二级分类缩进
     var act = document.createElement('span');
     act.className = 'tree-actions';
     act.innerHTML = actionsHtml(level);
