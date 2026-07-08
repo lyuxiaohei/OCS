@@ -208,7 +208,7 @@
         </div>
         <div class="stat-card" data-target="timeout">
           <div>
-            <div class="stat-num">6</div>
+            <div class="stat-num">3</div>
             <div class="stat-name">超时预警</div>
           </div>
         </div>
@@ -356,50 +356,23 @@
         <!-- ===== 2. 超时预警 ===== -->
         <section class="card section-card" data-col="timeout">
           <div class="section-head">
-            <div class="title">超时预警 <span class="count-pill danger">6</span></div>
+            <div class="title">超时预警 <span class="count-pill danger">3</span></div>
             <div class="head-actions"></div>
           </div>
           <div class="section-body">
 
-            <div class="todo-row" style="background:var(--cs-danger-bg);" data-link="zhangwei">
-              <div class="todo-avatar danger">!</div>
-              <div class="todo-main">
-                <div class="todo-top">
-                  <span class="todo-name">会话超时 · 张伟</span>
-                  <span class="urgency high">超时</span>
-                </div>
-                <div class="todo-sub">用户已等待 <strong style="color:var(--cs-danger);" data-countup="512">8 分 32 秒</strong>（阈值 5 分钟）</div>
-              </div>
-              <div class="todo-actions">
-                <button class="todo-btn-sm primary">立即接入</button>
-              </div>
-            </div>
             <div class="todo-row" style="background:var(--cs-orange-bg);" data-link="litingting">
               <div class="todo-avatar warn">!</div>
               <div class="todo-main">
                 <div class="todo-top">
-                  <span class="todo-name">响应超时 · 李婷婷</span>
+                  <span class="todo-name">首次响应超时 · 李婷婷</span>
                   <span class="urgency medium">即将超时</span>
                 </div>
                 <div class="todo-sub">距超时阈值还剩 <strong style="color:var(--cs-orange);" data-countdown="80">1 分 20 秒</strong></div>
               </div>
               <div class="todo-actions">
                 <button class="todo-btn-sm">催办</button>
-                <button class="todo-btn-sm primary">回复</button>
-              </div>
-            </div>
-            <div class="todo-row" style="background:var(--cs-orange-bg);">
-              <div class="todo-avatar warn">!</div>
-              <div class="todo-main">
-                <div class="todo-top">
-                  <span class="todo-name">排队超时 · 王芳</span>
-                  <span class="urgency medium">即将超时</span>
-                </div>
-                <div class="todo-sub">已在等待队列 <strong style="color:var(--cs-orange);" data-countup="225">3 分 45 秒</strong>（阈值 4 分钟）</div>
-              </div>
-              <div class="todo-actions">
-                <button class="todo-btn-sm">转接</button>
-                <button class="todo-btn-sm primary">接入</button>
+                <button class="todo-btn-sm primary">接入会话</button>
               </div>
             </div>
 
@@ -407,13 +380,13 @@
               <div class="todo-avatar warn">!</div>
               <div class="todo-main">
                 <div class="todo-top">
-                  <span class="todo-name">轮次响应 · 陈芳</span>
+                  <span class="todo-name">轮次响应超时 · 陈芳</span>
                   <span class="urgency medium">即将超时</span>
                 </div>
                 <div class="todo-sub">用户消息已等待 <strong style="color:var(--cs-orange);" data-countup="155">2 分 35 秒</strong>（阈值 3 分钟）</div>
               </div>
               <div class="todo-actions">
-                <button class="todo-btn-sm primary">回复</button>
+                <button class="todo-btn-sm primary">接入会话</button>
               </div>
             </div>
             <div class="todo-row" style="background:var(--cs-orange-bg);">
@@ -427,20 +400,6 @@
               </div>
               <div class="todo-actions">
                 <button class="todo-btn-sm">催办</button>
-                <button class="todo-btn-sm primary">回退</button>
-              </div>
-            </div>
-            <div class="todo-row" style="background:var(--cs-danger-bg);">
-              <div class="todo-avatar danger">!</div>
-              <div class="todo-main">
-                <div class="todo-top">
-                  <span class="todo-name">挂起超时 · 郑丽华</span>
-                  <span class="urgency high">超时</span>
-                </div>
-                <div class="todo-sub">挂起已超恢复时间 <strong style="color:var(--cs-danger);" data-countup="240">4 分 00 秒</strong>（原定 10 分钟恢复）</div>
-              </div>
-              <div class="todo-actions">
-                <button class="todo-btn-sm primary">恢复会话</button>
               </div>
             </div>
 
@@ -450,10 +409,7 @@
               <div style="font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); line-height:1.8;">
                 · 首次响应：超过 <strong>5 分钟</strong> 标记超时<br/>
                 · 轮次响应：超过 <strong>3 分钟</strong> 提醒客服回复<br/>
-                · 排队等待：超过 <strong>4 分钟</strong> 触发预警<br/>
-                · 会话静默：超过 <strong>15 分钟</strong> 提醒关闭<br/>
-                · 转接等待：超过 <strong>5 分钟</strong>（TTL）触发回退策略<br/>
-                · 挂起恢复：超过设定<strong>恢复时间</strong>提醒 / 自动恢复
+                · 转接等待：超过 <strong>5 分钟</strong>（TTL）触发回退策略
               </div>
             </div>
 
@@ -721,18 +677,14 @@
     var row = b.closest('.todo-row');
     var name = row ? $('.todo-name', row) : null;
     var nm = name ? name.textContent.trim() : '用户';
-    if (txt === '立即回复' || txt === '回复') {
+    if (txt === '立即回复') {
       toast('正在跳转客服工作台，定位「' + nm + '」的会话…');
       if (row) removeRow(row);
-    } else if (txt === '立即接入' || txt === '接入') {
+    } else if (txt === '立即接入' || txt === '接入' || txt === '接入会话') {
       toast('已接入「' + nm + '」的会话');
       if (row) removeRow(row);
     } else if (txt === '催办') {
       toast('已催办，将再次提醒客服响应');
-    } else if (txt === '回退') {
-      toast('已触发转接回退（回源客服 / 重新排队）');
-    } else if (txt === '恢复会话') {
-      toast('已恢复该挂起会话');
     } else if (txt === '转接') {
       csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420 });
     } else if (txt === '催评') {

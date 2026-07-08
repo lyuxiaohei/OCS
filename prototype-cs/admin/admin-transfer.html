@@ -201,11 +201,10 @@
     }
     .agent-card .capacity-bar .fill {
       height: 100%;
-      background: var(--cs-success);
+      background: var(--cs-primary);
       border-radius: 2px;
       transition: width 0.3s;
     }
-    .agent-card .capacity-bar .fill.warn { background: var(--cs-warning); }
     .agent-card .capacity-bar .fill.full { background: var(--cs-danger); }
     .agent-card .agent-footer {
       display: flex;
@@ -382,6 +381,7 @@
                   <th>转接时间</th>
                   <th>状态</th>
                   <th>原因</th>
+                  <th>备注</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -413,8 +413,9 @@
                   <td><span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 3:42</span></td>
                   <td>
                     <span class="reason-tag vip">VIP</span>
-                    <span class="reason-text">VIP客户，需高级客服处理</span>
+                    
                   </td>
+                  <td>客户指定</td>
                   <td class="row-actions">
                     <a>催办</a><span class="divider">|</span>
                     <a>详情</a><span class="divider">|</span>
@@ -448,8 +449,9 @@
                   <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag skill">技能</span>
-                    <span class="reason-text">售后退款问题，需售后组</span>
+                    
                   </td>
+                  <td>—</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>查看会话</a>
@@ -482,8 +484,9 @@
                   <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag busy">繁忙</span>
-                    <span class="reason-text">当前会话数超限，转出分流</span>
+                    
                   </td>
+                  <td>—</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>查看会话</a>
@@ -516,8 +519,9 @@
                   <td><span class="t-tag timeout">超时</span></td>
                   <td>
                     <span class="reason-tag timeout">超时</span>
-                    <span class="reason-text">响应超时，自动取消</span>
+                    
                   </td>
+                  <td>超时自动发起</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>重新转接</a>
@@ -550,8 +554,9 @@
                   <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag vip">VIP</span>
-                    <span class="reason-text">VIP客户指定客服</span>
+                    
                   </td>
+                  <td>—</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>查看会话</a>
@@ -584,8 +589,9 @@
                   <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag skill">技能</span>
-                    <span class="reason-text">物流追踪，需物流专员</span>
+                    
                   </td>
+                  <td>—</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>查看会话</a>
@@ -618,8 +624,9 @@
                   <td><span class="t-tag cancelled">已取消</span></td>
                   <td>
                     <span class="reason-tag busy">繁忙</span>
-                    <span class="reason-text">客户主动取消转接</span>
+                    
                   </td>
+                  <td>客户主动取消</td>
                   <td class="row-actions">
                     <a>详情</a>
                   </td>
@@ -651,8 +658,9 @@
                   <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag skill">技能</span>
-                    <span class="reason-text">商品质量问题，需品控组</span>
+                    
                   </td>
+                  <td>—</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>查看会话</a>
@@ -685,8 +693,9 @@
                   <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag busy">繁忙</span>
-                    <span class="reason-text">原客服需休息，交接</span>
+                    
                   </td>
+                  <td>VIP升级处理</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>查看会话</a>
@@ -719,8 +728,9 @@
                   <td><span class="t-tag accepted">已接受</span></td>
                   <td>
                     <span class="reason-tag vip">VIP</span>
-                    <span class="reason-text">VIP4高优客户升级处理</span>
+                    
                   </td>
+                  <td>—</td>
                   <td class="row-actions">
                     <a>详情</a><span class="divider">|</span>
                     <a>查看会话</a>
@@ -769,7 +779,7 @@
                 </div>
                 <div>
                   <div class="agent-name">李静</div>
-                  <div class="agent-role">高级客服 · 售后组</div>
+                  <div class="agent-role">高级客服</div>
                 </div>
               </div>
               <div class="capacity-bar">
@@ -804,11 +814,11 @@
                 </div>
                 <div>
                   <div class="agent-name">赵敏</div>
-                  <div class="agent-role">客服专员 · 售前组</div>
+                  <div class="agent-role">客服专员</div>
                 </div>
               </div>
               <div class="capacity-bar">
-                <div class="fill warn" style="width: 60%;"></div>
+                <div class="fill" style="width: 60%;"></div>
               </div>
               <div class="agent-stats">
                 <div class="stat-col">
@@ -839,7 +849,7 @@
                 </div>
                 <div>
                   <div class="agent-name">王磊</div>
-                  <div class="agent-role">客服专员 · 物流组</div>
+                  <div class="agent-role">客服专员</div>
                 </div>
               </div>
               <div class="capacity-bar">
@@ -874,7 +884,7 @@
                 </div>
                 <div>
                   <div class="agent-name">周涛</div>
-                  <div class="agent-role">客服专员 · 品控组</div>
+                  <div class="agent-role">客服专员</div>
                 </div>
               </div>
               <div class="capacity-bar">
@@ -909,7 +919,7 @@
                 </div>
                 <div>
                   <div class="agent-name">孙莉</div>
-                  <div class="agent-role">客服专员 · 技术组</div>
+                  <div class="agent-role">客服专员</div>
                 </div>
               </div>
               <div class="capacity-bar">
@@ -1050,8 +1060,8 @@
   function footerStatus(pct, cur) {
     var color, label;
     if (pct >= 100)      { color = 'var(--cs-danger)';  label = '满载'; }
-    else if (pct >= 50)  { color = 'var(--cs-warning)'; label = '较忙'; }
-    else                 { color = 'var(--cs-success)'; label = '空闲'; }
+    else if (pct >= 50)  { color = 'var(--cs-primary)'; label = '较忙'; }
+    else                 { color = 'var(--cs-primary)'; label = '空闲'; }
     var cap = pct >= 100 ? '已满载' : '可接 ' + Math.max(0, 10 - cur) + ' 单';
     return '<span style="font-size:var(--cs-font-size-sm);color:' + color + ';">&#9679; ' + label + '</span>' +
            '<span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">' + cap + '</span>';
@@ -1109,7 +1119,7 @@
       '<td><div class="agent-cell"><div class="agent-avatar a5">' + escapeHtml(target.charAt(0)) + '</div><span>' + escapeHtml(target) + '</span></div></td>' +
       '<td>' + ds + '<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">' + ts + '</span></td>' +
       '<td><span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 5:00</span></td>' +
-      '<td><span class="reason-tag ' + rKey + '">' + rLabel + '</span><span class="reason-text">' + escapeHtml(note) + '</span></td>' +
+      '<td><span class="reason-tag ' + rKey + '">' + rLabel + '</span></td>' +
       '<td class="row-actions"><a>催办</a><span class="divider">|</span><a>详情</a><span class="divider">|</span><a>取消</a></td>';
     tbody.insertBefore(tr, tbody.firstChild);
     rows = refreshRows();

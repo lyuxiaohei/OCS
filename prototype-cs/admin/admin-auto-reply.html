@@ -43,6 +43,7 @@
         <a href="#transfer-welcome">转接客服欢迎语</a>
         <a href="#offline">离线自动回复</a>
         <a href="#session-end">会话结束自动消息</a>
+        <a href="#rating-reminder">催评自动消息</a>
       </div>
 
       <!-- ========== 1. 机器人欢迎语 ========== -->
@@ -261,6 +262,35 @@
           <div class="welcome-preview">
             <div class="preview-label">用户端预览（会话结束）</div>
             <div class="bubble">感谢您的咨询，本次会话已结束。如还有疑问，欢迎随时联系我们，祝您生活愉快！</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 6. 催评自动消息 ========== -->
+      <div class="card setting-section" id="rating-reminder">
+        <div class="section-head">
+          <h3>催评自动消息
+            <span class="head-desc">会话结束后自动推送评价邀请，引导用户评价</span>
+          </h3>
+        </div>
+
+        <div class="timeout-card">
+          <div class="tc-title">催评消息内容</div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>催评消息</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">您好，本次服务已结束，恳请您对本次服务进行评价，您的反馈对我们非常重要！</textarea>
+              <div class="flex-between" style="margin-top:4px;">
+                <span class="form-hint" style="margin:0;">会话结束后自动推送；封顶 2 次，用户主动跳过后立即停止催评。</span>
+                <span class="char-count"><span style="color:var(--cs-text);">46</span> / 200</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 预览 -->
+          <div class="welcome-preview">
+            <div class="preview-label">用户端预览（催评邀请）</div>
+            <div class="bubble">您好，本次服务已结束，恳请您对本次服务进行评价，您的反馈对我们非常重要！</div>
           </div>
         </div>
       </div>

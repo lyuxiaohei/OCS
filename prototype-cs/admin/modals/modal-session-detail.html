@@ -31,6 +31,14 @@
     .rtag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
     .rtag.positive { background: var(--cs-success-bg); color: var(--cs-success); }
     .comment-box { background: var(--cs-bg-header); border-radius: 6px; padding: 10px 12px; font-size: 13px; color: var(--cs-text-secondary); line-height: 1.6; }
+    .msg-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--cs-border-light); border-radius: 6px; padding: 8px 12px; }
+    .msg-line { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--cs-border-lighter); font-size: 13px; align-items: flex-start; }
+    .msg-line:last-child { border-bottom: none; }
+    .msg-line .msg-time { color: var(--cs-text-tertiary); flex-shrink: 0; font-size: 12px; min-width: 36px; }
+    .msg-line .msg-role { font-size: 12px; flex-shrink: 0; min-width: 28px; font-weight: 600; }
+    .msg-line.user .msg-role { color: var(--cs-text-tertiary); }
+    .msg-line.agent .msg-role { color: var(--cs-primary); }
+    .msg-line .msg-text { color: var(--cs-text-secondary); line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -85,8 +93,15 @@
       } else {
         title.textContent = '会话详情 · #CS20260611001';
         extra.innerHTML =
-          '<div class="sd-section-title">会话摘要</div>' +
-          '<div class="comment-box">用户咨询订单 #20260611001 的物流进度，客服协助查询并告知预计到达时间，问题已解决。</div>';
+          '<div class="sd-section-title">聊天记录</div>' +
+          '<div class="msg-list">' +
+            '<div class="msg-line user"><span class="msg-time">09:24</span><span class="msg-role">用户</span><span class="msg-text">您好，我想查一下我的订单什么时候能发货，已经下单两天了</span></div>' +
+            '<div class="msg-line agent"><span class="msg-time">09:25</span><span class="msg-role">客服</span><span class="msg-text">您好，请提供一下订单号，我帮您查询物流信息</span></div>' +
+            '<div class="msg-line user"><span class="msg-time">09:26</span><span class="msg-role">用户</span><span class="msg-text">订单号是 #20260611001</span></div>' +
+            '<div class="msg-line agent"><span class="msg-time">09:28</span><span class="msg-role">客服</span><span class="msg-text">已为您查询，您的订单已于昨日发货，顺丰速运，运单号 SF1234567890，预计明天送达</span></div>' +
+            '<div class="msg-line user"><span class="msg-time">09:29</span><span class="msg-role">用户</span><span class="msg-text">好的，谢谢</span></div>' +
+            '<div class="msg-line agent"><span class="msg-time">09:30</span><span class="msg-role">客服</span><span class="msg-text">不客气，如有其他问题随时联系我们，祝您生活愉快！</span></div>' +
+          '</div>';
       }
     })();
   </script>
