@@ -164,6 +164,16 @@ a { color: var(--cs-primary); text-decoration: none; }
 }
 .admin-sidebar .menu-item:hover { background: var(--cs-bg-hover); color: var(--cs-primary); }
 .admin-sidebar .menu-item.active { background: var(--cs-primary-bg); color: var(--cs-primary); font-weight: var(--cs-font-weight-medium); }
+.admin-sidebar .menu-item .menu-ver {
+  margin-left: 6px;
+  font-size: 10px;
+  color: var(--cs-text-tertiary);
+  background: var(--cs-border-light);
+  padding: 0 5px;
+  border-radius: 8px;
+  font-weight: var(--cs-font-weight-medium);
+  vertical-align: middle;
+}
 
 .admin-header {
   height: 56px;

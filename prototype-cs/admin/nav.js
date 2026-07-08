@@ -13,7 +13,7 @@
  */
 
 const MENU_DATA = [
-  { type: 'item', id: 'dashboard', label: '数据仪表盘', href: 'admin-dashboard.html', icon: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>' },
+  { type: 'item', id: 'dashboard', label: '数据仪表盘', href: 'admin-dashboard.html', version: 'V2.0', icon: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>' },
   {
     type: 'group', label: '会话管理', icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
     items: [
@@ -29,7 +29,7 @@ const MENU_DATA = [
     items: [
       { id: 'scripts',   label: '话术库', href: 'admin-scripts.html' },
       { id: 'faq',       label: 'FAQ',   href: 'admin-faq.html' },
-      { id: 'knowledge', label: '知识文档', href: 'admin-knowledge.html' },
+      { id: 'knowledge', label: '知识文档', href: 'admin-knowledge.html', version: 'V3.0' },
     ]
   },
   {
@@ -65,7 +65,7 @@ function renderSidebar() {
         // 跨「工作台边界」才新开页签：点的菜单与当前页分处工作台/非工作台两侧 → target="_blank"（异或）
         const openNew = (it.id === 'workbench') !== (activeId === 'workbench');
         const t = openNew ? ' target="_blank"' : '';
-        html += '<a href="' + it.href + '" class="menu-item nav-sub' + isActive + '"' + t + '>' + it.label + '</a>';
+        html += '<a href="' + it.href + '" class="menu-item nav-sub' + isActive + '"' + t + '>' + it.label + (it.version ? '<span class="menu-ver">' + it.version + '</span>' : '') + '</a>';
       });
       html += '</div></div>';
     } else {
@@ -73,7 +73,7 @@ function renderSidebar() {
       const openNew = (entry.id === 'workbench') !== (activeId === 'workbench');
       const t = openNew ? ' target="_blank"' : '';
       const iconSvg = entry.icon ? '<svg class="gp-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;">' + entry.icon + '</svg>' : '';
-      html += '<a href="' + entry.href + '" class="menu-item' + isActive + '"' + t + '>' + iconSvg + entry.label + '</a>';
+      html += '<a href="' + entry.href + '" class="menu-item' + isActive + '"' + t + '>' + iconSvg + entry.label + (entry.version ? '<span class="menu-ver">' + entry.version + '</span>' : '') + '</a>';
     }
   });
 
