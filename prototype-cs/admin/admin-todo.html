@@ -249,7 +249,7 @@
               </div>
               <div class="todo-actions">
                 <span class="todo-time" data-elapsed="2" data-elapsed-mode="ago">2分钟前</span>
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
             <div class="todo-row urgency-high-row" data-link="zhangwei">
@@ -262,7 +262,7 @@
                 <div class="todo-sub">商品破损，要求立刻换货</div>
               </div>
               <div class="todo-actions">
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
             <div class="todo-row">
@@ -276,7 +276,7 @@
               </div>
               <div class="todo-actions">
                 <span class="todo-time" data-elapsed="5" data-elapsed-mode="ago">5分钟前</span>
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
             <div class="todo-row">
@@ -290,7 +290,7 @@
               </div>
               <div class="todo-actions">
                 <span class="todo-time" data-elapsed="8" data-elapsed-mode="ago">8分钟前</span>
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
             <div class="todo-row">
@@ -304,7 +304,7 @@
               </div>
               <div class="todo-actions">
                 <span class="todo-time" data-elapsed="12" data-elapsed-mode="ago">12分钟前</span>
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
             <div class="todo-row">
@@ -318,7 +318,7 @@
               </div>
               <div class="todo-actions">
                 <span class="todo-time" data-elapsed="15" data-elapsed-mode="ago">15分钟前</span>
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
             <div class="todo-row">
@@ -332,7 +332,7 @@
               </div>
               <div class="todo-actions">
                 <span class="todo-time" data-elapsed="20" data-elapsed-mode="ago">20分钟前</span>
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
             <div class="todo-row">
@@ -346,7 +346,7 @@
               </div>
               <div class="todo-actions">
                 <span class="todo-time" data-elapsed="25" data-elapsed-mode="ago">25分钟前</span>
-                <button class="todo-btn-sm primary">立即回复</button>
+                <button class="todo-btn-sm primary">回复</button>
               </div>
             </div>
 
@@ -386,6 +386,7 @@
                 <div class="todo-sub">用户消息已等待 <strong style="color:var(--cs-orange);" data-countup="155">2 分 35 秒</strong>（阈值 3 分钟）</div>
               </div>
               <div class="todo-actions">
+                <button class="todo-btn-sm">催办</button>
                 <button class="todo-btn-sm primary">接入会话</button>
               </div>
             </div>
@@ -514,7 +515,7 @@
         <div style="font-size:var(--cs-font-size-base); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); margin-bottom:var(--cs-space-2);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>待办处理流程说明</div>
         <div style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); line-height:1.9;">
           ① 系统按 <strong>紧急度（紧急 &gt; 一般）</strong> 自动排序待办，超时项置顶高亮；<br/>
-          ② 点击「立即回复」跳转 <a href="admin-workbench.html">客服工作台</a> 并定位会话；「接入」直接接入排队/超时会话；<br/>
+          ② 点击「回复」跳转 <a href="admin-workbench.html">客服工作台</a> 并定位会话；「接入」直接接入排队/超时会话；<br/>
           ③ 「催评」向用户推送评价邀请（用户端 <a href="../user/user-rating.html">服务评价</a> 弹层）；<br/>
           ④ 预警规则可在 <a href="admin-settings.html">客服设置</a> 中配置响应/排队/静默阈值。
         </div>
@@ -677,7 +678,7 @@
     var row = b.closest('.todo-row');
     var name = row ? $('.todo-name', row) : null;
     var nm = name ? name.textContent.trim() : '用户';
-    if (txt === '立即回复') {
+    if (txt === '立即回复' || txt === '回复') {
       toast('正在跳转客服工作台，定位「' + nm + '」的会话…');
       if (row) removeRow(row);
     } else if (txt === '立即接入' || txt === '接入' || txt === '接入会话') {

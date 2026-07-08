@@ -212,7 +212,7 @@
                 <th>状态</th>
                 <th style="width:80px;">类型</th>
                 <th>客服 / 处理人</th>
-                <th>时间</th>
+                <th>最后消息时间</th>
                 <th>用户最后消息</th>
                 <th>评分</th>
                 <th>操作</th>
@@ -222,9 +222,10 @@
               <!-- 进行中 -->
               <tr data-status="ongoing" data-agent="张小明" data-ent="客户A" data-brand="品牌商城1" data-app="小程序">
                 <td class="col-id">#CS20260611001</td>
-                <td><div class="col-user"><div class="mini-avatar">李</div><div><div>李小红</div><div style="font-size:12px;color:#8c8c8c;">138****2891</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar">李</div><div><div>李小红</div><div style="font-size:12px;color:#8c8c8c;">138****2891</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户A · 品牌商城1 · 小程序</div></div></div></td>
                 <td><span class="s-tag ongoing">进行中</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td>张小明</td>
                 <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:24</span></td>
                 <td class="col-summary"><div class="leave-msg">我想问下我的订单什么时候能发货，已经下单两天了还没看到物流信息</div></td>
@@ -235,9 +236,10 @@
               <!-- 离线待处理（留言态） -->
               <tr class="is-offline" data-status="offline" data-agent="" data-ent="客户A" data-brand="品牌商城1" data-app="小程序">
                 <td class="col-id">#CS20260611008</td>
-                <td><div class="col-user"><div class="mini-avatar orange">李</div><div><div>李婷婷</div><div style="font-size:12px;color:#8c8c8c;">138****6621 · 微信</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar orange">李</div><div><div>李婷婷</div><div style="font-size:12px;color:#8c8c8c;">138****6621 · 微信</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户A · 品牌商城1 · 小程序</div></div></div></td>
                 <td><span class="s-tag offline">离线待处理</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td><span class="unassigned">未分配</span></td>
                 <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:32</span></td>
                 <td class="col-summary"><div class="leave-msg">订单退款两天未到账，麻烦尽快处理</div></td>
@@ -248,9 +250,10 @@
               <!-- 离线待处理（留言态） -->
               <tr class="is-offline" data-status="offline" data-agent="" data-ent="客户A" data-brand="品牌商城1" data-app="H5">
                 <td class="col-id">#CS20260611009</td>
-                <td><div class="col-user"><div class="mini-avatar">张</div><div><div>张伟</div><div style="font-size:12px;color:#8c8c8c;">159****3387</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar">张</div><div><div>张伟</div><div style="font-size:12px;color:#8c8c8c;">159****3387</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户A · 品牌商城1 · H5</div></div></div></td>
                 <td><span class="s-tag offline">离线待处理</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td><span class="unassigned">未分配</span></td>
                 <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:50</span></td>
                 <td class="col-summary"><div class="leave-msg">收到的商品有破损，包装也是破的，要求换货</div></td>
@@ -261,9 +264,10 @@
               <!-- 已结束 -->
               <tr data-status="closed" data-agent="李静" data-ent="客户A" data-brand="品牌商城1" data-app="H5">
                 <td class="col-id">#CS20260611002</td>
-                <td><div class="col-user"><div class="mini-avatar orange">王</div><div><div>王志强</div><div style="font-size:12px;color:#8c8c8c;">159****6601</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar orange">王</div><div><div>王志强</div><div style="font-size:12px;color:#8c8c8c;">159****6601</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户A · 品牌商城1 · H5</div></div></div></td>
                 <td><span class="s-tag closed">已结束</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td>李静</td>
                 <td>2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:52</span></td>
                 <td class="col-summary"><div class="leave-msg">请问这个商品支持七天无理由退货吗？用了一下发现不太合适</div></td>
@@ -274,9 +278,10 @@
               <!-- 机器人会话（2次转接人工之间） -->
               <tr data-status="closed" data-agent="AI助手" data-ent="客户B" data-brand="品牌商城2" data-app="PC">
                 <td class="col-id">#CS20260611ROBOT01</td>
-                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">186****0452</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">186****0452</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户B · 品牌商城2 · PC</div></div></div></td>
                 <td><span class="s-tag closed">已结束</span></td>
-                <td><span style="font-size:var(--cs-font-size-sm);color:var(--cs-purple);font-weight:600;">🤖 机器人会话</span></td>
+                <td>机器人</td>
                 <td>AI 助手</td>
                 <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:15</span></td>
                 <td class="col-summary"><div class="leave-msg">我想查一下订单退款进度</div></td>
@@ -287,9 +292,10 @@
               <!-- 已转接 -->
               <tr data-status="transferred" data-agent="张小明" data-ent="客户B" data-brand="品牌商城2" data-app="PC">
                 <td class="col-id">#CS20260611003</td>
-                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">186****0452</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">186****0452</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户B · 品牌商城2 · PC</div></div></div></td>
                 <td><span class="s-tag transferred">已转接</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td>张小明 &gt; 李静</td>
                 <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:18</span></td>
                 <td class="col-summary"><div class="leave-msg">我是VIP会员，这个商品能给我优惠点吗？或者送个赠品也行</div></td>
@@ -300,9 +306,10 @@
               <!-- 已结束 -->
               <tr data-status="closed" data-agent="王磊" data-ent="客户A" data-brand="品牌商城1" data-app="小程序">
                 <td class="col-id">#CS20260610024</td>
-                <td><div class="col-user"><div class="mini-avatar green">刘</div><div><div>刘大伟</div><div style="font-size:12px;color:#8c8c8c;">137****8839</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar green">刘</div><div><div>刘大伟</div><div style="font-size:12px;color:#8c8c8c;">137****8839</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户A · 品牌商城1 · 小程序</div></div></div></td>
                 <td><span class="s-tag closed">已结束</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td>王磊</td>
                 <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">18:36</span></td>
                 <td class="col-summary"><div class="leave-msg">物流显示已签收但我没收到，能帮忙查一下快递到哪了吗</div></td>
@@ -313,9 +320,10 @@
               <!-- 离线待处理（留言态） -->
               <tr class="is-offline" data-status="offline" data-agent="" data-ent="客户C" data-brand="品牌商城3" data-app="小程序">
                 <td class="col-id">#CS20260611010</td>
-                <td><div class="col-user"><div class="mini-avatar">周</div><div><div>周芳</div><div style="font-size:12px;color:#8c8c8c;">186****4471</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar">周</div><div><div>周芳</div><div style="font-size:12px;color:#8c8c8c;">186****4471</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户C · 品牌商城3 · 小程序</div></div></div></td>
                 <td><span class="s-tag offline">离线待处理</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td><span class="unassigned">未分配</span></td>
                 <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:08</span></td>
                 <td class="col-summary"><div class="leave-msg">会员积分兑换的商品什么时候发货？</div></td>
@@ -326,9 +334,10 @@
               <!-- 已取消 -->
               <tr data-status="cancelled" data-agent="张小明" data-ent="客户C" data-brand="品牌商城3" data-app="小程序">
                 <td class="col-id">#CS20260610015</td>
-                <td><div class="col-user"><div class="mini-avatar">赵</div><div><div>赵丽丽</div><div style="font-size:12px;color:#8c8c8c;">133****1278</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar">赵</div><div><div>赵丽丽</div><div style="font-size:12px;color:#8c8c8c;">133****1278</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户C · 品牌商城3 · 小程序</div></div></div></td>
                 <td><span class="s-tag cancelled">已取消</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td>张小明</td>
                 <td>2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:42</span></td>
                 <td class="col-summary"><div class="leave-msg">刚才下的订单想修改收货地址，能改吗</div></td>
@@ -339,9 +348,10 @@
               <!-- 已结束（差评） -->
               <tr data-status="closed" data-agent="张小明" data-ent="客户A" data-brand="品牌商城2" data-app="小程序">
                 <td class="col-id">#CS20260609061</td>
-                <td><div class="col-user"><div class="mini-avatar">郑</div><div><div>郑国华</div><div style="font-size:12px;color:#8c8c8c;">131****5577</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar">郑</div><div><div>郑国华</div><div style="font-size:12px;color:#8c8c8c;">131****5577</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户A · 品牌商城2 · 小程序</div></div></div></td>
                 <td><span class="s-tag closed">已结束</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td>张小明</td>
                 <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">10:08</span></td>
                 <td class="col-summary"><div class="leave-msg">你们这个服务太差了，等了半天都没人理，我要投诉</div></td>
@@ -352,9 +362,10 @@
               <!-- 已转接 -->
               <tr data-status="transferred" data-agent="王磊" data-ent="客户C" data-brand="品牌商城3" data-app="PC">
                 <td class="col-id">#CS20260609088</td>
-                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">186****0452</div></div></div></td>
+                <td><div class="col-user"><div class="mini-avatar purple">陈</div><div><div>陈思雨</div><div style="font-size:12px;color:#8c8c8c;">186****0452</div>
+                        <div style="font-size:11px;color:#bfbfbf;margin-top:1px;">客户C · 品牌商城3 · PC</div></div></div></td>
                 <td><span class="s-tag transferred">已转接</span></td>
-                <td><span class="s-tag human">人工会话</span></td>
+                <td>人工</td>
                 <td>王磊 &gt; 张小明</td>
                 <td>2026-06-09<br/><span style="font-size:12px;color:#8c8c8c;">19:55</span></td>
                 <td class="col-summary"><div class="leave-msg">商品收到发现有质量问题，麻烦安排售后换货</div></td>
