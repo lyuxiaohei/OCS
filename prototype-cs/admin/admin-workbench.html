@@ -4013,11 +4013,12 @@
         { name: '周婷婷', preview: '请问这个颜色还有货吗？' }
       ];
       var simBtn = document.getElementById('btnSimulateMsg');
-      /* 模拟新消息 · 四场景：
+      /* 模拟新消息 · 五场景：
          a.新接入（新用户发起咨询、接入当前客服）
          b.新转接（其他客服把会话转接给你）
          c.转接被拒绝（我发起的转接被目标客服拒绝，会话归还）
-         d.转接超时未应答（我发起的转接目标客服超时未响应，会话回退） */
+         d.转接超时未应答（我发起的转接目标客服超时未响应，会话回退）
+         e.催办提醒（轮次响应即将超时，系统推送催办提醒给当前客服） */
 
       // 给当前选中会话项追加/替换临时状态标签（转接被拒/转接超时）
       function setTempSessionTag(cls, text) {
@@ -4073,6 +4074,18 @@
             thread2.scrollTop = thread2.scrollHeight;
           }
           if (window.csModal && csModal.toast) csModal.toast('转接超时，会话已退回');
+        } else if (kind === 'urge') {
+          // 催办提醒：轮次响应即将超时，系统主动推送结构化提醒弹窗（对齐 admin-todo.html 即将超时行）
+          if (window.csNotify) csNotify.popup({
+            name: '轮次响应超时 · 陈芳',
+            lines: [
+              { label: '等待时长', value: '2 分 35 秒（阈值 3 分钟）' },
+              { label: '用户消息', value: '退款还没到账，麻烦帮我看下' }
+            ],
+            persist: true,
+            onOpen: function () {}
+          });
+          if (window.csModal && csModal.toast) csModal.toast('模拟场景 e · 催办提醒：用户消息等待接近超时阈值，请尽快回复');
         }
       }
       if (simBtn) {
@@ -4098,6 +4111,7 @@
           addItem('b. 新转接', '其他客服把会话转接给你', function () { simulateScenario('transfer'); });
           addItem('c. 转接被拒绝', '我发起的转接被目标客服拒绝，会话归还', function () { simulateScenario('rejected'); });
           addItem('d. 转接超时未应答', '目标客服超时未响应，会话自动回退', function () { simulateScenario('timeout'); });
+          addItem('e. 催办提醒', '轮次响应即将超时，系统推送催办提醒', function () { simulateScenario('urge'); });
           document.body.appendChild(menu);
         });
         document.addEventListener('click', function () { var m = document.getElementById('simMenu'); if (m) m.remove(); });
