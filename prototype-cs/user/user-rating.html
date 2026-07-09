@@ -124,7 +124,7 @@
     <script>
       ((function () {
         // 快捷卡片按钮
-        var M = { transfer: '转人工', order: '发送订单', refund: '发送售后', logistics: '查看物流', cart: '购物车', rating: '服务评价' };
+        var M = { transfer: '转人工', order: '发送订单', refund: '发送售后', logistics: '查看物流', rating: '服务评价' };
         CsCommon.bindQuickCards(function (action) {
           if (window.csModal) csModal.toast('已选择' + (M[action] || '') + '卡片（演示）');
         });

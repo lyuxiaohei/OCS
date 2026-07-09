@@ -1102,16 +1102,16 @@
           });
         }
 
-        // 电话咨询卡片里的 phone-call-btn > 直接拨打（不再弹选择面板）
+        // 电话咨询卡片里的 phone-call-btn > 直接拨打（tel: 协议，由手机系统接管）
         var phoneBtnInCard = card.querySelector('.phone-call-btn');
         if (phoneBtnInCard) {
           phoneBtnInCard.style.cursor = 'pointer';
+          phoneBtnInCard.setAttribute('href', 'tel:' + CS_PHONE.replace(/[^0-9+]/g, ''));
           phoneBtnInCard.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            if (window.confirm('是否拨打客服热线 ' + CS_PHONE + '？')) {
-              alert('正在拨打 ' + CS_PHONE + '…');
-            }
+            // 直接跳转 tel: 协议，由手机系统拨号界面接管
+            location.href = 'tel:' + CS_PHONE.replace(/[^0-9+]/g, '');
           });
         }
       });

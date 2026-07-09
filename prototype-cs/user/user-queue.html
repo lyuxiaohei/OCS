@@ -258,7 +258,7 @@
       <div class="input-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/><path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/></svg></div>
       <div class="send-btn" style="height:30px;padding:0 12px;border-radius:var(--cs-radius-sm);background:var(--cs-primary);color:#fff;font-size:var(--cs-font-size-sm);display:flex;align-items:center;flex-shrink:0;cursor:pointer;">发送</div>
     </div>
-    <script>(function(){var M={transfer:'转人工',order:'发送订单',refund:'发送售后',logistics:'查看物流',cart:'购物车',rating:'服务评价'};CsCommon.bindQuickCards(function(action){alert('排队中，已选择'+(M[action]||'')+'卡片（演示）');});})();</script>
+    <script>(function(){var M={transfer:'转人工',order:'发送订单',refund:'发送售后',logistics:'查看物流',rating:'服务评价'};CsCommon.bindQuickCards(function(action){alert('排队中，已选择'+(M[action]||'')+'卡片（演示）');});})();</script>
 
     <!-- Toast -->
     <div class="cs-toast" id="csToast"></div>
@@ -363,7 +363,6 @@
       peerStatus.className = 'peer-status online';
       peerStatus.textContent = '在线';
       // 插入接通消息
-      appendSystemMsg('— 客服 王小明 已为您服务 —');
       appendAgentMsg('您好，欢迎联系苏银豆商城客服中心！我是您的专属客服，请问有什么可以帮您？');
       // 输入区恢复
       queueInputBar.classList.add('connected');

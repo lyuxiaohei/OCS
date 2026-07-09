@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>撤销退款申请 · 二次确认</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .rk-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+      padding: 8px 16px 20px;
+    }
+    .rk-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 0 auto 16px; }
+
+    .rk-warn-icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #fff1f0; color: var(--cs-danger);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .rk-title { font-size: 16px; font-weight: 600; color: var(--cs-text); text-align: center; margin: 0 0 4px; }
+    .rk-sub { font-size: 13px; color: var(--cs-text-tertiary); text-align: center; margin: 0 0 16px; line-height: 1.5; }
+
+    .rk-brief {
+      padding: 10px 12px; background: var(--cs-bg-header);
+      border-radius: 8px; margin-bottom: 16px;
+    }
+    .rk-brief .rb-row { display: flex; justify-content: space-between; font-size: 13px; line-height: 1.8; }
+    .rk-brief .rb-row .rb-label { color: var(--cs-text-tertiary); }
+    .rk-brief .rb-row .rb-value { color: var(--cs-text); }
+    .rk-brief .rb-row .rb-value.amount { color: var(--cs-primary); font-weight: 600; }
+    .rk-brief .rb-row .rb-value.danger { color: var(--cs-danger); font-weight: 600; }
+
+    .rk-tip {
+      display: flex; gap: 6px; align-items: flex-start;
+      padding: 8px 10px; background: #fff7e6; border-radius: 6px;
+      margin-bottom: 16px; font-size: 12px; color: var(--cs-orange); line-height: 1.5;
+    }
+    .rk-tip svg { flex-shrink: 0; margin-top: 1px; }
+
+    .rk-actions { display: flex; gap: 10px; }
+    .rk-btn {
+      flex: 1; height: 44px; border-radius: 22px;
+      border: 1px solid var(--cs-border); background: var(--cs-bg-card);
+      color: var(--cs-text-secondary); font-size: 14px; cursor: pointer; font-family: inherit;
+    }
+    .rk-btn:active { background: var(--cs-bg-header); }
+    .rk-btn.danger {
+      background: var(--cs-danger); color: #fff; border-color: var(--cs-danger);
+    }
+    .rk-btn.danger:active { background: #d43a3a; }
+  </style>
+</head>
+<body>
+  <div class="rk-modal">
+    <div class="rk-handle"></div>
+
+    <div class="rk-warn-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <h2 class="rk-title" id="rkTitle">确认撤销退款申请？</h2>
+    <p class="rk-sub" id="rkSub">撤销后无法恢复，如需退款请重新提交申请</p>
+
+    <div class="rk-brief">
+      <div class="rb-row"><span class="rb-label" id="rkIdLabel">退款单号</span><span class="rb-value" id="refundId">—</span></div>
+      <div class="rb-row"><span class="rb-label">售后类型</span><span class="rb-value" id="refundType">—</span></div>
+      <div class="rb-row" id="rkAmountRow"><span class="rb-label">退款金额</span><span class="rb-value amount" id="refundAmount">—</span></div>
+      <div class="rb-row"><span class="rb-label">当前状态</span><span class="rb-value danger" id="refundStatus">—</span></div>
+    </div>
+
+    <div class="rk-tip">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="rkTipText">撤销后该退款单将作废，关联的审核流程终止；如仍需退款，需重新发起申请。</span>
+    </div>
+
+    <div class="rk-actions">
+      <button class="rk-btn" id="btnCancel">再想想</button>
+      <button class="rk-btn danger" id="btnConfirm">确认撤销</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var qs = new URLSearchParams(location.search);
+      var rid = qs.get('id') || qs.get('refund_id') || '';
+      var amount = qs.get('amount') || '';
+      var status = qs.get('status') || '待商家审核';
+      var type = qs.get('type') || '退货退款';
+      var isExchange = (type === '换货');
+
+      // 动态文案：换货 vs 退款
+      document.getElementById('rkTitle').textContent = isExchange ? '确认撤销换货申请？' : '确认撤销退款申请？';
+      document.getElementById('rkSub').textContent = isExchange ? '撤销后无法恢复，如需换货请重新提交申请' : '撤销后无法恢复，如需退款请重新提交申请';
+      document.getElementById('rkIdLabel').textContent = isExchange ? '换货单号' : '退款单号';
+      document.getElementById('rkTipText').textContent = isExchange
+        ? '撤销后该换货单将作废，关联的审核流程终止；如仍需换货，需重新发起申请。'
+        : '撤销后该退款单将作废，关联的审核流程终止；如仍需退款，需重新发起申请。';
+      // 换货无退款金额，隐藏金额行
+      if (isExchange) {
+        var amtRow = document.getElementById('rkAmountRow');
+        if (amtRow) amtRow.style.display = 'none';
+      }
+
+      document.getElementById('refundId').textContent = rid || '—';
+      document.getElementById('refundType').textContent = type;
+      document.getElementById('refundAmount').textContent = amount ? ('¥ ' + amount) : '—';
+      document.getElementById('refundStatus').textContent = status;
+
+      document.getElementById('btnCancel').addEventListener('click', function () {
+        window.csModalBridge.close();
+      });
+
+      document.getElementById('btnConfirm').addEventListener('click', function () {
+        window.csModalBridge.confirm({ action: 'revoke', refundId: rid, status: status });
+        if (window.csModal && csModal.toast) csModal.toast('退款申请已撤销');
+        setTimeout(function () { window.csModalBridge.close(); }, 400);
+      });
+
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try { window.csModalBridge.reportHeight(document.documentElement.offsetHeight); } catch (e) {}
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

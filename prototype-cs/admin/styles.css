@@ -1118,6 +1118,33 @@ a { color: var(--cs-primary); text-decoration: none; }
   line-height: 1.6;
 }
 
+/* ---- 服务评价卡片（客服侧只读态，.msg-rating-card.sent）---- */
+.msg-rating-card {
+  background: #fff; border-radius: 12px; padding: 14px;
+  border: 1px solid var(--cs-border-light);
+  width: 252px;
+  box-sizing: border-box;
+}
+.msg-rating-card .rc-title { font-size: 14px; font-weight: 600; color: var(--cs-text); margin: 0 0 4px; }
+.msg-rating-card .rc-sub { font-size: 12px; color: var(--cs-text-tertiary); margin: 0 0 12px; }
+.msg-rating-card .rc-stars { display: flex; gap: 8px; margin-bottom: 12px; }
+.msg-rating-card .rc-star { font-size: 28px; color: #d9d9d9; user-select: none; }
+.msg-rating-card.sent .rc-star { cursor: default; }
+.msg-rating-card .rc-resolve { margin-bottom: 12px; }
+.msg-rating-card .rc-resolve-q { font-size: 12px; color: var(--cs-text-secondary); display: block; margin-bottom: 8px; }
+.msg-rating-card .rc-resolve-btns { display: flex; gap: 12px; }
+.msg-rating-card .rc-resolve-btn {
+  flex: 1; text-align: center; font-size: 12px; padding: 8px 0;
+  border: 1px solid #d9d9d9; border-radius: 8px; background: #fff;
+  color: var(--cs-text-secondary); cursor: pointer;
+}
+.msg-rating-card .rc-resolve-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+.msg-rating-card .rc-submit {
+  width: 100%; height: 36px; border: none;
+  background: #f0f0f0; color: #bfbfbf; border-radius: 18px;
+  font-size: 13px; cursor: not-allowed;
+}
+
 /* —— 轻提示 toast（移动端「+」面板图标点击反馈） —— */
 .csm-toast-host {
   position: fixed;
@@ -1138,17 +1165,39 @@ a { color: var(--cs-primary); text-decoration: none; }
 .csm-toast-host.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
 
 /* —— 新消息浮动卡片（notify.js · V2.2）z-index 1500 = 位于 modal(2000) 之下 —— */
-.nm-popup-host {
+/* 堆叠容器：固定在右下角，多条消息纵向堆叠（最新在底部，旧消息上推） */
+.nm-popup-stack {
   position: fixed;
   right: 20px;
   bottom: 20px;
+  display: flex;
+  flex-direction: column-reverse;  /* DOM 第一个子节点显示在底部 → 最新消息靠近右下角 */
+  gap: 10px;
+  z-index: 1500;
+  pointer-events: none;            /* 容器本身不拦截事件 */
+  max-width: 320px;
+}
+/* 展开模式：列表过高时可滚动，不遮挡整个视口 */
+.nm-popup-stack.expanded {
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.nm-popup-stack .nm-popup-host {
+  position: relative;              /* 覆盖原 fixed 定位，由容器统一管理位置 */
+  right: auto;
+  bottom: auto;
+  pointer-events: auto;            /* 每条弹窗可交互 */
+  flex-shrink: 0;
+}
+.nm-popup-host {
+  position: relative;
   width: 300px;
   background: #fff;
   border: 1px solid var(--cs-border-light);
   border-radius: 8px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
   padding: 12px 14px 10px;
-  z-index: 1500;
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -1156,6 +1205,8 @@ a { color: var(--cs-primary); text-decoration: none; }
   box-sizing: border-box;
 }
 .nm-popup-host.show { opacity: 1; transform: none; }
+/* 折叠态：隐藏被溢出的旧消息（不删除，点击药丸可恢复） */
+.nm-popup-host.nm-collapsed { display: none; }
 .nm-popup-host .nm-close {
   position: absolute; top: 6px; right: 8px;
   color: var(--cs-text-tertiary); cursor: pointer; font-size: 14px; line-height: 1;
@@ -1173,9 +1224,34 @@ a { color: var(--cs-primary); text-decoration: none; }
   margin-top: 6px; font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.5;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+/* 结构化多行正文（转接原因/转接备注 等） */
+.nm-popup-host .nm-lines { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.nm-popup-host .nm-line { display: flex; gap: 6px; font-size: 12px; line-height: 1.5; }
+.nm-popup-host .nm-line-label {
+  color: var(--cs-text-tertiary); flex-shrink: 0; min-width: 48px;
+  font-weight: 500;
+}
+.nm-popup-host .nm-line-value {
+  color: var(--cs-text-secondary); flex: 1; word-break: break-word;
+}
 .nm-popup-host .nm-actions { margin-top: 10px; text-align: right; }
 .nm-popup-host .nm-btn {
   background: var(--cs-primary); color: #fff; border: none; border-radius: 4px;
   padding: 5px 14px; cursor: pointer; font-size: 12px; line-height: 1.4;
 }
 .nm-popup-host .nm-btn:hover { background: var(--cs-primary-hover); }
+/* 折叠计数药丸：顶部「还有 N 条未读消息，点击展开」 */
+.nm-popup-host.nm-pill {
+  padding: 8px 14px;
+  background: var(--cs-primary-bg);
+  border: 1px solid var(--cs-primary);
+  cursor: pointer;
+  text-align: center;
+}
+.nm-popup-host.nm-pill:hover { background: #fff0f2; }
+.nm-pill .nm-pill-inner {
+  font-size: 12px; color: var(--cs-primary); font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.nm-pill .nm-pill-icon { font-size: 13px; }
+.nm-pill .nm-count { color: var(--cs-danger); }

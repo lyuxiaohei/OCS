@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>补充说明 · 退款</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .sp-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+      padding: 8px 16px 20px;
+    }
+    .sp-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 0 auto 12px; }
+    .sp-title { font-size: 16px; font-weight: 600; color: var(--cs-text); margin: 0 0 4px; text-align: center; }
+    .sp-sub { font-size: 12px; color: var(--cs-text-tertiary); text-align: center; margin: 0 0 14px; }
+
+    .sp-brief {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 8px 10px; background: var(--cs-bg-header);
+      border-radius: 8px; margin-bottom: 14px;
+    }
+    .sp-brief .sb-id { font-size: 12px; color: var(--cs-text-secondary); font-family: "SFMono-Regular", Consolas, monospace; }
+    .sp-brief .sb-amount { font-size: 13px; color: var(--cs-primary); font-weight: 600; }
+    .sp-brief .sb-status {
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px;
+      background: #fff7e6; color: var(--cs-orange);
+    }
+
+    .sp-section-label { font-size: 14px; font-weight: 600; color: var(--cs-text); margin: 0 0 6px; }
+    .sp-section-hint { font-size: 12px; color: var(--cs-text-tertiary); margin: 0 0 8px; }
+
+    .sp-textarea {
+      width: 100%; min-height: 110px; resize: vertical;
+      border: 1px solid var(--cs-border); border-radius: 8px;
+      padding: 10px 12px; font-size: 13px; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+      color: var(--cs-text); line-height: 1.6; box-sizing: border-box;
+    }
+    .sp-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .sp-count { text-align: right; font-size: 11px; color: var(--cs-text-tertiary); margin-top: 4px; }
+
+    .sp-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .sp-btn {
+      flex: 1; height: 42px; border-radius: 21px; border: 1px solid var(--cs-border);
+      background: var(--cs-bg-card); color: var(--cs-text-secondary);
+      font-size: 14px; cursor: pointer; font-family: inherit;
+    }
+    .sp-btn:active { background: var(--cs-bg-header); }
+    .sp-btn.primary {
+      background: var(--cs-primary); color: #fff; border-color: var(--cs-primary);
+    }
+    .sp-btn.primary:active { background: var(--cs-primary-hover); }
+    .sp-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="sp-modal">
+    <div class="sp-handle"></div>
+    <h2 class="sp-title">补充说明</h2>
+
+    <div class="sp-section-label">补充说明</div>
+    <textarea class="sp-textarea" id="remarkInput" maxlength="200" placeholder="请输入补充说明…"></textarea>
+    <div class="sp-count"><span id="remarkCount">0</span>/200</div>
+
+    <div class="sp-actions">
+      <button class="sp-btn" id="btnCancel">取消</button>
+      <button class="sp-btn primary" id="btnSave">保存</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var qs = new URLSearchParams(location.search);
+      var rid = qs.get('id') || qs.get('refund_id') || '';
+      // 原备注：由宿主通过 URL 参数透传（encodeURIComponent 编码）
+      var remark = qs.get('remark') || '';
+
+      var input = document.getElementById('remarkInput');
+      var count = document.getElementById('remarkCount');
+      // 回填原备注
+      try { input.value = decodeURIComponent(remark); } catch (e) { input.value = remark; }
+      count.textContent = input.value.length;
+
+      input.addEventListener('input', function () { count.textContent = input.value.length; });
+
+      document.getElementById('btnCancel').addEventListener('click', function () {
+        window.csModalBridge.close();
+      });
+
+      document.getElementById('btnSave').addEventListener('click', function () {
+        var val = input.value.trim();
+        window.csModalBridge.confirm({ action: 'supplement', refundId: rid, remark: val });
+        if (window.csModal && csModal.toast) csModal.toast('补充说明已保存');
+        setTimeout(function () { window.csModalBridge.close(); }, 400);
+      });
+
+      // 主动上报高度
+      if (window.csModalBridge && window.csModalBridge.reportHeight) {
+        requestAnimationFrame(function () {
+          try { window.csModalBridge.reportHeight(document.documentElement.offsetHeight); } catch (e) {}
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

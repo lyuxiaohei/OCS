@@ -142,11 +142,15 @@
         refund: {
           title: '选择退款单', sub: '请选择要咨询的退款申请',
           thumbColor: 'linear-gradient(135deg, #fa8c16, #ffa726)',
+          // badge 必须用卡片能识别的完整状态文案（与 cs-common.js aftersaleStatusMap key 对齐）
+          // aType: 售后类型（仅退款/退货退款/换货）；aStatus: 完整状态文案
           list: [
-            { id: 'RF202604080001', name: '保温杯退货退款', meta: '¥68.00 · 申请 04-08', badge: '待退货', badgeType: 's-warn' },
-            { id: 'RF202604110002', name: '耳机仅退款', meta: '¥89.00 · 申请 04-11', badge: '审核中', badgeType: 's-warn' },
-            { id: 'RF202602280004', name: 'T恤退货退款', meta: '¥39.90 · 申请 02-28', badge: '已完成', badgeType: 's-done' },
-            { id: 'RF202603150003', name: '眼镜退货退款', meta: '¥128.00 · 申请 03-15', badge: '已拒绝', badgeType: 's-danger' }
+            { id: 'AS20260408001', name: '保温杯 · 仅退款', meta: '¥25.00 · 申请 04-08', badge: '待商家审核', badgeType: 's-warn', aType: '仅退款', aStatus: '待商家审核', aAmount: '25.00', aProduct: '日本进口保温杯', aRemark: '商品有划痕' },
+            { id: 'AS20260408011', name: '降噪耳机 · 退货退款', meta: '¥899.00 · 申请 04-07', badge: '待寄回商品', badgeType: 's-warn', aType: '退货退款', aStatus: '待寄回商品', aAmount: '899.00', aProduct: '无线降噪耳机 H9', aRemark: '' },
+            { id: 'AS20260408002', name: '保温杯 · 退货退款', meta: '¥68.00 · 申请 04-08', badge: '待商家审核', badgeType: 's-warn', aType: '退货退款', aStatus: '待商家审核', aAmount: '68.00', aProduct: '日本进口保温杯', aRemark: '' },
+            { id: 'AS20260408012', name: '运动跑鞋 · 换货', meta: '¥0.00 · 申请 04-06', badge: '待商家审核', badgeType: 's-warn', aType: '换货', aStatus: '待商家审核', aAmount: '', aProduct: '运动跑鞋（黑色 42 码）', aRemark: '' },
+            { id: 'RF202602280004', name: 'T恤退货退款', meta: '¥39.90 · 申请 02-28', badge: '已完成', badgeType: 's-done', aType: '退货退款', aStatus: '完成', aAmount: '39.90', aProduct: '纯棉短袖T恤', aRemark: '' },
+            { id: 'RF202603150003', name: '眼镜退货退款', meta: '¥128.00 · 申请 03-15', badge: '申请已拒绝', badgeType: 's-danger', aType: '退货退款', aStatus: '申请已拒绝', aAmount: '128.00', aProduct: '精致蛋糕礼盒', aRemark: '' }
           ]
         },
         logistics: {
@@ -175,7 +179,14 @@
       } else {
         var html = '';
         conf.list.forEach(function (item) {
-          html += '<button class="pk-item" data-id="' + esc(item.id) + '" data-name="' + esc(item.name) + '" data-status="' + esc(item.badge) + '">';
+          html += '<button class="pk-item" data-id="' + esc(item.id) + '" data-name="' + esc(item.name) + '" data-status="' + esc(item.badge) + '"';
+          // 售后单透传完整卡片数据（aType/aStatus/aAmount/aProduct/aRemark）
+          if (item.aType) html += ' data-a-type="' + esc(item.aType) + '"';
+          if (item.aStatus) html += ' data-a-status="' + esc(item.aStatus) + '"';
+          if (item.aAmount != null) html += ' data-a-amount="' + esc(item.aAmount) + '"';
+          if (item.aProduct) html += ' data-a-product="' + esc(item.aProduct) + '"';
+          if (item.aRemark != null) html += ' data-a-remark="' + esc(item.aRemark) + '"';
+          html += '>';
           html +=   '<div class="pk-thumb" style="background:' + conf.thumbColor + ';">' + esc(item.name.charAt(0)) + '</div>';
           html +=   '<div class="pk-info">';
           html +=     '<div class="pk-name">' + esc(item.name) + '</div>';
@@ -192,13 +203,23 @@
         var item = e.target.closest('.pk-item');
         if (!item) return;
         // 回传选中的对象信息（父页据此发送对应卡片）
-        window.csModalBridge.confirm({
+        var payload = {
           action: 'pickObject',
           objectType: type,
           objectId: item.getAttribute('data-id'),
           objectName: item.getAttribute('data-name'),
           objectStatus: item.getAttribute('data-status') || ''
-        });
+        };
+        // 售后单：透传完整卡片数据
+        var aType = item.getAttribute('data-a-type');
+        if (aType) {
+          payload.aType = aType;
+          payload.aStatus = item.getAttribute('data-a-status') || '';
+          payload.aAmount = item.getAttribute('data-a-amount') || '';
+          payload.aProduct = item.getAttribute('data-a-product') || '';
+          payload.aRemark = item.getAttribute('data-a-remark') || '';
+        }
+        window.csModalBridge.confirm(payload);
       });
 
       document.getElementById('btnCancel').addEventListener('click', function () {

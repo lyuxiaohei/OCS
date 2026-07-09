@@ -507,6 +507,7 @@
   align-items: center;
   gap: 8px;
   z-index: 10;
+  flex-direction: column;
 }
 .voice-recording.show { display: flex; }
 .voice-recording .vr-dot {
@@ -519,6 +520,138 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+/* 录音浮层：取消态 */
+.voice-recording.canceling { background: rgba(238,10,36,.85); }
+.voice-recording .vr-hint { font-size: 11px; opacity: 0.8; }
+.voice-recording .vr-main { display: flex; align-items: center; gap: 8px; }
+
+/* 按住说话按钮（语音模式下替代文本输入框） */
+.hold-speak-btn {
+  flex: 1;
+  height: 36px;
+  border-radius: 18px;
+  border: none;
+  background: linear-gradient(135deg, var(--cs-primary-hover, #40a9ff), var(--cs-primary, #1677ff));
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  text-align: center;
+  line-height: 36px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all .2s;
+  display: none;
+  box-shadow: 0 2px 6px rgba(22,119,255,.25);
+  letter-spacing: 0.5px;
+}
+.hold-speak-btn.show { display: block; }
+.hold-speak-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 3px rgba(22,119,255,.2);
+}
+/* 录音中：琥珀色脉动 */
+.hold-speak-btn.recording {
+  background: linear-gradient(135deg, #ffb648, #fa8c16);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(250,140,22,.35);
+  animation: hs-pulse 1.2s ease-in-out infinite;
+}
+@keyframes hs-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(250,140,22,.35); }
+  50% { box-shadow: 0 2px 16px rgba(250,140,22,.55); }
+}
+/* 取消态：红色 */
+.hold-speak-btn.canceling {
+  background: linear-gradient(135deg, #ff7875, #ee0a24);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(238,10,36,.35);
+  animation: none;
+}
+
+/* 语音消息气泡（微信风格，复用 msg-bubble-user/agent 的底色/圆角/边框） */
+.msg-bubble-user.voice-bubble,
+.msg-bubble-agent.voice-bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  min-width: 104px;          /* 确保喇叭+声波+时长全部容纳，不溢出 */
+  max-width: var(--chat-card-width, 252px);
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+.voice-bubble:active { transform: scale(0.97); filter: brightness(0.96); }
+.msg-bubble-user.voice-bubble .vb-waves,
+.msg-bubble-agent.voice-bubble .vb-waves {
+  display: flex; align-items: center; gap: 3px;
+  flex: 1;                   /* 占据中间剩余空间，让气泡看起来有"波形"感 */
+  justify-content: center;
+  min-width: 0;
+}
+.msg-bubble-user.voice-bubble .vb-waves .vb-bar,
+.msg-bubble-agent.voice-bubble .vb-waves .vb-bar {
+  width: 3px; height: 14px;
+  border-radius: 2px;
+  background: var(--cs-text);
+  transform-origin: center;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+/* 5 根声波条：高低起伏模拟波形 */
+.msg-bubble-user.voice-bubble .vb-waves .vb-bar:nth-child(1),
+.msg-bubble-agent.voice-bubble .vb-waves .vb-bar:nth-child(1) { height: 7px; }
+.msg-bubble-user.voice-bubble .vb-waves .vb-bar:nth-child(2),
+.msg-bubble-agent.voice-bubble .vb-waves .vb-bar:nth-child(2) { height: 12px; }
+.msg-bubble-user.voice-bubble .vb-waves .vb-bar:nth-child(3),
+.msg-bubble-agent.voice-bubble .vb-waves .vb-bar:nth-child(3) { height: 16px; }
+.msg-bubble-user.voice-bubble .vb-waves .vb-bar:nth-child(4),
+.msg-bubble-agent.voice-bubble .vb-waves .vb-bar:nth-child(4) { height: 10px; }
+.msg-bubble-user.voice-bubble .vb-waves .vb-bar:nth-child(5),
+.msg-bubble-agent.voice-bubble .vb-waves .vb-bar:nth-child(5) { height: 6px; }
+.msg-bubble-user.voice-bubble .vb-icon,
+.msg-bubble-agent.voice-bubble .vb-icon {
+  flex-shrink: 0;
+  color: var(--cs-text);
+  display: inline-flex;
+  align-items: center;
+}
+.msg-bubble-user.voice-bubble .vb-dur,
+.msg-bubble-agent.voice-bubble .vb-dur {
+  font-size: 13px;
+  color: var(--cs-text);
+  flex-shrink: 0;
+  min-width: 30px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  text-align: right;
+}
+/* 用户气泡（右侧绿底）：左喇叭+声波 → 右时长 */
+.msg-bubble-user.voice-bubble .vb-icon { order: 1; }
+.msg-bubble-user.voice-bubble .vb-waves { order: 2; }
+.msg-bubble-user.voice-bubble .vb-dur { order: 3; }
+/* 客服气泡（左侧白底）：左时长 → 右声波+喇叭 */
+.msg-bubble-agent.voice-bubble .vb-dur { order: 1; text-align: left; }
+.msg-bubble-agent.voice-bubble .vb-waves { order: 2; }
+.msg-bubble-agent.voice-bubble .vb-icon { order: 3; }
+/* 播放动画：声波条依次跳动 */
+@keyframes vb-play {
+  0%, 100% { transform: scaleY(0.3); opacity: 0.3; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+.voice-bubble.playing .vb-waves .vb-bar {
+  animation: vb-play 0.9s ease-in-out infinite;
+  opacity: 1;
+}
+.voice-bubble.playing .vb-waves .vb-bar:nth-child(1) { animation-delay: 0s; }
+.voice-bubble.playing .vb-waves .vb-bar:nth-child(2) { animation-delay: 0.12s; }
+.voice-bubble.playing .vb-waves .vb-bar:nth-child(3) { animation-delay: 0.24s; }
+.voice-bubble.playing .vb-waves .vb-bar:nth-child(4) { animation-delay: 0.36s; }
+.voice-bubble.playing .vb-waves .vb-bar:nth-child(5) { animation-delay: 0.48s; }
 
 .thread-card .track-step { display: flex; gap: 8px; align-items: flex-start; }
 .thread-card .track-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }

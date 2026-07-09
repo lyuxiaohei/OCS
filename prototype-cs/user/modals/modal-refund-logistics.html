@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>填写退货物流 · 退款</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../mobile.css" />
+  <style>
+    html, body { background: #fff; margin: 0; padding: 0; }
+    .lg-modal {
+      width: 100%;
+      background: var(--cs-bg-card);
+      border-radius: 20px 20px 0 0;
+      padding: 8px 16px 20px;
+    }
+    .lg-handle { width: 32px; height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; margin: 0 auto 12px; }
+    .lg-title { font-size: 16px; font-weight: 600; color: var(--cs-text); margin: 0 0 4px; text-align: center; }
+    .lg-sub { font-size: 12px; color: var(--cs-text-tertiary); text-align: center; margin: 0 0 14px; }
+
+    .lg-brief {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 8px 10px; background: var(--cs-bg-header);
+      border-radius: 8px; margin-bottom: 14px;
+    }
+    .lg-brief .lb-id { font-size: 12px; color: var(--cs-text-secondary); font-family: "SFMono-Regular", Consolas, monospace; }
+    .lg-brief .lb-amount { font-size: 13px; color: var(--cs-primary); font-weight: 600; }
+    .lg-brief .lb-status {
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px;
+      background: #fff7e6; color: var(--cs-orange);
+    }
+
+    /* 商家退货地址（参考小程序 refund_detail merchant 信息） */
+    .lg-merchant {
+      padding: 10px 12px; background: var(--cs-primary-bg); border-radius: 8px;
+      margin-bottom: 14px; font-size: 12px; color: var(--cs-text-secondary); line-height: 1.7;
+    }
+    .lg-merchant .lm-label { color: var(--cs-primary); font-weight: 600; margin-right: 4px; }
+
+    .lg-section-label {
+      font-size: 14px; font-weight: 600; color: var(--cs-text);
+      margin: 0 0 8px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .lg-add-btn {
+      font-size: 12px; color: var(--cs-primary); background: var(--cs-primary-bg);
+      border: none; border-radius: 12px; padding: 4px 10px; cursor: pointer; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .lg-add-btn:disabled { color: var(--cs-text-placeholder); background: var(--cs-bg-header); cursor: not-allowed; }
+
+    .lg-packages { display: flex; flex-direction: column; gap: 12px; }
+    .lg-pkg {
+      border: 1px solid var(--cs-border-light); border-radius: 10px;
+      padding: 12px; background: var(--cs-bg-card); position: relative;
+    }
+    .lg-pkg-head {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+    }
+    .lg-pkg-no { font-size: 13px; font-weight: 600; color: var(--cs-text); }
+    .lg-pkg-del {
+      font-size: 12px; color: var(--cs-danger); background: none; border: none;
+      cursor: pointer; font-family: inherit; padding: 2px 4px;
+    }
+    .lg-pkg-del:disabled { color: var(--cs-text-placeholder); cursor: not-allowed; }
+
+    .lg-field { margin-bottom: 10px; }
+    .lg-field:last-child { margin-bottom: 0; }
+    .lg-field label {
+      display: block; font-size: 12px; color: var(--cs-text-tertiary); margin-bottom: 4px;
+    }
+    .lg-field label .req { color: var(--cs-danger); margin-left: 2px; }
+    .lg-field input {
+      width: 100%; height: 38px; border: 1px solid var(--cs-border); border-radius: 8px;
+      padding: 0 10px; font-size: 13px; font-family: inherit; outline: none;
+      color: var(--cs-text); box-sizing: border-box; transition: border-color 0.2s;
+    }
+    .lg-field input:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+
+    .lg-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .lg-btn {
+      flex: 1; height: 44px; border-radius: 22px; border: 1px solid var(--cs-border);
+      background: var(--cs-bg-card); color: var(--cs-text-secondary);
+      font-size: 14px; cursor: pointer; font-family: inherit;
+    }
+    .lg-btn:active { background: var(--cs-bg-header); }
+    .lg-btn.primary {
+      background: var(--cs-primary); color: #fff; border-color: var(--cs-primary);
+    }
+    .lg-btn.primary:active { background: var(--cs-primary-hover); }
+    .lg-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="lg-modal">
+    <div class="lg-handle"></div>
+    <h2 class="lg-title">填写退货物流</h2>
+    <p class="lg-sub">请填写退回包裹的物流信息，支持多个包裹分别填写</p>
+
+    <div class="lg-merchant" id="merchantBox">
+      <div><span class="lm-label">收货人：</span><span id="merchantName">李仓管</span></div>
+      <div><span class="lm-label">电话：</span><span id="merchantPhone">139****2277</span></div>
+      <div><span class="lm-label">退货地址：</span><span id="merchantAddress">江苏省南京市江宁区苏银路18号 苏银豆电商园A3仓 2楼售后中心</span></div>
+    </div>
+
+    <div class="lg-section-label">
+      <span>包裹物流信息</span>
+      <button class="lg-add-btn" id="btnAddPkg" type="button">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        添加包裹
+      </button>
+    </div>
+
+    <div class="lg-packages" id="packagesBox">
+      <!-- 由 JS 动态渲染包裹表单 -->
+    </div>
+
+    <div class="lg-actions">
+      <button class="lg-btn" id="btnCancel">取消</button>
+      <button class="lg-btn primary" id="btnSubmit">提交物流</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var qs = new URLSearchParams(location.search);
+      var rid = qs.get('id') || qs.get('refund_id') || '';
+
+      // 物流公司候选（参考小程序 refund_detail.html 的 datalist）
+      var COMPANIES = ['顺丰速运', '中通快递', '圆通速递', '申通快递', '韵达快递', '百世快递', '京东物流', 'EMS', '德邦快递', '极兔速递'];
+
+      var packagesBox = document.getElementById('packagesBox');
+      var pkgSeq = 0;
+
+      function buildPkgHtml(idx) {
+        var opts = COMPANIES.map(function (c) { return '<option value="' + c + '"></option>'; }).join('');
+        return '<div class="lg-pkg" data-pkg="' + idx + '">' +
+          '<div class="lg-pkg-head">' +
+            '<span class="lg-pkg-no">包裹 ' + idx + '</span>' +
+            '<button class="lg-pkg-del" type="button" data-del="' + idx + '"' + (idx === 1 ? ' disabled' : '') + '>删除</button>' +
+          '</div>' +
+          '<div class="lg-field">' +
+            '<label>物流公司<span class="req">*</span></label>' +
+            '<input type="text" list="companyOptions" data-co="' + idx + '" placeholder="请选择或输入物流公司">' +
+          '</div>' +
+          '<div class="lg-field">' +
+            '<label>物流单号<span class="req">*</span></label>' +
+            '<input type="text" data-no="' + idx + '" placeholder="请输入物流单号">' +
+          '</div>' +
+        '</div>';
+      }
+
+      // 共享 datalist（所有包裹共用一份候选）
+      var dl = document.createElement('datalist');
+      dl.id = 'companyOptions';
+      COMPANIES.forEach(function (c) {
+        var o = document.createElement('option');
+        o.value = c;
+        dl.appendChild(o);
+      });
+      packagesBox.appendChild(dl);
+
+      function addPkg() {
+        pkgSeq++;
+        var div = document.createElement('div');
+        div.innerHTML = buildPkgHtml(pkgSeq);
+        packagesBox.appendChild(div.firstElementChild);
+        // 第一个包裹不能删除；超过一个时解锁其他删除按钮
+        refreshDelState();
+      }
+
+      function refreshDelState() {
+        var pkgs = packagesBox.querySelectorAll('.lg-pkg');
+        pkgs.forEach(function (p, i) {
+          var del = p.querySelector('.lg-pkg-del');
+          if (del) del.disabled = (pkgs.length <= 1);
+        });
+      }
+
+      // 初始一个包裹
+      addPkg();
+
+      // 添加包裹
+      document.getElementById('btnAddPkg').addEventListener('click', function () {
+        addPkg();
+        // 上报高度（内容增高）
+        reportH();
+      });
+
+      // 删除包裹（事件委托）
+      packagesBox.addEventListener('click', function (e) {
+        var del = e.target.closest('.lg-pkg-del');
+        if (!del || del.disabled) return;
+        var pkg = del.closest('.lg-pkg');
+        if (pkg) {
+          pkg.remove();
+          // 重新编号
+          renumber();
+          refreshDelState();
+          reportH();
+        }
+      });
+
+      function renumber() {
+        var pkgs = packagesBox.querySelectorAll('.lg-pkg');
+        pkgs.forEach(function (p, i) {
+          var no = p.querySelector('.lg-pkg-no');
+          if (no) no.textContent = '包裹 ' + (i + 1);
+        });
+      }
+
+      document.getElementById('btnCancel').addEventListener('click', function () {
+        window.csModalBridge.close();
+      });
+
+      document.getElementById('btnSubmit').addEventListener('click', function () {
+        // 收集所有包裹数据
+        var pkgs = packagesBox.querySelectorAll('.lg-pkg');
+        var list = [];
+        var hasEmpty = false;
+        pkgs.forEach(function (p, i) {
+          var co = p.querySelector('[data-co]');
+          var no = p.querySelector('[data-no]');
+          var coVal = co ? co.value.trim() : '';
+          var noVal = no ? no.value.trim() : '';
+          if (!coVal || !noVal) hasEmpty = true;
+          list.push({ index: i + 1, company: coVal, trackingNo: noVal });
+        });
+        if (hasEmpty) {
+          if (window.csModal && csModal.toast) csModal.toast('请填写所有包裹的物流公司和单号');
+          else alert('请填写所有包裹的物流公司和单号');
+          return;
+        }
+        window.csModalBridge.confirm({
+          action: 'fillLogistics',
+          refundId: rid,
+          packages: list
+        });
+        if (window.csModal && csModal.toast) csModal.toast('物流信息已提交，等待商家收货');
+        setTimeout(function () { window.csModalBridge.close(); }, 400);
+      });
+
+      function reportH() {
+        if (window.csModalBridge && window.csModalBridge.reportHeight) {
+          requestAnimationFrame(function () {
+            try { window.csModalBridge.reportHeight(document.documentElement.offsetHeight); } catch (e) {}
+          });
+        }
+      }
+      reportH();
+    })();
+  </script>
+</body>
+</html>

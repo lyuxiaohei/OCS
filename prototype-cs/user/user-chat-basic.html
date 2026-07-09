@@ -62,8 +62,11 @@
 
     <!-- 语音录制浮层 -->
     <div class="voice-recording" id="voiceRecording">
-      <span class="vr-dot"></span>
-      <span>正在录音... 00:0<span id="vrSec">0</span></span>
+      <div class="vr-main">
+        <span class="vr-dot"></span>
+        <span id="vrText">松开 发送</span>
+      </div>
+      <span class="vr-hint" id="vrHint">00:0<span id="vrSec">0</span></span>
     </div>
 
     <!-- 更多面板：4 个功能项（相册 + 拍照 + 电话客服 + 转人工） -->
@@ -93,6 +96,11 @@
     <!-- 快捷卡片入口条（公共组件，输入框上方，横向滚动） -->
     <script>document.write(CsCommon.quickCardsBar({ id: 'quickCardsBar' }))</script>
 
+    <!-- [原型演示] 模拟客服撤回最近一条客服消息（生产环境由后端推送撤回事件触发） -->
+    <div style="padding:4px 12px 0;font-size:11px;">
+      <span id="simAgentRecall" style="color:var(--cs-text-tertiary);cursor:pointer;text-decoration:underline;">[演示] 模拟客服撤回最近一条消息</span>
+    </div>
+
     <!-- 输入工具栏 -->
     <div class="chat-input-area">
       <div class="input-icon" id="voiceIcon" title="切换语音">
@@ -102,6 +110,7 @@
         </svg>
       </div>
       <input type="text" id="msgInput" placeholder="请输入消息..." />
+      <button class="hold-speak-btn" id="holdSpeakBtn">按住 说话</button>
       <div class="input-icon" id="moreIcon" title="更多">
         <svg viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/>
@@ -185,6 +194,173 @@
     });
   })();
 
+  // ============================================================
+  // 长按语音原型（微信式）
+  // 1. 点语音图标 → 切换 文本输入框 / "按住 说话"按钮
+  // 2. 按住"按住 说话" → 开始录音，浮层显示"松开 发送" + 计时
+  // 3. 手指上滑 → 切换到"松开 取消"取消态
+  // 4. 松开 → 发送语音消息气泡；取消态下松开 → 不发送
+  // ============================================================
+  (function () {
+    var voiceIcon = document.getElementById('voiceIcon');
+    var holdBtn = document.getElementById('holdSpeakBtn');
+    var msgInput = document.getElementById('msgInput');
+    var overlay = document.getElementById('voiceRecording');
+    var vrText = document.getElementById('vrText');
+    var vrHint = document.getElementById('vrHint');
+    var vrSec = document.getElementById('vrSec');
+    if (!voiceIcon || !holdBtn || !overlay) return;
+
+    var voiceMode = false;      // 是否语音模式
+    var recording = false;      // 是否正在录音
+    var canceling = false;      // 是否处于取消态（手指上滑）
+    var sec = 0;
+    var timer = null;
+    var startY = 0;
+
+    // 切换语音/文本模式
+    voiceIcon.addEventListener('click', function () {
+      voiceMode = !voiceMode;
+      holdBtn.classList.toggle('show', voiceMode);
+      msgInput.style.display = voiceMode ? 'none' : '';
+      if (!voiceMode && recording) stopRecording(true); // 切回文本时取消录音
+    });
+
+    // ---- 录音控制 ----
+    function startRecording(e) {
+      if (!voiceMode || recording) return;
+      e.preventDefault();
+      recording = true;
+      canceling = false;
+      sec = 0;
+      holdBtn.classList.add('recording');
+      holdBtn.classList.remove('canceling');
+      holdBtn.textContent = '松开 发送';
+      overlay.classList.add('show');
+      overlay.classList.remove('canceling');
+      vrText.textContent = '松开 发送';
+      vrSec.textContent = '0';
+      startY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      timer = setInterval(function () {
+        sec++;
+        vrSec.textContent = sec;
+        if (sec >= 60) stopRecording(false); // 最多60秒自动发送
+      }, 1000);
+    }
+
+    function updateMove(e) {
+      if (!recording) return;
+      var y = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      var isCancel = (startY - y) > 50; // 上滑超过50px进入取消态
+      if (isCancel !== canceling) {
+        canceling = isCancel;
+        holdBtn.classList.toggle('canceling', canceling);
+        holdBtn.classList.toggle('recording', !canceling);
+        holdBtn.textContent = canceling ? '松开 取消' : '松开 发送';
+        overlay.classList.toggle('canceling', canceling);
+        vrText.textContent = canceling ? '松开 取消' : '松开 发送';
+      }
+    }
+
+    function stopRecording(isCancel) {
+      if (!recording) return;
+      recording = false;
+      clearInterval(timer);
+      timer = null;
+      holdBtn.classList.remove('recording', 'canceling');
+      holdBtn.textContent = '按住 说话';
+      overlay.classList.remove('show', 'canceling');
+      var duration = sec;
+      sec = 0;
+      vrSec.textContent = '0';
+      if (isCancel || canceling) {
+        canceling = false;
+        if (window.csModal && csModal.toast) csModal.toast('已取消');
+        return;
+      }
+      canceling = false;
+      if (duration < 1) {
+        if (window.csModal && csModal.toast) csModal.toast('录音太短');
+        return;
+      }
+      // 发送语音消息气泡
+      sendVoiceMessage(duration);
+    }
+
+    // 发送语音气泡到会话（微信式：左喇叭+声波条+右时长，按时长变宽）
+    function sendVoiceMessage(duration) {
+      var box = document.getElementById('chatMessages');
+      if (!box) return;
+      var row = document.createElement('div');
+      row.className = 'msg-row user';
+      var durStr = duration + '"';
+      // 气泡宽度：1秒=104px（确保内容不溢出），每秒+6px，上限210px
+      var width = Math.max(104, Math.min(104 + (duration - 1) * 6, 210));
+      // 5 根声波条（模拟波形，更精致）
+      var wavesHtml = '<span class="vb-waves">' +
+        '<span class="vb-bar"></span>'.repeat(5) + '</span>';
+      row.innerHTML =
+        '<div class="msg-avatar"></div>' +
+        '<div class="msg-content">' +
+          '<div class="msg-sender">我</div>' +
+          '<div class="msg-bubble-user voice-bubble" data-dur="' + duration + '" style="width:' + width + 'px;">' +
+            '<span class="vb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16 8a5 5 0 0 1 0 8M19.5 5.5a9 9 0 0 1 0 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></span>' +
+            wavesHtml +
+            '<span class="vb-dur">' + durStr + '</span>' +
+          '</div>' +
+        '</div>';
+      box.appendChild(row);
+      box.scrollTop = box.scrollHeight;
+      // 点击播放动画
+      var bubble = row.querySelector('.voice-bubble');
+      bubble.addEventListener('click', function () {
+        if (bubble.classList.contains('playing')) return;
+        bubble.classList.add('playing');
+        setTimeout(function () { bubble.classList.remove('playing'); }, duration * 1000);
+      });
+      // 演示：1秒后客服回复一条语音
+      setTimeout(function () {
+        if (window.csChat) {
+          // 客服回语音气泡（agent 方向：左时长+右声波+喇叭）
+          var agentRow = document.createElement('div');
+          agentRow.className = 'msg-row agent';
+          var agentWidth = Math.max(104, Math.min(104 + (duration - 1) * 6, 210));
+          agentRow.innerHTML =
+            '<div class="msg-avatar"></div>' +
+            '<div class="msg-content">' +
+              '<div class="msg-sender">客服 王小明</div>' +
+              '<div class="msg-bubble-agent voice-bubble" data-dur="' + duration + '" style="width:' + agentWidth + 'px;">' +
+                '<span class="vb-dur">' + durStr + '</span>' +
+                wavesHtml +
+                '<span class="vb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16 8a5 5 0 0 1 0 8M19.5 5.5a9 9 0 0 1 0 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></span>' +
+              '</div>' +
+            '</div>';
+          box.appendChild(agentRow);
+          box.scrollTop = box.scrollHeight;
+          var agentBubble = agentRow.querySelector('.voice-bubble');
+          agentBubble.addEventListener('click', function () {
+            if (agentBubble.classList.contains('playing')) return;
+            agentBubble.classList.add('playing');
+            setTimeout(function () { agentBubble.classList.remove('playing'); }, duration * 1000);
+          });
+        }
+      }, 800);
+    }
+
+    // ---- 事件绑定（同时支持 触摸 + 鼠标） ----
+    // 触摸事件
+    holdBtn.addEventListener('touchstart', startRecording, { passive: false });
+    holdBtn.addEventListener('touchmove', updateMove, { passive: false });
+    holdBtn.addEventListener('touchend', function () { stopRecording(false); });
+    holdBtn.addEventListener('touchcancel', function () { stopRecording(true); });
+    // 鼠标事件（PC 浏览器演示用）
+    holdBtn.addEventListener('mousedown', startRecording);
+    document.addEventListener('mousemove', function (e) { if (recording) updateMove(e); });
+    document.addEventListener('mouseup', function () { if (recording) stopRecording(false); });
+    // 防止文本选区
+    holdBtn.addEventListener('selectstart', function (e) { e.preventDefault(); });
+  })();
+
   // 更多面板：各功能项交互
   // 卡片类操作（order/product/cart/logistics/refund）> 发送真实富媒体卡片到会话
   // 其他操作（相册/相机/文件/电话/转接/结束）> 演示提示
@@ -243,7 +419,11 @@
 
     // 统一的卡片发送流程
     function sendCardFlow(key) {
-      if (key === 'rating') { if (window.csChat && window.csChat.sendRating) window.csChat.sendRating(); return; }
+      if (key === 'rating') {
+        // 服务评价：点击弹窗评价（与会话内评价卡片一模一样，复用 CsCommon.ratingCard）
+        if (window.csModal) csModal.open('modals/modal-service-rating.html', { variant: 'sheet', width: 375 });
+        return;
+      }
       if (!CARD_ACTIONS[key] || !window.csChat) return;
       var cardType = CARD_ACTIONS[key];
       // 需要选择对象的类型 > 先弹选择列表
@@ -252,7 +432,7 @@
           variant: 'sheet', width: 375,
           onConfirm: function (data) {
             if (data && data.action === 'pickObject') {
-              var objData = buildCardData(data.objectType, data.objectId, data.objectName, data.objectStatus);
+              var objData = buildCardData(data);
               window.csChat.sendCard(data.objectType, 'user', objData);
               setTimeout(function () {
                 window.csChat.sendText(CARD_REPLIES[data.objectType] || '好的，已收到您的信息。', 'agent');
@@ -269,12 +449,25 @@
       }
     }
 
-    // 根据选中对象构造卡片数据
-    function buildCardData(type, id, name, status) {
+    // 根据选中对象构造卡片数据（接收 picker 传回的完整 data 对象）
+    function buildCardData(d) {
+      var type = d.objectType;
+      var id = d.objectId;
+      var name = d.objectName;
+      var status = d.objectStatus;
       var map = {
         order: { order_id: id, order_status: status || '运输中', amount: '' },
         product: { product_id: id, product_name: name, price: '' },
-        refund: { refund_id: id, refund_type: '退货退款', refund_status: status || '审核中' },
+        refund: {
+          aftersale_id: id,
+          aftersale_type: d.aType || '退货退款',
+          aftersale_status: d.aStatus || status || '待商家审核',
+          refund_amount: d.aAmount || '',
+          product_name: d.aProduct || name || '',
+          reason: '商品质量问题',
+          apply_time: '2026-04-08 10:30',
+          supplement_remark: d.aRemark || ''
+        },
         logistics: { tracking_no: id, carrier: '顺丰速运' }
       };
       return map[type] || {};
@@ -287,10 +480,8 @@
         if (morePanel) morePanel.classList.remove('show');
         if (CARD_ACTIONS[key]) { sendCardFlow(key); return; }
         if (key === 'phone') {
-          if (window.confirm(ACTIONS.phone)) {
-            if (window.csModal) csModal.toast('正在拨打 400-888-8888…');
-            else alert('正在拨打 400-888-8888…');
-          }
+          // 直接跳转 tel: 协议，由手机系统拨号界面接管
+          location.href = 'tel:4008888888';
           return;
         }
         // 转人工：切换状态，快捷栏加结束会话，追加人工问候语
@@ -605,9 +796,7 @@
         contact: '已返回会话继续沟通',
         // 退款
         viewProgress: '已在新标签页打开退款进度',
-        supplement: '已在新标签页打开退款详情（补充说明）',
-        fillLogistics: '已在新标签页打开退款详情（填写退货物流）',
-        revoke: '退款申请已撤销',
+        // 注：supplement/revoke/fillLogistics 已改为弹窗交互，在事件委托阶段拦截，不走 handleCardAction
         // 购物车
         viewCart: '已在新标签页打开购物车',
         checkout: '已在新标签页打开订单确认页',
@@ -672,14 +861,7 @@
           var c = caseMap[d.refundStatus] || 'refund_return_approved';
           return '../../../mini-program/pages/refund_detail.html?case=' + c;
         },
-        // 退款-填写退货物流：跳转到退款详情页（定位到填写物流）
-        fillLogistics: function (d) {
-          return '../../../mini-program/pages/refund_detail.html?case=refund_return_approved';
-        },
-        // 退款-补充说明：跳转到退款详情页
-        supplement: function (d) {
-          return '../../../mini-program/pages/refund_detail.html?case=refund_only_reviewing';
-        },
+        // 注：supplement/fillLogistics/revoke 已改为弹窗交互，不再跳转
         // 购物车：跳转到 mini-program 购物车页
         viewCart: function (d) {
           return '../../../mini-program/pages/cart.html';
@@ -758,10 +940,14 @@
         if (orderId) data.orderId = orderId;
         if (refundId) data.refundId = refundId;
 
+        // ===== 走弹窗交互的售后操作（supplement/revoke/fillLogistics）=====
+        if (action === 'supplement' || action === 'revoke' || action === 'fillLogistics') {
+          handleRefundModalAction(btn, action);
+          return;
+        }
+
         // 需确认的操作
-        if (action === 'revoke') {
-          if (!window.confirm('确认撤销该退款申请？撤销后无法恢复')) return;
-        } else if (action === 'cancel') {
+        if (action === 'cancel') {
           if (!window.confirm('确认取消该订单？取消后关联的退款申请将自动撤销')) return;
           // 联动：取消订单 > 自动撤销关联退款
           var card = btn.closest('.thread-card');
@@ -777,6 +963,62 @@
         return;
       }
     });
+
+    // ===== 售后操作弹窗（补充说明/撤销/填写物流）=====
+    // 从按钮 data 属性读取退款单信息，打开对应弹窗
+    function handleRefundModalAction(btn, action) {
+      var rid = btn.getAttribute('data-refund-id') || '';
+      var rtype = btn.getAttribute('data-refund-type') || '退货退款';
+      var rstatus = btn.getAttribute('data-refund-status') || '';
+      var ramount = btn.getAttribute('data-refund-amount') || '';
+      var remark = btn.getAttribute('data-supplement-remark') || '';
+
+      if (!window.csModal) return;
+      var base = 'modals/modal-refund-';
+      var url = '', onConfirm;
+
+      if (action === 'supplement') {
+        url = base + 'supplement.html?id=' + encodeURIComponent(rid) +
+          '&amount=' + encodeURIComponent(ramount) +
+          '&status=' + encodeURIComponent(rstatus) +
+          '&remark=' + encodeURIComponent(remark);
+        onConfirm = function (d) {
+          // 保存补充说明：把新备注写回按钮 data 属性，供下次打开时回填
+          if (d && d.remark != null) {
+            btn.setAttribute('data-supplement-remark', d.remark);
+          }
+          insertSystemMsg('补充说明已保存');
+        };
+      } else if (action === 'revoke') {
+        url = base + 'revoke.html?id=' + encodeURIComponent(rid) +
+          '&amount=' + encodeURIComponent(ramount) +
+          '&status=' + encodeURIComponent(rstatus) +
+          '&type=' + encodeURIComponent(rtype);
+        onConfirm = function (d) {
+          // 撤销成功：按钮置灰，卡片状态不变（演示）
+          btn.classList.add('done');
+          // 同卡片内"补充说明"按钮也置灰（撤销后不可再补充）
+          var card = btn.closest('.thread-card');
+          if (card) {
+            var suppBtn = card.querySelector('[data-cs-action="supplement"]');
+            if (suppBtn) suppBtn.classList.add('done');
+          }
+          insertSystemMsg('退款申请已撤销');
+        };
+      } else if (action === 'fillLogistics') {
+        url = base + 'logistics.html?id=' + encodeURIComponent(rid) +
+          '&amount=' + encodeURIComponent(ramount) +
+          '&status=' + encodeURIComponent(rstatus);
+        onConfirm = function (d) {
+          // 物流提交成功：按钮置灰并改文案，状态推进
+          btn.classList.add('done');
+          btn.textContent = '已填写物流';
+          insertSystemMsg('物流信息已提交，等待商家收货');
+        };
+      }
+
+      window.csModal.open(url, { variant: 'sheet', width: 375, onConfirm: onConfirm });
+    }
 
     box.addEventListener('click', function (e) {
       var action = e.target.closest('.card-action');
@@ -812,6 +1054,22 @@
       }
       // 用户消息撤回（长按/右键，2 分钟内）
       if (box && CsCommon.bindRecall) CsCommon.bindRecall(box);
+
+      // [原型演示] 模拟客服撤回最近一条客服消息
+      // 生产环境：客服端点撤回 → 后端推送 recall 事件 → 用户端收到后调用 CsCommon.renderAgentRecalled(row)
+      var simBtn = document.getElementById('simAgentRecall');
+      if (simBtn) simBtn.addEventListener('click', function () {
+        var box2 = document.getElementById('chatMessages');
+        if (!box2) return;
+        // 找最后一条未被撤回的客服消息行
+        var agentRows = box2.querySelectorAll('.msg-row:not(.user)');
+        var target = null;
+        for (var i = agentRows.length - 1; i >= 0; i--) {
+          if (!agentRows[i].classList.contains('is-recalled')) { target = agentRows[i]; break; }
+        }
+        if (!target) { if (window.csModal) csModal.toast('没有可撤回的客服消息'); return; }
+        CsCommon.renderAgentRecalled(target);
+      });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
