@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>物流追踪 - 苏银豆商城</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+  /* Package card */
+  .package-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    margin: var(--space-sm) 12px;
+    overflow: hidden;
+  }
+  .package-card + .package-card { margin-top: var(--space-sm); }
+
+  /* Courier header */
+  .courier-header {
+    padding: var(--space-lg) 12px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .courier-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--primary-start), var(--price-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .courier-icon svg { width: 20px; height: 20px; color: var(--card-bg); }
+  .courier-info { flex: 1; }
+  .courier-name { font-size: var(--font-base); font-weight: 600; color: var(--text-color); margin-bottom: 2px; }
+  .courier-no { font-size: var(--font-sm); color: var(--text-tertiary); }
+  .courier-copy {
+    font-size: var(--font-sm);
+    color: var(--primary-start);
+    border: 1px solid var(--primary-start);
+    padding: 2px var(--space-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+  .courier-copy:active { background: var(--selected-bg); }
+
+  /* Products in package */
+  .package-products {
+    padding: var(--space-md) 12px;
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .pkg-product-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) 0;
+  }
+  .pkg-product-item + .pkg-product-item { margin-top: var(--space-xs); }
+  .pkg-product-item .pp-img {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-input);
+  }
+  .pkg-product-item .pp-img img { width: 100%; height: 100%; object-fit: cover; }
+  .pkg-product-item .pp-name {
+    flex: 1;
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pkg-product-item .pp-qty {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  /* Package status bar */
+  .package-status {
+    padding: var(--space-md) 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .package-status:active { background: var(--hover-bg); }
+  .package-status .status-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .status-dot.shipping { background: var(--primary-start); }
+  .status-dot.delivered { background: var(--success-color); }
+  .status-dot.pending { background: var(--warning-color); }
+  .status-text {
+    font-size: var(--font-sm);
+    color: var(--primary-start);
+    font-weight: 500;
+  }
+  .status-text.delivered { color: var(--success-color); }
+  .status-text.pending { color: var(--warning-color); }
+  .status-time {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .status-toggle {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .status-toggle svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s;
+  }
+  .status-toggle.expanded svg { transform: rotate(180deg); }
+
+  /* Timeline */
+  .timeline-section {
+    padding: 0 var(--space-md) var(--space-md);
+    display: none;
+  }
+  .timeline-section.show { display: block; }
+  .timeline {
+    position: relative;
+    padding-left: var(--space-xl);
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--border-color);
+  }
+  .timeline-item {
+    position: relative;
+    padding-bottom: var(--space-lg);
+  }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item .dot {
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-disabled);
+    border: 2px solid var(--card-bg);
+  }
+  .timeline-item:first-child .dot {
+    background: var(--primary-start);
+    box-shadow: 0 0 0 3px rgba(255,96,52,0.2);
+  }
+  .timeline-item .tl-content {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2px;
+  }
+  .timeline-item:first-child .tl-content { color: var(--text-color); font-weight: 500; }
+  .timeline-item .tl-time {
+    font-size: var(--font-sm);
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Sub-page Navigation -->
+  <div class="sub-nav">
+    <div class="status-bar dark">
+      <span class="time">09:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div class="back-btn" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="nav-title">物流追踪</span>
+      <div class="capsule-btn"><img src="../images/icons/小程序按钮.svg" alt=""></div>
+    </div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="page-scroll" id="packageList">
+
+    <!-- Package cards rendered by JS -->
+
+  </div>
+
+<!-- 客服悬浮按钮 -->
+<button class="cs-fab-entry" data-cs-tag="logistics" data-cs-skip-panel="true" title="联系客服">
+  <span class="cs-fab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+  <span class="cs-fab-text">联系客服</span>
+</button>
+</div>
+<link rel="stylesheet" href="../css/cs-panel.css">
+<script src="../js/common.js"></script>
+<script>
+(function() {
+  var packages = [
+    {
+      id: 1,
+      courier: '顺丰速运',
+      trackingNo: 'SF1234567890',
+      status: 'shipping',
+      statusText: '运输中',
+      updateTime: '04-08 08:35',
+      products: [
+        { name: '日本进口保温杯 不锈钢真空便携水杯500ml', qty: 1, img: '../images/unsplash/1602143407151-7111542de6e8.jpg' },
+        { name: '纯棉短袖T恤男女款 夏季宽松百搭潮流', qty: 1, img: '../images/unsplash/1521572163474-6864f9cf17ab.jpg' }
+      ],
+      timeline: [
+        { content: '【北京市】 快件已到达 北京朝阳区营业点，正在派送中，快递员：李师傅 138****6666', time: '2026-04-08 08:35' },
+        { content: '【北京市】 快件已从 北京转运中心 发出，下一站 北京朝阳区营业点', time: '2026-04-08 05:22' },
+        { content: '【南京市】 快件已从 南京转运中心 发出', time: '2026-04-07 22:15' },
+        { content: '【南京市】 快件已从 江苏银行仓库 发出', time: '2026-04-07 16:30' }
+      ]
+    },
+    {
+      id: 2,
+      courier: '中通快递',
+      trackingNo: 'ZT2026040700001',
+      status: 'delivered',
+      statusText: '已签收',
+      updateTime: '04-09 14:20',
+      products: [
+        { name: '无线蓝牙降噪耳机 迷你入耳式超长续航', qty: 1, img: '../images/unsplash/1505740420928-5e560c06d30e.jpg' }
+      ],
+      timeline: [
+        { content: '【北京市】 已签收，签收人：本人签收', time: '2026-04-09 14:20' },
+        { content: '【北京市】 快件正在派送中，快递员：王师傅 139****7777', time: '2026-04-09 08:10' },
+        { content: '【北京市】 快件已到达 北京朝阳区营业点', time: '2026-04-09 06:30' },
+        { content: '【南京市】 快件已从 南京转运中心 发出', time: '2026-04-08 20:00' }
+      ]
+    }
+  ];
+
+  function renderPackages() {
+    var html = '';
+    packages.forEach(function(pkg) {
+      var productsHtml = '';
+      pkg.products.forEach(function(p) {
+        productsHtml += '<div class="pkg-product-item">' +
+          '<div class="pp-img"><img src="' + p.img + '" alt=""></div>' +
+          '<span class="pp-name">' + p.name + '</span>' +
+          '<span class="pp-qty">x' + p.qty + '</span>' +
+        '</div>';
+      });
+
+      var timelineHtml = '';
+      pkg.timeline.forEach(function(t) {
+        timelineHtml += '<div class="timeline-item">' +
+          '<div class="dot"></div>' +
+          '<div class="tl-content">' + t.content + '</div>' +
+          '<div class="tl-time">' + t.time + '</div>' +
+        '</div>';
+      });
+
+      html += '<div class="package-card">' +
+        '<div class="courier-header">' +
+          '<div class="courier-icon">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' +
+          '</div>' +
+          '<div class="courier-info">' +
+            '<div class="courier-name">' + pkg.courier + '</div>' +
+            '<div class="courier-no">' + pkg.trackingNo + '</div>' +
+          '</div>' +
+          '<span class="courier-copy" onclick="alert(\'已复制单号\')">复制</span>' +
+        '</div>' +
+        '<div class="package-products">' + productsHtml + '</div>' +
+        '<div class="package-status" data-pkg="' + pkg.id + '">' +
+          '<div class="status-left">' +
+            '<span class="status-dot ' + pkg.status + '"></span>' +
+            '<span class="status-text ' + pkg.status + '">' + pkg.statusText + '</span>' +
+            '<span class="status-time">' + pkg.updateTime + '</span>' +
+          '</div>' +
+          '<div class="status-toggle" id="toggle-' + pkg.id + '">' +
+            '<span>物流详情</span>' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+          '</div>' +
+        '</div>' +
+        '<div class="timeline-section" id="timeline-' + pkg.id + '">' +
+          '<div class="timeline">' + timelineHtml + '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    document.getElementById('packageList').innerHTML = html;
+    bindToggleEvents();
+  }
+
+  function bindToggleEvents() {
+    document.querySelectorAll('.package-status').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var pkgId = this.dataset.pkg;
+        var timeline = document.getElementById('timeline-' + pkgId);
+        var toggle = document.getElementById('toggle-' + pkgId);
+        var isShow = timeline.classList.contains('show');
+        timeline.classList.toggle('show');
+        toggle.classList.toggle('expanded');
+      });
+    });
+  }
+
+  renderPackages();
+})();
+</script>
+<script src="../js/theme-switcher.js"></script>
+<script src="../js/cs-panel.js"></script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>我的积分 - 苏银豆商城</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+  .points-sub-nav {
+    background: linear-gradient(180deg, rgba(65, 67, 72, 0.96) 0%, rgba(86, 83, 77, 0.92) 100%);
+  }
+  .points-sub-nav .status-bar,
+  .points-sub-nav .nav-title,
+  .points-sub-nav .back-btn svg {
+    color: var(--card-bg);
+  }
+  .points-sub-nav .status-bar .icons svg {
+    fill: var(--card-bg);
+  }
+  .title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .title-wrap .bean {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--vip-gold-light), var(--primary-start));
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.35);
+  }
+  .points-page {
+    background: var(--bg-color);
+    min-height: calc(100vh - 88px);
+  }
+  .hero-wrap {
+    padding: 0 var(--space-md) var(--space-md);
+    background: linear-gradient(180deg, rgba(86, 83, 77, 0.92) 0%, rgba(86, 83, 77, 0) 100%);
+  }
+  .hero-card {
+    position: relative;
+    overflow: hidden;
+    padding: var(--space-xl) var(--space-lg) var(--space-lg);
+    border-radius: var(--radius-lg);
+    color: var(--card-bg);
+    background:
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 28%),
+      linear-gradient(135deg, var(--primary-start) 0%, var(--primary-start) 42%, var(--price-color) 100%);
+    box-shadow: 0 12px 30px rgba(18, 32, 56, 0.12);
+  }
+  .hero-foot {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+  .hero-metric {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-md) 12px;
+    border-radius: var(--radius-md);
+    background: rgba(255,255,255,0.16);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .hero-metric:active {
+    transform: scale(0.98);
+  }
+  .hero-metric:hover {
+    background: rgba(255,255,255,0.2);
+  }
+  .hero-metric.static {
+    cursor: default;
+  }
+  .hero-metric.static:active {
+    transform: none;
+  }
+  .hero-metric-label {
+    display: block;
+    font-size: var(--font-sm);
+    color: rgba(255,255,255,0.82);
+    margin-bottom: var(--space-xs);
+  }
+  .hero-metric-value {
+    display: block;
+    font-size: var(--font-lg);
+    font-weight: 700;
+    color: var(--card-bg);
+  }
+  .main {
+    padding: 0 var(--space-md) var(--space-lg);
+  }
+  .section {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: 0 12px 30px rgba(18, 32, 56, 0.08);
+  }
+  .section-title {
+    margin-bottom: var(--space-md);
+  }
+  .section-title h3 {
+    font-size: var(--font-md);
+    color: var(--text-dark);
+  }
+  .service-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .service-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-lg) 12px;
+    border-radius: var(--radius-lg);
+    background: var(--card-bg)7f2;
+    cursor: pointer;
+  }
+  .service-item:active {
+    opacity: 0.85;
+  }
+  .service-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    min-width: 0;
+  }
+  .service-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-start), var(--price-color));
+    color: var(--card-bg);
+    font-size: var(--font-base);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .service-text strong {
+    display: block;
+    font-size: var(--font-base);
+    color: var(--text-dark);
+  }
+  .entry-arrow {
+    font-size: var(--font-lg);
+    color: var(--text-light);
+    flex-shrink: 0;
+  }
+  .hero-value-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+  .hero-value {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .view-btn {
+    padding: var(--space-xs) 12px;
+    border-radius: 999px;
+    font-size: var(--font-sm);
+    color: var(--card-bg);
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .view-btn:active {
+    background: rgba(255,255,255,0.35);
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <div class="sub-nav points-sub-nav">
+    <div class="status-bar">
+      <span class="time">09:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div class="back-btn" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="nav-title">
+        <span class="title-wrap"><span class="bean"></span><span>我的积分</span></span>
+      </span>
+      <div class="capsule-btn"><img src="../images/icons/小程序按钮.svg" alt=""></div>
+    </div>
+  </div>
+
+  <div class="page-scroll points-page">
+    <div class="hero-wrap">
+      <div class="hero-card">
+        <div class="hero-value-row">
+          <div class="hero-value">2,860</div>
+          <span class="view-btn" onclick="location.href='#'">查看</span>
+        </div>
+        <div class="hero-foot">
+          <div class="hero-metric static">
+            <span class="hero-metric-label">已消费积分</span>
+            <span class="hero-metric-value">420</span>
+          </div>
+          <div class="hero-metric" onclick="location.href='#'">
+            <span class="hero-metric-label">即将失效</span>
+            <span class="hero-metric-value">120</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="section">
+        <div class="section-title">
+          <h3>积分服务</h3>
+        </div>
+        <div class="service-list">
+          <div class="service-item" onclick="location.href='#'">
+            <div class="service-left">
+              <div class="service-icon">明</div>
+              <div class="service-text">
+                <strong>积分变动明细</strong>
+              </div>
+            </div>
+            <div class="entry-arrow">›</div>
+          </div>
+          <div class="service-item" onclick="location.href='#'">
+            <div class="service-left">
+              <div class="service-icon">卡</div>
+              <div class="service-text">
+                <strong>积分卡券兑换</strong>
+              </div>
+            </div>
+            <div class="entry-arrow">›</div>
+          </div>
+          <div class="service-item" onclick="location.href='#'">
+            <div class="service-left">
+              <div class="service-icon">影</div>
+              <div class="service-text">
+                <strong>兑换电影票次卡</strong>
+              </div>
+            </div>
+            <div class="entry-arrow">›</div>
+          </div>
+          <div class="service-item" onclick="location.href='#'">
+            <div class="service-left">
+              <div class="service-icon">消</div>
+              <div class="service-text">
+                <strong>兑换记录</strong>
+              </div>
+            </div>
+            <div class="entry-arrow">›</div>
+          </div>
+          <div class="service-item" onclick="location.href='#'">
+            <div class="service-left">
+              <div class="service-icon">规</div>
+              <div class="service-text">
+                <strong>积分兑换规则</strong>
+              </div>
+            </div>
+            <div class="entry-arrow">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="../js/auth.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/common.js"></script>
+<script src="../js/theme-switcher.js"></script>
+</body>
+</html>

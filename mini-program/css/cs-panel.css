@@ -1,0 +1,154 @@
+/* ===== 在线客服 - 咨询方式选择面板 ===== */
+
+/* 悬浮客服按钮（定位在 phone-frame 内部右下角） */
+/* 默认常显（首页/物流页等无需滚动即可看到） */
+/* 支持拖拽 + 松手吸边（AC-U-06/07），Pointer Events 接管 */
+.cs-fab-entry {
+  position: absolute;
+  right: 12px;
+  bottom: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: grab;
+  z-index: 200;
+  transition: transform .2s, opacity .3s, visibility .3s, left .3s cubic-bezier(.2,.8,.2,1), right .3s cubic-bezier(.2,.8,.2,1), top .3s cubic-bezier(.2,.8,.2,1);
+  padding: 0;
+  font-family: inherit;
+  opacity: 1;
+  visibility: visible;
+  touch-action: none; /* 让 pointer 事件接管，避免页面滚动干扰 */
+  user-select: none;
+}
+/* 兼容旧逻辑：show 类不再必要，但保留以防外部调用 */
+.cs-fab-entry.show {
+  opacity: 1;
+  visibility: visible;
+}
+/* 购物车页：移到左下角，避开右侧结算 bar */
+.cs-fab-entry.cs-fab-cart {
+  left: 12px;
+  right: auto;
+  bottom: 124px;
+}
+.cs-fab-entry:hover {
+  transform: scale(1.05);
+}
+.cs-fab-entry:active {
+  transform: scale(.95);
+}
+/* 拖拽中：放大、半透明、禁用 transition（跟随手指实时移动） */
+.cs-fab-entry.dragging {
+  cursor: grabbing;
+  transform: scale(1.12);
+  opacity: 0.9;
+  transition: none;
+}
+.cs-fab-entry.dragging:hover,
+.cs-fab-entry.dragging:active {
+  transform: scale(1.12);
+}
+.cs-fab-entry .cs-fab-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(238,10,36,.35);
+}
+.cs-fab-entry .cs-fab-icon svg {
+  width: 24px;
+  height: 24px;
+}
+.cs-fab-entry .cs-fab-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* 遮罩（半透明灰，点击空白处关闭） */
+.cs-panel-mask {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 10000;
+  opacity: 0; visibility: hidden;
+  transition: opacity .25s, visibility .25s;
+  display: flex; align-items: center; justify-content: center;
+}
+.cs-panel-mask.show { opacity: 1; visibility: visible; }
+
+/* 3 个圆形按钮居中横排（浮窗样式） */
+.cs-panel-opts {
+  display: flex; gap: 32px;
+  z-index: 10001;
+  transform: scale(.85); opacity: 0;
+  transition: transform .28s cubic-bezier(.32,.72,.35,1), opacity .28s;
+}
+.cs-panel-opts.show { transform: scale(1); opacity: 1; }
+
+.cs-panel-opt {
+  display: flex; flex-direction: column; align-items: center;
+  background: none; border: none;
+  cursor: pointer; padding: 0;
+  font-family: inherit;
+  transition: transform .15s;
+}
+.cs-panel-opt:hover { transform: translateY(-3px); }
+.cs-panel-opt:active { transform: scale(.94); }
+.cs-panel-opt .opt-icon {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+  color: #fff;
+}
+/* 配色：在线咨询=主色红，电话客服=深灰，商务合作=金色（与品牌色系协调） */
+.cs-panel-opt .opt-icon.online {
+  background: linear-gradient(135deg, var(--primary-start, #ee0a24), var(--primary-end, #ff6034));
+  box-shadow: 0 6px 18px rgba(238,10,36,.4);
+}
+.cs-panel-opt .opt-icon.phone {
+  background: linear-gradient(135deg, #3a3a3a, #595959);
+  box-shadow: 0 6px 18px rgba(58,58,58,.4);
+}
+.cs-panel-opt .opt-icon.business {
+  background: linear-gradient(135deg, #c9a96e, #e6c693);
+  box-shadow: 0 6px 18px rgba(201,169,110,.4);
+}
+.cs-panel-opt .opt-icon svg { width: 28px; height: 28px; }
+.cs-panel-opt .opt-name {
+  font-size: 13px; font-weight: 600; color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+
+/* 页面内联客服按钮（商品详情/订单详情等） */
+.cs-inline-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+}
+.cs-inline-btn:hover {
+  color: var(--primary-start);
+  border-color: var(--primary-start);
+  background: #fff5f0;
+}
+.cs-inline-btn svg {
+  width: 16px; height: 16px;
+}

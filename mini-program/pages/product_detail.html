@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>商品详情 - 苏银豆商城</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+  /* Fix phone-frame to viewport for absolute popups */
+  .phone-frame {
+    height: 100vh;
+    overflow: hidden;
+  }
+  .page-scroll {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  /* Product image swiper */
+  .detail-swiper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--bg-input);
+    overflow: hidden;
+  }
+  .detail-swiper-wrapper {
+    display: flex;
+    transition: transform 0.3s ease;
+    height: 100%;
+  }
+  .detail-swiper-slide {
+    min-width: 100%;
+    height: 100%;
+  }
+  .detail-swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .detail-swiper-indicator {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.4);
+    color: var(--card-bg);
+    font-size: var(--font-sm);
+    padding: 2px var(--space-sm);
+    border-radius: var(--radius-md);
+  }
+
+  /* Price area */
+  .price-area {
+    background: var(--card-bg);
+    padding: var(--space-lg) var(--space-md);
+  }
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+  .price-row .current-price {
+    color: var(--price-color);
+    font-size: var(--font-2xl);
+    font-weight: 700;
+  }
+  .price-row .current-price .symbol { font-size: var(--font-base); }
+  .price-row .original-price {
+    font-size: var(--font-sm);
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+  .price-row .discount-tag {
+    background: linear-gradient(135deg, var(--primary-start), var(--price-color));
+    color: var(--card-bg);
+    font-size: var(--font-xs);
+    padding: 2px var(--space-sm);
+    border-radius: var(--radius-xs);
+    font-weight: 600;
+  }
+  .price-area .sold-info {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .product-title-area {
+    background: var(--card-bg);
+    padding: 0 var(--space-md) var(--space-lg);
+  }
+  .product-title-area .title {
+    font-size: var(--font-md);
+    font-weight: 600;
+    color: var(--text-color);
+    line-height: 1.5;
+    margin-bottom: var(--space-sm);
+  }
+  .product-title-area .sub-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .product-title-area .sub-info .tag-small {
+    background: var(--selected-bg);
+    color: var(--primary-start);
+    padding: 1px var(--space-sm);
+    border-radius: var(--radius-xs);
+    font-size: var(--font-xs);
+  }
+
+  /* Coupon entry */
+  .coupon-entry {
+    background: var(--card-bg);
+    margin-top: var(--space-sm);
+    padding: var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .coupon-entry:active { background: var(--hover-bg); }
+  .coupon-entry .left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--font-sm);
+    color: var(--text-color);
+  }
+  .coupon-entry .coupon-tag {
+    background: var(--price-color);
+    color: var(--card-bg);
+    font-size: var(--font-xs);
+    padding: 2px var(--space-sm);
+    border-radius: var(--radius-xs);
+  }
+  .coupon-entry .right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .coupon-entry .right svg { width: 14px; height: 14px; }
+
+  /* Address section */
+  .address-section {
+    background: var(--card-bg);
+    margin-top: var(--space-sm);
+    padding: var(--space-md);
+    cursor: pointer;
+  }
+  .address-section:active { background: var(--hover-bg); }
+  .address-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  .address-row svg { width: 16px; height: 16px; color: var(--primary-start); flex-shrink: 0; margin-top: 2px; }
+  .address-info { flex: 1; }
+  .address-info .addr-text {
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    line-height: 1.5;
+  }
+  .address-info .addr-hint {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+  .address-arrow svg { width: 14px; height: 14px; color: var(--text-light); margin-top: 2px; }
+
+  /* Out of stock */
+  .out-of-stock-bar {
+    display: none;
+    background: var(--card-bg)3f0;
+    padding: var(--space-md) 12px;
+    font-size: var(--font-sm);
+    color: var(--price-color);
+    font-weight: 500;
+  }
+  .out-of-stock-bar.show { display: flex; align-items: center; gap: var(--space-sm); }
+  .out-of-stock-bar svg { width: 16px; height: 16px; color: var(--price-color); flex-shrink: 0; }
+
+  /* Address popup */
+  .addr-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+  }
+  .addr-overlay.show { display: block; }
+  .addr-popup {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg) 16px 0 0;
+    z-index: 301;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  }
+  .addr-popup.show { display: block; }
+  .addr-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg) 12px 8px;
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .addr-popup-header .title { font-size: var(--font-md); font-weight: 600; color: var(--text-color); }
+  .addr-popup-header .close-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .addr-popup-header .close-btn svg { width: 18px; height: 18px; color: var(--text-tertiary); }
+  .addr-list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--bg-color);
+    cursor: pointer;
+  }
+  .addr-list-item:active { background: var(--hover-bg); }
+  .addr-list-item .addr-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--text-disabled);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .addr-list-item .addr-radio.checked {
+    background: var(--primary-start);
+    border-color: var(--primary-start);
+  }
+  .addr-list-item .addr-radio.checked::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border: 2px solid var(--card-bg);
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .addr-list-item .addr-detail { flex: 1; }
+  .addr-list-item .addr-name-phone { font-size: var(--font-base); color: var(--text-color); font-weight: 500; margin-bottom: 2px; }
+  .addr-list-item .addr-full { font-size: var(--font-sm); color: var(--text-tertiary); line-height: 1.4; }
+  .addr-list-item .addr-tag {
+    font-size: var(--font-xs);
+    color: var(--primary-start);
+    background: var(--selected-bg);
+    padding: 1px var(--space-xs);
+    border-radius: var(--radius-xs);
+    margin-left: var(--space-sm);
+  }
+
+  /* Specs section */
+  .specs-section {
+    background: var(--card-bg);
+    margin-top: var(--space-sm);
+    padding: var(--space-md);
+    cursor: pointer;
+  }
+  .specs-section:active { background: var(--hover-bg); }
+  .specs-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .specs-row .label { font-size: var(--font-sm); color: var(--text-color); }
+  .specs-row .value {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .specs-row .value svg { width: 14px; height: 14px; }
+
+  /* Reviews */
+  .review-section {
+    background: var(--card-bg);
+    margin-top: var(--space-sm);
+    padding: var(--space-md);
+  }
+  .review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-md);
+  }
+  .review-header .title { font-size: var(--font-base); font-weight: 600; color: var(--text-color); }
+  .review-header .count { font-size: var(--font-sm); color: var(--text-tertiary); }
+  .review-item {
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .review-item:last-child { border-bottom: none; }
+  .review-user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+  .review-user .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--border-divider);
+    overflow: hidden;
+  }
+  .review-user .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .review-user .name { font-size: var(--font-sm); color: var(--text-secondary); }
+  .review-user .stars { margin-left: auto; color: var(--primary-start); font-size: var(--font-sm); }
+  .review-content { font-size: var(--font-sm); color: var(--text-color); line-height: 1.6; }
+  .review-date { font-size: var(--font-sm); color: var(--text-muted); margin-top: var(--space-xs); }
+
+  /* Detail images */
+  .detail-images {
+    background: var(--card-bg);
+    margin-top: var(--space-sm);
+    padding: var(--space-md);
+  }
+  .detail-images .title {
+    font-size: var(--font-base);
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: var(--space-md);
+    text-align: center;
+  }
+  .detail-images img {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  /* Bottom action bar */
+  .detail-action-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    height: 56px;
+    border-top: 1px solid var(--border-color);
+    z-index: 200;
+    padding-bottom: var(--space-sm);
+  }
+  .action-icons {
+    display: flex;
+    gap: 0;
+  }
+  .action-icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--space-xs) 14px;
+    cursor: pointer;
+    font-size: var(--font-xs);
+    color: var(--text-secondary);
+  }
+  .action-icon-item svg { width: 20px; height: 20px; }
+  .action-icon-item .cart-badge-icon {
+    position: relative;
+  }
+  .action-icon-item .cart-badge-icon .badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: var(--price-color);
+    color: var(--card-bg);
+    font-size: var(--font-xs);
+    min-width: 14px;
+    height: 14px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--space-xs);
+  }
+  .action-buttons {
+    display: flex;
+    flex: 1;
+    gap: 0;
+  }
+  .btn-add-cart {
+    flex: 1;
+    height: 40px;
+    background: linear-gradient(135deg, var(--warning-light), var(--warning-color));
+    color: var(--card-bg);
+    border: none;
+    font-size: var(--font-base);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-buy-now {
+    flex: 1;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-start), var(--price-color));
+    color: var(--card-bg);
+    border: none;
+    font-size: var(--font-base);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-add-cart:active, .btn-buy-now:active { opacity: 0.85; }
+
+  /* ===== Spec Popup ===== */
+  .spec-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    display: none;
+  }
+  .spec-overlay.show { display: block; }
+
+  .spec-popup {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg) 16px 0 0;
+    z-index: 301;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+  .spec-popup.show { transform: translateY(0); }
+
+  .spec-popup-header {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--bg-color);
+    position: relative;
+  }
+  .spec-popup-header .thumb {
+    width: 90px;
+    height: 90px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-input);
+    margin-top: -30px;
+    box-shadow: var(--shadow-md);
+  }
+  .spec-popup-header .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .spec-popup-header .info { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+  .spec-popup-header .popup-price {
+    color: var(--price-color);
+    font-size: var(--font-xl);
+    font-weight: 700;
+  }
+  .spec-popup-header .popup-price .symbol { font-size: var(--font-sm); }
+  .spec-popup-header .popup-stock { font-size: var(--font-sm); color: var(--text-tertiary); margin-top: var(--space-xs); }
+  .spec-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-tertiary);
+  }
+  .spec-popup-close svg { width: 18px; height: 18px; }
+
+  .spec-popup-body { padding: var(--space-lg); }
+
+  .spec-group { margin-bottom: var(--space-lg); }
+  .spec-group-title { font-size: var(--font-sm); color: var(--text-color); font-weight: 600; margin-bottom: var(--space-md); }
+  .spec-options { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+  .spec-option {
+    padding: var(--space-sm) 14px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--text-disabled);
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    cursor: pointer;
+    background: var(--card-bg);
+    transition: all 0.15s;
+  }
+  .spec-option:active { opacity: 0.8; }
+  .spec-option.selected {
+    border-color: var(--primary-start);
+    color: var(--primary-start);
+    background: var(--selected-bg);
+  }
+
+  .spec-qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--bg-color);
+  }
+  .spec-qty-row .qty-label { font-size: var(--font-sm); color: var(--text-color); font-weight: 600; }
+  .spec-qty-control {
+    display: flex;
+    align-items: center;
+  }
+  .spec-qty-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--text-disabled);
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .spec-qty-btn:first-child { border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
+  .spec-qty-btn:last-child { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+  .spec-qty-btn:active { background: var(--bg-color); }
+  .spec-qty-btn.disabled { color: var(--text-disabled); pointer-events: none; }
+  .spec-qty-num {
+    width: 40px;
+    height: 28px;
+    border-top: 1px solid var(--text-disabled);
+    border-bottom: 1px solid var(--text-disabled);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-base);
+    color: var(--text-color);
+  }
+
+  .spec-popup-footer {
+    padding: var(--space-md) 16px 20px;
+  }
+  .spec-confirm-btn {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-size: var(--font-md);
+    font-weight: 600;
+    color: var(--card-bg);
+    cursor: pointer;
+  }
+  .spec-confirm-btn:active { opacity: 0.85; }
+  .spec-confirm-btn.cart { background: linear-gradient(135deg, var(--warning-light), var(--warning-color)); }
+  .spec-confirm-btn.buy { background: linear-gradient(135deg, var(--primary-start), var(--price-color)); }
+  .spec-confirm-btn.fav { background: linear-gradient(135deg, var(--primary-start), var(--price-color)); }
+
+  /* ===== Favorite icon active state ===== */
+  .action-icon-item.fav-active svg { color: var(--price-color); fill: var(--price-color); }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Sub-page Navigation -->
+  <div class="sub-nav">
+    <div class="status-bar dark">
+      <span class="time">09:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div class="back-btn" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="nav-title">商品详情</span>
+      <div class="capsule-btn"><img src="../images/icons/小程序按钮.svg" alt=""></div>
+    </div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="page-scroll" style="padding-bottom: 64px;">
+
+    <!-- Image Swiper -->
+    <div class="detail-swiper" id="detailSwiper">
+      <div class="detail-swiper-wrapper" id="detailSwiperWrapper"></div>
+      <div class="detail-swiper-indicator"><span id="currentSlide">1</span>/<span id="totalSlide">3</span></div>
+    </div>
+
+    <!-- Price Area -->
+    <div class="price-area">
+      <div class="price-row">
+        <span class="current-price"><span class="symbol">&yen;</span>68</span>
+        <span class="original-price">&yen;168</span>
+        <span class="discount-tag">4折</span>
+      </div>
+      <div class="sold-info">已售2.3万件 · 好评率98%</div>
+    </div>
+
+    <!-- Title Area -->
+    <div class="product-title-area">
+      <div class="title" id="productTitle">日本进口保温杯 不锈钢真空便携水杯500ml 大容量男女通用 304不锈钢内胆 12小时保温保冷</div>
+      <div class="sub-info">
+        <span class="tag-small">正品保障</span>
+        <span class="tag-small">7天无理由</span>
+        <span class="tag-small">极速退款</span>
+      </div>
+    </div>
+
+    <!-- Coupon Entry -->
+    <div class="coupon-entry" id="couponEntry">
+      <div class="left">
+        <span class="coupon-tag">券</span>
+        <span>满100减20 / 满200减50</span>
+      </div>
+      <div class="right">
+        <span>领取</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Delivery Address -->
+    <div class="address-section" id="addressEntry" onclick="openAddrPopup()">
+      <div class="address-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div class="address-info">
+          <div class="addr-text" id="addrText">张三  138****8888  北京市朝阳区建国路88号</div>
+          <div class="addr-hint">配送至该地址，预计3-5天送达</div>
+        </div>
+        <div class="address-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Out of stock notice -->
+    <div class="out-of-stock-bar" id="outOfStockBar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <span>该商品不支持配送至所选地址</span>
+    </div>
+
+    <!-- Specs -->
+    <div class="specs-section">
+      <div class="specs-row">
+        <span class="label">已选</span>
+        <div class="value">
+          <span>白色，500ml</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="review-section" id="reviewSection">
+      <div class="review-header">
+        <span class="title">用户评价 (2386)</span>
+        <span class="count">好评率 98% &gt;</span>
+      </div>
+      <div class="review-item">
+        <div class="review-user">
+          <div class="avatar"><img src="../images/unsplash/1535713875002-d1d0cf377fde.jpg" alt=""></div>
+          <span class="name">用***8</span>
+          <span class="stars">★★★★★</span>
+        </div>
+        <div class="review-content">保温效果非常好，早上装的热水到晚上还是温的，外观也很有质感，值得购买！</div>
+        <div class="review-date">2026-03-15</div>
+      </div>
+      <div style="text-align:center;padding:var(--space-sm) 0 var(--space-xs);">
+        <a href="product_reviews.html" style="font-size:13px;color:var(--primary-start);text-decoration:none;">查看全部评价 &gt;</a>
+      </div>
+    </div>
+
+    <!-- Detail Images -->
+    <div class="detail-images">
+      <div class="title">—— 商品详情 ——</div>
+      <img src="../images/unsplash/product_cake_800x1200.jpg" alt="详情图1">
+      <img src="../images/unsplash/product_tshirt_800x1200.jpg" alt="详情图2">
+    </div>
+
+  </div><!-- end page-scroll -->
+
+  <!-- Bottom Action Bar -->
+  <div class="detail-action-bar">
+    <div class="action-icons">
+      <a href="home_page.html" class="action-icon-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </a>
+      <div class="action-icon-item" id="favIcon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span>收藏</span>
+      </div>
+      <a href="cart.html" class="action-icon-item">
+        <div class="cart-badge-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          <span class="badge">3</span>
+        </div>
+        <span>购物车</span>
+      </a>
+      <div class="action-icon-item" id="csIcon" style="cursor:pointer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span>客服</span>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn-add-cart" id="addCartBtn">加入购物车</button>
+      <button class="btn-buy-now" id="buyNowBtn">立即购买</button>
+    </div>
+  </div>
+
+  <!-- Spec Popup Overlay -->
+  <div class="spec-overlay" id="specOverlay"></div>
+  <div class="spec-popup" id="specPopup">
+    <div class="spec-popup-header">
+      <div class="thumb"><img src="../images/unsplash/product_watch_800x1200.jpg" alt=""></div>
+      <div class="info">
+        <div class="popup-price"><span class="symbol">&yen;</span>68.00</div>
+        <div class="popup-stock">库存 569件</div>
+        <div class="popup-selected" style="font-size:12px;color:var(--text-secondary);margin-top:2px;">已选：白色，500ml</div>
+      </div>
+      <div class="spec-popup-close" id="specClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <div class="spec-popup-body">
+      <div class="spec-group">
+        <div class="spec-group-title">颜色</div>
+        <div class="spec-options" data-group="color">
+          <div class="spec-option selected" data-value="白色">白色</div>
+          <div class="spec-option" data-value="黑色">黑色</div>
+          <div class="spec-option" data-value="粉色">粉色</div>
+        </div>
+      </div>
+      <div class="spec-group">
+        <div class="spec-group-title">容量</div>
+        <div class="spec-options" data-group="size">
+          <div class="spec-option" data-value="300ml">300ml</div>
+          <div class="spec-option selected" data-value="500ml">500ml</div>
+          <div class="spec-option" data-value="800ml">800ml</div>
+        </div>
+      </div>
+      <div class="spec-qty-row">
+        <span class="qty-label">数量</span>
+        <div class="spec-qty-control">
+          <div class="spec-qty-btn disabled" data-action="minus">-</div>
+          <div class="spec-qty-num" id="specQty">1</div>
+          <div class="spec-qty-btn" data-action="plus">+</div>
+        </div>
+      </div>
+    </div>
+    <div class="spec-popup-footer">
+      <button class="spec-confirm-btn cart" id="specConfirmBtn">加入购物车</button>
+    </div>
+  </div>
+
+  <!-- Address Popup -->
+  <div class="addr-overlay" id="addrOverlay"></div>
+  <div class="addr-popup" id="addrPopup">
+    <div class="addr-popup-header">
+      <span class="title">选择收货地址</span>
+      <div class="close-btn" id="addrCloseBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div id="addrList"></div>
+  </div>
+
+</div>
+<link rel="stylesheet" href="../css/cs-panel.css">
+<script src="../js/common.js"></script>
+<script>
+(function() {
+  var IMG = '../images/unsplash/';
+
+  // SPU-level product name (shared across all SKUs)
+  var SPU_NAME = '日本进口保温杯 不锈钢真空便携水杯';
+
+  // SKU data keyed by color, each has own images, price, stock
+  var SKU_MAP = {
+    '白色': {
+      images: ['product_watch_800x1200.jpg', 'product_headphone_800x1200.jpg', 'product_sneaker_800x1200.jpg'],
+      price: 68, originalPrice: 168, stock: 569
+    },
+    '黑色': {
+      images: ['product_headphone_800x1200.jpg', 'product_sneaker_800x1200.jpg', 'product_watch_800x1200.jpg'],
+      price: 72, originalPrice: 178, stock: 323
+    },
+    '粉色': {
+      images: ['product_cake_800x1200.jpg', 'product_tshirt_800x1200.jpg', 'product_watch_800x1200.jpg'],
+      price: 75, originalPrice: 188, stock: 156
+    }
+  };
+
+  // Current selected specs
+  var selectedSpecs = { color: '白色', size: '500ml' };
+
+  // Control visibility of review and coupon sections
+  var hasCoupon = true;
+  var hasReview = true;
+
+  if (!hasCoupon) document.getElementById('couponEntry').style.display = 'none';
+  if (!hasReview) document.getElementById('reviewSection').style.display = 'none';
+
+  // ===== Swiper =====
+  var wrapper = document.getElementById('detailSwiperWrapper');
+  var currentSlideEl = document.getElementById('currentSlide');
+  var totalSlideEl = document.getElementById('totalSlide');
+  var swiperEl = document.getElementById('detailSwiper');
+  var idx = 0;
+  var startX = 0, moving = false;
+
+  function renderSwiper(images) {
+    wrapper.innerHTML = '';
+    images.forEach(function(src) {
+      var slide = document.createElement('div');
+      slide.className = 'detail-swiper-slide';
+      slide.innerHTML = '<img src="' + IMG + src + '" alt="">';
+      wrapper.appendChild(slide);
+    });
+    idx = 0;
+    totalSlideEl.textContent = images.length;
+    goTo(0);
+  }
+
+  function goTo(index) {
+    var total = wrapper.children.length;
+    if (total === 0) return;
+    idx = ((index % total) + total) % total;
+    wrapper.style.transform = 'translateX(-' + (idx * 100) + '%)';
+    currentSlideEl.textContent = idx + 1;
+  }
+
+  swiperEl.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; moving = true; });
+  swiperEl.addEventListener('touchend', function(e) {
+    if (!moving) return; moving = false;
+    var diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goTo(idx + (diff > 0 ? 1 : -1));
+  });
+  swiperEl.addEventListener('mousedown', function(e) { startX = e.clientX; moving = true; e.preventDefault(); });
+  document.addEventListener('mouseup', function(e) {
+    if (!moving) return; moving = false;
+    var diff = startX - e.clientX;
+    if (Math.abs(diff) > 40) goTo(idx + (diff > 0 ? 1 : -1));
+  });
+
+  // ===== Update page based on selected SKU =====
+  function updatePage() {
+    var sku = SKU_MAP[selectedSpecs.color];
+    var specText = selectedSpecs.color + ' ' + selectedSpecs.size;
+
+    // Update swiper images
+    renderSwiper(sku.images);
+
+    // Update product title: SPU name + spec
+    document.getElementById('productTitle').textContent = SPU_NAME + ' ' + specText;
+
+    // Update price
+    var discount = Math.round(sku.price / sku.originalPrice * 10 * 10) / 10;
+    document.querySelector('.price-row .current-price').innerHTML = '<span class="symbol">&yen;</span>' + sku.price;
+    document.querySelector('.price-row .original-price').textContent = '\xA5' + sku.originalPrice;
+    document.querySelector('.price-row .discount-tag').textContent = discount + '\u6298';
+
+    // Update popup thumb & info
+    popup.querySelector('.thumb img').src = IMG + sku.images[0];
+    popup.querySelector('.popup-price').innerHTML = '<span class="symbol">&yen;</span>' + sku.price.toFixed(2);
+    popup.querySelector('.popup-stock').textContent = '\u5E93\u5B58 ' + sku.stock + '\u4EF6';
+
+    // Update selected text (popup + specs section)
+    updateSelectedText();
+  }
+
+  // ===== Spec Popup =====
+  var overlay = document.getElementById('specOverlay');
+  var popup = document.getElementById('specPopup');
+  var specClose = document.getElementById('specClose');
+  var confirmBtn = document.getElementById('specConfirmBtn');
+  var specQty = 1;
+  var currentAction = 'cart';
+  var isFavorited = false;
+
+  function updateSelectedText() {
+    var text = selectedSpecs.color + '\uFF0C' + selectedSpecs.size;
+    var selectedEl = popup.querySelector('.popup-selected');
+    if (selectedEl) selectedEl.textContent = '\u5DF2\u9009\uFF1A' + text;
+    var specsValue = document.querySelector('.specs-row .value span');
+    if (specsValue) specsValue.textContent = text;
+  }
+
+  function openPopup(action) {
+    currentAction = action;
+    overlay.classList.add('show');
+    popup.classList.add('show');
+    if (action === 'cart') {
+      confirmBtn.textContent = '\u52A0\u5165\u8D2D\u7269\u8F66';
+      confirmBtn.className = 'spec-confirm-btn cart';
+    } else if (action === 'buy') {
+      confirmBtn.textContent = '\u7ACB\u5373\u8D2D\u4E70';
+      confirmBtn.className = 'spec-confirm-btn buy';
+    } else if (action === 'fav') {
+      confirmBtn.textContent = '\u6536\u85CF';
+      confirmBtn.className = 'spec-confirm-btn fav';
+    }
+  }
+
+  function closePopup() {
+    overlay.classList.remove('show');
+    popup.classList.remove('show');
+  }
+
+  overlay.addEventListener('click', closePopup);
+  specClose.addEventListener('click', closePopup);
+
+  document.querySelector('.specs-section').addEventListener('click', function() { openPopup('cart'); });
+  document.getElementById('addCartBtn').addEventListener('click', function() { openPopup('cart'); });
+  document.getElementById('buyNowBtn').addEventListener('click', function() { openPopup('buy'); });
+
+  document.getElementById('favIcon').addEventListener('click', function() {
+    if (isFavorited) {
+      isFavorited = false;
+      this.classList.remove('fav-active');
+      this.querySelector('svg').setAttribute('fill', 'none');
+      showToast('\u5DF2\u53D6\u6D88\u6536\u85CF');
+    } else {
+      openPopup('fav');
+    }
+  });
+
+  // Spec option selection — triggers image & title update
+  popup.addEventListener('click', function(e) {
+    var option = e.target.closest('.spec-option');
+    if (option) {
+      var group = option.parentElement.dataset.group;
+      option.parentElement.querySelectorAll('.spec-option').forEach(function(o) {
+        o.classList.remove('selected');
+      });
+      option.classList.add('selected');
+      selectedSpecs[group] = option.dataset.value;
+      updatePage();
+      return;
+    }
+
+    var qtyBtn = e.target.closest('.spec-qty-btn');
+    if (qtyBtn) {
+      if (qtyBtn.dataset.action === 'plus') specQty++;
+      else if (qtyBtn.dataset.action === 'minus' && specQty > 1) specQty--;
+      document.getElementById('specQty').textContent = specQty;
+      qtyBtn.parentElement.querySelector('[data-action="minus"]').classList.toggle('disabled', specQty <= 1);
+      return;
+    }
+  });
+
+  confirmBtn.addEventListener('click', function() {
+    if (currentAction === 'cart') {
+      showToast('\u5DF2\u52A0\u5165\u8D2D\u7269\u8F66');
+    } else if (currentAction === 'buy') {
+      location.href = 'order_product.html';
+      return;
+    } else if (currentAction === 'fav') {
+      isFavorited = true;
+      var favIcon = document.getElementById('favIcon');
+      favIcon.classList.add('fav-active');
+      favIcon.querySelector('svg').setAttribute('fill', 'var(--price-color)');
+      showToast('\u5DF2\u6536\u85CF');
+    }
+    closePopup();
+  });
+
+  function showToast(msg) {
+    var toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.7);color:var(--card-bg);padding:var(--space-sm) var(--space-xl);border-radius:var(--radius-sm);font-size:var(--font-base);z-index:9999;white-space:nowrap;';
+    document.querySelector('.phone-frame').appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 1500);
+  }
+
+  // Initial render
+  updatePage();
+
+  // --- Address selection ---
+  var addresses = [
+    { id: 1, name: '张三', phone: '138****8888', region: '北京市朝阳区建国路88号 悦享大厦A座12层', tag: '默认', isDefault: true },
+    { id: 2, name: '李四', phone: '139****6666', region: '上海市浦东新区陆家嘴环路1000号', tag: '' },
+    { id: 3, name: '王五', phone: '137****5555', region: '新疆乌鲁木齐市天山区解放南路128号', tag: '' },
+    { id: 4, name: '赵六', phone: '136****4444', region: '广东省深圳市南山区科技园南路8号', tag: '' },
+    { id: 5, name: '孙七', phone: '135****3333', region: '新疆伊犁州伊宁市斯大林街60号', tag: '' }
+  ];
+  var selectedAddrId = 1;
+
+  function isXinjiang(addr) {
+    return addr.region.indexOf('新疆') >= 0;
+  }
+
+  function updateStockStatus() {
+    var addr = addresses.find(function(a) { return a.id === selectedAddrId; });
+    var noStock = addr && isXinjiang(addr);
+    document.getElementById('outOfStockBar').classList.toggle('show', noStock);
+    document.getElementById('addCartBtn').disabled = noStock;
+    document.getElementById('buyNowBtn').disabled = noStock;
+    document.getElementById('addCartBtn').style.opacity = noStock ? '0.4' : '1';
+    document.getElementById('buyNowBtn').style.opacity = noStock ? '0.4' : '1';
+    document.getElementById('addCartBtn').style.pointerEvents = noStock ? 'none' : 'auto';
+    document.getElementById('buyNowBtn').style.pointerEvents = noStock ? 'none' : 'auto';
+  }
+
+  function renderAddrList() {
+    var html = '';
+    addresses.forEach(function(addr) {
+      var checked = addr.id === selectedAddrId ? ' checked' : '';
+      var tagHtml = addr.tag ? '<span class="addr-tag">' + addr.tag + '</span>' : '';
+      html += '<div class="addr-list-item" data-id="' + addr.id + '" onclick="selectAddr(' + addr.id + ')">' +
+        '<div class="addr-radio' + checked + '"></div>' +
+        '<div class="addr-detail">' +
+          '<div class="addr-name-phone">' + addr.name + '  ' + addr.phone + tagHtml + '</div>' +
+          '<div class="addr-full">' + addr.region + '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    document.getElementById('addrList').innerHTML = html;
+  }
+
+  window.selectAddr = function(id) {
+    selectedAddrId = id;
+    var addr = addresses.find(function(a) { return a.id === id; });
+    document.getElementById('addrText').textContent = addr.name + '  ' + addr.phone + '  ' + addr.region;
+    var hintEl = document.querySelector('.address-info .addr-hint');
+    if (isXinjiang(addr)) {
+      hintEl.textContent = '该地区暂不支持配送';
+      hintEl.style.color = 'var(--price-color)';
+    } else {
+      hintEl.textContent = '配送至该地址，预计3-5天送达';
+      hintEl.style.color = 'var(--text-tertiary)';
+    }
+    renderAddrList();
+    updateStockStatus();
+    closeAddrPopup();
+  };
+
+  window.openAddrPopup = function() {
+    renderAddrList();
+    document.getElementById('addrOverlay').classList.add('show');
+    document.getElementById('addrPopup').classList.add('show');
+  };
+
+  function closeAddrPopup() {
+    document.getElementById('addrOverlay').classList.remove('show');
+    document.getElementById('addrPopup').classList.remove('show');
+  }
+
+  document.getElementById('addrOverlay').addEventListener('click', closeAddrPopup);
+  document.getElementById('addrCloseBtn').addEventListener('click', closeAddrPopup);
+
+  // Wrap openPopup to block when out of stock (Xinjiang address)
+  var _origOpenPopup = openPopup;
+  openPopup = function(action) {
+    var addr = addresses.find(function(a) { return a.id === selectedAddrId; });
+    if (addr && isXinjiang(addr)) {
+      showToast('该商品不支持配送至所选地址');
+      return;
+    }
+    _origOpenPopup(action);
+  };
+
+  updateStockStatus();
+})();
+</script>
+<script src="../js/theme-switcher.js"></script>
+<script src="../js/cs-panel.js"></script>
+<script>
+  // 客服图标点击 → 弹出选择面板
+  (function() {
+    var csIcon = document.getElementById('csIcon');
+    if (csIcon && window.csPanel) {
+      csIcon.addEventListener('click', function() {
+        csPanel.open('product', { product_id: '10086', product_name: 'YONEX 天斧100ZZ' }, { skipPanel: true });
+      });
+    }
+  })();
+</script>
+</body>
+</html>

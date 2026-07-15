@@ -843,61 +843,61 @@
       var REDIRECTS = {
         // 商品详情：跳转到 mini-program 商品页
         viewDetail: function (d) {
-          return '../../../mini-program/pages/product_detail.html' +
+          return '../../mini-program/pages/product_detail.html' +
             (d.productId ? '?id=' + encodeURIComponent(d.productId) : '');
         },
         // 订单详情：跳转到 mini-program 订单详情页
         viewDetail_order: function (d) {
-          return '../../../mini-program/pages/order_detail.html' +
+          return '../../mini-program/pages/order_detail.html' +
             (d.orderId ? '?id=' + encodeURIComponent(d.orderId) : '');
         },
         // 订单查看物流：跳转到 mini-program 物流追踪页
         trackLogistics: function (d) {
-          return '../../../mini-program/pages/logistics.html';
+          return '../../mini-program/pages/logistics.html';
         },
         // 退款进度：跳转到 mini-program 退款详情页
         viewProgress: function (d) {
           var caseMap = { '审核通过，待填写物流': 'refund_return_approved', '商家审核中': 'refund_only_reviewing', '申请已拒绝': 'refund_return_rejected' };
           var c = caseMap[d.refundStatus] || 'refund_return_approved';
-          return '../../../mini-program/pages/refund_detail.html?case=' + c;
+          return '../../mini-program/pages/refund_detail.html?case=' + c;
         },
         // 注：supplement/fillLogistics/revoke 已改为弹窗交互，不再跳转
         // 购物车：跳转到 mini-program 购物车页
         viewCart: function (d) {
-          return '../../../mini-program/pages/cart.html';
+          return '../../mini-program/pages/cart.html';
         },
         // 购物车-去结算：跳转到订单确认页
         checkout: function (d) {
-          return '../../../mini-program/pages/order_product.html';
+          return '../../mini-program/pages/order_product.html';
         },
         // 账户：跳转到 mini-program 个人中心页
         viewProfile: function (d) {
-          return '../../../mini-program/pages/profile.html';
+          return '../../mini-program/pages/profile.html';
         },
         // 积分中心（账户苏银豆）
         viewPoints: function (d) {
-          return '../../../mini-program/pages/points_center.html';
+          return '../../mini-program/pages/points_center.html';
         },
         // 订单列表（账户订单数）
         viewOrders: function (d) {
-          return '../../../mini-program/pages/order_list.html';
+          return '../../mini-program/pages/order_list.html';
         },
         // 商品评价列表
         viewReviews: function (d) {
-          return '../../../mini-program/pages/product_reviews.html';
+          return '../../mini-program/pages/product_reviews.html';
         },
         // 规格选择（原型无独立页，跳商品详情页）
         viewSpecs: function (d) {
-          return '../../../mini-program/pages/product_detail.html' +
+          return '../../mini-program/pages/product_detail.html' +
             (d.productId ? '?id=' + encodeURIComponent(d.productId) : '');
         },
         // 订单-申请退换货 > 退款/售后申请页
         refund: function (d) {
-          return '../../../mini-program/pages/refund.html';
+          return '../../mini-program/pages/refund.html';
         },
         // 订单-取消订单
         cancel: function (d) {
-          return '../../../mini-program/pages/order_cancel.html';
+          return '../../mini-program/pages/order_cancel.html';
         }
       };
 

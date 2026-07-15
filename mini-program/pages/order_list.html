@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>我的订单 - 苏银豆商城</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+  /* Tab bar */
+  .order-tabs-bar {
+    position: sticky;
+    top: 88px;
+    z-index: 50;
+    background: var(--card-bg);
+    display: flex;
+    border-bottom: 1px solid var(--border-divider);
+  }
+  .order-tab {
+    flex: 1;
+    text-align: center;
+    padding: var(--space-md) 0;
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+  }
+  .order-tab[data-tab="aftersale"] {
+    display: none;
+  }
+  .order-tab.active {
+    color: var(--text-color);
+    font-weight: 600;
+  }
+  .order-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2px;
+    background: var(--primary-start);
+    border-radius: var(--radius-xs);
+  }
+  .order-tab .tab-badge {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 22px);
+    background: var(--price-color);
+    color: var(--card-bg);
+    font-size: var(--font-xs);
+    min-width: 14px;
+    height: 14px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--space-xs);
+  }
+
+  /* Order card */
+  .order-list-content {
+    padding: var(--space-sm) 12px;
+  }
+  .order-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    overflow: visible;
+  }
+  .order-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) 12px 8px;
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .order-card-header .order-no {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .order-card-header .order-status {
+    font-size: var(--font-sm);
+    font-weight: 600;
+  }
+  .order-card-header .order-status.pending { color: var(--warning-color); }
+  .order-card-header .order-status.shipped { color: var(--info-color); }
+  .order-card-header .order-status.delivered { color: var(--success-color); }
+  .order-card-header .order-status.partial-ship { color: var(--info-color); }
+  .order-card-header .order-status.partial-received { color: var(--success-color); }
+  .order-card-header .order-status.completed { color: var(--text-tertiary); }
+  .order-card-header .order-status.reviewed { color: var(--text-tertiary); }
+  .order-card-header .order-status.cancelled { color: var(--text-tertiary); }
+  .order-card-header .order-status.after-sale-header { font-size: var(--font-sm); font-weight: 600; }
+  .order-card-header .order-status.after-sale-header.type-refund-only { color: var(--warning-color); }
+  .order-card-header .order-status.after-sale-header.type-refund-return { color: var(--info-color); }
+  .order-card-header .order-status.after-sale-header.type-exchange { color: var(--info-color); }
+
+  /* Package summary */
+  .package-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 12px 0;
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .package-summary .pkg-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px var(--space-sm);
+    border-radius: var(--radius-xs);
+    font-size: var(--font-xs);
+  }
+  .package-summary .pkg-tag.shipping { background: var(--warning-bg); color: var(--warning-color); }
+  .package-summary .pkg-tag.pending { background: var(--info-bg); color: var(--info-color); }
+  .package-summary .pkg-tag.delivered { background: var(--success-bg); color: var(--success-color); }
+
+  .order-card-body {
+    padding: var(--space-md) 12px;
+    cursor: pointer;
+  }
+  .order-product-row {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+  }
+  .order-product-row .op-img {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-input);
+  }
+  .order-product-row .op-img img { width: 100%; height: 100%; object-fit: cover; }
+  .order-product-row .op-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+  .order-product-row .op-name {
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .order-product-row .op-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .order-product-row .op-price { font-size: var(--font-base); font-weight: 600; color: var(--text-color); }
+  .order-product-row .op-qty { font-size: var(--font-sm); color: var(--text-tertiary); }
+  .order-product-row .op-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+  }
+  .order-product-row.aftersale-line-muted {
+    opacity: 0.55;
+  }
+  .order-product-row.aftersale-line-muted .op-img {
+    filter: grayscale(0.35);
+  }
+  .op-aftersale-detail-row {
+    padding: var(--space-sm) 12px 10px 86px;
+    border-top: 1px solid var(--bg-color);
+    background: var(--card-bg)bf7;
+  }
+  .op-aftersale-detail-link {
+    font-size: var(--font-sm);
+    font-weight: 500;
+    color: var(--warning-color);
+    text-decoration: none;
+    display: inline-block;
+  }
+  .op-aftersale-detail-link:active { opacity: 0.75; }
+
+  .op-aftersale-detail-row--unified {
+    padding: var(--space-sm) 12px 10px 12px;
+    text-align: left;
+  }
+  .op-aftersale-detail-link--unified {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .op-aftersale-detail-chevron {
+    margin-left: var(--space-xs);
+    color: var(--text-muted);
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+  .op-aftersale-detail-link--unified .op-aftersale-detail-chevron {
+    margin-left: var(--space-sm);
+  }
+
+  /* 待收货拆单 + 物流条（对齐 order_detail 包裹块） */
+  .ol-package-split-wrap {
+    border-top: 1px solid var(--bg-color);
+  }
+  .ol-package-block + .ol-package-block {
+    border-top: 1px solid var(--bg-color);
+  }
+  .ol-logistics-quick {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) 12px;
+    background: var(--hover-bg);
+    border-top: 1px solid var(--border-divider);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .ol-logistics-quick:active { background: var(--bg-color); }
+  /* 待收货 Tab：每个商品下方一条物流 */
+  .ol-per-product-log {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 12px 10px 12px;
+    margin: 0;
+    background: var(--hover-bg);
+    border-top: 1px solid var(--border-divider);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .ol-per-product-log:active { background: var(--bg-color); }
+  .ol-per-product-log .ol-lg-icon { flex-shrink: 0; display: flex; color: var(--primary-start); }
+  .ol-per-product-log .ol-lg-icon svg { width: 16px; height: 16px; }
+  .ol-per-product-log .ol-lg-info { flex: 1; min-width: 0; }
+  .ol-per-product-log .ol-lg-status {
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    font-weight: 500;
+    margin-bottom: 2px;
+    line-height: 1.35;
+  }
+  .ol-per-product-log .ol-lg-desc {
+    font-size: var(--font-xs);
+    color: var(--text-tertiary);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ol-per-product-log .ol-lg-arrow { flex-shrink: 0; color: var(--text-light); display: flex; }
+  .ol-per-product-log .ol-lg-arrow svg { width: 12px; height: 12px; }
+
+  .ol-lg-icon {
+    flex-shrink: 0;
+    display: flex;
+    color: var(--primary-start);
+  }
+  .ol-lg-icon svg { width: 18px; height: 18px; }
+  .ol-lg-info { flex: 1; min-width: 0; }
+  .ol-lg-status {
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    font-weight: 500;
+    margin-bottom: 2px;
+    line-height: 1.35;
+  }
+  .ol-lg-desc {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ol-lg-tag {
+    display: inline-block;
+    font-size: var(--font-xs);
+    padding: 1px var(--space-sm);
+    border-radius: var(--radius-xs);
+    margin-left: var(--space-xs);
+    vertical-align: middle;
+    font-weight: 600;
+  }
+  .ol-lg-tag.shipping { background: var(--selected-bg); color: var(--primary-start); }
+  .ol-lg-tag.pending { background: var(--info-bg); color: var(--info-color); }
+  .ol-lg-tag.delivered { background: var(--success-bg); color: var(--success-color); }
+  .ol-lg-arrow {
+    flex-shrink: 0;
+    color: var(--text-light);
+    display: flex;
+  }
+  .ol-lg-arrow svg { width: 14px; height: 14px; }
+  .ol-package-products {
+    padding: var(--space-sm) 12px 4px;
+  }
+  .ol-package-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 12px 10px;
+    border-top: 1px solid var(--bg-color);
+    background: var(--card-bg);
+  }
+  .ol-package-actions .ol-pkg-btn {
+    padding: var(--space-xs) var(--space-lg);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    border: 1px solid var(--primary-start);
+    background: var(--card-bg);
+    color: var(--primary-start);
+    text-decoration: none;
+    line-height: 1.2;
+  }
+  .ol-package-actions .ol-pkg-btn:active { opacity: 0.75; }
+  .ol-package-actions .ol-pkg-btn.muted {
+    border-color: var(--text-disabled);
+    color: var(--text-tertiary);
+    background: var(--hover-bg);
+  }
+  .ol-package-actions .ol-pkg-btn-outline {
+    border: 1px solid var(--text-disabled);
+    color: var(--text-secondary);
+    background: var(--card-bg);
+  }
+  .ol-package-actions .ol-pkg-btn-outline:active { opacity: 0.75; }
+
+  .order-card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) 12px 12px;
+    border-top: 1px solid var(--bg-color);
+    gap: var(--space-sm) 0;
+  }
+  .order-card-footer .total-text {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    flex: 1 1 100%;
+  }
+  .order-card-footer .total-text b { color: var(--text-color); font-size: var(--font-md); }
+  .order-card-footer .action-btns {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-left: auto;
+    min-width: 0;
+    position: relative;
+  }
+  .action-more-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .action-more-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 28px;
+    padding: 0;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .action-more-trigger:active { opacity: 0.7; }
+  .action-more-dots {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    align-items: center;
+    justify-content: center;
+  }
+  .action-more-dots span {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .action-more-panel {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: auto;
+    bottom: calc(100% + 6px);
+    min-width: 132px;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-divider);
+    z-index: 80;
+    overflow: hidden;
+  }
+  .action-more-panel.is-open { display: block; }
+  .action-more-item {
+    display: block;
+    padding: var(--space-md) 16px;
+    font-size: var(--font-base);
+    color: var(--text-color);
+    text-decoration: none;
+    border-top: 1px solid var(--bg-color);
+  }
+  .action-more-item:first-child { border-top: 0; }
+  .action-more-item:active { background: var(--hover-bg); }
+  .btn-sm {
+    padding: var(--space-xs) var(--space-lg);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    border: 1px solid var(--text-disabled);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+  }
+  .btn-sm:active { opacity: 0.7; }
+  .btn-sm.primary {
+    border-color: var(--primary-start);
+    color: var(--primary-start);
+  }
+  .btn-sm.danger {
+    border-color: var(--price-color);
+    color: var(--price-color);
+  }
+  .btn-sm.aftersale-done {
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+    background: var(--card-bg)8e1;
+  }
+
+  /* Empty */
+  .order-empty {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px var(--space-xl);
+    gap: var(--space-md);
+  }
+  .order-empty svg { width: 64px; height: 64px; color: var(--text-disabled); }
+  .order-empty p { font-size: var(--font-base); color: var(--text-tertiary); }
+  .order-empty a {
+    background: linear-gradient(135deg, var(--primary-start), var(--price-color));
+    color: var(--card-bg);
+    padding: var(--space-sm) 24px;
+    border-radius: var(--radius-xl);
+    font-size: var(--font-base);
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Sub-page Navigation -->
+  <div class="sub-nav">
+    <div class="status-bar dark">
+      <span class="time">09:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div class="back-btn" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="nav-title">我的订单</span>
+      <div class="capsule-btn"><img src="../images/icons/小程序按钮.svg" alt=""></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="order-tabs-bar" id="orderTabs">
+    <div class="order-tab active" data-tab="all">全部</div>
+    <div class="order-tab" data-tab="pending">待付款<span class="tab-badge">1</span></div>
+    <div class="order-tab" data-tab="shipped">待发货</div>
+    <div class="order-tab" data-tab="delivered">待收货<span class="tab-badge">4</span></div>
+    <div class="order-tab" data-tab="aftersale">退换/售后<span class="tab-badge" id="aftersaleTabBadge">2</span></div>
+    <div class="order-tab" data-tab="completed">已关闭</div>
+  </div>
+
+  <!-- Order List -->
+  <div class="page-scroll" style="padding-top: 0; padding-bottom: 16px;">
+    <div class="order-list-content" id="orderList"></div>
+  </div>
+
+</div>
+<script src="../js/auth.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/common.js"></script>
+<script>
+(function() {
+  var orders = [
+    {
+      id: 'JS2026040888001',
+      status: 'pending',
+      statusText: '待付款',
+      total: '171.90',
+      products: [
+        { name: '日本进口保温杯 不锈钢真空便携水杯500ml', spec: '白色 500ml', price: '68.00', qty: 1, img: '../images/unsplash/1602143407151-7111542de6e8.jpg' },
+        { name: '无线蓝牙降噪耳机 迷你入耳式超长续航', spec: '黑色 标准版', price: '89.00', qty: 1, img: '../images/unsplash/1505740420928-5e560c06d30e.jpg' },
+        { name: '纯棉短袖T恤男女款 夏季宽松百搭潮流', spec: '白色 L码', price: '39.90', qty: 1, img: '../images/unsplash/1521572163474-6864f9cf17ab.jpg' }
+      ],
+      actions: ['取消订单', '去支付']
+    },
+    {
+      id: 'JS2026040677002',
+      status: 'shipped',
+      statusText: '待发货',
+      total: '89.00',
+      products: [
+        { name: '无线蓝牙降噪耳机 迷你入耳式超长续航', spec: '白色 标准版', price: '89.00', qty: 1, img: '../images/unsplash/1505740420928-5e560c06d30e.jpg' }
+      ],
+      actions: ['查看详情']
+    },
+    {
+      id: 'JS2026042099007',
+      status: 'shipped',
+      statusText: '待发货',
+      total: '156.90',
+      products: [
+        { name: '北欧风陶瓷马克杯 办公家用简约咖啡杯', spec: '奶油白 450ml', price: '45.00', qty: 1, img: '../images/unsplash/1495474472287-4d71bcdd2085.jpg' },
+        { name: '便携式迷你充电宝 20000mAh大容量', spec: '白色', price: '59.90', qty: 1, img: '../images/unsplash/1609091839311-d5365f9ff1c5.jpg' },
+        { name: '纯棉短袖T恤男女款 夏季宽松百搭潮流', spec: '白色 L码', price: '52.00', qty: 1, img: '../images/unsplash/1521572163474-6864f9cf17ab.jpg' }
+      ],
+      actions: ['查看详情']
+    },
+    {
+      id: 'JS2026042188008',
+      status: 'shipped',
+      statusText: '待发货',
+      total: '217.00',
+      products: [
+        { name: '日本进口保温杯 不锈钢真空便携水杯500ml', spec: '白色 500ml', price: '68.00', qty: 1, img: '../images/unsplash/1602143407151-7111542de6e8.jpg', hasAfterSales: true, afterSaleCase: 'refund_only_reviewing' },
+        { name: '无线蓝牙降噪耳机 迷你入耳式超长续航', spec: '黑色 标准版', price: '99.00', qty: 1, img: '../images/unsplash/1505740420928-5e560c06d30e.jpg' },
+        { name: '时尚运动鞋 透气网面跑步鞋轻便缓震', spec: '黑色 42码', price: '50.00', qty: 1, img: '../images/unsplash/1542291026-7eec264c27ff.jpg' }
+      ],
+      actions: ['查看详情']
+    },
+    {
+      id: 'JS2026040355003',
+      status: 'delivered',
+      statusText: '待收货',
+      total: '159.00',
+      hasAfterSales: true,
+      afterSaleCase: 'refund_only_reviewing',
+      products: [
+        { name: '时尚运动鞋 透气网面跑步鞋轻便缓震', spec: '黑色 42码', price: '159.00', qty: 1, img: '../images/unsplash/1542291026-7eec264c27ff.jpg' }
+      ],
+      actions: ['查看物流', '确认收货']
+    },
+    {
+      id: 'JS2026033122004',
+      status: 'delivered',
+      statusText: '运输中',
+      total: '199.00',
+      products: [
+        { name: '智能手表 多功能运动健康监测手环', spec: '黑色 标准版', price: '199.00', qty: 1, img: '../images/unsplash/1523275335684-37898b6baf30.jpg' }
+      ],
+      actions: ['查看物流', '确认收货']
+    },
+    {
+      id: 'JS2026032555005',
+      status: 'completed',
+      statusText: '已关闭',
+      total: '79.00',
+      hasAfterSales: true,
+      afterSaleCase: 'refund_return_approved',
+      products: [
+        { name: '潮流太阳眼镜 防紫外线偏光墨镜', spec: '黑色', price: '79.00', qty: 1, img: '../images/unsplash/1572635196237-14b3f281503f.jpg' }
+      ],
+      actions: ['再次购买', '评价']
+    },
+    {
+      id: 'JS2026032011006',
+      status: 'completed',
+      statusText: '已关闭',
+      total: '128.00',
+      products: [
+        { name: '精致蛋糕礼盒 手工制作生日庆典甜品', spec: '草莓味 8寸', price: '128.00', qty: 1, img: '../images/unsplash/1578985545062-69928b1d9587.jpg' }
+      ],
+      actions: ['再次购买', '评价']
+    },
+    {
+      id: 'JS2026031508007',
+      status: 'reviewed',
+      statusText: '已评价',
+      total: '68.00',
+      products: [
+        { name: '日本进口保温杯 不锈钢真空便携水杯500ml', spec: '白色 500ml', price: '68.00', qty: 1, img: '../images/unsplash/1602143407151-7111542de6e8.jpg' }
+      ],
+      actions: ['再次购买']
+    },
+    {
+      id: 'JS2026031012008',
+      status: 'cancelled',
+      statusText: '已取消',
+      total: '39.90',
+      products: [
+        { name: '纯棉短袖T恤男女款 夏季宽松百搭潮流', spec: '白色 L码', price: '39.90', qty: 1, img: '../images/unsplash/1521572163474-6864f9cf17ab.jpg' }
+      ],
+      actions: ['再次购买']
+    },
+    {
+      id: 'JS2026040799009',
+      status: 'partial-ship',
+      statusText: '部分发货',
+      total: '257.90',
+      packageLogisticsLayout: true,
+      products: [
+        { name: '日本进口保温杯 不锈钢真空便携水杯500ml', spec: '白色 500ml', price: '68.00', qty: 1, img: '../images/unsplash/1602143407151-7111542de6e8.jpg' },
+        { name: '便携式迷你充电宝 20000mAh大容量', spec: '白色', price: '59.00', qty: 1, img: '../images/unsplash/1609091839311-d5365f9ff1c5.jpg' },
+        { name: '时尚运动鞋 透气网面跑步鞋轻便缓震', spec: '黑色 42码', price: '159.00', qty: 1, img: '../images/unsplash/1542291026-7eec264c27ff.jpg' }
+      ],
+      packages: [
+        {
+          no: '包裹1',
+          status: 'shipping',
+          statusText: '运输中',
+          products: [0, 1],
+          carrier: '顺丰速运',
+          waybillNo: 'SF202604079901234',
+          traceTip: '【南京市】快件已发出，正发往分拨中心'
+        },
+        {
+          no: '包裹2',
+          status: 'pending',
+          statusText: '待发货',
+          products: [2],
+          carrier: '',
+          waybillNo: '',
+          traceTip: '商家备货中，发货后将更新物流信息'
+        }
+      ],
+      actions: ['查看详情']
+    },
+    {
+      id: 'JS2026040188010',
+      status: 'partial-received',
+      statusText: '部分签收',
+      total: '227.00',
+      packageLogisticsLayout: true,
+      products: [
+        { name: '无线蓝牙降噪耳机 迷你入耳式超长续航', spec: '黑色 标准版', price: '89.00', qty: 1, img: '../images/unsplash/1505740420928-5e560c06d30e.jpg', hasAfterSales: true, afterSaleCase: 'refund_only_reviewing' },
+        { name: '智能手表 多功能运动健康监测手环', spec: '黑色 标准版', price: '199.00', qty: 1, img: '../images/unsplash/1523275335684-37898b6baf30.jpg' }
+      ],
+      packages: [
+        {
+          no: '包裹1',
+          status: 'delivered',
+          statusText: '已签收',
+          products: [0],
+          carrier: '中通快递',
+          waybillNo: 'ZT2026040188001',
+          traceTip: '【南京市】已签收，签收人：本人签收'
+        },
+        {
+          no: '包裹2',
+          status: 'shipping',
+          statusText: '运输中',
+          products: [1],
+          carrier: '顺丰速运',
+          waybillNo: 'SF2026040188002',
+          traceTip: '【南京市】快件运输中，正发往分拨中心'
+        }
+      ],
+      actions: ['查看物流']
+    },
+    {
+      id: 'JS2026041505011',
+      status: 'delivered',
+      statusText: '待收货',
+      total: '68.00',
+      payMode: 'beans',
+      beansUsed: 68,
+      products: [
+        { name: '日本进口保温杯 不锈钢真空便携水杯500ml', spec: '白色 500ml', price: '68.00', qty: 1, img: '../images/unsplash/1602143407151-7111542de6e8.jpg' }
+      ],
+      actions: ['查看物流', '确认收货']
+    },
+    {
+      id: 'JS2026041806012',
+      status: 'completed',
+      statusText: '已关闭',
+      total: '247.00',
+      payMode: 'combo',
+      beansUsed: 150,
+      cashPaid: '97.00',
+      products: [
+        { name: '智能手表 多功能运动健康监测手环', spec: '黑色 标准版', price: '199.00', qty: 1, img: '../images/unsplash/1523275335684-37898b6baf30.jpg' },
+        { name: '便携式迷你充电宝 20000mAh大容量', spec: '白色', price: '48.00', qty: 1, img: '../images/unsplash/1609091839311-d5365f9ff1c5.jpg' }
+      ],
+      actions: ['再次购买', '评价']
+    }
+  ];
+
+  var currentTab = 'all';
+
+  /**
+   * 判断订单是否处于「待发货」及之前（未发货），此类仅开放仅退款入口。
+   * @param {{ status: string }} order 订单对象
+   * @returns {boolean}
+   */
+  function isUnshippedRefundOnlyPhase(order) {
+    return order.status === 'shipped';
+  }
+
+  /**
+   * 判断订单是否已发货（含部分发货、待收货、已关闭等），可展示退换/售后入口。
+   * @param {{ status: string }} order 订单对象
+   * @returns {boolean}
+   */
+  function isShippedReturnPhase(order) {
+    return ['delivered', 'partial-ship', 'partial-received', 'completed', 'reviewed'].indexOf(order.status) !== -1;
+  }
+
+  /**
+   * 判断单行商品是否已发起售后（用于多商品订单行展示）。
+   * @param {{ hasAfterSales?: boolean, afterSaleCase?: string }} productLine 商品行
+   * @returns {boolean}
+   */
+  function productLineHasAfterSales(productLine) {
+    return !!(productLine && (productLine.hasAfterSales || productLine.afterSaleCase));
+  }
+
+  /**
+   * 是否在对应商品数据下方单独展示「售后详情」入口（商品行售后或单商品整单售后）。
+   * @param {{ hasAfterSales?: boolean, products?: Array }} order 订单对象
+   * @param {{ hasAfterSales?: boolean, afterSaleCase?: string }} p 商品行
+   * @returns {boolean}
+   */
+  function shouldShowAftersaleDetailBelowProduct(order, p) {
+    if (productLineHasAfterSales(p)) return true;
+    if (order.products && order.products.length === 1 && order.hasAfterSales) return true;
+    return false;
+  }
+
+  /**
+   * 单笔仅一件商品且存在售后：整张单归入「退换/售后」Tab；不在「待收货」重复出现。
+   * @param {{ products?: Array, hasAfterSales?: boolean }} order 订单对象
+   * @returns {boolean}
+   */
+  function orderQualifiesForAftersaleTab(order) {
+    if (!order.products || order.products.length !== 1) return false;
+    var p0 = order.products[0];
+    return !!(order.hasAfterSales || productLineHasAfterSales(p0));
+  }
+
+  /**
+   * 是否属于「待收货」类状态。
+   * @param {{ status: string }} order 订单对象
+   * @returns {boolean}
+   */
+  function isDeliveredLikeStatus(order) {
+    return order.status === 'delivered' || order.status === 'partial-ship' || order.status === 'partial-received';
+  }
+
+  /**
+   * 当前卡片是否按「待收货」Tab 的规则展示（全部 Tab 下仅待收货列表中的订单为 true）。
+   * @param {{ status: string, products?: Array, hasAfterSales?: boolean }} order 订单对象
+   * @returns {boolean}
+   */
+  function useDeliveredTabDisplayForOrder(order) {
+    if (currentTab === 'delivered') return true;
+    if (currentTab !== 'all') return false;
+    return isDeliveredLikeStatus(order) && !orderQualifiesForAftersaleTab(order);
+  }
+
+  /**
+   * 按当前 Tab 筛选订单列表。
+   * @returns {typeof orders}
+   */
+  function getFilteredOrders() {
+    if (currentTab === 'all') return orders;
+    if (currentTab === 'aftersale') {
+      return orders.filter(orderQualifiesForAftersaleTab);
+    }
+    if (currentTab === 'completed') {
+      return orders.filter(function(o) { return o.status === 'completed' || o.status === 'reviewed'; });
+    }
+    if (currentTab === 'delivered') {
+      return orders.filter(function(o) {
+        if (!isDeliveredLikeStatus(o)) return false;
+        if (orderQualifiesForAftersaleTab(o)) return false;
+        return true;
+      });
+    }
+    return orders.filter(function(o) { return o.status === currentTab; });
+  }
+
+  /**
+   * 解析订单关联的售后详情 case 字符串（用于类型展示）。
+   * @param {{ afterSaleCase?: string, products?: Array }} order 订单对象
+   * @returns {string}
+   */
+  function getOrderAfterSaleCaseKey(order) {
+    if (order.afterSaleCase) return String(order.afterSaleCase);
+    if (order.products && order.products.length === 1 && order.products[0].afterSaleCase) {
+      return String(order.products[0].afterSaleCase);
+    }
+    return '';
+  }
+
+  /**
+   * 将 case 或显式字段映射为售后类型 key：refund-only | refund-return | exchange。
+   * @param {{ afterSaleType?: string, afterSaleCase?: string, products?: Array }} order 订单对象
+   * @returns {'refund-only'|'refund-return'|'exchange'}
+   */
+  function getAfterSaleTypeKey(order) {
+    var t = order.afterSaleType;
+    if (t === 'refund_only' || t === 'refund-only') return 'refund-only';
+    if (t === 'refund_return' || t === 'refund-return') return 'refund-return';
+    if (t === 'exchange') return 'exchange';
+    var c = getOrderAfterSaleCaseKey(order).toLowerCase();
+    if (c.indexOf('refund_only') !== -1 || c.indexOf('refund-only') !== -1) return 'refund-only';
+    if (c.indexOf('exchange') !== -1) return 'exchange';
+    if (c.indexOf('refund_return') !== -1 || c.indexOf('refund-return') !== -1) return 'refund-return';
+    return 'refund-return';
+  }
+
+  /**
+   * 退换/售后 Tab 卡片右上角展示的售后类型文案。
+   * @param {{ afterSaleType?: string, afterSaleCase?: string, products?: Array }} order 订单对象
+   * @returns {string}
+   */
+  function getAfterSaleTypeLabel(order) {
+    var key = getAfterSaleTypeKey(order);
+    if (key === 'refund-only') return '仅退款';
+    if (key === 'exchange') return '换货';
+    return '退货退款';
+  }
+
+  /**
+   * 生成订单列表「仅退款」入口跳转地址：固定仅退款模式与订单号。
+   * @param {string} orderId 订单号
+   * @returns {string}
+   */
+  function getApplyRefundOnlyUrl(orderId) {
+    var params = new URLSearchParams();
+    params.set('type', 'refund-only');
+    params.set('orderId', orderId);
+    return '#' + params.toString();
+  }
+
+  var orderListTruckSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>';
+  var orderListArrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+
+  /**
+   * 待收货 Tab 卡片右上角：部分签收、运输中等展示为「待收货状态」。
+   * @param {{ status: string, statusText: string }} order 订单对象
+   * @returns {string}
+   */
+  function getDeliveredTabOrderStatusLabel(order) {
+    if (order.status === 'partial-received') return '待收货';
+    if (order.statusText === '部分签收') return '待收货';
+    if (order.statusText === '运输中') return '待收货';
+    return order.statusText;
+  }
+
+  /**
+   * 全部 Tab 卡片右上角：部分发货、部分签收、运输中等展示为「待收货」。
+   * @param {{ statusText?: string }} order 订单对象
+   * @returns {string}
+   */
+  function getAllTabOrderStatusLabel(order) {
+    var t = order.statusText || '';
+    if (t === '部分发货' || t === '部分签收' || t === '运输中') return '待收货';
+    return order.statusText;
+  }
+
+  /**
+   * 根据商品下标找到所属包裹（拆单数据）。
+   * @param {{ packages?: Array }} order 订单对象
+   * @param {number} prodIdx 商品在 order.products 中的下标
+   * @returns {object|null}
+   */
+  function findPackageForProductIndex(order, prodIdx) {
+    if (!order.packages || !order.packages.length) return null;
+    for (var i = 0; i < order.packages.length; i++) {
+      var pkg = order.packages[i];
+      if (pkg.products && pkg.products.indexOf(prodIdx) !== -1) return pkg;
+    }
+    return null;
+  }
+
+  /**
+   * 待收货 Tab：单个商品下方物流条（可点击进物流页）。
+   * @param {{ id: string, packages?: Array }} order 订单对象
+   * @param {number} prodIdx 商品下标
+   * @param {object|null|undefined} pkgHint 已知包裹时直接传入，避免重复查找
+   * @returns {string}
+   */
+  function buildProductLogisticsStripHtml(order, prodIdx, pkgHint) {
+    if (!useDeliveredTabDisplayForOrder(order)) return '';
+    var pkg = pkgHint !== undefined && pkgHint !== null ? pkgHint : findPackageForProductIndex(order, prodIdx);
+    var carrier = '';
+    var waybillNo = '';
+    var traceTip = '';
+    var statusKey = 'shipping';
+    var statusLabel = '运输中';
+    if (pkg) {
+      carrier = pkg.carrier || '';
+      waybillNo = pkg.waybillNo || '';
+      traceTip = pkg.traceTip || '';
+      statusKey = pkg.status || 'shipping';
+      statusLabel = pkg.statusText || '运输中';
+    } else {
+      carrier = '顺丰速运';
+      waybillNo = 'SF' + String(order.id).replace(/\D/g, '').slice(-10);
+      if (waybillNo === 'SF') waybillNo = 'SF00000000';
+      traceTip = '快件运输中，点击查看物流详情';
+      statusKey = 'shipping';
+      statusLabel = '运输中';
+    }
+    var titleLine = (carrier && waybillNo) ? (carrier + ' ' + waybillNo) : '物流信息 · 待更新';
+    return '<a href="logistics.html" class="ol-per-product-log" onclick="event.stopPropagation()">' +
+      '<span class="ol-lg-icon">' + orderListTruckSvg + '</span>' +
+      '<div class="ol-lg-info">' +
+        '<div class="ol-lg-status">' + titleLine + ' <span class="ol-lg-tag ' + statusKey + '">' + statusLabel + '</span></div>' +
+        '<div class="ol-lg-desc">' + (traceTip || '点击查看物流详情') + '</div>' +
+      '</div>' +
+      '<span class="ol-lg-arrow">' + orderListArrowSvg + '</span>' +
+    '</a>';
+  }
+
+  /**
+   * 待收货列表中是否按包裹拆行并展示物流条（与 order_detail 拆单一致）。
+   * @param {{ packageLogisticsLayout?: boolean, packages?: Array }} order 订单对象
+   * @returns {boolean}
+   */
+  function useOrderListPackageSplitLayout(order) {
+    return useDeliveredTabDisplayForOrder(order) &&
+      order.packageLogisticsLayout === true &&
+      order.packages &&
+      order.packages.length > 0;
+  }
+
+  /**
+   * 渲染单个商品行 HTML（订单卡片内复用）。
+   * @param {{ id: string, products: Array }} order 订单对象
+   * @param {{ name: string, spec: string, price: string, qty: number, img: string, hasAfterSales?: boolean, afterSaleCase?: string }} p 商品行
+   * @returns {string}
+   */
+  function buildOrderProductRowHtml(order, p) {
+    var deliveredUi = useDeliveredTabDisplayForOrder(order);
+    var shipLikeUi = (currentTab === 'shipped' || (currentTab === 'all' && order.status === 'shipped'));
+    var multiLineAftersale = deliveredUi &&
+      order.products.length > 1 &&
+      productLineHasAfterSales(p);
+    var shippedMultiLineAftersale = shipLikeUi &&
+      order.products.length > 1 &&
+      productLineHasAfterSales(p);
+    var rowMuted = multiLineAftersale || shippedMultiLineAftersale;
+    var rowClass = 'order-product-row' + (rowMuted ? ' aftersale-line-muted' : '');
+    var saleCaseForLine = p.afterSaleCase || order.afterSaleCase || 'refund_return_approved';
+    var detailLink = 'refund_detail.html?case=' + encodeURIComponent(saleCaseForLine) + '&orderId=' + encodeURIComponent(order.id);
+    var aftersaleDetailChevronHtml =
+      '<span class="op-aftersale-detail-label">售后详情</span><span class="op-aftersale-detail-chevron">&gt;</span>';
+    var aftersaleDetailRowHtml = '';
+    if (shouldShowAftersaleDetailBelowProduct(order, p)) {
+      aftersaleDetailRowHtml =
+        '<div class="op-aftersale-detail-row op-aftersale-detail-row--unified" onclick="event.stopPropagation()">' +
+          '<a href="' + detailLink + '" class="op-aftersale-detail-link op-aftersale-detail-link--unified" onclick="event.stopPropagation()">' +
+            aftersaleDetailChevronHtml +
+          '</a>' +
+        '</div>';
+    }
+    return '<div class="' + rowClass + '">' +
+      '<a href="product_detail.html" class="op-img" onclick="event.stopPropagation()"><img src="' + p.img + '" alt=""></a>' +
+      '<div class="op-info">' +
+        '<div class="op-name">' + p.name + '</div>' +
+        '<div class="op-bottom">' +
+          '<span class="op-price">&yen;' + p.price + '</span>' +
+          '<span class="op-meta">' +
+            '<span class="op-qty">x' + p.qty + '</span>' +
+          '</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    aftersaleDetailRowHtml;
+  }
+
+  /**
+   * 按包裹拆单：单件包裹为「商品 + 物流」；多件同一包裹为先并列商品行，末尾一条共享物流；每包裹末尾「操作行」。
+   * @param {{ id: string, packages: Array, products: Array }} order 订单对象
+   * @returns {string}
+   */
+  function buildSplitPackageBodyHtml(order) {
+    var html = '<div class="ol-package-split-wrap">';
+    order.packages.forEach(function(pkg, pkgIndex) {
+      var rows = '';
+      var multiInPkg = pkg.products && pkg.products.length > 1;
+      pkg.products.forEach(function(prodIdx) {
+        var p = order.products[prodIdx];
+        if (p) {
+          rows += buildOrderProductRowHtml(order, p);
+          if (!multiInPkg) {
+            rows += buildProductLogisticsStripHtml(order, prodIdx, pkg);
+          }
+        }
+      });
+      if (multiInPkg) {
+        var refIdx = pkg.products[0];
+        rows += buildProductLogisticsStripHtml(order, refIdx, pkg);
+      }
+      var hasWaybill = !!(pkg.carrier && pkg.waybillNo);
+      var actionBtnClass = 'ol-pkg-btn' + (hasWaybill ? '' : ' muted');
+      var extraActionHtml = '';
+      if (order.id === 'JS2026040799009') {
+        if (pkgIndex === 0) {
+          extraActionHtml = '<a href="#' + encodeURIComponent(order.id) + '" class="ol-pkg-btn ol-pkg-btn-outline">退换/售后</a>';
+        } else if (pkgIndex === 1) {
+          extraActionHtml = '<a href="' + getApplyRefundOnlyUrl(order.id) + '" class="ol-pkg-btn ol-pkg-btn-outline">仅退款</a>';
+        }
+      } else if (order.id === 'JS2026040188010' && pkgIndex === 1) {
+        extraActionHtml = '<a href="#' + encodeURIComponent(order.id) + '" class="ol-pkg-btn ol-pkg-btn-outline">退换/售后</a>';
+      }
+      html += '<div class="ol-package-block">' +
+        '<div class="ol-package-products">' + rows + '</div>' +
+        '<div class="ol-package-actions" onclick="event.stopPropagation()">' +
+          extraActionHtml +
+          '<a href="logistics.html" class="' + actionBtnClass + '">查看物流</a>' +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  /**
+   * 为订单列表绑定「更多」菜单点击（仅初始化一次，事件委托在 #orderList）。
+   */
+  function bindOrderListActionMoreMenusOnce() {
+    var listEl = document.getElementById('orderList');
+    if (!listEl || listEl.dataset.actionMoreBound === '1') return;
+    listEl.dataset.actionMoreBound = '1';
+    listEl.addEventListener('click', function(e) {
+      var trigger = e.target.closest('.action-more-trigger');
+      if (trigger) {
+        e.preventDefault();
+        e.stopPropagation();
+        var wrap = trigger.closest('.action-more-wrap');
+        var panel = wrap && wrap.querySelector('.action-more-panel');
+        if (!panel) return;
+        var willOpen = !panel.classList.contains('is-open');
+        listEl.querySelectorAll('.action-more-panel.is-open').forEach(function(p) {
+          p.classList.remove('is-open');
+        });
+        if (willOpen) panel.classList.add('is-open');
+        return;
+      }
+      if (!e.target.closest('.action-more-wrap')) {
+        listEl.querySelectorAll('.action-more-panel.is-open').forEach(function(p) {
+          p.classList.remove('is-open');
+        });
+      }
+    });
+  }
+
+  /**
+   * 将售后相关操作插入订单底部按钮区（去重）。
+   * @param {string[]} actionList 已有操作文案列表
+   * @param {{ status: string, id: string, hasAfterSales?: boolean, products?: Array }} order 订单对象
+   */
+  function mergeAfterSaleActions(actionList, order) {
+    if (order.hasAfterSales) {
+      if (actionList.indexOf('售后') === -1) actionList.unshift('售后');
+      return;
+    }
+    if (order.products && order.products.length === 1 && productLineHasAfterSales(order.products[0])) {
+      if (actionList.indexOf('售后') === -1) actionList.unshift('售后');
+      return;
+    }
+    if (isUnshippedRefundOnlyPhase(order)) {
+      if (actionList.indexOf('仅退款') === -1) actionList.unshift('仅退款');
+      return;
+    }
+    if (isShippedReturnPhase(order)) {
+      var skipFooterExchange =
+        (order.id === 'JS2026040799009' || order.id === 'JS2026040188010') && useDeliveredTabDisplayForOrder(order);
+      if (!skipFooterExchange && actionList.indexOf('退换/售后') === -1) {
+        actionList.unshift('退换/售后');
+      }
+    }
+  }
+
+  function renderOrders() {
+    var filtered = getFilteredOrders();
+    if (filtered.length === 0) {
+      document.getElementById('orderList').innerHTML =
+        '<div class="order-empty" style="display:flex;">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg>' +
+          '<p>暂无相关订单</p>' +
+          '<a href="home_page.html">去逛逛</a>' +
+        '</div>';
+      return;
+    }
+
+    var html = '';
+    filtered.forEach(function(order) {
+      var deliveredView = useDeliveredTabDisplayForOrder(order);
+      var useSplitLayout = useOrderListPackageSplitLayout(order);
+      var prodsHtml = '';
+      if (useSplitLayout) {
+        prodsHtml = buildSplitPackageBodyHtml(order);
+      } else {
+        order.products.forEach(function(p, idx) {
+          prodsHtml += buildOrderProductRowHtml(order, p);
+          if (deliveredView) {
+            prodsHtml += buildProductLogisticsStripHtml(order, idx, null);
+          }
+        });
+      }
+
+      var pkgHtml = '';
+      if (order.packages && !useSplitLayout) {
+        pkgHtml = '<div class="package-summary">';
+        order.packages.forEach(function(pkg) {
+          pkgHtml += '<span class="pkg-tag ' + pkg.status + '">' + pkg.no + '：' + pkg.statusText + '</span>';
+        });
+        pkgHtml += '</div>';
+      }
+
+      var actionsHtml = '';
+      var actionList = order.actions.slice();
+      mergeAfterSaleActions(actionList, order);
+      if (useSplitLayout) {
+        actionList = actionList.filter(function(a) { return a !== '查看物流'; });
+      }
+      if (deliveredView && actionList.indexOf('查看详情') === -1) {
+        actionList.unshift('查看详情');
+      }
+      if (deliveredView && actionList.indexOf('确认收货') === -1) {
+        actionList.push('确认收货');
+      }
+      if (currentTab === 'all' || currentTab === 'completed' || currentTab === 'shipped') {
+        actionList = actionList.map(function(a) {
+          return a === '售后' ? '售后详情' : a;
+        });
+      }
+      actionList = actionList.filter(function(a) {
+        return a !== '售后' && a !== '售后详情';
+      });
+      var useDeliveredAftersaleOverflow =
+        deliveredView &&
+        actionList.indexOf('退换/售后') !== -1 &&
+        actionList.length >= 3;
+      var listForActions = useDeliveredAftersaleOverflow
+        ? actionList.filter(function(a) { return a !== '退换/售后'; })
+        : actionList;
+      var moreWrapHtml = '';
+      if (useDeliveredAftersaleOverflow) {
+        var applyAfterHref = '#' + encodeURIComponent(order.id);
+        moreWrapHtml =
+          '<div class="action-more-wrap">' +
+            '<button type="button" class="action-more-trigger" aria-label="更多">' +
+              '<span class="action-more-dots" aria-hidden="true"><span></span><span></span><span></span></span>' +
+            '</button>' +
+            '<div class="action-more-panel">' +
+              '<a href="' + applyAfterHref + '" class="action-more-item" onclick="event.stopPropagation()">退换/售后</a>' +
+            '</div>' +
+          '</div>';
+      }
+      listForActions.forEach(function(a, i) {
+        var cls = i === listForActions.length - 1 ? ' primary' : '';
+        if (a === '去支付') cls = ' danger';
+        var href = '#';
+        if (a === '查看详情') href = 'order_detail.html';
+        if (a === '确认收货') href = 'order_detail.html';
+        if (a === '查看物流') href = 'logistics.html';
+        if (a === '去支付') href = '#';
+        if (a === '取消订单') href = 'order_cancel.html';
+        if (a === '仅退款') href = getApplyRefundOnlyUrl(order.id);
+        if (a === '退换/售后') href = '#' + encodeURIComponent(order.id);
+        if (a === '评价') href = '#';
+        if (a === '再次购买') href = 'product_detail.html';
+        actionsHtml += '<a href="' + href + '" class="btn-sm' + cls + '" onclick="event.stopPropagation()">' + a + '</a>';
+      });
+      actionsHtml = moreWrapHtml + actionsHtml;
+
+      var totalHtml = '共' + order.products.reduce(function(s, p) { return s + p.qty; }, 0) + '件 合计 ';
+      if (order.payMode === 'beans') {
+        totalHtml += '<b>' + order.beansUsed + '苏银豆</b>';
+      } else if (order.payMode === 'combo') {
+        totalHtml += '<b>' + order.beansUsed + '苏银豆+&yen;' + order.cashPaid + '</b>';
+      } else {
+        totalHtml += '<b>&yen;' + order.total + '</b>';
+      }
+
+      var headerStatusText = order.statusText;
+      var headerStatusClass = 'order-status ' + order.status;
+      if (currentTab === 'aftersale') {
+        headerStatusText = getAfterSaleTypeLabel(order);
+        headerStatusClass = 'order-status after-sale-header type-' + getAfterSaleTypeKey(order);
+      } else if (deliveredView) {
+        headerStatusText = getDeliveredTabOrderStatusLabel(order);
+      } else if (currentTab === 'all') {
+        headerStatusText = getAllTabOrderStatusLabel(order);
+      }
+
+      html += '<div class="order-card">' +
+        '<div class="order-card-header">' +
+          '<span class="order-no">' + order.id + '</span>' +
+          '<span class="' + headerStatusClass + '">' + headerStatusText + '</span>' +
+        '</div>' +
+        '<div class="order-card-body" onclick="location.href=\'order_detail.html\'">' + prodsHtml + '</div>' +
+        pkgHtml +
+        '<div class="order-card-footer">' +
+          '<span class="total-text">' + totalHtml + '</span>' +
+          '<div class="action-btns">' + actionsHtml + '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    document.getElementById('orderList').innerHTML = html;
+
+    var aftersaleCount = 0;
+    orders.forEach(function(o) {
+      if (orderQualifiesForAftersaleTab(o)) aftersaleCount++;
+    });
+    var badgeEl = document.getElementById('aftersaleTabBadge');
+    if (badgeEl) {
+      if (aftersaleCount > 0) {
+        badgeEl.textContent = String(aftersaleCount);
+        badgeEl.style.display = 'flex';
+      } else {
+        badgeEl.style.display = 'none';
+      }
+    }
+  }
+
+  // Tab switch
+  document.querySelectorAll('.order-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.order-tab').forEach(function(t) { t.classList.remove('active'); });
+      this.classList.add('active');
+      currentTab = this.dataset.tab;
+      renderOrders();
+    });
+  });
+
+  bindOrderListActionMoreMenusOnce();
+  renderOrders();
+})();
+</script>
+<script src="../js/theme-switcher.js"></script>
+</body>
+</html>

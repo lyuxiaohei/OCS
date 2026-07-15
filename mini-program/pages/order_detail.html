@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>订单详情 - 苏银豆商城</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+  /* Status header */
+  .detail-status-header {
+    background: linear-gradient(135deg, var(--primary-start), var(--price-color));
+    padding: var(--space-lg) 12px 20px;
+    color: var(--card-bg);
+  }
+  .status-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+  }
+  .status-main svg { width: 24px; height: 24px; }
+  .status-main .text { font-size: var(--font-lg); font-weight: 700; }
+  .status-desc { font-size: var(--font-sm); opacity: 0.85; margin-left: 34px; }
+
+  /* Address */
+  .detail-address {
+    background: var(--card-bg);
+    padding: var(--space-md);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  .detail-address svg { width: 18px; height: 18px; color: var(--primary-start); flex-shrink: 0; margin-top: 2px; }
+  .detail-address .addr-text { font-size: var(--font-sm); color: var(--text-color); line-height: 1.6; }
+  .detail-address .addr-name { font-weight: 600; }
+
+  /* Logistics quick view */
+  .logistics-quick {
+    background: var(--card-bg);
+    padding: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    cursor: pointer;
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .logistics-quick:active { background: var(--hover-bg); }
+  .logistics-quick svg { width: 20px; height: 20px; color: var(--primary-start); flex-shrink: 0; }
+  .logistics-quick .lg-info { flex: 1; }
+  .logistics-quick .lg-status { font-size: var(--font-sm); color: var(--text-color); font-weight: 500; margin-bottom: 2px; }
+  .logistics-quick .lg-desc { font-size: var(--font-sm); color: var(--text-tertiary); }
+  .logistics-quick .lg-arrow { color: var(--text-light); }
+  .logistics-quick .lg-arrow svg { width: 16px; height: 16px; color: var(--text-light); }
+  .lg-status-tag {
+    display: inline-block;
+    font-size: var(--font-xs);
+    padding: 1px var(--space-sm);
+    border-radius: var(--radius-xs);
+    margin-left: var(--space-sm);
+    vertical-align: middle;
+  }
+  .lg-status-tag.shipping { background: var(--selected-bg); color: var(--primary-start); }
+  .lg-status-tag.delivered { background: var(--success-bg); color: var(--success-color); }
+
+  /* Package card */
+  .package-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    margin: var(--space-sm) 12px;
+    overflow: hidden;
+  }
+  .package-card + .package-card { margin-top: 0; }
+
+  /* Products */
+  .detail-products {
+    padding: var(--space-md);
+  }
+  .detail-prod-row {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .detail-prod-row:last-child { border-bottom: none; }
+  .detail-prod-row .dp-img {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-input);
+  }
+  .detail-prod-row .dp-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-prod-row .dp-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+  .detail-prod-row .dp-name {
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .detail-prod-row .dp-spec { font-size: var(--font-sm); color: var(--text-tertiary); }
+  .detail-prod-row .dp-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .detail-prod-row .dp-price { font-size: var(--font-base); font-weight: 600; color: var(--text-color); }
+  .detail-prod-row .dp-qty { font-size: var(--font-sm); color: var(--text-tertiary); }
+
+  /* 有售后商品行置灰（与 order_list 一致），下方仍展示售后详情入口 */
+  .detail-prod-row.aftersale-line-muted {
+    opacity: 0.55;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .detail-prod-row.aftersale-line-muted .dp-img {
+    filter: grayscale(0.35);
+  }
+
+  .op-aftersale-detail-row {
+    padding: var(--space-sm) 12px 10px 12px;
+    border-top: 1px solid var(--bg-color);
+    background: var(--card-bg)bf7;
+  }
+  .op-aftersale-detail-link {
+    font-size: var(--font-sm);
+    font-weight: 500;
+    color: var(--warning-color);
+    text-decoration: none;
+    display: inline-block;
+  }
+  .op-aftersale-detail-link:active { opacity: 0.75; }
+
+  .op-aftersale-detail-row--unified {
+    padding: var(--space-sm) 12px 10px 12px;
+    text-align: left;
+  }
+  .op-aftersale-detail-link--unified {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .op-aftersale-detail-chevron {
+    margin-left: var(--space-xs);
+    color: var(--text-muted);
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+  .op-aftersale-detail-link--unified .op-aftersale-detail-chevron {
+    margin-left: var(--space-sm);
+  }
+  .detail-prod-row.aftersale-line-muted + .op-aftersale-detail-row {
+    border-bottom: 1px solid var(--bg-color);
+    margin-bottom: var(--space-sm);
+    padding-top: var(--space-md);
+  }
+
+  /* Info section */
+  .detail-info {
+    background: var(--card-bg);
+    padding: var(--space-md);
+    margin-top: var(--space-sm);
+  }
+  .info-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-xs) 0;
+    font-size: var(--font-sm);
+  }
+  .info-item .lbl { color: var(--text-tertiary); }
+  .info-item .val { color: var(--text-color); }
+  .info-item .val.red { color: var(--price-color); font-weight: 600; }
+  .info-item.total-row {
+    border-top: 1px solid var(--bg-color);
+    margin-top: var(--space-sm);
+    padding-top: var(--space-md);
+    font-weight: 600;
+  }
+  .info-item.total-row .val { color: var(--price-color); font-size: var(--font-md); font-weight: 700; }
+
+  /* Bottom actions */
+  .detail-bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    height: 56px;
+    border-top: 1px solid var(--border-color);
+    z-index: 200;
+    padding: 0 10px var(--space-sm);
+  }
+  .detail-bottom-bar .btn-sm {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 6px 4px;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    border: 1px solid var(--text-disabled);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .detail-bottom-bar .btn-sm:active { opacity: 0.7; }
+  .detail-bottom-bar .btn-sm.primary {
+    border-color: var(--primary-start);
+    color: var(--primary-start);
+  }
+  .detail-bottom-bar .btn-sm.danger {
+    border-color: var(--price-color);
+    color: var(--price-color);
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Sub-page Navigation -->
+  <div class="sub-nav">
+    <div class="status-bar dark">
+      <span class="time">09:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div class="back-btn" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="nav-title">订单详情</span>
+      <div class="capsule-btn"><img src="../images/icons/小程序按钮.svg" alt=""></div>
+    </div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="page-scroll" style="padding-bottom: 64px;">
+
+    <!-- Address -->
+    <div class="detail-address">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div class="addr-text">
+        <span class="addr-name">张三 138****8888</span><br>
+        北京市朝阳区建国路88号 悦享大厦A座12层
+      </div>
+    </div>
+
+    <!-- Package 1 -->
+    <div class="package-card">
+      <a href="logistics.html" class="logistics-quick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <div class="lg-info">
+          <div class="lg-status">顺丰速运 SF1234567890 <span class="lg-status-tag shipping">运输中</span></div>
+          <div class="lg-desc">【北京市】 快件已到达 北京朝阳区营业点，正在派送中</div>
+        </div>
+        <div class="lg-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </a>
+      <div class="detail-products">
+        <div class="detail-prod-row">
+          <div class="dp-img"><img src="../images/unsplash/1602143407151-7111542de6e8.jpg" alt=""></div>
+          <div class="dp-info">
+            <div class="dp-name">日本进口保温杯 不锈钢真空便携水杯500ml 白色 500ml</div>
+            <div class="dp-spec">白色 500ml</div>
+            <div class="dp-bottom">
+              <span class="dp-price">&yen;68.00</span>
+              <span class="dp-qty">x1</span>
+            </div>
+          </div>
+        </div>
+        <div class="detail-prod-row aftersale-line-muted">
+          <div class="dp-img"><img src="../images/unsplash/1521572163474-6864f9cf17ab.jpg" alt=""></div>
+          <div class="dp-info">
+            <div class="dp-name">纯棉短袖T恤男女款 夏季宽松百搭潮流 白色 L码</div>
+            <div class="dp-spec">白色 L码</div>
+            <div class="dp-bottom">
+              <span class="dp-price">&yen;39.90</span>
+              <span class="dp-qty">x1</span>
+            </div>
+          </div>
+        </div>
+        <div class="op-aftersale-detail-row op-aftersale-detail-row--unified">
+          <a href="refund_detail.html?case=refund_return_approved&amp;orderId=JS2026040888001" class="op-aftersale-detail-link op-aftersale-detail-link--unified">
+            <span class="op-aftersale-detail-label">售后详情</span><span class="op-aftersale-detail-chevron">&gt;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Package 2 -->
+    <div class="package-card">
+      <a href="logistics.html" class="logistics-quick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <div class="lg-info">
+          <div class="lg-status">中通快递 ZT2026040700001 <span class="lg-status-tag delivered">已签收</span></div>
+          <div class="lg-desc">【北京市】 已签收，签收人：本人签收</div>
+        </div>
+        <div class="lg-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </a>
+      <div class="detail-products">
+        <div class="detail-prod-row aftersale-line-muted">
+          <div class="dp-img"><img src="../images/unsplash/1505740420928-5e560c06d30e.jpg" alt=""></div>
+          <div class="dp-info">
+            <div class="dp-name">无线蓝牙降噪耳机 迷你入耳式超长续航 黑色 标准版</div>
+            <div class="dp-spec">黑色 标准版</div>
+            <div class="dp-bottom">
+              <span class="dp-price">&yen;89.00</span>
+              <span class="dp-qty">x1</span>
+            </div>
+          </div>
+        </div>
+        <div class="op-aftersale-detail-row op-aftersale-detail-row--unified">
+          <a href="refund_detail.html?case=exchange_pending&amp;orderId=JS2026040888001" class="op-aftersale-detail-link op-aftersale-detail-link--unified">
+            <span class="op-aftersale-detail-label">售后详情</span><span class="op-aftersale-detail-chevron">&gt;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Info -->
+    <div class="detail-info">
+      <div class="info-item">
+        <span class="lbl">订单编号</span>
+        <span class="val">JS2026040888001</span>
+      </div>
+      <div class="info-item">
+        <span class="lbl">下单时间</span>
+        <span class="val">2026-04-08 14:35:20</span>
+      </div>
+      <div class="info-item">
+        <span class="lbl">支付时间</span>
+        <span class="val">2026-04-08 14:36:08</span>
+      </div>
+      <div class="info-item">
+        <span class="lbl">支付方式</span>
+        <span class="val">苏银豆+现金组合</span>
+      </div>
+      <div class="info-item">
+        <span class="lbl">苏银豆抵扣</span>
+        <span class="val red">-&yen;171.90 (172苏银豆)</span>
+      </div>
+      <div class="info-item">
+        <span class="lbl">现金支付</span>
+        <span class="val">&yen;25.00</span>
+      </div>
+      <div class="info-item">
+        <span class="lbl">运费</span>
+        <span class="val">&yen;0.00</span>
+      </div>
+      <div class="info-item total-row">
+        <span class="lbl">实付金额</span>
+        <span class="val">&yen;196.90</span>
+      </div>
+      <div class="info-item">
+        <span class="lbl">备注</span>
+        <span class="val">请用泡沫纸包裹，谢谢</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Actions -->
+  <div class="detail-bottom-bar">
+    <button class="btn-sm cs-inline-btn" data-cs-tag="order" data-cs-skip-panel="true">
+      联系客服
+    </button>
+    <button class="btn-sm" onclick="location.href='order_cancel.html'">取消订单</button>
+    <a href="logistics.html" class="btn-sm primary">查看物流</a>
+    <button class="btn-sm danger" onclick="alert('已确认收货')">确认收货</button>
+  </div>
+
+</div>
+<link rel="stylesheet" href="../css/cs-panel.css">
+<script src="../js/auth.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/common.js"></script>
+<script src="../js/theme-switcher.js"></script>
+<script src="../js/cs-panel.js"></script>
+</body>
+</html>

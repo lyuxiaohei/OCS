@@ -54,3 +54,8 @@ skills-lock.json
 
 # Prototype screenshot / QA workspace (local only)
 .shot_tmp/
+
+# Internal business materials (do not publish to GitHub)
+prototype-cs/业务评审.txt
+prototype-cs/京东.docx
+prototype-cs/自研商城在线客服.pptx

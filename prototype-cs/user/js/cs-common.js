@@ -78,14 +78,14 @@
 
   // ---- mini-program 页面相对路径 ----
   // user/ → prototype-cs/ → OCS/ → 在线客服1/ → mini-program/pages/
-  var MINI_BASE = '../../../mini-program/pages/';
+  var MINI_BASE = '../../mini-program/pages/';
   // data-cs-action → mini-program 页面映射（与小程序实际跳转对齐）
   // 注：supplement/revoke/fillLogistics 已改为弹窗交互（不再跳转），见 user-chat-basic.html 事件委托
   var ACTION_URLS = {
     'viewDetail_order':    'order_detail.html',
-    'aftersale':           'apply_refund.html',
-    'aftersale_exchange':  'apply_exchange.html',
-    'editAddress':         'address_edit.html',
+    'aftersale':           '',
+    'aftersale_exchange':  '',
+    'editAddress':         '',
     'trackLogistics':      'logistics.html',
     'viewProgress':        'refund_detail.html',
     'viewDetail_product':  'product_detail.html',
