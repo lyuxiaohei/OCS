@@ -1,0 +1,876 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识文档 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <span class="logo-text">在线客服</span>
+    </div>
+    <nav class="sidebar-nav">
+      <!-- 数据仪表盘 -->
+      <a class="nav-item" data-nav-key="dashboard">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        </span>
+        <span class="nav-label">数据仪表盘</span>
+      </a>
+      <!-- 会话管理 -->
+      <a class="nav-item nav-group-head" data-nav-key="session-group">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <span class="nav-label">会话管理</span>
+        <span class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </a>
+      <div class="nav-sub-items">
+        <a class="nav-sub-item" data-nav-key="workbench"><span class="nav-dot"></span><span class="nav-label">客服工作台</span></a>
+        <a class="nav-sub-item" data-nav-key="session-record"><span class="nav-dot"></span><span class="nav-label">会话记录</span></a>
+        <a class="nav-sub-item" data-nav-key="todo"><span class="nav-dot"></span><span class="nav-label">待办事项</span></a>
+      </div>
+      <!-- 知识库 (expanded, 知识文档 active) -->
+      <a class="nav-item nav-group-head expanded" data-nav-key="knowledge-group">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </span>
+        <span class="nav-label">知识库</span>
+        <span class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </a>
+      <div class="nav-sub-items open">
+        <a class="nav-sub-item" data-nav-key="scripts"><span class="nav-dot"></span><span class="nav-label">话术库</span></a>
+        <a class="nav-sub-item" data-nav-key="faq"><span class="nav-dot"></span><span class="nav-label">FAQ</span></a>
+        <a class="nav-sub-item active" data-nav-key="knowledge"><span class="nav-dot"></span><span class="nav-label">知识文档</span></a>
+      </div>
+      <!-- 客服设置 -->
+      <a class="nav-item" data-nav-key="settings">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        <span class="nav-label">客服设置</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ===== Content Wrapper ===== -->
+  <div class="admin-content-wrapper">
+
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <div class="breadcrumb-area">首页 <span>/</span> 知识库 <span>/</span> <strong style="color:var(--cs-text)">知识文档</strong></div>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <span class="user-status-badge"></span>
+          <span class="user-name">管理员</span>
+          <div class="user-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>知识文档</h1>
+          <p>管理客服知识库文档，支持富文本编辑和版本管理</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            回收站
+          </button>
+          <button class="btn btn-outline">
+            批量操作
+            <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <button class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建文档
+          </button>
+        </div>
+      </div>
+
+      <!-- Two-Column Layout -->
+      <div class="content-columns">
+
+        <!-- Left: Category Tree -->
+        <div class="category-panel">
+          <div class="category-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="搜索分类..." />
+          </div>
+          <div class="tree-container">
+
+            <!-- 产品手册 (expanded) -->
+            <div class="tree-node">
+              <div class="tree-node-header" onclick="toggleTree(this)">
+                <span class="tree-toggle expanded">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+                <span class="tree-folder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#faad14" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                <span class="tree-label">产品手册</span>
+                <span class="tree-count">12</span>
+              </div>
+              <div class="tree-children">
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">智能手表系列</span><span class="tree-child-count">4</span></div>
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">无线耳机系列</span><span class="tree-child-count">3</span></div>
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">充电配件系列</span><span class="tree-child-count">3</span></div>
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">配件周边</span><span class="tree-child-count">2</span></div>
+              </div>
+            </div>
+
+            <!-- 政策制度 (expanded) -->
+            <div class="tree-node">
+              <div class="tree-node-header" onclick="toggleTree(this)">
+                <span class="tree-toggle expanded">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+                <span class="tree-folder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                <span class="tree-label">政策制度</span>
+                <span class="tree-count">18</span>
+              </div>
+              <div class="tree-children">
+                <div class="tree-child-header active"><span class="tree-child-dot"></span><span class="tree-child-label">退换货政策</span><span class="tree-child-count">8</span></div>
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">保修政策</span><span class="tree-child-count">5</span></div>
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">价格保护</span><span class="tree-child-count">5</span></div>
+              </div>
+            </div>
+
+            <!-- 培训资料 -->
+            <div class="tree-node">
+              <div class="tree-node-header" onclick="toggleTree(this)">
+                <span class="tree-toggle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+                <span class="tree-folder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#722ed1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                <span class="tree-label">培训资料</span>
+                <span class="tree-count">15</span>
+              </div>
+              <div class="tree-children collapsed">
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">新人培训</span><span class="tree-child-count">6</span></div>
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">产品知识</span><span class="tree-child-count">5</span></div>
+                <div class="tree-child-header"><span class="tree-child-dot"></span><span class="tree-child-label">服务规范</span><span class="tree-child-count">4</span></div>
+              </div>
+            </div>
+
+            <!-- 公告通知 -->
+            <div class="tree-node">
+              <div class="tree-node-header">
+                <span class="tree-toggle placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+                <span class="tree-folder-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#f5222d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                <span class="tree-label">公告通知</span>
+                <span class="tree-count">8</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right: Document List -->
+        <div class="doc-list-panel">
+
+          <!-- Filter Bar -->
+          <div class="filter-bar">
+            <div class="filter-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="搜索文档标题或内容..." />
+            </div>
+            <select class="filter-select">
+              <option>全部状态</option>
+              <option>已发布</option>
+              <option>草稿</option>
+            </select>
+            <select class="filter-select">
+              <option>最近更新</option>
+              <option>浏览量</option>
+              <option>名称</option>
+            </select>
+            <div class="filter-right">
+              <span>共 8 篇文档</span>
+            </div>
+          </div>
+
+          <!-- Document Cards -->
+          <!-- 1. PDF - 2024年退换货政策更新说明 -->
+          <div class="doc-card">
+            <div class="doc-type-icon pdf">PDF</div>
+            <div class="doc-center">
+              <div class="doc-title">2024年退换货政策更新说明</div>
+              <div class="doc-desc">最新退换货政策变更内容，包含退货时效、流程调整等重要信息</div>
+              <div class="doc-meta">
+                <span class="doc-tag blue">政策</span>
+                <span class="doc-tag red">重要</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  张管理
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-15
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  2,345
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status published">已发布</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Word - 智能手表Pro用户手册 -->
+          <div class="doc-card">
+            <div class="doc-type-icon word">Word</div>
+            <div class="doc-center">
+              <div class="doc-title">智能手表Pro用户手册</div>
+              <div class="doc-desc">智能手表Pro完整使用指南，包含功能介绍、操作说明等详细内容</div>
+              <div class="doc-meta">
+                <span class="doc-tag orange">产品手册</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  李编辑
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-14
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  1,876
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status published">已发布</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. PDF - 客服服务规范V3.0 -->
+          <div class="doc-card">
+            <div class="doc-type-icon pdf">PDF</div>
+            <div class="doc-center">
+              <div class="doc-title">客服服务规范V3.0</div>
+              <div class="doc-desc">客服服务标准流程规范，包含话术标准、响应时效要求等核心内容</div>
+              <div class="doc-meta">
+                <span class="doc-tag purple">规范</span>
+                <span class="doc-tag red">重要</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  王主管
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-13
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  3,210
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status published">已发布</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Excel - 2024年Q1价格调整表 -->
+          <div class="doc-card">
+            <div class="doc-type-icon excel">Excel</div>
+            <div class="doc-center">
+              <div class="doc-title">2024年Q1价格调整表</div>
+              <div class="doc-desc">2024年第一季度产品价格调整清单，含新旧价格对比数据</div>
+              <div class="doc-meta">
+                <span class="doc-tag green">价格</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  赵运营
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-12
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  890
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status published">已发布</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Word - 无线耳机Max常见问题解答 -->
+          <div class="doc-card">
+            <div class="doc-type-icon word">Word</div>
+            <div class="doc-center">
+              <div class="doc-title">无线耳机Max常见问题解答</div>
+              <div class="doc-desc">无线耳机Max产品FAQ整理，涵盖连接、音质、续航等常见问题</div>
+              <div class="doc-meta">
+                <span class="doc-tag blue">FAQ</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  李编辑
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-11
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  1,234
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status published">已发布</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. PDF - 保修政策详解 -->
+          <div class="doc-card">
+            <div class="doc-type-icon pdf">PDF</div>
+            <div class="doc-center">
+              <div class="doc-title">保修政策详解</div>
+              <div class="doc-desc">产品保修条款说明，保修范围、期限、免责条款等详细内容</div>
+              <div class="doc-meta">
+                <span class="doc-tag blue">政策</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  张管理
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-10
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  1,567
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status published">已发布</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Word - 新人客服培训手册 -->
+          <div class="doc-card">
+            <div class="doc-type-icon word">Word</div>
+            <div class="doc-center">
+              <div class="doc-title">新人客服培训手册</div>
+              <div class="doc-desc">新入职客服人员培训材料，含系统操作、话术规范等内容</div>
+              <div class="doc-meta">
+                <span class="doc-tag orange">培训</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  王主管
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-08
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  4,567
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status draft">草稿</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Excel - 客服绩效KPI考核表 -->
+          <div class="doc-card">
+            <div class="doc-type-icon excel">Excel</div>
+            <div class="doc-center">
+              <div class="doc-title">客服绩效KPI考核表</div>
+              <div class="doc-desc">2024年客服绩效考核标准及评分细则，含各项指标权重分配</div>
+              <div class="doc-meta">
+                <span class="doc-tag purple">考核</span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  张管理
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  2024-01-05
+                </span>
+                <span class="doc-meta-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  567
+                </span>
+              </div>
+            </div>
+            <div class="doc-right">
+              <span class="doc-status draft">草稿</span>
+              <div class="doc-actions">
+                <button class="doc-action-btn" title="编辑">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="doc-action-btn" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button class="doc-action-btn danger" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination">
+            <div class="pagination-info">共 8 篇文档，第 1/1 页</div>
+            <div class="pagination-pages">
+              <button class="page-btn disabled">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn disabled">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<script>
+  // Tree toggle interaction
+  function toggleTree(header) {
+    var node = header.parentElement;
+    var toggle = header.querySelector('.tree-toggle');
+    var children = node.querySelector('.tree-children');
+    if (children) {
+      toggle.classList.toggle('expanded');
+      children.classList.toggle('collapsed');
+    }
+  }
+
+  // Category tree child item click
+  document.querySelectorAll('.tree-child-header').forEach(function(el) {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.tree-child-header.active').forEach(function(active) {
+        active.classList.remove('active');
+      });
+      this.classList.add('active');
+    });
+  });
+</script>
+
+    <style>
+    /* --- Reset & Base --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--cs-font-family); background: var(--cs-bg-page); color: var(--cs-text); font-size: var(--cs-font-size-md); }
+    a { text-decoration: none; color: inherit; }
+    ul, ol { list-style: none; }
+
+    /* --- Layout Shell --- */
+    .admin-layout { display: flex !important; min-height: 100vh !important; font-family: var(--cs-font-family); background: var(--cs-bg-page); color: var(--cs-text); }
+
+    /* --- Sidebar --- */
+    .admin-sidebar { width: var(--cs-sidebar-width, 220px) !important; min-width: var(--cs-sidebar-width, 220px) !important; background: var(--cs-bg-sidebar, #001529); display: flex !important; flex-direction: column; height: 100vh; position: fixed; top: 0; left: 0; z-index: 100; overflow-y: auto; overflow-x: hidden; }
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    .sidebar-logo { height: 56px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+    .sidebar-logo .logo-icon { width: 28px; height: 28px; background: var(--cs-primary, #1677ff); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0; }
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+    .sidebar-logo .logo-text { font-size: 16px; font-weight: 600; color: #fff; white-space: nowrap; letter-spacing: 0.5px; }
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+
+    /* Nav items */
+    .nav-item { display: flex; align-items: center; padding: 10px 24px; font-size: 14px; color: var(--cs-sidebar-text, rgba(255,255,255,0.65)); cursor: pointer; transition: var(--cs-transition-fast); text-decoration: none; position: relative; user-select: none; }
+    .nav-item:hover { color: var(--cs-sidebar-text-active, #fff); background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08)); }
+    .nav-item.active { color: var(--cs-primary, #1677ff); background: var(--cs-primary-bg, #e6f4ff); }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary, #1677ff); border-radius: 0 2px 2px 0; }
+    .nav-item .nav-icon { width: 16px; height: 16px; margin-right: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+    .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-item .nav-arrow { width: 12px; height: 12px; transition: transform 0.2s ease; opacity: 0.5; }
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+    .nav-sub-items { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; }
+    .nav-sub-items.open { max-height: 200px; }
+    .nav-sub-item { display: flex; align-items: center; padding: 8px 24px 8px 48px; font-size: 13px; color: var(--cs-sidebar-text, rgba(255,255,255,0.65)); cursor: pointer; transition: var(--cs-transition-fast); text-decoration: none; position: relative; }
+    .nav-sub-item:hover { color: var(--cs-sidebar-text-active, #fff); background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08)); }
+    .nav-sub-item.active { color: var(--cs-primary, #1677ff); background: var(--cs-primary-bg, #e6f4ff); }
+    .nav-sub-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary, #1677ff); border-radius: 0 2px 2px 0; }
+    .nav-sub-item .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.5; margin-right: 10px; flex-shrink: 0; }
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+
+    /* --- Content Wrapper --- */
+    .admin-content-wrapper { flex: 1; margin-left: var(--cs-sidebar-width, 220px); display: flex; flex-direction: column; min-height: 100vh; }
+    .admin-header { height: var(--cs-header-height, 56px); background: var(--cs-bg-card, #fff); border-bottom: 1px solid var(--cs-border-light, #f0f0f0); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--cs-space-6, 24px); position: sticky; top: 0; z-index: 50; flex-shrink: 0; }
+    .header-left { flex: 1; min-width: 0; }
+    .header-right { display: flex; align-items: center; gap: var(--cs-space-4, 16px); flex-shrink: 0; }
+    .breadcrumb-area { font-size: 14px; color: var(--cs-text-secondary, #595959); }
+    .breadcrumb-area span { color: var(--cs-text-tertiary, #8c8c8c); margin: 0 6px; }
+    .user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: var(--cs-radius-sm, 6px); transition: var(--cs-transition-fast); }
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+    .user-status-badge { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--cs-success, #52c41a); }
+    .user-status-badge::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 1.5px solid var(--cs-bg-card, #fff); }
+    .user-name { font-size: 14px; color: var(--cs-text); white-space: nowrap; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .user-avatar svg { width: 14px; height: 14px; color: #fff; }
+    .admin-main { flex: 1; padding: var(--cs-space-6, 24px); overflow-y: auto; }
+
+    /* --- Page Header --- */
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+    .page-header-left h1 { font-size: 20px; font-weight: 600; color: var(--cs-text); margin-bottom: 4px; }
+    .page-header-left p { font-size: 13px; color: var(--cs-text-secondary); }
+    .page-header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    /* --- Buttons --- */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 16px; font-size: 14px; border-radius: var(--cs-radius-sm, 6px); cursor: pointer; transition: var(--cs-transition-fast); border: 1px solid transparent; font-family: inherit; white-space: nowrap; }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .btn-primary { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
+    .btn-primary:hover { background: var(--cs-primary-hover); border-color: var(--cs-primary-hover); }
+    .btn-outline { background: #fff; color: var(--cs-text); border-color: var(--cs-border); }
+    .btn-outline:hover { color: var(--cs-primary); border-color: var(--cs-primary); }
+
+    /* Dropdown button with arrow */
+    .btn .btn-arrow { width: 10px; height: 10px; margin-left: 2px; opacity: 0.6; }
+
+    /* --- Two-Column Layout --- */
+    .content-columns { display: flex; gap: 16px; align-items: flex-start; }
+
+    /* --- Left Category Tree Panel --- */
+    .category-panel { width: 260px; min-width: 260px; background: var(--cs-bg-card); border-radius: var(--cs-radius-md, 8px); box-shadow: var(--cs-shadow-card); overflow: hidden; }
+    .category-search { padding: 12px 16px; border-bottom: 1px solid var(--cs-border-light, #f0f0f0); }
+    .category-search input { width: 100%; height: 32px; padding: 0 10px 0 32px; border: 1px solid var(--cs-border); border-radius: var(--cs-radius-sm, 6px); font-size: 13px; font-family: inherit; color: var(--cs-text); background: var(--cs-bg-page); outline: none; transition: border-color 0.15s; }
+    .category-search input:focus { border-color: var(--cs-primary); }
+    .category-search input::placeholder { color: var(--cs-text-placeholder); }
+    .category-search { position: relative; }
+    .category-search svg { position: absolute; left: 27px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--cs-text-placeholder); pointer-events: none; }
+
+    /* Tree */
+    .tree-container { padding: 8px 0; max-height: 520px; overflow-y: auto; }
+    .tree-container::-webkit-scrollbar { width: 4px; }
+    .tree-container::-webkit-scrollbar-thumb { background: var(--cs-border); border-radius: 2px; }
+    .tree-node { user-select: none; }
+    .tree-node-header { display: flex; align-items: center; padding: 7px 16px; font-size: 13px; color: var(--cs-text); cursor: pointer; transition: background 0.15s; gap: 6px; }
+    .tree-node-header:hover { background: var(--cs-bg-hover); }
+    .tree-node-header.active { background: var(--cs-primary-bg); color: var(--cs-primary); font-weight: 500; }
+    .tree-toggle { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .tree-toggle svg { width: 12px; height: 12px; color: var(--cs-text-tertiary); transition: transform 0.2s; }
+    .tree-toggle.expanded svg { transform: rotate(90deg); }
+    .tree-toggle.placeholder { visibility: hidden; }
+    .tree-folder-icon { width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .tree-folder-icon svg { width: 14px; height: 14px; }
+    .tree-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tree-count { font-size: 11px; color: var(--cs-text-tertiary); flex-shrink: 0; background: var(--cs-border-light); padding: 0 6px; border-radius: 10px; line-height: 18px; }
+    .tree-children { overflow: hidden; }
+    .tree-children.collapsed { display: none; }
+    .tree-child-header { display: flex; align-items: center; padding: 6px 16px 6px 46px; font-size: 13px; color: var(--cs-text); cursor: pointer; transition: background 0.15s; gap: 6px; }
+    .tree-child-header:hover { background: var(--cs-bg-hover); }
+    .tree-child-header.active { background: var(--cs-primary-bg); color: var(--cs-primary); font-weight: 500; }
+    .tree-child-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cs-text-placeholder); flex-shrink: 0; }
+    .tree-child-header.active .tree-child-dot { background: var(--cs-primary); }
+    .tree-child-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tree-child-count { font-size: 11px; color: var(--cs-text-tertiary); flex-shrink: 0; background: var(--cs-border-light); padding: 0 6px; border-radius: 10px; line-height: 18px; }
+
+    /* --- Right Document List Panel --- */
+    .doc-list-panel { flex: 1; min-width: 0; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-search { position: relative; flex-shrink: 0; }
+    .filter-search input { width: 240px; height: 34px; padding: 0 10px 0 34px; border: 1px solid var(--cs-border); border-radius: var(--cs-radius-sm, 6px); font-size: 13px; font-family: inherit; color: var(--cs-text); outline: none; transition: border-color 0.15s; }
+    .filter-search input:focus { border-color: var(--cs-primary); }
+    .filter-search input::placeholder { color: var(--cs-text-placeholder); }
+    .filter-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--cs-text-placeholder); pointer-events: none; }
+    .filter-select { height: 34px; padding: 0 28px 0 10px; border: 1px solid var(--cs-border); border-radius: var(--cs-radius-sm, 6px); font-size: 13px; font-family: inherit; color: var(--cs-text); background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c8c8c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 8px center; appearance: none; cursor: pointer; outline: none; transition: border-color 0.15s; }
+    .filter-select:focus { border-color: var(--cs-primary); }
+    .filter-right { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--cs-text-tertiary); font-size: 13px; }
+
+    /* Document Card */
+    .doc-card { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: var(--cs-bg-card); border-radius: var(--cs-radius-md, 8px); box-shadow: var(--cs-shadow-card); margin-bottom: 10px; transition: box-shadow 0.2s, transform 0.1s; }
+    .doc-card:hover { box-shadow: var(--cs-shadow-card-hover); }
+
+    /* Doc type icon */
+    .doc-type-icon { width: 42px; height: 42px; border-radius: var(--cs-radius-sm, 6px); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; letter-spacing: 0.5px; }
+    .doc-type-icon.pdf { background: #f5222d; }
+    .doc-type-icon.word { background: #1677ff; }
+    .doc-type-icon.excel { background: #52c41a; }
+
+    /* Doc center */
+    .doc-center { flex: 1; min-width: 0; }
+    .doc-title { font-size: 14px; font-weight: 600; color: var(--cs-text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-desc { font-size: 12px; color: var(--cs-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+    .doc-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .doc-tag { font-size: 11px; padding: 1px 8px; border-radius: 10px; font-weight: 500; line-height: 20px; }
+    .doc-tag.blue { background: var(--cs-primary-bg); color: var(--cs-primary); }
+    .doc-tag.red { background: var(--cs-danger-bg); color: var(--cs-danger); }
+    .doc-tag.orange { background: var(--cs-orange-bg); color: var(--cs-orange); }
+    .doc-tag.purple { background: var(--cs-purple-bg); color: var(--cs-purple); }
+    .doc-tag.green { background: var(--cs-success-bg); color: var(--cs-success); }
+    .doc-meta-text { font-size: 12px; color: var(--cs-text-tertiary); display: flex; align-items: center; gap: 4px; }
+    .doc-meta-text svg { width: 12px; height: 12px; opacity: 0.6; }
+
+    /* Doc right */
+    .doc-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .doc-status { font-size: 12px; padding: 2px 10px; border-radius: 10px; font-weight: 500; }
+    .doc-status.published { background: var(--cs-success-bg); color: var(--cs-success); }
+    .doc-status.draft { background: var(--cs-warning-bg); color: var(--cs-warning); }
+    .doc-actions { display: flex; align-items: center; gap: 4px; }
+    .doc-action-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: var(--cs-radius-sm, 6px); cursor: pointer; transition: var(--cs-transition-fast); color: var(--cs-text-secondary); border: none; background: transparent; }
+    .doc-action-btn:hover { background: var(--cs-bg-hover); color: var(--cs-primary); }
+    .doc-action-btn.danger:hover { color: var(--cs-danger); }
+    .doc-action-btn svg { width: 14px; height: 14px; }
+
+    /* --- Pagination --- */
+    .pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+    .pagination-info { font-size: 13px; color: var(--cs-text-tertiary); }
+    .pagination-pages { display: flex; align-items: center; gap: 4px; }
+    .page-btn { min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--cs-radius-sm, 6px); font-size: 13px; cursor: pointer; transition: var(--cs-transition-fast); border: 1px solid transparent; background: transparent; color: var(--cs-text); font-family: inherit; padding: 0 4px; }
+    .page-btn:hover { background: var(--cs-bg-hover); }
+    .page-btn.active { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
+    .page-btn.disabled { color: var(--cs-text-placeholder); cursor: not-allowed; }
+    .page-btn svg { width: 14px; height: 14px; }
+  </style>
+</body>
+</html>

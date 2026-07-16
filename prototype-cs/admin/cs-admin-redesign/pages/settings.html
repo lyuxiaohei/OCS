@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客服设置 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <span class="logo-text">在线客服</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" data-nav-key="dashboard">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+        <span class="nav-label">数据仪表盘</span>
+      </a>
+      <a class="nav-item nav-group-head" data-nav-key="session-group">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        <span class="nav-label">会话管理</span>
+        <span class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </a>
+      <div class="nav-sub-items">
+        <a class="nav-sub-item" data-nav-key="workbench"><span class="nav-dot"></span><span class="nav-label">客服工作台</span></a>
+        <a class="nav-sub-item" data-nav-key="session-record"><span class="nav-dot"></span><span class="nav-label">会话记录</span></a>
+        <a class="nav-sub-item" data-nav-key="todo"><span class="nav-dot"></span><span class="nav-label">待办事项</span></a>
+      </div>
+      <a class="nav-item nav-group-head" data-nav-key="knowledge-group">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        <span class="nav-label">知识库</span>
+        <span class="nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </a>
+      <div class="nav-sub-items">
+        <a class="nav-sub-item" data-nav-key="scripts"><span class="nav-dot"></span><span class="nav-label">话术库</span></a>
+        <a class="nav-sub-item" data-nav-key="faq"><span class="nav-dot"></span><span class="nav-label">FAQ</span></a>
+        <a class="nav-sub-item" data-nav-key="knowledge"><span class="nav-dot"></span><span class="nav-label">知识文档</span></a>
+      </div>
+      <!-- Active: 客服设置 -->
+      <a class="nav-item active" data-nav-key="settings">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span class="nav-label">客服设置</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ===== Content Wrapper ===== -->
+  <div class="admin-content-wrapper">
+
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <div class="breadcrumb"><span style="color:var(--cs-text);font-weight:600;">客服设置</span></div>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <span class="user-status-badge"></span>
+          <span class="user-name">张小明</span>
+          <div class="user-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置全局欢迎语、离线语、智能路由、会话超时与敏感词过滤（对应功能 US-ADMIN-02 / US-ADMIN-03 / US-ADMIN-04）</p>
+        </div>
+      </div>
+
+      <!-- 锚点导航（电梯导航：吸顶 + 快捷跳转） -->
+      <div class="settings-anchor">
+        <a class="active" href="#routing">客服分配规则</a>
+        <a href="#timeout">会话超时</a>
+        <a href="#urgency">紧急度</a>
+        <a href="#sensitive">敏感词</a>
+        <a href="#autoreply">自动回复</a>
+      </div>
+
+      <!-- ========== 1. 客服分配规则 ========== -->
+      <div class="card setting-section" id="routing">
+        <div class="section-head">
+          <h3>客服分配规则
+            <span class="head-desc">控制会话如何分配给客服，支持自动接入与智能分流</span>
+          </h3>
+        </div>
+
+        <!-- 接入渠道 -->
+        <div class="form-row">
+          <div class="form-label">接入渠道</div>
+          <div class="form-control">
+            <div class="radio-card-group" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="radio-card checked">
+                <div class="rc-title">小程序</div>
+                <div class="rc-desc">微信小程序内嵌客服入口</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">H5网页</div>
+                <div class="rc-desc">独立网页端客服入口</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">PC端</div>
+                <div class="rc-desc">桌面网站客服入口</div>
+                <div class="rc-check"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 分配策略 -->
+        <div class="form-row">
+          <div class="form-label">分配策略</div>
+          <div class="form-control">
+            <div class="radio-card-group" style="grid-template-columns: repeat(2, 1fr);">
+              <div class="radio-card checked">
+                <div class="rc-title">轮询分配</div>
+                <div class="rc-desc">按在线客服顺序轮流分配，保证每位客服接待量大致相等</div>
+                <div class="rc-check"></div>
+              </div>
+              <div class="radio-card">
+                <div class="rc-title">技能组分配</div>
+                <div class="rc-desc">按技能组优先匹配，根据客户问题自动分配到对应技能组</div>
+                <div class="rc-check"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 技能组配置 -->
+        <div class="form-row">
+          <div class="form-label">技能组配置</div>
+          <div class="form-control">
+            <div class="skill-group-table">
+              <table style="width:100%; border-collapse:collapse; font-size:var(--cs-font-size-base);">
+                <thead>
+                  <tr style="background:var(--cs-bg-header);">
+                    <th style="padding:8px 12px; text-align:left; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light);">品牌/渠道</th>
+                    <th style="padding:8px 12px; text-align:left; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light);">技能组</th>
+                    <th style="padding:8px 12px; text-align:left; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light);">成员</th>
+                    <th style="padding:8px 12px; text-align:right; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light);">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);" rowspan="2">品牌商城1</td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);">售前组</td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);">
+                      <span style="display:inline-flex; gap:4px;">
+                        <span class="sensitive-tag" style="background:var(--cs-primary-bg); border-color:#91caff; color:var(--cs-primary);">李静</span>
+                        <span class="sensitive-tag" style="background:var(--cs-primary-bg); border-color:#91caff; color:var(--cs-primary);">张小明</span>
+                      </span>
+                    </td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter); text-align:right;">
+                      <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm);">编辑</button>
+                      <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm); color:var(--cs-danger);">删除</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);">售后组</td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);">
+                      <span style="display:inline-flex; gap:4px;">
+                        <span class="sensitive-tag" style="background:var(--cs-primary-bg); border-color:#91caff; color:var(--cs-primary);">王磊</span>
+                        <span class="sensitive-tag" style="background:var(--cs-primary-bg); border-color:#91caff; color:var(--cs-primary);">赵丽</span>
+                      </span>
+                    </td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter); text-align:right;">
+                      <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm);">编辑</button>
+                      <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm); color:var(--cs-danger);">删除</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);">品牌商城2</td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);">售前组</td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter);">
+                      <span style="display:inline-flex; gap:4px;">
+                        <span class="sensitive-tag" style="background:var(--cs-primary-bg); border-color:#91caff; color:var(--cs-primary);">陈昊</span>
+                      </span>
+                    </td>
+                    <td style="padding:8px 12px; border-bottom:1px solid var(--cs-border-lighter); text-align:right;">
+                      <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm);">编辑</button>
+                      <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm); color:var(--cs-danger);">删除</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 2. 会话超时 ========== -->
+      <div class="card setting-section" id="timeout">
+        <div class="section-head">
+          <h3>会话超时
+            <span class="head-desc">按会话生命周期配置各阶段超时阈值与操作</span>
+          </h3>
+        </div>
+
+        <!-- 排队超时 -->
+        <div class="timeout-card">
+          <div class="tc-title">排队超时 <span class="tc-tag">排队中</span></div>
+          <div class="tc-row">
+            <div class="tc-field">
+              <div class="switch on">
+                <div class="switch-track"></div>
+              </div>
+            </div>
+            <div class="tc-field"><span class="tc-label">超时阈值</span>
+              <div class="input-with-unit"><input type="text" value="4" /><span class="unit">分钟</span></div>
+            </div>
+            <div class="tc-field"><span class="tc-label">超时后操作</span>
+              <div class="cs-radio-group" style="display:flex; gap:16px;">
+                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--cs-font-size-base);">
+                  <input type="radio" name="queue-action" checked /> 自动转接
+                </label>
+                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--cs-font-size-base);">
+                  <input type="radio" name="queue-action" /> 通知客服
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 响应超时 -->
+        <div class="timeout-card">
+          <div class="tc-title">响应超时 <span class="tc-tag">服务中每轮</span></div>
+          <div class="tc-row">
+            <div class="tc-field">
+              <div class="switch on">
+                <div class="switch-track"></div>
+              </div>
+            </div>
+            <div class="tc-field"><span class="tc-label">超时阈值</span>
+              <div class="input-with-unit"><input type="text" value="3" /><span class="unit">分钟（轮次）</span></div>
+            </div>
+            <div class="tc-field"><span class="tc-label">超时后操作</span>
+              <div class="cs-radio-group" style="display:flex; gap:16px;">
+                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--cs-font-size-base);">
+                  <input type="radio" name="response-action" checked /> 标记紧急
+                </label>
+                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--cs-font-size-base);">
+                  <input type="radio" name="response-action" /> 自动升级
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 会话超时 -->
+        <div class="timeout-card">
+          <div class="tc-title">会话超时 <span class="tc-tag">用户无交互</span></div>
+          <div class="tc-row">
+            <div class="tc-field">
+              <div class="switch on">
+                <div class="switch-track"></div>
+              </div>
+            </div>
+            <div class="tc-field"><span class="tc-label">超时阈值</span>
+              <div class="input-with-unit"><input type="text" value="30" /><span class="unit">分钟（无交互）</span></div>
+            </div>
+            <div class="tc-field"><span class="tc-label">超时后操作</span>
+              <div class="cs-radio-group" style="display:flex; gap:16px;">
+                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--cs-font-size-base);">
+                  <input type="radio" name="session-action" checked /> 自动关闭
+                </label>
+                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--cs-font-size-base);">
+                  <input type="radio" name="session-action" /> 通知客户
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 3. 紧急度 ========== -->
+      <div class="card setting-section" id="urgency">
+        <div class="section-head">
+          <h3>紧急度
+            <span class="head-desc">系统按规则自动评定待办紧急度，决定待办排序与提醒方式</span>
+          </h3>
+        </div>
+
+        <div class="urgency-table">
+          <table style="width:100%; border-collapse:collapse; font-size:var(--cs-font-size-base);">
+            <thead>
+              <tr style="background:var(--cs-bg-header);">
+                <th style="padding:10px 14px; text-align:left; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light); width:100px;">级别</th>
+                <th style="padding:10px 14px; text-align:left; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light);">触发条件</th>
+                <th style="padding:10px 14px; text-align:left; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light);">自动分配</th>
+                <th style="padding:10px 14px; text-align:left; font-weight:var(--cs-font-weight-semibold); border-bottom:1px solid var(--cs-border-light);">提醒方式</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">
+                  <span style="display:inline-flex; align-items:center; gap:6px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--cs-danger);"></span>
+                    <strong style="color:var(--cs-danger);">紧急</strong>
+                  </span>
+                </td>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">VIP客户 / 投诉 / 退款金额 &gt; 500 / 已超时</td>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">优先</td>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">声音 + 弹窗</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">
+                  <span style="display:inline-flex; align-items:center; gap:6px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--cs-primary);"></span>
+                    <strong style="color:var(--cs-primary);">普通</strong>
+                  </span>
+                </td>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">新咨询 / 一般售后</td>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">轮询</td>
+                <td style="padding:10px 14px; border-bottom:1px solid var(--cs-border-lighter);">弹窗</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 14px;">
+                  <span style="display:inline-flex; align-items:center; gap:6px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--cs-text-placeholder);"></span>
+                    <strong style="color:var(--cs-text-tertiary);">低</strong>
+                  </span>
+                </td>
+                <td style="padding:10px 14px;">查询 / 咨询</td>
+                <td style="padding:10px 14px;">轮询</td>
+                <td style="padding:10px 14px;">静默</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== 4. 敏感词 ========== -->
+      <div class="card setting-section" id="sensitive">
+        <div class="section-head">
+          <h3>敏感词
+            <span class="head-desc">过滤用户/客服消息中的敏感词，命中后自动替换或拦截</span>
+          </h3>
+        </div>
+
+        <p class="form-hint" style="margin-top:0; margin-bottom:var(--cs-space-4);">添加敏感词到对应分类中，系统将自动过滤会话消息中的敏感内容。</p>
+
+        <div class="add-sensitive" style="margin-bottom:var(--cs-space-4);">
+          <input class="input-text" placeholder="输入敏感词" />
+          <select class="select-field" style="min-width:120px; height:32px;">政治敏感</select>
+          <button class="btn-primary" style="padding:4px 12px; height:32px; font-size:var(--cs-font-size-base);">添加</button>
+        </div>
+
+        <!-- 敏感词分组 -->
+        <div class="sensitive-group">
+          <div class="sg-title">
+            <span class="sg-name"><span class="group-dot political"></span> 政治敏感 <span class="sg-count">(3)</span></span>
+          </div>
+          <div class="sensitive-tags">
+            <span class="sensitive-tag">词语1 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语2 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语3 <span class="remove">&times;</span></span>
+          </div>
+        </div>
+
+        <div class="sensitive-group">
+          <div class="sg-title">
+            <span class="sg-name"><span class="group-dot porn"></span> 色情违规 <span class="sg-count">(2)</span></span>
+          </div>
+          <div class="sensitive-tags">
+            <span class="sensitive-tag">词语4 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语5 <span class="remove">&times;</span></span>
+          </div>
+        </div>
+
+        <div class="sensitive-group">
+          <div class="sg-title">
+            <span class="sg-name"><span class="group-dot ad"></span> 广告推广 <span class="sg-count">(4)</span></span>
+          </div>
+          <div class="sensitive-tags">
+            <span class="sensitive-tag">词语6 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语7 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语8 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语9 <span class="remove">&times;</span></span>
+          </div>
+        </div>
+
+        <div class="sensitive-group">
+          <div class="sg-title">
+            <span class="sg-name"><span class="group-dot insult"></span> 人身攻击 <span class="sg-count">(3)</span></span>
+          </div>
+          <div class="sensitive-tags">
+            <span class="sensitive-tag">词语10 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语11 <span class="remove">&times;</span></span>
+            <span class="sensitive-tag">词语12 <span class="remove">&times;</span></span>
+          </div>
+        </div>
+
+        <div class="sensitive-stats">
+          <div><span class="num">12</span>总数</div>
+          <div><span class="num">12</span>启用</div>
+          <div><span class="num">8</span>今日命中</div>
+        </div>
+      </div>
+
+      <!-- ========== 5. 自动回复 ========== -->
+      <div class="card setting-section" id="autoreply">
+        <div class="section-head">
+          <h3>自动回复
+            <span class="head-desc">用户进入会话 / 离线时自动推送的回复文案</span>
+          </h3>
+        </div>
+
+        <!-- 欢迎语 -->
+        <div class="timeout-card">
+          <div class="tc-title">欢迎语</div>
+          <div class="form-row">
+            <div class="form-label">启用</div>
+            <div class="form-control">
+              <div class="switch on">
+                <div class="switch-track"></div>
+                <span class="switch-label">启用自动欢迎语</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>欢迎语内容</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">您好！欢迎使用在线客服，请问有什么可以帮助您的？</textarea>
+              <div style="display:flex; gap:6px; margin-top:6px;">
+                <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm);">{客户昵称}</button>
+                <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm);">{订单号}</button>
+                <button class="btn-default" style="padding:2px 8px; font-size:var(--cs-font-size-sm);">{客服姓名}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 离线自动回复 -->
+        <div class="timeout-card">
+          <div class="tc-title">离线自动回复</div>
+          <div class="form-row">
+            <div class="form-label">启用</div>
+            <div class="form-control">
+              <div class="switch on">
+                <div class="switch-track"></div>
+                <span class="switch-label">启用离线自动回复</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label"><span class="req">*</span>离线语内容</div>
+            <div class="form-control">
+              <textarea class="textarea-field" rows="3">当前非工作时间，您的消息已记录，我们将在工作时间内尽快回复。</textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">离线时间段</div>
+            <div class="form-control">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="tc-label" style="font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary);">开始</span>
+                <input type="text" class="input-text" style="width:80px; text-align:center;" value="18:00" />
+                <span style="color:var(--cs-text-tertiary);">—</span>
+                <span class="tc-label" style="font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary);">结束</span>
+                <input type="text" class="input-text" style="width:80px; text-align:center;" value="09:00" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 吸底操作栏 -->
+      <div class="settings-footer">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div class="footer-tip">&#x26A0; 有未保存的更改</div>
+          <span class="save-hint" id="saveHint" style="display:none;">&#x26A0;&#xFE0F; 有 <span id="dirtyCount">0</span> 个模块已修改</span>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-default">重置</button>
+          <button class="btn-primary" id="btnSave">保存设置</button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  // === Dirty state tracking ===
+  var dirtySections = new Set();
+  var saveHint = document.getElementById('saveHint');
+  var dirtyCountEl = document.getElementById('dirtyCount');
+
+  function updateDirtyUI() {
+    var count = dirtySections.size;
+    if (count > 0) {
+      saveHint.style.display = '';
+      dirtyCountEl.textContent = count;
+    } else {
+      saveHint.style.display = 'none';
+    }
+  }
+
+  function findSection(el) {
+    var node = el;
+    while (node && node !== document.body) {
+      if (node.classList && node.classList.contains('setting-section')) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  function markDirty(section) {
+    if (!section) return;
+    var id = section.id;
+    if (!id) return;
+    dirtySections.add(id);
+    section.classList.add('dirty');
+    updateDirtyUI();
+  }
+
+  var sections = document.querySelectorAll('.card.setting-section');
+  sections.forEach(function(section) {
+    section.addEventListener('input', function(e) {
+      if (e.target.matches('textarea, input[type="text"], input:not([type])')) markDirty(section);
+    });
+    section.addEventListener('change', function(e) { markDirty(section); });
+    section.addEventListener('click', function(e) {
+      var sw = e.target.closest('.switch');
+      if (sw) { sw.classList.toggle('on'); markDirty(section); }
+      var rc = e.target.closest('.radio-card');
+      if (rc) {
+        var group = rc.parentNode;
+        Array.prototype.forEach.call(group.querySelectorAll('.radio-card'), function(c) { c.classList.remove('checked'); });
+        rc.classList.add('checked');
+        setTimeout(function() { markDirty(section); }, 0);
+      }
+    });
+  });
+
+  // === Anchor nav scroll spy ===
+  var anchorLinks = Array.prototype.slice.call(document.querySelectorAll('.settings-anchor a'));
+  var anchorSections = Array.prototype.slice.call(document.querySelectorAll('.setting-section[id]'));
+
+  function setActiveAnchor(id) {
+    anchorLinks.forEach(function(l) { l.classList.toggle('active', l.getAttribute('href') === '#' + id); });
+  }
+  anchorLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var id = (link.getAttribute('href') || '').replace('#', '');
+      var sec = id && document.getElementById(id);
+      if (!sec) return;
+      e.preventDefault();
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveAnchor(id);
+    });
+  });
+
+  if ('IntersectionObserver' in window && anchorSections.length) {
+    var ratios = {};
+    var spy = new IntersectionObserver(function(entries) {
+      entries.forEach(function(en) { ratios[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0; });
+      var bestId = null, best = 0;
+      anchorSections.forEach(function(s) {
+        var r = ratios[s.id] || 0;
+        if (r <= 0) { var rect = s.getBoundingClientRect(); if (rect.top < 120) r = 0.1; }
+        if (r > best) { best = r; bestId = s.id; }
+      });
+      if (bestId) setActiveAnchor(bestId);
+    }, { rootMargin: '-56px 0px -55% 0px', threshold: [0, 0.2, 0.5, 1] });
+    anchorSections.forEach(function(s) { spy.observe(s); });
+  }
+
+  // === Save clears dirty state ===
+  var btnSave = document.getElementById('btnSave');
+  if (btnSave) {
+    btnSave.addEventListener('click', function() {
+      dirtySections.clear();
+      sections.forEach(function(section) { section.classList.remove('dirty'); });
+      updateDirtyUI();
+    });
+  }
+})();
+</script>
+
+    <style>
+    /* --- Layout Shell --- */
+    .admin-layout {
+      display: flex !important;
+      min-height: 100vh !important;
+      font-family: var(--cs-font-family);
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+    }
+
+    /* --- Sidebar --- */
+    .admin-sidebar {
+      width: var(--cs-sidebar-width, 220px) !important;
+      min-width: var(--cs-sidebar-width, 220px) !important;
+      background: var(--cs-bg-sidebar, #001529);
+      display: flex !important;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .sidebar-logo {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .sidebar-logo .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: 10px; flex-shrink: 0;
+    }
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+    .sidebar-logo .logo-text {
+      font-size: 16px; font-weight: 600; color: #fff;
+      white-space: nowrap; letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+    .nav-item {
+      display: flex; align-items: center;
+      padding: 10px 24px; font-size: 14px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer; transition: var(--cs-transition-fast);
+      text-decoration: none; position: relative; user-select: none;
+    }
+    .nav-item:hover {
+      color: var(--cs-sidebar-text-active, #fff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+    .nav-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+    .nav-item .nav-icon {
+      width: 16px; height: 16px; margin-right: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+    .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-item .nav-arrow {
+      width: 12px; height: 12px; transition: transform 0.2s ease; opacity: 0.5;
+    }
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-item.nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+
+    .nav-sub-items { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; }
+    .nav-sub-items.open { max-height: 200px; }
+    .nav-sub-item {
+      display: flex; align-items: center;
+      padding: 8px 24px 8px 48px; font-size: 13px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer; transition: var(--cs-transition-fast);
+      text-decoration: none; position: relative;
+    }
+    .nav-sub-item:hover {
+      color: var(--cs-sidebar-text-active, #fff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+    .nav-sub-item.active { color: var(--cs-primary, #1677ff); background: var(--cs-primary-bg, #e6f4ff); }
+    .nav-sub-item.active::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+    .nav-sub-item .nav-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor; opacity: 0.5; margin-right: 10px; flex-shrink: 0;
+    }
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+
+    /* --- Right Content Area --- */
+    .admin-content-wrapper {
+      flex: 1; margin-left: var(--cs-sidebar-width, 220px);
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* --- Header --- */
+    .admin-header {
+      height: var(--cs-header-height, 56px);
+      background: var(--cs-bg-card, #fff);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--cs-space-6, 24px);
+      position: sticky; top: 0; z-index: 50; flex-shrink: 0;
+    }
+    .header-left { flex: 1; min-width: 0; }
+    .header-right { display: flex; align-items: center; gap: var(--cs-space-4, 16px); flex-shrink: 0; }
+    .breadcrumb { font-size: 14px; color: var(--cs-text); font-weight: 600; }
+    .user-info {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+      padding: 4px 8px; border-radius: var(--cs-radius-sm, 6px);
+      transition: var(--cs-transition-fast);
+    }
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+    .user-status-badge {
+      position: relative; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--cs-success, #52c41a);
+    }
+    .user-status-badge::after {
+      content: ''; position: absolute; inset: -2px; border-radius: 50%;
+      border: 1.5px solid var(--cs-bg-card, #fff);
+    }
+    .user-name { font-size: 14px; color: var(--cs-text, #1f1f1f); white-space: nowrap; }
+    .user-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1));
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .user-avatar svg { width: 14px; height: 14px; color: #fff; }
+
+    /* --- Main Content Area --- */
+    .admin-content {
+      flex: 1;
+      padding: var(--cs-space-6, 24px);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================
+       Settings Page - Prototype Styles
+       ========================================== */
+
+    /* Settings anchor nav */
+    .settings-anchor {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 16px;
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      border-radius: var(--cs-radius-md, 8px);
+      margin-bottom: var(--cs-space-5, 20px);
+      flex-wrap: wrap;
+      position: sticky;
+      top: 56px;
+      z-index: 20;
+      background: var(--cs-bg-card, #fff);
+      box-shadow: var(--cs-shadow-card);
+    }
+    .settings-anchor a {
+      padding: 6px 14px;
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text-secondary, #595959);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: var(--cs-transition-normal, all 0.2s ease);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .settings-anchor a:hover { background: #e6f4ff; color: var(--cs-primary, #1677ff); }
+    .settings-anchor a.active { background: var(--cs-primary-bg, #e6f4ff); color: var(--cs-primary, #1677ff); font-weight: var(--cs-font-weight-medium, 500); }
+
+    /* Card / Section */
+    .card.setting-section {
+      background: var(--cs-bg-card, #fff);
+      border-radius: var(--cs-radius-md, 8px);
+      box-shadow: var(--cs-shadow-card);
+      padding: var(--cs-space-6, 24px);
+      margin-bottom: var(--cs-space-5, 20px);
+      scroll-margin-top: 120px;
+      border-left: 3px solid transparent;
+    }
+    .card.setting-section.dirty { border-left-color: var(--cs-warning, #faad14); }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      margin-bottom: var(--cs-space-5, 20px);
+    }
+    .section-head h3 {
+      font-size: var(--cs-font-size-xl, 16px);
+      font-weight: var(--cs-font-weight-semibold, 600);
+      flex: 1;
+      margin: 0;
+    }
+    .head-desc {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary, #8c8c8c);
+      font-weight: var(--cs-font-weight-normal, 400);
+    }
+
+    /* Form row */
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: var(--cs-space-5, 20px);
+    }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label {
+      width: 140px;
+      flex-shrink: 0;
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text, #1f1f1f);
+      padding-top: 6px;
+      text-align: right;
+      padding-right: var(--cs-space-4, 16px);
+      box-sizing: border-box;
+    }
+    .form-label .req { color: var(--cs-danger, #f5222d); margin-right: 4px; }
+    .form-control { flex: 1; min-width: 0; }
+    .form-hint {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary, #8c8c8c);
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    /* Input / Textarea */
+    .input-text,
+    .textarea-field,
+    .input-number {
+      width: 100%;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      padding: 6px 11px;
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text, #1f1f1f);
+      background: var(--cs-bg-card, #fff);
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .input-text { height: 32px; }
+    .input-text:hover, .textarea-field:hover, .input-number:hover { border-color: var(--cs-primary-hover, #4096ff); }
+    .input-text:focus, .textarea-field:focus, .input-number:focus { border-color: var(--cs-primary, #1677ff); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .textarea-field {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.6;
+      padding: 8px 11px;
+    }
+    .input-number { width: 120px; height: 32px; }
+
+    /* Switch */
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .switch-track {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.25);
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .switch-track::after {
+      content: "";
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .switch.on .switch-track { background: var(--cs-primary, #1677ff); }
+    .switch.on .switch-track::after { transform: translateX(16px); }
+    .switch-label { font-size: var(--cs-font-size-base, 13px); color: var(--cs-text, #1f1f1f); }
+    .switch-desc { font-size: var(--cs-font-size-sm, 12px); color: var(--cs-text-tertiary, #8c8c8c); margin-left: 44px; margin-top: 4px; }
+
+    /* Radio card group */
+    .radio-card-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) { .radio-card-group { grid-template-columns: 1fr; } }
+    .radio-card {
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-md, 8px);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      background: var(--cs-bg-card, #fff);
+    }
+    .radio-card:hover { border-color: var(--cs-primary-hover, #4096ff); }
+    .radio-card.checked {
+      border-color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+    .radio-card .rc-title {
+      font-size: var(--cs-font-size-base, 13px);
+      font-weight: var(--cs-font-weight-medium, 500);
+      color: var(--cs-text, #1f1f1f);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .radio-card .rc-desc {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary, #8c8c8c);
+      line-height: 1.5;
+    }
+    .radio-card .rc-check {
+      position: absolute;
+      top: 14px; right: 14px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--cs-border, #d9d9d9);
+      background: var(--cs-bg-card, #fff);
+    }
+    .radio-card.checked .rc-check { border-color: var(--cs-primary, #1677ff); }
+    .radio-card.checked .rc-check::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--cs-primary, #1677ff);
+    }
+
+    /* Input with unit */
+    .input-with-unit {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .input-with-unit:hover { border-color: var(--cs-primary-hover, #4096ff); }
+    .input-with-unit:focus-within { border-color: var(--cs-primary, #1677ff); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .input-with-unit input {
+      width: 90px;
+      height: 32px;
+      border: none;
+      outline: none;
+      text-align: center;
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text, #1f1f1f);
+      font-family: inherit;
+      background: var(--cs-bg-card, #fff);
+    }
+    .input-with-unit .unit {
+      padding: 0 var(--cs-space-3, 12px);
+      height: 32px;
+      line-height: 32px;
+      background: var(--cs-bg-header, #fafafa);
+      border-left: 1px solid var(--cs-border-light, #f0f0f0);
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text-secondary, #595959);
+      white-space: nowrap;
+    }
+
+    /* Timeout card */
+    .timeout-card {
+      margin-bottom: var(--cs-space-4, 16px);
+      padding: 14px 16px;
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      border-radius: var(--cs-radius-md, 8px);
+      background: #fcfcfc;
+    }
+    .timeout-card .tc-title {
+      font-size: var(--cs-font-size-base, 13px);
+      font-weight: var(--cs-font-weight-semibold, 600);
+      color: var(--cs-text, #1f1f1f);
+      margin-bottom: 10px;
+    }
+    .timeout-card .tc-title .tc-tag {
+      font-size: var(--cs-font-size-xs, 11px);
+      color: var(--cs-text-tertiary, #8c8c8c);
+      font-weight: normal;
+      margin-left: 4px;
+    }
+    .timeout-card .tc-row { display: flex; align-items: center; gap: var(--cs-space-5, 20px); flex-wrap: wrap; }
+    .timeout-card .tc-field { display: flex; align-items: center; gap: 6px; }
+    .timeout-card .tc-field .tc-label { font-size: var(--cs-font-size-sm, 12px); color: var(--cs-text-secondary, #595959); white-space: nowrap; }
+    .timeout-card .tc-hint { font-size: var(--cs-font-size-sm, 12px); color: var(--cs-text-tertiary, #8c8c8c); margin-top: 8px; line-height: 1.6; }
+
+    /* Select field */
+    .select-field {
+      height: 32px;
+      min-width: 180px;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      padding: 0 11px;
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text, #1f1f1f);
+      background: var(--cs-bg-card, #fff);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .select-field:hover { border-color: var(--cs-primary-hover, #4096ff); }
+    .select-field::after {
+      content: "\25BE";
+      color: var(--cs-text-placeholder, #bfbfbf);
+      font-size: 10px;
+      margin-left: var(--cs-space-2, 8px);
+    }
+
+    /* Sensitive tags */
+    .sensitive-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--cs-space-2, 8px);
+      margin-bottom: var(--cs-space-3, 12px);
+    }
+    .sensitive-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--cs-primary-bg, #e6f4ff);
+      border: 1px solid #91caff;
+      border-radius: var(--cs-radius-xs, 4px);
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-primary, #1677ff);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+    .sensitive-tag:hover { background: #bae0ff; }
+    .sensitive-tag .remove {
+      cursor: pointer;
+      font-size: var(--cs-font-size-md, 14px);
+      line-height: 1;
+      color: var(--cs-primary, #1677ff);
+      opacity: 0.5;
+      margin-left: 2px;
+    }
+    .sensitive-tag .remove:hover { color: var(--cs-primary, #1677ff); opacity: 1; }
+
+    .add-sensitive {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .add-sensitive .input-text { width: 180px; }
+    .sensitive-stats {
+      display: flex;
+      gap: var(--cs-space-4, 16px);
+      margin-top: var(--cs-space-4, 16px);
+      padding: 10px 14px;
+      background: var(--cs-bg-header, #fafafa);
+      border-radius: var(--cs-radius-sm, 6px);
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary, #8c8c8c);
+    }
+    .sensitive-stats .num { font-size: var(--cs-font-size-xl, 16px); font-weight: var(--cs-font-weight-semibold, 600); color: var(--cs-text, #1f1f1f); margin-right: 4px; }
+
+    /* Sensitive groups */
+    .sensitive-group {
+      margin-bottom: var(--cs-space-4, 16px);
+      padding: 14px;
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      border-radius: var(--cs-radius-md, 8px);
+      background: #fcfcfc;
+    }
+    .sensitive-group .sg-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .sensitive-group .sg-title .sg-name {
+      font-size: var(--cs-font-size-base, 13px);
+      font-weight: var(--cs-font-weight-semibold, 600);
+      color: var(--cs-text, #1f1f1f);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sensitive-group .sg-title .sg-count {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary, #8c8c8c);
+      font-weight: var(--cs-font-weight-normal, 400);
+    }
+    .group-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .group-dot.political { background: var(--cs-danger, #f5222d); }
+    .group-dot.porn      { background: var(--cs-orange, #fa8c16); }
+    .group-dot.ad        { background: var(--cs-warning, #faad14); }
+    .group-dot.insult    { background: var(--cs-purple, #722ed1); }
+
+    /* Urgency table */
+    .urgency-table { margin-bottom: var(--cs-space-4, 16px); }
+
+    /* Settings footer (sticky bottom) */
+    .settings-footer {
+      position: sticky;
+      bottom: 0;
+      background: var(--cs-bg-card, #fff);
+      border-top: 1px solid var(--cs-border-light, #f0f0f0);
+      padding: var(--cs-space-3, 12px) var(--cs-space-6, 24px);
+      margin: 0 calc(var(--cs-space-6, 24px) * -1) calc(var(--cs-space-6, 24px) * -1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+      z-index: 5;
+    }
+    .settings-footer .footer-tip {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-warning, #faad14);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .settings-footer .footer-actions { display: flex; gap: var(--cs-space-2, 8px); }
+    .save-hint {
+      color: var(--cs-warning, #faad14);
+      font-size: var(--cs-font-size-sm, 12px);
+    }
+
+    /* Buttons */
+    .btn-primary, .btn-default {
+      height: 32px;
+      padding: 4px 15px;
+      font-size: var(--cs-font-size-base, 13px);
+      border-radius: var(--cs-radius-sm, 6px);
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--cs-font-family);
+      user-select: none;
+      border: 1px solid var(--cs-border, #d9d9d9);
+    }
+    .btn-default {
+      background: var(--cs-bg-card, #fff);
+      color: var(--cs-text, #1f1f1f);
+    }
+    .btn-default:hover { border-color: var(--cs-primary, #1677ff); color: var(--cs-primary, #1677ff); }
+    .btn-primary {
+      background: var(--cs-primary, #1677ff);
+      border-color: var(--cs-primary, #1677ff);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--cs-primary-hover, #4096ff); border-color: var(--cs-primary-hover, #4096ff); color: #fff; }
+    .btn-primary:active { background: var(--cs-primary-active, #0958d9); border-color: var(--cs-primary-active, #0958d9); }
+
+    /* Utility */
+    .flex-between { display: flex; align-items: center; justify-content: space-between; }
+    .mb-16 { margin-bottom: var(--cs-space-4, 16px); }
+    </style>
+</body>
+</html>

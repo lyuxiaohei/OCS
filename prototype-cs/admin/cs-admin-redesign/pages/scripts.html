@@ -1,0 +1,1258 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>话术库 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <span class="logo-text">在线客服</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- 数据仪表盘 -->
+        <a class="nav-item" href="dashboard.html">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-label">数据仪表盘</span>
+        </a>
+
+        <!-- 会话管理 -->
+        <a class="nav-item nav-group-head expanded">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">会话管理</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items open">
+          <a class="nav-sub-item" href="workbench.html">
+            <span class="nav-dot"></span>
+            <span class="nav-label">客服工作台</span>
+          </a>
+          <a class="nav-sub-item" href="session-record.html">
+            <span class="nav-dot"></span>
+            <span class="nav-label">会话记录</span>
+          </a>
+          <a class="nav-sub-item" href="todo.html">
+            <span class="nav-dot"></span>
+            <span class="nav-label">待办事项</span>
+          </a>
+        </div>
+
+        <!-- 知识库 (Active) -->
+        <a class="nav-item nav-group-head expanded active">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">知识库</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items open">
+          <a class="nav-sub-item active" href="scripts.html">
+            <span class="nav-dot"></span>
+            <span class="nav-label">话术库</span>
+          </a>
+          <a class="nav-sub-item" href="faq.html">
+            <span class="nav-dot"></span>
+            <span class="nav-label">FAQ</span>
+          </a>
+          <a class="nav-sub-item" href="knowledge.html">
+            <span class="nav-dot"></span>
+            <span class="nav-label">知识文档</span>
+          </a>
+        </div>
+
+        <!-- 客服设置 -->
+        <a class="nav-item" href="settings.html">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </span>
+          <span class="nav-label">客服设置</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ===== Content Wrapper ===== -->
+    <div class="admin-content-wrapper">
+
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb-area">知识库 / <span style="font-weight:600;">话术库</span></div>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span class="user-status-badge"></span>
+            <span class="user-name">客服A · 王小明</span>
+            <div class="user-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+
+        <!-- ===== 两栏：分类树 + 话术列表 ===== -->
+        <div class="kb-layout">
+
+          <!-- ===== 左侧：业务分类树 ===== -->
+          <div class="kb-sidebar">
+            <div class="category-tree">
+              <div class="tree-header">
+                <span class="tree-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>业务分类</span>
+                <span class="tree-add" title="新增分类">+</span>
+              </div>
+
+              <div class="tree-node active" data-cat="all">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+                <span class="tree-label">全部话术</span>
+                <span class="tree-count">54</span>
+              </div>
+
+              <div class="tree-node" data-cat="quickreply">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg></span>
+                <span class="tree-label">快捷回复</span>
+                <span class="tree-count">6</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <div class="tree-node" data-cat="presale">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+                <span class="tree-label">售前</span>
+                <span class="tree-count">12</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <div class="tree-node" data-cat="aftersale">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+                <span class="tree-label">售后</span>
+                <span class="tree-count">18</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <div class="tree-node" data-cat="complaint">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+                <span class="tree-label">投诉</span>
+                <span class="tree-count">8</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <div class="tree-node" data-cat="general">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+                <span class="tree-label">通用</span>
+                <span class="tree-count">10</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <div class="tree-node" data-cat="trash">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+                <span class="tree-label">回收站</span>
+                <span class="tree-count">3</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 右侧：工具条 + 话术表格 ===== -->
+          <div class="kb-main">
+
+            <!-- 工具条 -->
+            <div class="card" style="padding:16px; margin-bottom:16px;">
+              <div class="kb-toolbar">
+                <input type="text" id="scSearch" class="ipt input-search" placeholder="搜索话术内容或关键词" style="min-width:240px;color:var(--cs-text);" />
+                <select id="scStatusFilter" class="select" style="min-width:110px;">
+                  <option value="">全部状态</option>
+                  <option value="on">启用</option>
+                  <option value="off">停用</option>
+                </select>
+                <div style="margin-left:auto;" class="flex gap-8">
+                  <button id="scBtnReset" class="btn-default">重置</button>
+                  <button id="scBtnQuery" class="btn-primary">查询</button>
+                  <button id="btnAddScript" class="btn-primary">+ 新建话术</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 话术表格 -->
+            <div class="card" style="padding:0;">
+              <div class="table-wrap">
+                <table class="data-table scripts-table">
+                  <thead>
+                    <tr>
+                      <th style="width:40%;">话术内容</th>
+                      <th>业务分类</th>
+                      <th>使用次数</th>
+                      <th>状态</th>
+                      <th style="width:190px; white-space:nowrap;">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="col-title">您好，欢迎来到 CS 商城！我是您的专属客服，很高兴为您服务。请问有什么可以帮您的吗？
+                          <span class="title-sub">最后使用：刚刚</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-general">通用</span></td>
+                      <td><span class="usage-count hot">186 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">关于您的退款申请，一般会在 1-3 个工作日内审核完成，审核通过后退款将原路返回至您的支付账户，请耐心等待。
+                          <span class="title-sub">最后使用：5 分钟前 · 关键词：退款、退货退款</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-aftersale">售后</span></td>
+                      <td><span class="usage-count hot">142 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">您好，您的问题需要更专业的同事为您处理，正在为您转接至【售后专员】，请稍候，预计等待 30 秒。
+                          <span class="title-sub">最后使用：12 分钟前</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-general">通用</span></td>
+                      <td><span class="usage-count">98 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">亲爱的用户，当前客服不在线（工作时间：9:00-22:00）。您可以先留言描述您的问题，我们会在次日 9:00 优先为您处理。
+                          <span class="title-sub">最后使用：1 小时前</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-general">通用</span></td>
+                      <td><span class="usage-count">76 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">您反馈的商品质量问题，我们非常重视。请问方便提供一下问题照片和订单号吗？我们会尽快为您安排退换货并承担运费。
+                          <span class="title-sub">最后使用：2 小时前 · 关键词：质量、退换货</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-aftersale">售后</span></td>
+                      <td><span class="usage-count">65 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">您的订单已发货，物流单号 SF1234567890（顺丰速运）。正常情况下 2-3 天送达，您可点击「我的订单 &gt; 查看物流」实时追踪。
+                          <span class="title-sub">最后使用：2 小时前 · 关键词：物流、发货、快递</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-aftersale">售后</span></td>
+                      <td><span class="usage-count">64 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">您好！CS 商城 618 大促火热进行中，满 300 减 50、满 500 减 100，更有会员专属优惠券可领！
+                          <span class="title-sub">最后使用：3 小时前</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-presale">售前</span></td>
+                      <td><span class="usage-count">52 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">非常抱歉给您带来不愉快的体验。您的反馈我已经记录，现在为您转接至【投诉处理主管】跟进，一定会给您满意的答复。
+                          <span class="title-sub">最后使用：昨天</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-complaint">投诉</span></td>
+                      <td><span class="usage-count">43 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">客服小伙伴已下线休息啦~ 您的问题对我们很重要，欢迎留言。留下订单号和问题描述，上线后我们会第一时间回复您。
+                          <span class="title-sub">最后使用：昨天</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-general">通用</span></td>
+                      <td><span class="usage-count">38 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="col-title">优惠券使用规则：满减券需满足对应金额门槛方可使用，每笔订单仅可使用一张优惠券，不可与秒杀商品叠加。
+                          <span class="title-sub">最后使用：2 天前 · 关键词：优惠券、满减</span>
+                        </div>
+                      </td>
+                      <td><span class="scene-badge biz-presale">售前</span></td>
+                      <td><span class="usage-count">31 次</span></td>
+                      <td><span class="st-tag on">启用</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>复制</a><span class="divider">|</span>
+                        <a>停用</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div><!-- /kb-main -->
+        </div><!-- /kb-layout -->
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- Prototype Scripts -->
+  <script src="../js/cs-modal.js"></script>
+  <script src="../js/cs-icons.js"></script>
+  <script src="../nav.js"></script>
+  <script>
+  /* ============================================================
+     admin-scripts.html 交互（话术库 · 左树右表）
+     ============================================================ */
+  (function () {
+    'use strict';
+    var $  = function (s, c) { return (c || document).querySelector(s); };
+    var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+    var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+    var BIZ_BYClass = { 'biz-presale': 'presale', 'biz-aftersale': 'aftersale', 'biz-complaint': 'complaint', 'biz-general': 'general' };
+
+    /* ---------- 0. 行 data-* 标记（从 badge class 推断） ---------- */
+    function rows() { return $$('.scripts-table tbody tr'); }
+    rows().forEach(function (tr) {
+      var bBadge = $$('.scene-badge', tr)[0];
+      if (bBadge) {
+        for (var bk in BIZ_BYClass) { if (bBadge.classList.contains(bk)) { tr.setAttribute('data-biz', BIZ_BYClass[bk]); break; } }
+      }
+      if (!tr.getAttribute('data-biz')) tr.setAttribute('data-biz', 'general');
+      var st = $('.st-tag', tr);
+      tr.setAttribute('data-status', st && st.classList.contains('off') ? 'off' : 'on');
+    });
+
+    /* ---------- 1. 筛选状态 ---------- */
+    var currentCat = 'all';
+    var currentStatus = '';
+    var currentKw = '';
+
+    function applyFilters() {
+      var visible = 0;
+      rows().forEach(function (tr) {
+        var ok = (currentCat === 'all' || tr.getAttribute('data-biz') === currentCat)
+              && (!currentStatus || tr.getAttribute('data-status') === currentStatus);
+        if (ok && currentKw) { ok = (tr.textContent || '').toLowerCase().indexOf(currentKw) !== -1; }
+        tr.style.display = ok ? '' : 'none';
+        if (ok) visible++;
+      });
+    }
+
+    /* ---------- 2. 分类树点击 → 按业务分类联动 ---------- */
+    $$('.category-tree .tree-node').forEach(function (node) {
+      node.addEventListener('click', function () {
+        $$('.category-tree .tree-node').forEach(function (n) { n.classList.remove('active'); });
+        node.classList.add('active');
+        currentCat = node.getAttribute('data-cat') || 'all';
+        applyFilters();
+        var label = $('.tree-label', node);
+        toast('已筛选分类：' + (label ? label.textContent.trim() : '全部'));
+      });
+    });
+
+    /* ---------- 3. 工具条筛选 ---------- */
+    var elSearch = $('#scSearch'), elStatus = $('#scStatusFilter');
+    function syncFromToolbar() {
+      currentStatus = elStatus ? elStatus.value : '';
+      currentKw = elSearch ? elSearch.value.trim().toLowerCase() : '';
+    }
+    [elSearch, elStatus].forEach(function (el) {
+      if (!el) return;
+      el.addEventListener('change', function () { syncFromToolbar(); applyFilters(); });
+      if (el === elSearch) el.addEventListener('input', function () { syncFromToolbar(); applyFilters(); });
+    });
+    var btnQuery = $('#scBtnQuery'), btnReset = $('#scBtnReset');
+    if (btnQuery) btnQuery.addEventListener('click', function () { syncFromToolbar(); applyFilters(); toast('已应用筛选条件'); });
+    if (btnReset) btnReset.addEventListener('click', function () {
+      [elSearch, elStatus].forEach(function (el) { if (el) el.value = ''; });
+      syncFromToolbar(); applyFilters(); toast('已重置筛选');
+    });
+
+    /* ---------- 4. 新建话术 ---------- */
+    var btnAdd = $('#btnAddScript');
+    if (btnAdd) {
+      btnAdd.addEventListener('click', function () {
+        toast('新建话术弹窗（需 modal-script.html）');
+      });
+    }
+
+    /* ---------- 5. 行操作委派 ---------- */
+    function getRowContent(tr) {
+      var el = $('.col-title', tr);
+      if (!el) return '';
+      var node = el.firstChild;
+      while (node && node.nodeType !== 3) node = node.nextSibling;
+      return node ? node.textContent.trim() : (el.textContent || '').trim();
+    }
+    function truncate(s, n) { return s.length > n ? s.slice(0, n) + '...' : s; }
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('.scripts-table .row-actions a');
+      if (!a) return;
+      var tr = a.closest('tr');
+      var txt = (a.textContent || '').trim();
+      e.preventDefault();
+      if (txt === '编辑') {
+        toast('编辑话术弹窗');
+      } else if (txt === '复制') {
+        var text = getRowContent(tr);
+        if (text && navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () {});
+        }
+        toast('已复制到剪贴板');
+      } else if (txt === '停用' || txt === '启用') {
+        var st = $('.st-tag', tr);
+        if (st) {
+          if (txt === '停用') {
+            st.className = 'st-tag off'; st.textContent = '停用'; tr.setAttribute('data-status', 'off');
+            a.textContent = '启用'; toast('已停用该话术');
+          } else {
+            st.className = 'st-tag on'; st.textContent = '启用'; tr.setAttribute('data-status', 'on');
+            a.textContent = '停用'; toast('已启用该话术');
+          }
+        }
+      } else if (a.classList.contains('danger') || txt === '删除') {
+        toast('删除确认弹窗');
+      }
+    });
+
+    /* ---------- 6. 分类树 增/删/改 ---------- */
+    var tree = document.querySelector('.category-tree');
+    if (tree) {
+      // 头部「+」新增分类
+      var headerAdd = $('.tree-add', tree);
+      if (headerAdd) {
+        headerAdd.addEventListener('click', function (e) {
+          e.stopPropagation();
+          toast('新增分类弹窗');
+        });
+      }
+
+      // 动作委派（捕获阶段）
+      tree.addEventListener('click', function (e) {
+        var a = e.target.closest('.tree-actions a');
+        if (!a) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var title = a.getAttribute('title') || '';
+        if (title === '编辑') {
+          toast('编辑分类弹窗');
+        } else if (title === '新增子类') {
+          toast('新增子分类弹窗');
+        }
+      }, true);
+    }
+
+    applyFilters();
+  })();
+  </script>
+
+    <style>
+    /* --- Layout Shell --- */
+    .admin-layout {
+      display: flex !important;
+      min-height: 100vh !important;
+      font-family: var(--cs-font-family);
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+    }
+
+    /* --- Sidebar --- */
+    .admin-sidebar {
+      width: var(--cs-sidebar-width, 220px) !important;
+      min-width: var(--cs-sidebar-width, 220px) !important;
+      background: var(--cs-bg-sidebar, #001529);
+      display: flex !important;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .sidebar-logo {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+
+    .sidebar-logo .logo-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 24px;
+      font-size: 14px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-item .nav-icon {
+      width: 16px; height: 16px;
+      margin-right: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+    .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .nav-item .nav-arrow {
+      width: 12px; height: 12px;
+      transition: transform 0.2s ease;
+      opacity: 0.5;
+    }
+
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+
+    .nav-sub-items {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+
+    .nav-sub-items.open { max-height: 200px; }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 24px 8px 48px;
+      font-size: 13px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-sub-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-sub-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    .nav-sub-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-sub-item .nav-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.5;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+
+    /* --- Right Content Area --- */
+    .admin-content-wrapper {
+      flex: 1;
+      margin-left: var(--cs-sidebar-width, 220px);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      height: var(--cs-header-height, 56px);
+      background: var(--cs-bg-card, #ffffff);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--cs-space-6, 24px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .header-left { flex: 1; min-width: 0; }
+    .header-right { display: flex; align-items: center; gap: var(--cs-space-4, 16px); flex-shrink: 0; }
+
+    .breadcrumb-area { font-size: 14px; color: var(--cs-text-secondary, #595959); }
+    .breadcrumb-area span { color: var(--cs-text); font-weight: 500; }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--cs-radius-sm, 6px);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+
+    .user-status-badge {
+      position: relative;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--cs-success, #52c41a);
+    }
+
+    .user-status-badge::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1.5px solid var(--cs-bg-card, #ffffff);
+    }
+
+    .user-name { font-size: 14px; color: var(--cs-text, #1f1f1f); white-space: nowrap; }
+
+    .user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-avatar svg { width: 14px; height: 14px; color: #ffffff; }
+
+    .admin-main {
+      flex: 1;
+      padding: var(--cs-space-6, 24px);
+      overflow-y: auto;
+    }
+
+    /* ===== Scripts Page Specific Styles ===== */
+
+    /* --- kb-layout (两栏布局) --- */
+    .kb-layout {
+      display: flex;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .kb-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+    }
+    .kb-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* --- Card (toolbar / table wrapper) --- */
+    .card {
+      background: var(--cs-bg-card);
+      border-radius: var(--cs-radius-md, 8px);
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      box-shadow: var(--cs-shadow-card);
+    }
+
+    /* --- Category Tree --- */
+    .category-tree {
+      background: var(--cs-bg-card);
+      border-radius: var(--cs-radius-md, 8px);
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      box-shadow: var(--cs-shadow-card);
+      padding: 12px 0;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .category-tree .tree-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 16px 12px;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+    .category-tree .tree-header .tree-title {
+      font-size: var(--cs-font-size-md, 14px);
+      font-weight: var(--cs-font-weight-semibold, 600);
+      color: var(--cs-text);
+      display: flex;
+      align-items: center;
+    }
+    .category-tree .tree-header .tree-add {
+      font-size: var(--cs-font-size-xl, 16px);
+      color: var(--cs-primary);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .category-tree .tree-header .tree-add:hover { color: var(--cs-primary-hover); }
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text);
+      cursor: pointer;
+      transition: var(--cs-transition-fast);
+      gap: 6px;
+      position: relative;
+    }
+    .tree-node:hover { background: var(--cs-border-lighter, #f5f5f5); }
+    .tree-node.active {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      font-weight: var(--cs-font-weight-medium, 500);
+    }
+    .tree-node.active::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary);
+    }
+    .tree-node .tree-icon {
+      width: 16px;
+      text-align: center;
+      font-size: var(--cs-font-size-md, 14px);
+      flex-shrink: 0;
+      color: var(--cs-text-tertiary);
+    }
+    .tree-node.active .tree-icon { color: var(--cs-primary); }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count {
+      font-size: var(--cs-font-size-xs, 11px);
+      color: var(--cs-text-tertiary);
+      background: var(--cs-border-light, #f0f0f0);
+      border-radius: 10px;
+      padding: 0 7px;
+      line-height: 16px;
+    }
+    .tree-node.active .tree-count {
+      color: var(--cs-primary);
+      background: var(--cs-bg-card);
+    }
+    .tree-node .tree-actions {
+      display: none;
+      gap: 4px;
+    }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary);
+      cursor: pointer;
+      padding: 0 2px;
+      text-decoration: none;
+    }
+    .tree-node .tree-actions a:hover { color: var(--cs-primary); }
+
+    /* --- kb-toolbar --- */
+    .kb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .kb-toolbar .ipt.input-search {
+      min-width: 240px;
+    }
+    .flex.gap-8 {
+      display: flex;
+      gap: 8px;
+    }
+    .ipt, .input-search {
+      padding: 6px 12px;
+      border: 1px solid var(--cs-border);
+      border-radius: var(--cs-radius-sm, 6px);
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text);
+      background: var(--cs-bg-card);
+      outline: none;
+      transition: var(--cs-transition-fast);
+      font-family: var(--cs-font-family);
+      box-sizing: border-box;
+    }
+    .ipt::placeholder { color: var(--cs-text-placeholder); }
+    .ipt:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px var(--cs-primary-bg); }
+    .select {
+      padding: 6px 12px;
+      border: 1px solid var(--cs-border);
+      border-radius: var(--cs-radius-sm, 6px);
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text-secondary);
+      background: var(--cs-bg-card);
+      cursor: pointer;
+      outline: none;
+      font-family: var(--cs-font-family);
+      transition: var(--cs-transition-fast);
+    }
+    .btn-default {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 16px;
+      font-size: var(--cs-font-size-md, 14px);
+      border-radius: var(--cs-radius-sm, 6px);
+      cursor: pointer;
+      border: 1px solid var(--cs-border);
+      background: var(--cs-bg-card);
+      color: var(--cs-text);
+      font-family: var(--cs-font-family);
+      white-space: nowrap;
+      transition: var(--cs-transition-fast);
+    }
+    .btn-default:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 16px;
+      font-size: var(--cs-font-size-md, 14px);
+      border-radius: var(--cs-radius-sm, 6px);
+      cursor: pointer;
+      border: 1px solid var(--cs-primary);
+      background: var(--cs-primary);
+      color: #ffffff;
+      font-family: var(--cs-font-family);
+      white-space: nowrap;
+      transition: var(--cs-transition-fast);
+    }
+    .btn-primary:hover {
+      background: var(--cs-primary-hover);
+      border-color: var(--cs-primary-hover);
+    }
+
+    /* --- Data Table --- */
+    .table-wrap { overflow-x: auto; }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--cs-font-size-base, 13px);
+    }
+    .data-table thead th {
+      padding: 10px 16px;
+      text-align: left;
+      font-weight: var(--cs-font-weight-medium, 500);
+      color: var(--cs-text-secondary);
+      background: var(--cs-bg-page);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+      color: var(--cs-text);
+      vertical-align: top;
+    }
+    .data-table tbody tr:hover {
+      background: var(--cs-bg-hover);
+    }
+    .data-table .col-title {
+      font-weight: var(--cs-font-weight-medium, 500);
+      color: var(--cs-text);
+      line-height: 1.5;
+    }
+    .data-table .col-title .title-sub {
+      display: block;
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary);
+      font-weight: var(--cs-font-weight-normal, 400);
+      margin-top: 2px;
+      max-width: 420px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* --- Scene Badges --- */
+    .scene-badge {
+      display: inline-block;
+      font-size: var(--cs-font-size-sm, 12px);
+      padding: 1px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+      font-weight: var(--cs-font-weight-normal, 400);
+    }
+    .scene-badge.biz-general {
+      background: var(--cs-border-lighter, #f5f5f5);
+      color: var(--cs-text-secondary);
+    }
+    .scene-badge.biz-aftersale {
+      background: var(--cs-orange-bg);
+      color: var(--cs-orange);
+    }
+    .scene-badge.biz-complaint {
+      background: var(--cs-danger-bg);
+      color: var(--cs-danger);
+    }
+    .scene-badge.biz-presale {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+
+    /* --- Usage Count --- */
+    .usage-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-secondary);
+    }
+    .usage-count.hot {
+      font-weight: var(--cs-font-weight-semibold, 600);
+      color: var(--cs-danger);
+    }
+
+    /* --- Status Tags --- */
+    .st-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--cs-font-size-sm, 12px);
+      line-height: 1.5;
+      color: var(--cs-text);
+    }
+    .st-tag::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .st-tag.on::before  { background: var(--cs-success); }
+    .st-tag.off::before { background: #bfbfbf; }
+
+    /* --- Row Actions --- */
+    .row-actions {
+      white-space: nowrap;
+    }
+    .row-actions a {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-primary);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .row-actions a:hover { text-decoration: underline; }
+    .row-actions .divider {
+      display: inline-block;
+      color: var(--cs-border);
+      margin: 0 4px;
+    }
+    .row-actions a.danger { color: var(--cs-danger); }
+    .row-actions a.danger:hover { color: var(--cs-danger-hover); }
+
+    @media (max-width: 1100px) {
+      .kb-layout { flex-direction: column; }
+      .kb-sidebar { width: 100%; }
+    }
+  </style>
+</body>
+</html>

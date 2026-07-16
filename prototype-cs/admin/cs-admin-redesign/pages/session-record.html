@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会话记录 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="admin-sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <span class="logo-text">在线客服</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+
+      <!-- 数据仪表盘 -->
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </span>
+        <span class="nav-label">数据仪表盘</span>
+      </a>
+
+      <!-- 会话管理 (Group) - expanded & active -->
+      <a class="nav-item nav-group-head expanded" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </span>
+        <span class="nav-label">会话管理</span>
+        <span class="nav-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </span>
+      </a>
+      <div class="nav-sub-items open">
+        <a class="nav-sub-item" href="#">
+          <span class="nav-dot"></span>
+          <span class="nav-label">客服工作台</span>
+        </a>
+        <a class="nav-sub-item active" href="#">
+          <span class="nav-dot"></span>
+          <span class="nav-label">会话记录</span>
+        </a>
+        <a class="nav-sub-item" href="#">
+          <span class="nav-dot"></span>
+          <span class="nav-label">待办事项</span>
+        </a>
+      </div>
+
+      <!-- 知识库 (Group) -->
+      <a class="nav-item nav-group-head" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </span>
+        <span class="nav-label">知识库</span>
+        <span class="nav-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </span>
+      </a>
+      <div class="nav-sub-items">
+        <a class="nav-sub-item" href="#">
+          <span class="nav-dot"></span>
+          <span class="nav-label">话术库</span>
+        </a>
+        <a class="nav-sub-item" href="#">
+          <span class="nav-dot"></span>
+          <span class="nav-label">FAQ</span>
+        </a>
+        <a class="nav-sub-item" href="#">
+          <span class="nav-dot"></span>
+          <span class="nav-label">知识文档</span>
+        </a>
+      </div>
+
+      <!-- 客服设置 -->
+      <a class="nav-item" href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="nav-label">客服设置</span>
+      </a>
+
+    </nav>
+  </aside>
+
+  <!-- ===== Content Wrapper ===== -->
+  <div class="admin-content-wrapper">
+
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <div class="breadcrumb-area">
+          <a href="#">首页</a>
+          <span>/</span>
+          <a href="#">会话管理</a>
+          <span>/</span>
+          <span class="current">会话记录</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <span class="user-status-badge"></span>
+          <span class="user-name">张小明</span>
+          <div class="user-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+
+      <!-- a) Filter Card with Status Tabs + Dimension Filters -->
+      <div class="filter-card" style="padding:16px;">
+        <!-- Status Tabs -->
+        <div class="status-tabs" style="padding:0 0 12px 0; border-bottom:1px solid var(--cs-border-lighter, #f5f5f5); margin-bottom:12px;">
+          <div class="status-tab active">全部 <span class="tab-count">12</span></div>
+          <div class="status-tab">进行中 <span class="tab-count">3</span></div>
+          <div class="status-tab">离线待处理 <span class="tab-count">3</span></div>
+          <div class="status-tab">已关闭 <span class="tab-count">3</span></div>
+          <div class="status-tab">已转接 <span class="tab-count">2</span></div>
+        </div>
+        <!-- Dimension Filter Row -->
+        <div class="filter-row">
+          <div class="filter-item">
+            <label>客服</label>
+            <select id="fAgent">
+              <option value="">全部</option>
+              <option>李静</option>
+              <option>张小明</option>
+              <option>王磊</option>
+              <option>赵丽</option>
+              <option>陈昊</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>企业</label>
+            <select id="fEnt">
+              <option value="">全部</option>
+              <option>客户A</option>
+              <option>客户B</option>
+              <option>客户C</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>品牌商城</label>
+            <select id="fBrand">
+              <option value="">全部</option>
+              <option>品牌商城1</option>
+              <option>品牌商城2</option>
+              <option>品牌商城3</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>接入渠道</label>
+            <select id="fApp">
+              <option value="">全部</option>
+              <option>小程序</option>
+              <option>H5</option>
+              <option>PC</option>
+              <option>微信</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary">查询</button>
+            <button class="btn">重置</button>
+            <button class="btn">导出</button>
+            <button class="btn">刷新</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- c) Session Records Table -->
+      <div class="table-card">
+        <table class="session-table">
+          <thead>
+            <tr>
+              <th class="col-id">会话编号</th>
+              <th class="col-customer">客户</th>
+              <th class="col-status">状态</th>
+              <th class="col-agent">客服</th>
+              <th class="col-time">接入时间</th>
+              <th class="col-summary">摘要</th>
+              <th class="col-rating">评价</th>
+              <th class="col-action">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 - 进行中 (active highlight) -->
+            <tr class="row-active" data-status="ongoing">
+              <td class="col-id">#CS20260611001</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar">李</div>
+                  <div>
+                    <div>李晓红</div>
+                    <div style="font-size:12px;color:#8c8c8c;">138****6621, 小程序</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag ongoing">进行中</span></td>
+              <td>王小明</td>
+              <td class="col-time">2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">14:20</span></td>
+              <td class="col-summary">订单 #20260611 发货问题</td>
+              <td style="text-align:center"><span class="no-rate">—</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-detail">详情</a></div></td>
+            </tr>
+            <!-- Row 2 - 进行中 -->
+            <tr data-status="ongoing">
+              <td class="col-id">#CS20260611004</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar orange">陈</div>
+                  <div>
+                    <div>陈思雨</div>
+                    <div style="font-size:12px;color:#8c8c8c;">186****0452, VIP2, 小程序</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag ongoing">进行中</span></td>
+              <td>李静</td>
+              <td class="col-time">2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">14:05</span></td>
+              <td class="col-summary">退换货咨询</td>
+              <td style="text-align:center"><span class="no-rate">—</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-detail">详情</a></div></td>
+            </tr>
+            <!-- Row 3 - 进行中 -->
+            <tr data-status="ongoing">
+              <td class="col-id">#CS20260611006</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar">刘</div>
+                  <div>
+                    <div>刘强</div>
+                    <div style="font-size:12px;color:#8c8c8c;">137****8839, 小程序</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag ongoing">进行中</span></td>
+              <td>王小明</td>
+              <td class="col-time">2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">13:50</span></td>
+              <td class="col-summary">商品破损投诉</td>
+              <td style="text-align:center"><span class="no-rate">—</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-detail">详情</a></div></td>
+            </tr>
+            <!-- Row 4 - 离线待处理 (offline row) -->
+            <tr class="is-offline" data-status="offline">
+              <td class="col-id">#CS20260611008</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar orange">李</div>
+                  <div>
+                    <div>李婷婷</div>
+                    <div style="font-size:12px;color:#8c8c8c;">138****6621, 微信</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag offline">离线待处理</span></td>
+              <td><span class="unassigned">未分配</span></td>
+              <td class="col-time">2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">09:32</span></td>
+              <td class="col-summary">
+                <div class="leave-msg">订单退款两天未到账，麻烦尽快处理</div>
+                <span class="leave-cat">退款/退货</span>
+              </td>
+              <td style="text-align:center"><span class="no-rate">—</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-assign">分配</a><a class="action-link sr-detail">详情</a></div></td>
+            </tr>
+            <!-- Row 5 - 离线待处理 (offline row) -->
+            <tr class="is-offline" data-status="offline">
+              <td class="col-id">#CS20260611009</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar">张</div>
+                  <div>
+                    <div>张伟</div>
+                    <div style="font-size:12px;color:#8c8c8c;">159****3387, H5</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag offline">离线待处理</span></td>
+              <td><span class="unassigned">未分配</span></td>
+              <td class="col-time">2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:50</span></td>
+              <td class="col-summary">
+                <div class="leave-msg">收到的商品有破损，包装也是破的，要求换货</div>
+                <span class="leave-cat">订单售后</span>
+              </td>
+              <td style="text-align:center"><span class="no-rate">—</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-assign">分配</a><a class="action-link sr-detail">详情</a></div></td>
+            </tr>
+            <!-- Row 6 - 已关闭 -->
+            <tr data-status="closed">
+              <td class="col-id">#CS20260611002</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar orange">王</div>
+                  <div>
+                    <div>王志强</div>
+                    <div style="font-size:12px;color:#8c8c8c;">普通会员, 159****6601</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag closed">已关闭</span></td>
+              <td>李静</td>
+              <td class="col-time">2026-06-11<br/><span style="font-size:12px;color:#8c8c8c;">08:52</span></td>
+              <td class="col-summary"><span class="dur">时长 06分12秒</span></td>
+              <td style="text-align:center"><span class="stars">★★★★<span class="empty">★</span></span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-detail">详情</a><a class="action-link sr-rating">查看评价</a></div></td>
+            </tr>
+            <!-- Row 7 - 已转接 -->
+            <tr data-status="transferred">
+              <td class="col-id">#CS20260611003</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar purple">陈</div>
+                  <div>
+                    <div>陈思雨</div>
+                    <div style="font-size:12px;color:#8c8c8c;">VIP2, 186****0452</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag transferred">已转接</span></td>
+              <td>张小明 &gt; 李静</td>
+              <td class="col-time">2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">21:18</span></td>
+              <td class="col-summary"><span class="dur">时长 23分04秒</span></td>
+              <td style="text-align:center"><span class="stars">★★★★★</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-detail">详情</a><a class="action-link sr-transfer">转接记录</a></div></td>
+            </tr>
+            <!-- Row 8 - 已关闭 -->
+            <tr data-status="closed">
+              <td class="col-id">#CS20260610024</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar green">刘</div>
+                  <div>
+                    <div>刘大伟</div>
+                    <div style="font-size:12px;color:#8c8c8c;">普通会员, 137****8839</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag closed">已关闭</span></td>
+              <td>王磊</td>
+              <td class="col-time">2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">18:36</span></td>
+              <td class="col-summary"><span class="dur">时长 04分51秒</span></td>
+              <td style="text-align:center"><span class="stars">★★★<span class="empty">★★</span></span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-detail">详情</a><a class="action-link sr-rating">查看评价</a></div></td>
+            </tr>
+            <!-- Row 9 - 离线待处理 -->
+            <tr class="is-offline" data-status="offline">
+              <td class="col-id">#CS20260611010</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar">周</div>
+                  <div>
+                    <div>周芳</div>
+                    <div style="font-size:12px;color:#8c8c8c;">186****4471</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag offline">离线待处理</span></td>
+              <td><span class="unassigned">未分配</span></td>
+              <td class="col-time">2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:08</span></td>
+              <td class="col-summary">
+                <div class="leave-msg">会员积分兑换的商品什么时候发货？</div>
+                <span class="leave-cat">账户问题</span>
+              </td>
+              <td style="text-align:center"><span class="no-rate">—</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-assign">分配</a><a class="action-link sr-detail">详情</a></div></td>
+            </tr>
+            <!-- Row 10 - 已取消 -->
+            <tr data-status="cancelled">
+              <td class="col-id">#CS20260610015</td>
+              <td class="col-customer">
+                <div class="col-user">
+                  <div class="mini-avatar">赵</div>
+                  <div>
+                    <div>赵丽丽</div>
+                    <div style="font-size:12px;color:#8c8c8c;">VIP4, 133****1278</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="s-tag cancelled">已取消</span></td>
+              <td>张小明</td>
+              <td class="col-time">2026-06-10<br/><span style="font-size:12px;color:#8c8c8c;">11:42</span></td>
+              <td class="col-summary"><span class="dur">时长 02分19秒</span></td>
+              <td style="text-align:center"><span class="no-rate">未评价</span></td>
+              <td style="text-align:center"><div class="action-links"><a class="action-link sr-detail">详情</a></div></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- d) Pagination -->
+        <div class="pagination-wrapper">
+          <span class="pagination-info">共 1,284 条</span>
+          <div class="pagination">
+            <button class="page-btn disabled">&lt;</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <span class="page-ellipsis">...</span>
+            <button class="page-btn">129</button>
+            <button class="page-btn">&gt;</button>
+          </div>
+          <span class="pg-jump">跳至<input value="1" style="width:48px;height:32px;border:1px solid var(--cs-border,#d9d9d9);border-radius:var(--cs-radius-sm,6px);text-align:center;font-size:13px;font-family:var(--cs-font-family);color:var(--cs-text);outline:none;margin:0 4px;" />页</span>
+        </div>
+      </div>
+
+      <!-- Bottom note -->
+      <p style="margin-top:16px; font-size:12px; color:#bfbfbf;">数据来源：customer_chat_sessions（唯一实体）· 状态：wait(排队) / offline(离线待处理·留言态) / accept(服务中) / close / cancel · 离线态会话在客服上线后走正常分配</p>
+
+    </main>
+  </div>
+
+</div>
+
+
+    <style>
+/* --- Layout Shell --- */
+.admin-layout {
+  display: flex !important;
+  min-height: 100vh !important;
+  font-family: var(--cs-font-family);
+  background: var(--cs-bg-page);
+  color: var(--cs-text);
+}
+
+/* --- Sidebar --- */
+.admin-sidebar {
+  width: var(--cs-sidebar-width, 220px) !important;
+  min-width: var(--cs-sidebar-width, 220px) !important;
+  background: var(--cs-bg-sidebar, #001529);
+  display: flex !important;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+}
+
+/* Logo */
+.sidebar-logo {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.sidebar-logo .logo-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--cs-primary, #1677ff);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo .logo-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sidebar-logo .logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 8px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 24px;
+  font-size: 14px;
+  color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+  cursor: pointer;
+  transition: var(--cs-transition-fast, all 0.15s ease);
+  text-decoration: none;
+  position: relative;
+  user-select: none;
+}
+
+.nav-item:hover {
+  color: var(--cs-sidebar-text-active, #ffffff);
+  background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+}
+
+.nav-item.active {
+  color: var(--cs-primary, #1677ff);
+  background: var(--cs-primary-bg, #e6f4ff);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--cs-primary, #1677ff);
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-item .nav-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-item .nav-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nav-item .nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item .nav-arrow {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+  opacity: 0.5;
+}
+
+.nav-item .nav-arrow svg {
+  width: 12px;
+  height: 12px;
+}
+
+.nav-item.nav-group-head.expanded .nav-arrow {
+  transform: rotate(90deg);
+}
+
+/* Sub-items */
+.nav-sub-items {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease;
+}
+
+.nav-sub-items.open {
+  max-height: 200px;
+}
+
+.nav-sub-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 24px 8px 48px;
+  font-size: 13px;
+  color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+  cursor: pointer;
+  transition: var(--cs-transition-fast, all 0.15s ease);
+  text-decoration: none;
+  position: relative;
+}
+
+.nav-sub-item:hover {
+  color: var(--cs-sidebar-text-active, #ffffff);
+  background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+}
+
+.nav-sub-item.active {
+  color: var(--cs-primary, #1677ff);
+  background: var(--cs-primary-bg, #e6f4ff);
+}
+
+.nav-sub-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--cs-primary, #1677ff);
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-sub-item .nav-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.nav-sub-item.active .nav-dot {
+  opacity: 1;
+}
+
+/* --- Right Content Area --- */
+.admin-content-wrapper {
+  flex: 1;
+  margin-left: var(--cs-sidebar-width, 220px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* --- Header --- */
+.admin-header {
+  height: var(--cs-header-height, 56px);
+  background: var(--cs-bg-card, #ffffff);
+  border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--cs-space-6, 24px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  flex-shrink: 0;
+}
+
+.header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--cs-space-4, 16px);
+  flex-shrink: 0;
+}
+
+.breadcrumb-area {
+  font-size: 14px;
+  color: var(--cs-text-secondary, #595959);
+}
+
+.breadcrumb-area span {
+  color: var(--cs-text-tertiary, #8c8c8c);
+  margin: 0 6px;
+}
+
+.breadcrumb-area a {
+  color: var(--cs-text-secondary, #595959);
+  text-decoration: none;
+  transition: var(--cs-transition-fast);
+}
+
+.breadcrumb-area a:hover {
+  color: var(--cs-primary);
+}
+
+.breadcrumb-area .current {
+  color: var(--cs-text, #1f1f1f);
+  font-weight: 500;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--cs-radius-sm, 6px);
+  transition: var(--cs-transition-fast, all 0.15s ease);
+}
+
+.user-info:hover {
+  background: var(--cs-bg-hover, #fafafa);
+}
+
+.user-status-badge {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cs-success, #52c41a);
+}
+
+.user-status-badge::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cs-bg-card, #ffffff);
+}
+
+.user-name {
+  font-size: 14px;
+  color: var(--cs-text, #1f1f1f);
+  white-space: nowrap;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-avatar svg {
+  width: 14px;
+  height: 14px;
+  color: #ffffff;
+}
+
+/* --- Main Content Area --- */
+.admin-main {
+  flex: 1;
+  padding: var(--cs-space-6, 24px);
+  overflow-y: auto;
+}
+
+/* ======================================================
+   Session Record Page - Page Specific Styles
+   ====================================================== */
+
+/* Filter Card */
+.filter-card {
+  background: var(--cs-bg-card);
+  border-radius: var(--cs-radius-md, 8px);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--cs-shadow-card);
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filter-row + .filter-row {
+  margin-top: 12px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-item label {
+  font-size: 13px;
+  color: var(--cs-text-secondary, #595959);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-item input[type="text"],
+.filter-item input[type="date"],
+.filter-item select {
+  height: 32px;
+  border: 1px solid var(--cs-border, #d9d9d9);
+  border-radius: var(--cs-radius-sm, 6px);
+  padding: 0 10px;
+  font-size: 13px;
+  font-family: var(--cs-font-family);
+  color: var(--cs-text, #1f1f1f);
+  background: var(--cs-bg-card);
+  outline: none;
+  transition: var(--cs-transition-fast);
+}
+
+.filter-item input[type="text"]:focus,
+.filter-item input[type="date"]:focus,
+.filter-item select:focus {
+  border-color: var(--cs-primary);
+  box-shadow: 0 0 0 2px var(--cs-primary-bg);
+}
+
+.filter-item input[type="text"]::placeholder {
+  color: var(--cs-text-placeholder, #bfbfbf);
+}
+
+.filter-item input[type="text"] {
+  width: 280px;
+}
+
+.filter-item select {
+  min-width: 120px;
+  padding-right: 28px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5L6 8L9 5' stroke='%238c8c8c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+}
+
+.filter-item .date-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-item .date-range span {
+  color: var(--cs-text-tertiary, #8c8c8c);
+  font-size: 13px;
+}
+
+.filter-item input[type="date"] {
+  width: 148px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-family: var(--cs-font-family);
+  border-radius: var(--cs-radius-sm, 6px);
+  cursor: pointer;
+  transition: var(--cs-transition-fast);
+  border: 1px solid var(--cs-border, #d9d9d9);
+  background: var(--cs-bg-card);
+  color: var(--cs-text, #1f1f1f);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:hover {
+  border-color: var(--cs-primary);
+  color: var(--cs-primary);
+}
+
+.btn-primary {
+  background: var(--cs-primary);
+  border-color: var(--cs-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--cs-primary-hover);
+  border-color: var(--cs-primary-hover);
+  color: #ffffff;
+}
+
+.btn-outline-blue {
+  background: var(--cs-bg-card);
+  border-color: var(--cs-primary);
+  color: var(--cs-primary);
+}
+
+.btn-outline-blue:hover {
+  background: var(--cs-primary-bg);
+  border-color: var(--cs-primary-hover);
+  color: var(--cs-primary-hover);
+}
+
+.btn-outline-red {
+  background: var(--cs-bg-card);
+  border-color: var(--cs-danger-border, #ffccc7);
+  color: var(--cs-danger, #f5222d);
+}
+
+.btn-outline-red:hover {
+  background: var(--cs-danger-bg, #fff1f0);
+  border-color: var(--cs-danger, #f5222d);
+  color: var(--cs-danger-hover, #ff7875);
+}
+
+.btn-outline-red.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Active filter badge */
+.active-filter-badge {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  font-size: 12px;
+  color: var(--cs-primary);
+  background: var(--cs-primary-bg);
+  padding: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.active-filter-badge.visible {
+  display: inline-flex;
+}
+
+/* Results Summary Bar */
+.results-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.results-count {
+  font-size: 13px;
+  color: var(--cs-text-secondary, #595959);
+}
+
+.results-count strong {
+  color: var(--cs-text, #1f1f1f);
+  font-weight: 500;
+}
+
+.results-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Table Card */
+.table-card {
+  background: var(--cs-bg-card);
+  border-radius: var(--cs-radius-md, 8px);
+  box-shadow: var(--cs-shadow-card);
+  overflow: hidden;
+}
+
+/* Table */
+.session-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: fixed;
+}
+
+.session-table thead {
+  background: var(--cs-bg-header, #fafafa);
+}
+
+.session-table th {
+  height: 44px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cs-text-secondary, #595959);
+  text-align: left;
+  border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.session-table th.sortable {
+  cursor: pointer;
+}
+
+.session-table th.sortable:hover {
+  color: var(--cs-primary);
+}
+
+.session-table th .sort-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: 4px;
+  vertical-align: middle;
+  opacity: 0.4;
+}
+
+.session-table th.sortable:hover .sort-icon {
+  opacity: 0.7;
+}
+
+.session-table th.col-cb { width: 40px; text-align: center; }
+.session-table th.col-customer { width: 180px; }
+.session-table th.col-agent { width: 90px; }
+.session-table th.col-channel { width: 80px; }
+.session-table th.col-summary { width: auto; min-width: 200px; }
+.session-table th.col-status { width: 80px; text-align: center; }
+.session-table th.col-rating { width: 80px; text-align: center; }
+.session-table th.col-duration { width: 80px; text-align: center; }
+.session-table th.col-time { width: 130px; }
+.session-table th.col-action { width: 100px; text-align: center; }
+
+.session-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+  color: var(--cs-text, #1f1f1f);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-table tbody tr {
+  transition: var(--cs-transition-fast);
+}
+
+.session-table tbody tr:hover {
+  background: var(--cs-bg-hover, #fafafa);
+}
+
+.session-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.session-table tbody tr:nth-child(even):hover {
+  background: var(--cs-primary-bg, #e6f4ff);
+}
+
+.session-table tbody tr.selected {
+  background: var(--cs-primary-bg, #e6f4ff) !important;
+}
+
+.session-table td.col-cb {
+  text-align: center;
+}
+
+/* Checkbox */
+.custom-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--cs-border, #d9d9d9);
+  border-radius: 3px;
+  background: var(--cs-bg-card);
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--cs-transition-fast);
+}
+
+.custom-checkbox:hover {
+  border-color: var(--cs-primary);
+}
+
+.custom-checkbox.checked {
+  background: var(--cs-primary);
+  border-color: var(--cs-primary);
+}
+
+.custom-checkbox.checked::after {
+  content: '';
+  width: 8px;
+  height: 4px;
+  border: 2px solid #ffffff;
+  border-top: none;
+  border-right: none;
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+.custom-checkbox.indeterminate {
+  border-color: var(--cs-primary);
+}
+
+.custom-checkbox.indeterminate::after {
+  content: '';
+  width: 8px;
+  height: 2px;
+  background: var(--cs-primary);
+}
+
+/* Customer Info Cell */
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.customer-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: var(--cs-text, #1f1f1f);
+  display: block;
+  line-height: 1.3;
+}
+
+.customer-id {
+  font-size: 11px;
+  color: var(--cs-text-tertiary, #8c8c8c);
+  display: block;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.status-badge.status-active {
+  background: #e6f4ff;
+  color: #1677ff;
+}
+
+.status-badge.status-ended {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.status-badge.status-transferred {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+
+/* Rating Badges */
+.rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.rating-badge .rating-icon {
+  font-size: 14px;
+}
+
+.rating-badge.rating-good {
+  color: #52c41a;
+}
+
+.rating-badge.rating-medium {
+  color: #fa8c16;
+}
+
+.rating-badge.rating-bad {
+  color: #f5222d;
+}
+
+/* Channel Badge */
+.channel-badge {
+  font-size: 12px;
+  color: var(--cs-text-secondary, #595959);
+}
+
+/* Duration */
+.duration {
+  font-size: 13px;
+  color: var(--cs-text, #1f1f1f);
+  text-align: center;
+}
+
+/* Time */
+.time-cell {
+  font-size: 12px;
+  color: var(--cs-text-secondary, #595959);
+  white-space: nowrap;
+}
+
+/* Summary text */
+.summary-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cs-text-secondary, #595959);
+  max-width: 100%;
+  font-size: 13px;
+}
+
+/* Action Links */
+.action-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.action-link {
+  font-size: 13px;
+  color: var(--cs-primary);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: var(--cs-transition-fast);
+}
+
+.action-link:hover {
+  color: var(--cs-primary-hover);
+}
+
+.action-link + .action-link::before {
+  content: '|';
+  margin-right: 12px;
+  color: var(--cs-border-light, #f0f0f0);
+}
+
+/* Pagination */
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  border-top: 1px solid var(--cs-border-lighter, #f5f5f5);
+  gap: 8px;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--cs-text-secondary, #595959);
+  margin-right: auto;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-btn {
+  min-width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cs-border, #d9d9d9);
+  border-radius: var(--cs-radius-sm, 6px);
+  font-size: 13px;
+  color: var(--cs-text, #1f1f1f);
+  background: var(--cs-bg-card);
+  cursor: pointer;
+  transition: var(--cs-transition-fast);
+  padding: 0 6px;
+  user-select: none;
+}
+
+.page-btn:hover:not(.active):not(.disabled) {
+  color: var(--cs-primary);
+  border-color: var(--cs-primary);
+}
+
+.page-btn.active {
+  background: var(--cs-primary);
+  border-color: var(--cs-primary);
+  color: #ffffff;
+}
+
+.page-btn.disabled {
+  color: var(--cs-text-placeholder, #bfbfbf);
+  border-color: var(--cs-border-light, #f0f0f0);
+  cursor: not-allowed;
+}
+
+.page-ellipsis {
+  min-width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--cs-text-tertiary, #8c8c8c);
+}
+
+.page-size-select {
+  height: 32px;
+  border: 1px solid var(--cs-border, #d9d9d9);
+  border-radius: var(--cs-radius-sm, 6px);
+  padding: 0 28px 0 10px;
+  font-size: 13px;
+  font-family: var(--cs-font-family);
+  color: var(--cs-text, #1f1f1f);
+  background: var(--cs-bg-card);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5L6 8L9 5' stroke='%238c8c8c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.page-size-select:focus {
+  border-color: var(--cs-primary);
+  box-shadow: 0 0 0 2px var(--cs-primary-bg);
+}
+
+.page-size-label {
+  font-size: 13px;
+  color: var(--cs-text-secondary, #595959);
+  white-space: nowrap;
+}
+
+/* ======================================================
+   Prototype-matched Session Record Styles
+   ====================================================== */
+
+/* Status Tabs (horizontal pill tabs) */
+.status-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.status-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--cs-text-secondary, #595959);
+  cursor: pointer;
+  border-radius: var(--cs-radius-sm, 6px) var(--cs-radius-sm, 6px) 0 0;
+  transition: var(--cs-transition-fast);
+  user-select: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.status-tab:hover {
+  color: var(--cs-primary);
+}
+
+.status-tab.active {
+  color: var(--cs-primary);
+  font-weight: 500;
+  border-bottom-color: var(--cs-primary);
+}
+
+.status-tab .tab-count {
+  font-size: 12px;
+  color: var(--cs-text-tertiary, #8c8c8c);
+}
+
+.status-tab.active .tab-count {
+  color: var(--cs-primary);
+}
+
+/* Session Status Tags (dot + text, no colored background) */
+.s-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--cs-text);
+  white-space: nowrap;
+}
+
+.s-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.s-tag.ongoing::before   { background: var(--cs-primary); }
+.s-tag.offline::before   { background: var(--cs-orange); }
+.s-tag.closed::before    { background: #bfbfbf; }
+.s-tag.transferred::before { background: var(--cs-purple); }
+.s-tag.cancelled::before { background: var(--cs-danger); }
+
+/* Offline row muted background */
+.session-table tbody tr.is-offline {
+  background: #fff7e6;
+}
+
+.session-table tbody tr.is-offline:hover {
+  background: #fff1d6;
+}
+
+/* Active row light blue highlight */
+.session-table tbody tr.row-active {
+  background: var(--cs-primary-bg, #e6f4ff);
+}
+
+.session-table tbody tr.row-active:hover {
+  background: var(--cs-primary-bg-hover, #bae0ff);
+}
+
+/* Mini Avatar (colored circles) */
+.mini-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cs-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mini-avatar.orange { background: var(--cs-orange, #fa8c16); }
+.mini-avatar.purple { background: var(--cs-purple, #722ed1); }
+.mini-avatar.green  { background: var(--cs-success, #52c41a); }
+
+/* Col-user layout */
+.col-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-user > div:last-child {
+  min-width: 0;
+}
+
+/* Leave message styling */
+.leave-msg {
+  color: var(--cs-text-secondary, #595959);
+  font-size: 12px;
+  max-width: 240px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.leave-cat {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--cs-text-tertiary, #8c8c8c);
+  background: var(--cs-border-lighter, #f5f5f5);
+  border-radius: 3px;
+  padding: 0 6px;
+  margin-top: 2px;
+}
+
+/* Unassigned agent */
+.unassigned {
+  color: var(--cs-text-placeholder, #bfbfbf);
+  font-style: italic;
+}
+
+/* Stars rating */
+.stars {
+  color: #faad14;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.stars .empty {
+  color: #e8e8e8;
+}
+
+/* No-rate / dash */
+.no-rate {
+  font-size: 12px;
+  color: var(--cs-text-tertiary, #8c8c8c);
+}
+
+/* Duration text */
+.dur {
+  color: var(--cs-text-secondary, #595959);
+  font-size: 12px;
+}
+
+/* Action link variants */
+.sr-assign { color: var(--cs-orange, #fa8c16) !important; }
+.sr-assign:hover { color: var(--cs-orange-hover, #ffa940) !important; }
+.sr-detail { color: var(--cs-primary) !important; }
+.sr-transfer { color: var(--cs-purple, #722ed1) !important; }
+.sr-transfer:hover { color: var(--cs-purple-hover, #9254de) !important; }
+.sr-rating { color: var(--cs-success, #52c41a) !important; }
+.sr-rating:hover { color: var(--cs-success-hover, #73d13d) !important; }
+.sr-badrate { color: var(--cs-danger, #f5222d) !important; }
+.sr-badrate:hover { color: var(--cs-danger-hover, #ff7875) !important; }
+
+/* Page jump input */
+.pg-jump {
+  font-size: 13px;
+  color: var(--cs-text-secondary, #595959);
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+/* Adjusted column widths for prototype layout */
+.session-table th.col-id { width: 140px; }
+.session-table th.col-customer { width: 200px; }
+.session-table th.col-status { width: 90px; text-align: center; }
+.session-table th.col-agent { width: 100px; }
+.session-table th.col-time { width: 110px; }
+.session-table th.col-summary { width: auto; min-width: 180px; }
+.session-table th.col-rating { width: 80px; text-align: center; }
+.session-table th.col-action { width: 120px; text-align: center; }
+
+.session-table td.col-summary {
+  white-space: normal;
+}
+
+.session-table td.col-id {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--cs-text-secondary, #595959);
+}
+
+/* Remove old nth-child(even) striping that conflicts with is-offline / row-active */
+.session-table tbody tr:nth-child(even) {
+  background: transparent;
+}
+.session-table tbody tr:nth-child(even):hover {
+  background: var(--cs-bg-hover, #fafafa);
+}
+
+</body>
+</html>

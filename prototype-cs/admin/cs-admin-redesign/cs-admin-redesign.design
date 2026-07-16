@@ -1,0 +1,205 @@
+{
+  "data": [
+    {
+      "id": "page-dashboard",
+      "title": "数据仪表盘",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480000000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/dashboard.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-workbench",
+      "title": "客服工作台",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480001000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/workbench.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-session-record",
+      "title": "会话记录",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480002000,
+      "canvasData": {
+        "x": 1240,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/session-record.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-todo",
+      "title": "待办事项",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480005000,
+      "canvasData": {
+        "x": 1860,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/todo.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-transfer",
+      "title": "会话转接",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480006000,
+      "canvasData": {
+        "x": 2480,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/transfer.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-customer-info",
+      "title": "客户信息",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480007000,
+      "canvasData": {
+        "x": 0,
+        "y": 603,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/customer-info.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-scripts",
+      "title": "话术库",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480008000,
+      "canvasData": {
+        "x": 620,
+        "y": 603,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/scripts.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-faq",
+      "title": "FAQ管理",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480009000,
+      "canvasData": {
+        "x": 1240,
+        "y": 603,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/faq.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-knowledge",
+      "title": "知识库",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480003000,
+      "canvasData": {
+        "x": 1860,
+        "y": 603,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/knowledge.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-knowledge-docs",
+      "title": "知识文档",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480010000,
+      "canvasData": {
+        "x": 2480,
+        "y": 603,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/knowledge-docs.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-rating-mgmt",
+      "title": "评价管理",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480011000,
+      "canvasData": {
+        "x": 0,
+        "y": 1148,
+        "group": 2
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/rating-mgmt.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-settings",
+      "title": "客服设置",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1751480004000,
+      "canvasData": {
+        "x": 620,
+        "y": 1148,
+        "group": 2
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/settings.html",
+        "interactions": []
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "在线客服后台管理系统",
+    "windowSize": {
+      "width": 800,
+      "height": 600
+    }
+  }
+}

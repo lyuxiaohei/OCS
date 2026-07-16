@@ -1,0 +1,879 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办事项 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+    /* ===== ADMIN LAYOUT SHELL ===== */
+    .admin-layout { display: flex !important; min-height: 100vh; font-family: var(--cs-font-family); background: var(--cs-bg-page); color: var(--cs-text); }
+    .admin-sidebar { width: var(--cs-sidebar-width, 220px) !important; min-width: var(--cs-sidebar-width, 220px) !important; background: var(--cs-bg-sidebar, #001529); display: flex !important; flex-direction: column; height: 100vh; position: fixed; top: 0; left: 0; z-index: 100; overflow-y: auto; overflow-x: hidden; }
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    .sidebar-logo { height: 56px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+    .sidebar-logo .logo-icon { width: 28px; height: 28px; background: var(--cs-primary, #1677ff); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0; }
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+    .sidebar-logo .logo-text { font-size: 16px; font-weight: 600; color: #ffffff; white-space: nowrap; letter-spacing: 0.5px; }
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+    .nav-item { display: flex; align-items: center; padding: 10px 24px; font-size: 14px; color: var(--cs-sidebar-text, rgba(255,255,255,0.65)); cursor: pointer; transition: var(--cs-transition-fast, all 0.15s ease); text-decoration: none; position: relative; user-select: none; }
+    .nav-item:hover { color: var(--cs-sidebar-text-active, #ffffff); background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08)); }
+    .nav-item.active { color: var(--cs-primary, #1677ff); background: rgba(22, 119, 255, 0.2); }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary, #1677ff); border-radius: 0 2px 2px 0; }
+    .nav-item .nav-icon { width: 16px; height: 16px; margin-right: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+    .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-item .nav-arrow { width: 12px; height: 12px; transition: transform 0.2s ease; opacity: 0.5; }
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+    .nav-sub-items { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; }
+    .nav-sub-items.open { max-height: 200px; }
+    .nav-sub-item { display: flex; align-items: center; padding: 8px 24px 8px 48px; font-size: 13px; color: var(--cs-sidebar-text, rgba(255,255,255,0.65)); cursor: pointer; transition: var(--cs-transition-fast, all 0.15s ease); text-decoration: none; position: relative; }
+    .nav-sub-item:hover { color: var(--cs-sidebar-text-active, #ffffff); background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08)); }
+    .nav-sub-item.active { color: var(--cs-primary, #1677ff); background: rgba(22, 119, 255, 0.2); }
+    .nav-sub-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary, #1677ff); border-radius: 0 2px 2px 0; }
+    .nav-sub-item .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.5; margin-right: 10px; flex-shrink: 0; }
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+    .admin-content-wrapper { flex: 1; margin-left: var(--cs-sidebar-width, 220px); display: flex; flex-direction: column; min-height: 100vh; }
+    .admin-header { height: var(--cs-header-height, 56px); background: var(--cs-bg-card, #ffffff); border-bottom: 1px solid var(--cs-border-light, #f0f0f0); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--cs-space-6, 24px); position: sticky; top: 0; z-index: 50; flex-shrink: 0; }
+    .header-left { flex: 1; min-width: 0; }
+    .header-right { display: flex; align-items: center; gap: var(--cs-space-4, 16px); flex-shrink: 0; }
+    .breadcrumb-area { font-size: 14px; color: var(--cs-text-secondary, #595959); }
+    .breadcrumb-area span { color: var(--cs-text, #1f1f1f); font-weight: 500; }
+    .user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: var(--cs-radius-sm, 6px); transition: var(--cs-transition-fast, all 0.15s ease); }
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+    .user-status-badge { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--cs-success, #52c41a); }
+    .user-status-badge::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 1.5px solid var(--cs-bg-card, #ffffff); }
+    .user-name { font-size: 14px; color: var(--cs-text, #1f1f1f); white-space: nowrap; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .user-avatar svg { width: 14px; height: 14px; color: #ffffff; }
+    .admin-main { flex: 1; padding: var(--cs-space-6, 24px); overflow-y: auto; }
+
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body style="margin:0;">
+  <div class="admin-layout">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <span class="logo-text">在线客服</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item" data-nav-key="dashboard">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-label">数据仪表盘</span>
+        </a>
+
+        <a class="nav-item nav-group-head expanded" data-nav-key="session-group">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">会话管理</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items open">
+          <a class="nav-sub-item" data-nav-key="workbench">
+            <span class="nav-dot"></span>
+            <span class="nav-label">客服工作台</span>
+          </a>
+          <a class="nav-sub-item" data-nav-key="session-record">
+            <span class="nav-dot"></span>
+            <span class="nav-label">会话记录</span>
+          </a>
+          <a class="nav-sub-item active" data-nav-key="todo">
+            <span class="nav-dot"></span>
+            <span class="nav-label">待办事项</span>
+          </a>
+        </div>
+
+        <a class="nav-item nav-group-head" data-nav-key="knowledge-group">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">知识库</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items">
+          <a class="nav-sub-item" data-nav-key="scripts">
+            <span class="nav-dot"></span>
+            <span class="nav-label">话术库</span>
+          </a>
+          <a class="nav-sub-item" data-nav-key="faq">
+            <span class="nav-dot"></span>
+            <span class="nav-label">FAQ</span>
+          </a>
+          <a class="nav-sub-item" data-nav-key="knowledge">
+            <span class="nav-dot"></span>
+            <span class="nav-label">知识文档</span>
+          </a>
+        </div>
+
+        <a class="nav-item" data-nav-key="settings">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </span>
+          <span class="nav-label">客服设置</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ===== Content Wrapper ===== -->
+    <div class="admin-content-wrapper">
+
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb-area">首页 / 会话管理 / 待办事项</div>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span class="user-status-badge"></span>
+            <span class="user-name">管理员</span>
+            <div class="user-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+
+        <!-- Stats Row (todo-stats) -->
+        <div class="todo-stats">
+          <div class="stat-card" data-target="unreply" style="cursor:pointer;">
+            <div>
+              <div class="stat-num">8</div>
+              <div class="stat-name">未回复消息</div>
+            </div>
+          </div>
+          <div class="stat-card" data-target="timeout" style="cursor:pointer;">
+            <div>
+              <div class="stat-num">6</div>
+              <div class="stat-name">超时预警</div>
+            </div>
+          </div>
+          <div class="stat-card" data-target="eval" style="cursor:pointer;">
+            <div>
+              <div class="stat-num">5</div>
+              <div class="stat-name">待评价会话</div>
+              <div id="evalBreakdown" style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);margin-top:2px;"><span data-eval-cnt="pending">3</span> 待评价 · <span data-eval-cnt="skipped">1</span> 已跳过 · <span data-eval-cnt="done">1</span> 已评价</div>
+            </div>
+          </div>
+          <div class="stat-card" id="statTotal" style="cursor:pointer;">
+            <div>
+              <div class="stat-num">16</div>
+              <div class="stat-name">待办总数</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Three-column Todo Board (todo-columns) -->
+        <div class="todo-columns">
+
+          <!-- ===== 1. 未回复消息 ===== -->
+          <section class="card section-card" data-col="unreply">
+            <div class="section-head">
+              <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>未回复消息 <span class="count-pill">8</span></div>
+              <div class="head-actions"></div>
+            </div>
+            <div class="section-body">
+
+              <div class="todo-row urgency-high-row" data-link="litingting">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar danger">李</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">李婷婷</span>
+                    <span class="urgency high">紧急</span>
+                  </div>
+                  <div class="todo-sub">退款金额不对，订单 #20260611039</div>
+                </div>
+                <div class="todo-actions">
+                  <span class="todo-time" data-elapsed="2" data-elapsed-mode="ago">2分钟前</span>
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+              <div class="todo-row urgency-high-row" data-link="zhangwei">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar danger">张</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">张伟</span>
+                    <span class="urgency high">紧急</span>
+                    <span class="countdown" data-elapsed="3" data-elapsed-mode="over"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#faad14" stroke-width="2" style="vertical-align:-1px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 已超 3 分钟</span>
+                  </div>
+                  <div class="todo-sub">商品破损，要求立刻换货</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+              <div class="todo-row">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar warn">陈</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">陈晓</span>
+                  </div>
+                  <div class="todo-sub">优惠券无法使用，已等 5 分钟</div>
+                </div>
+                <div class="todo-actions">
+                  <span class="todo-time" data-elapsed="5" data-elapsed-mode="ago">5分钟前</span>
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+              <div class="todo-row">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar">刘</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">刘洋</span>
+                  </div>
+                  <div class="todo-sub">物流一直没更新，订单 #20260610088</div>
+                </div>
+                <div class="todo-actions">
+                  <span class="todo-time" data-elapsed="8" data-elapsed-mode="ago">8分钟前</span>
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+              <div class="todo-row">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar">周</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">周芳</span>
+                  </div>
+                  <div class="todo-sub">咨询会员积分兑换规则</div>
+                </div>
+                <div class="todo-actions">
+                  <span class="todo-time" data-elapsed="12" data-elapsed-mode="ago">12分钟前</span>
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+              <div class="todo-row">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar">吴</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">吴磊</span>
+                  </div>
+                  <div class="todo-sub">想了解发货时间</div>
+                </div>
+                <div class="todo-actions">
+                  <span class="todo-time" data-elapsed="15" data-elapsed-mode="ago">15分钟前</span>
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+              <div class="todo-row">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar">郑</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">郑丽</span>
+                  </div>
+                  <div class="todo-sub">发票抬头怎么修改</div>
+                </div>
+                <div class="todo-actions">
+                  <span class="todo-time" data-elapsed="20" data-elapsed-mode="ago">20分钟前</span>
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+              <div class="todo-row">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar">孙</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">孙强</span>
+                  </div>
+                  <div class="todo-sub">咨询是否支持货到付款</div>
+                </div>
+                <div class="todo-actions">
+                  <span class="todo-time" data-elapsed="25" data-elapsed-mode="ago">25分钟前</span>
+                  <button class="todo-btn-sm primary">立即回复</button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ===== 2. 超时预警 ===== -->
+          <section class="card section-card" data-col="timeout">
+            <div class="section-head">
+              <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>超时预警 <span class="count-pill danger">6</span></div>
+              <div class="head-actions"></div>
+            </div>
+            <div class="section-body">
+
+              <div class="todo-row" style="background:var(--cs-danger-bg);" data-link="zhangwei">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar danger">!</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">会话超时 · 张伟</span>
+                    <span class="urgency high">超时</span>
+                  </div>
+                  <div class="todo-sub">用户已等待 <strong style="color:var(--cs-danger);" data-countup="512">8 分 32 秒</strong>（阈值 5 分钟）</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm primary">立即接入</button>
+                </div>
+              </div>
+              <div class="todo-row" style="background:var(--cs-orange-bg);" data-link="litingting">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar warn">!</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">响应超时 · 李婷婷</span>
+                    <span class="urgency medium">即将超时</span>
+                  </div>
+                  <div class="todo-sub">距超时阈值还剩 <strong style="color:var(--cs-orange);" data-countdown="80">1 分 20 秒</strong></div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm">催办</button>
+                  <button class="todo-btn-sm primary">回复</button>
+                </div>
+              </div>
+              <div class="todo-row" style="background:var(--cs-orange-bg);">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar warn">!</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">排队超时 · 王芳</span>
+                    <span class="urgency medium">即将超时</span>
+                  </div>
+                  <div class="todo-sub">已在等待队列 <strong style="color:var(--cs-orange);" data-countup="225">3 分 45 秒</strong>（阈值 4 分钟）</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm">转接</button>
+                  <button class="todo-btn-sm primary">接入</button>
+                </div>
+              </div>
+              <div class="todo-row" style="background:var(--cs-orange-bg);">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar warn">!</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">轮次响应 · 陈芳</span>
+                    <span class="urgency medium">即将超时</span>
+                  </div>
+                  <div class="todo-sub">用户消息已等待 <strong style="color:var(--cs-orange);" data-countup="155">2 分 35 秒</strong>（阈值 3 分钟）</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm primary">回复</button>
+                </div>
+              </div>
+              <div class="todo-row" style="background:var(--cs-orange-bg);">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar warn">!</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">转接超时 · 孙建国</span>
+                    <span class="urgency medium">即将超时</span>
+                  </div>
+                  <div class="todo-sub">转接【售后组】已等待 <strong style="color:var(--cs-orange);" data-countdown="65">1 分 05 秒</strong>（TTL 5 分钟）</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm">催办</button>
+                  <button class="todo-btn-sm primary">回退</button>
+                </div>
+              </div>
+              <div class="todo-row" style="background:var(--cs-danger-bg);">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar danger">!</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">挂起超时 · 郑丽华</span>
+                    <span class="urgency high">超时</span>
+                  </div>
+                  <div class="todo-sub">挂起已超恢复时间 <strong style="color:var(--cs-danger);" data-countup="240">4 分 00 秒</strong>（原定 10 分钟恢复）</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm primary">恢复会话</button>
+                </div>
+              </div>
+
+              <!-- Warning rules note -->
+              <div style="padding:var(--cs-space-3) 18px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light);">
+                <div style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); margin-bottom:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;margin-right:4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/></svg>当前预警规则</div>
+                <div style="font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); line-height:1.8;">
+                  · 首次响应：超过 <strong>5 分钟</strong> 标记超时<br/>
+                  · 轮次响应：超过 <strong>3 分钟</strong> 提醒客服回复<br/>
+                  · 排队等待：超过 <strong>4 分钟</strong> 触发预警<br/>
+                  · 会话静默：超过 <strong>15 分钟</strong> 提醒关闭<br/>
+                  · 转接等待：超过 <strong>5 分钟</strong>（TTL）触发回退策略<br/>
+                  · 挂起恢复：超过设定<strong>恢复时间</strong>提醒 / 自动恢复
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ===== 3. 待评价会话 ===== -->
+          <section class="card section-card" data-col="eval">
+            <div class="section-head">
+              <div class="title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:8px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>待评价会话 <span class="count-pill warn">5</span></div>
+              <div class="head-actions"><a href="#" style="font-size:var(--cs-font-size-base);color:var(--cs-primary);">查看全部 &gt;</a></div>
+            </div>
+            <div class="section-body">
+
+              <!-- Status filters -->
+              <div style="display:flex;gap:8px;padding:10px 18px 0;">
+                <span class="eval-filter" data-filter="all" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-primary);color:#fff;cursor:pointer;">全部 5</span>
+                <span class="eval-filter" data-filter="pending" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-border-lighter);color:var(--cs-text-secondary);cursor:pointer;">待评价 3</span>
+                <span class="eval-filter" data-filter="skipped" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-border-lighter);color:var(--cs-text-secondary);cursor:pointer;">已跳过 1</span>
+                <span class="eval-filter" data-filter="done" style="font-size:12px;padding:3px 10px;border-radius:12px;background:var(--cs-border-lighter);color:var(--cs-text-secondary);cursor:pointer;">已评价 1</span>
+              </div>
+
+              <div class="todo-row" data-status="pending">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar violet">赵</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">赵敏</span>
+                    <span class="urgency medium">待评价</span>
+                  </div>
+                  <div class="todo-sub">会话已结束 · 订单 #20260611039</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm">催评</button>
+                </div>
+              </div>
+              <div class="todo-row" data-status="pending">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar violet">钱</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">钱多多</span>
+                    <span class="urgency low">待评价</span>
+                  </div>
+                  <div class="todo-sub">会话已结束 · 优惠券咨询</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm">催评</button>
+                </div>
+              </div>
+              <div class="todo-row" data-status="pending">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar violet">冯</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">冯绍</span>
+                    <span class="urgency medium">待评价</span>
+                  </div>
+                  <div class="todo-sub">会话已结束 · 退款问题</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm">催评</button>
+                </div>
+              </div>
+              <div class="todo-row" data-status="skipped">
+                <label class="todo-check"><input type="checkbox" class="row-select" /></label>
+                <div class="todo-avatar violet">何</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">何静</span>
+                    <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#e6f7ff;color:#1890ff;">已跳过</span>
+                  </div>
+                  <div class="todo-sub">会话已结束 · 物流咨询</div>
+                </div>
+                <div class="todo-actions">
+                  <button class="todo-btn-sm">催评</button>
+                </div>
+              </div>
+              <div class="todo-row" data-status="done">
+                <div class="todo-avatar violet">许</div>
+                <div class="todo-main">
+                  <div class="todo-top">
+                    <span class="todo-name">许文</span>
+                    <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;">已评价 ★★★★★</span>
+                  </div>
+                  <div class="todo-sub">会话已结束 · 会员升级</div>
+                </div>
+                <div class="todo-actions">
+                  <a href="#" style="font-size:var(--cs-font-size-sm);color:var(--cs-primary);">查看评价</a>
+                </div>
+              </div>
+
+              <!-- Bottom summary -->
+              <div style="padding:var(--cs-space-3) 18px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">平均催评转化率：<strong style="color:var(--cs-success);">62%</strong></span>
+                <div style="display:flex; gap:8px;">
+                  <button class="todo-btn-sm primary">一键催评全部</button>
+                </div>
+              </div>
+
+              <!-- Skip status note -->
+              <div style="margin:10px 18px 12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:8px 12px;font-size:12px;color:#1677ff;">
+                用户跳过评价后，系统记录为"已跳过"状态。管理员仍可发送催评邀请。
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+    <style>
+    /* ===== admin-todo.html page-specific styles ===== */
+
+    /* --- Stats Row (todo-stats) --- */
+    .todo-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--cs-space-4);
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--cs-bg-card);
+      border-radius: var(--cs-radius-md);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--cs-shadow-card);
+      transition: var(--cs-transition-normal);
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--cs-shadow-card-hover);
+    }
+
+    .stat-num {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--cs-text);
+      line-height: 1.2;
+    }
+
+    .stat-name {
+      font-size: var(--cs-font-size-md);
+      color: var(--cs-text-secondary);
+      margin-top: 2px;
+    }
+
+    /* --- Three-column Layout (todo-columns) --- */
+    .todo-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--cs-space-4);
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .todo-columns { grid-template-columns: 1fr; }
+      .todo-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* --- Section Card --- */
+    .section-card { padding: 0; overflow: hidden; background: var(--cs-bg-card); border-radius: var(--cs-radius-md); box-shadow: var(--cs-shadow-card); }
+    .section-card .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--cs-border-light);
+      background: var(--cs-bg-header);
+    }
+    .section-card .section-head .title {
+      display: flex; align-items: center; gap: var(--cs-space-2);
+      font-size: var(--cs-font-size-lg); font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+    }
+    .section-card .section-head .count-pill {
+      background: var(--cs-bg-page);
+      color: var(--cs-text-secondary);
+      border-radius: 10px;
+      padding: 1px 10px;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-semibold);
+    }
+    .section-card .section-head .count-pill.danger { background: var(--cs-danger-bg); color: var(--cs-danger); }
+    .section-card .section-head .count-pill.warn   { background: var(--cs-orange-bg); color: var(--cs-orange); }
+    .section-card .section-head .head-actions a {
+      font-size: var(--cs-font-size-base); color: var(--cs-primary);
+    }
+
+    .section-body { padding: 6px 0; max-height: 640px; overflow-y: auto; }
+
+    /* --- Todo Row (generic) --- */
+    .todo-row {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-3);
+      padding: var(--cs-space-3) 18px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      transition: background 0.15s;
+    }
+    .todo-row:hover { background: var(--cs-bg-hover); }
+    .todo-row:last-child { border-bottom: none; }
+
+    .todo-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--cs-primary);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-base); font-weight: var(--cs-font-weight-semibold);
+      flex-shrink: 0;
+    }
+    .todo-avatar.warn   { background: var(--cs-warning); }
+    .todo-avatar.danger { background: var(--cs-danger); }
+    .todo-avatar.violet { background: var(--cs-purple); }
+
+    .todo-main { flex: 1; min-width: 0; }
+    .todo-top {
+      display: flex; align-items: center; gap: var(--cs-space-2);
+      margin-bottom: 4px;
+    }
+    .todo-name { font-size: var(--cs-font-size-md); font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); }
+    .todo-sub {
+      font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .todo-time { font-size: var(--cs-font-size-sm); color: var(--cs-text-placeholder); white-space: nowrap; margin-left: 4px; }
+
+    .todo-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* --- Urgency Tags --- */
+    .urgency {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: var(--cs-radius-xs);
+      font-size: var(--cs-font-size-xs);
+      font-weight: var(--cs-font-weight-semibold);
+      line-height: 1.6;
+    }
+    .urgency.high   { background: var(--cs-danger-bg); color: var(--cs-danger); border: 1px solid #ffccc7; }
+    .urgency.medium { background: var(--cs-orange-bg); color: var(--cs-orange); border: 1px solid #ffe58f; }
+    .urgency.low    { background: var(--cs-success-bg); color: #389e0d; border: 1px solid #b7eb8f; }
+
+    /* --- Countdown --- */
+    .countdown {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: var(--cs-font-size-sm); color: var(--cs-danger); font-weight: var(--cs-font-weight-semibold);
+    }
+
+    /* --- Small Buttons --- */
+    .todo-btn-sm {
+      padding: 4px 12px;
+      border-radius: 5px;
+      font-size: var(--cs-font-size-sm);
+      border: 1px solid var(--cs-border);
+      background: var(--cs-bg-card);
+      color: var(--cs-text);
+      cursor: pointer;
+      transition: var(--cs-transition-fast);
+      white-space: nowrap;
+    }
+    .todo-btn-sm:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .todo-btn-sm.primary { background: var(--cs-primary); color: #fff; border-color: var(--cs-primary); }
+    .todo-btn-sm.primary:hover { background: var(--cs-primary-hover); }
+
+    /* --- Checkbox --- */
+    .todo-row .todo-check {
+      flex-shrink: 0;
+      width: 16px;
+      display: flex;
+      align-items: center;
+      margin-right: -2px;
+    }
+    .todo-row .todo-check input {
+      width: 14px; height: 14px;
+      cursor: pointer;
+      accent-color: var(--cs-primary);
+    }
+
+    /* --- Urgency High Row --- */
+    .todo-row.urgency-high-row {
+      border-left: 3px solid var(--cs-danger);
+      background: var(--cs-warning-bg);
+    }
+
+    /* --- Flash animation --- */
+    .section-card.flash { animation: cs-flash 1.2s ease-out; }
+    @keyframes cs-flash {
+      0%   { box-shadow: 0 0 0 0 rgba(22,119,255,0); }
+      30%  { box-shadow: 0 0 0 3px rgba(22,119,255,0.35); }
+      100% { box-shadow: 0 0 0 0 rgba(22,119,255,0); }
+    }
+
+    /* --- Empty state --- */
+    .empty-state {
+      text-align: center;
+      padding: 40px var(--cs-space-5);
+      color: var(--cs-text-placeholder);
+    }
+    .empty-state .emoji { font-size: 32px; margin-bottom: var(--cs-space-2); }
+    .empty-state .text { font-size: var(--cs-font-size-base); }
+  </style>
+</body>
+</html>

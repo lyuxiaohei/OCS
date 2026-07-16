@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据仪表盘 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <span class="logo-text">在线客服</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- 数据仪表盘 (active) -->
+      <a class="nav-item active" data-nav-key="dashboard">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </span>
+        <span class="nav-label">数据仪表盘</span>
+      </a>
+
+      <!-- 会话管理 -->
+      <a class="nav-item nav-group-head expanded" data-nav-key="session-group">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </span>
+        <span class="nav-label">会话管理</span>
+        <span class="nav-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </span>
+      </a>
+      <div class="nav-sub-items open">
+        <a class="nav-sub-item" data-nav-key="workbench">
+          <span class="nav-dot"></span>
+          <span class="nav-label">客服工作台</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="session-record">
+          <span class="nav-dot"></span>
+          <span class="nav-label">会话记录</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="todo">
+          <span class="nav-dot"></span>
+          <span class="nav-label">待办事项</span>
+        </a>
+      </div>
+
+      <!-- 知识库 -->
+      <a class="nav-item nav-group-head" data-nav-key="knowledge-group">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </span>
+        <span class="nav-label">知识库</span>
+        <span class="nav-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </span>
+      </a>
+      <div class="nav-sub-items">
+        <a class="nav-sub-item" data-nav-key="scripts">
+          <span class="nav-dot"></span>
+          <span class="nav-label">话术库</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="faq">
+          <span class="nav-dot"></span>
+          <span class="nav-label">FAQ</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="knowledge">
+          <span class="nav-dot"></span>
+          <span class="nav-label">知识文档</span>
+        </a>
+      </div>
+
+      <!-- 客服设置 -->
+      <a class="nav-item" data-nav-key="settings">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="nav-label">客服设置</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ===== Content Wrapper ===== -->
+  <div class="admin-content-wrapper">
+
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <div class="breadcrumb-area">首页 / <span>数据仪表盘</span></div>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <span class="live-tag">实时</span>
+          <div class="user-avatar" style="background:var(--cs-primary,#1677ff); font-size:12px; font-weight:600; color:#fff;">张</div>
+          <span class="user-name">张客服主管</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+
+      <!-- Page Title Bar -->
+      <div class="page-title-bar">
+        <h1>数据仪表盘</h1>
+        <button class="date-picker">2026-07-02</button>
+      </div>
+
+      <!-- (a) Stats Cards Row -->
+      <div class="stats-row">
+        <!-- 今日会话数 -->
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">今日会话数</div>
+            <div class="stat-value">1,286<span class="unit">次</span></div>
+            <span class="stat-trend up">▲ 12.5% 较昨日</span>
+          </div>
+        </div>
+        <!-- 在线客服数 -->
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">在线客服数</div>
+            <div class="stat-value">18<span class="unit">/ 24</span></div>
+            <span class="stat-trend up">▲ 3 人新上线</span>
+          </div>
+        </div>
+        <!-- 平均响应时间 -->
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">平均响应时长</div>
+            <div class="stat-value">42<span class="unit">秒</span></div>
+            <span class="stat-trend down">▼ 8.3% 提速</span>
+          </div>
+        </div>
+        <!-- 客户满意度 -->
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-title">满意度评分</div>
+            <div class="stat-value">4.82<span class="unit">/ 5.0</span></div>
+            <span class="stat-trend up">▲ 0.06 较昨日</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- (b) Charts Row -->
+      <div class="charts-row">
+        <!-- Left: 会话量趋势 Bar Chart -->
+        <div class="chart-card left bar-chart-card">
+          <div class="card-title">
+            <span>会话量趋势</span>
+            <div class="chart-actions">
+              <span class="action-tab">近7天</span>
+              <span class="action-tab active">今天</span>
+            </div>
+          </div>
+          <div class="chart-canvas">
+            <div class="fake-bars">
+              <div class="bar" style="height:55%;"><span class="bar-val">98</span><span class="bar-label">09:00</span></div>
+              <div class="bar" style="height:72%;"><span class="bar-val">128</span><span class="bar-label">10:00</span></div>
+              <div class="bar" style="height:88%;"><span class="bar-val">156</span><span class="bar-label">11:00</span></div>
+              <div class="bar" style="height:95%;"><span class="bar-val">168</span><span class="bar-label">12:00</span></div>
+              <div class="bar" style="height:78%;"><span class="bar-val">138</span><span class="bar-label">13:00</span></div>
+              <div class="bar" style="height:100%;"><span class="bar-val">176</span><span class="bar-label">14:00</span></div>
+              <div class="bar" style="height:84%;"><span class="bar-val">149</span><span class="bar-label">15:00</span></div>
+              <div class="bar" style="height:66%;"><span class="bar-val">117</span><span class="bar-label">16:00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 客服满意度排行 -->
+        <div class="chart-card right ranking-card">
+          <div class="card-title">
+            <span>客服满意度排行</span>
+            <div class="chart-actions">
+              <span class="action-tab active">本月</span>
+            </div>
+          </div>
+          <table class="data-table ranking-table">
+            <thead>
+              <tr><th>客服</th><th>评价数</th><th>平均分</th><th>差评数</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar" style="background:#52c41a;">李</div><span>李静</span></div></td>
+                <td>286</td>
+                <td><span class="stars">★★★★★</span></td>
+                <td><span style="color:var(--cs-text-tertiary,#8c8c8c);">3</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar" style="background:#1677ff;">张</div><span>张小明</span></div></td>
+                <td>342</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.7</span></td>
+                <td><span style="color:var(--cs-warning,#faad14);">9</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar" style="background:#fa8c16;">王</div><span>王磊</span></div></td>
+                <td>198</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.4</span></td>
+                <td><span style="color:var(--cs-danger,#f5222d);">12</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar" style="background:#722ed1;">赵</div><span>赵丽</span></div></td>
+                <td>151</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.2</span></td>
+                <td><span style="color:var(--cs-danger,#f5222d);">10</span></td>
+              </tr>
+              <tr>
+                <td><div class="col-user"><div class="mini-avatar" style="background:#52c41a;">陈</div><span>陈昊</span></div></td>
+                <td>106</td>
+                <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.0</span></td>
+                <td><span style="color:var(--cs-danger,#f5222d);">8</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- (c) Bottom Section: 待处理事项 + 今日概况 -->
+      <div class="bottom-section">
+        <!-- Left: 待处理事项 -->
+        <div class="bottom-card">
+          <div class="card-title">
+            <span>待处理事项</span>
+            <a class="view-all" href="#">查看全部待办 &gt;</a>
+          </div>
+          <div class="todo-summary-panel">
+            <div class="todo-summary-item">
+              <div class="todo-summary-left">
+                <span class="todo-dot urgent"></span>
+                <span class="todo-count">超时未响应会话</span>
+              </div>
+              <span class="todo-num" style="color:var(--cs-danger,#f5222d);">3</span>
+            </div>
+            <div class="todo-summary-item">
+              <div class="todo-summary-left">
+                <span class="todo-dot warn"></span>
+                <span class="todo-count">待转接确认</span>
+              </div>
+              <span class="todo-num" style="color:var(--cs-warning,#faad14);">2</span>
+            </div>
+            <div class="todo-summary-item">
+              <div class="todo-summary-left">
+                <span class="todo-dot warn"></span>
+                <span class="todo-count">差评待跟进</span>
+              </div>
+              <span class="todo-num" style="color:var(--cs-warning,#faad14);">4</span>
+            </div>
+            <div class="todo-summary-item">
+              <div class="todo-summary-left">
+                <span class="todo-dot normal"></span>
+                <span class="todo-count">未读留言</span>
+              </div>
+              <span class="todo-num" style="color:var(--cs-primary,#1677ff);">7</span>
+            </div>
+            <div class="todo-summary-item">
+              <div class="todo-summary-left">
+                <span class="todo-dot normal"></span>
+                <span class="todo-count">知识库待审核</span>
+              </div>
+              <span class="todo-num" style="color:var(--cs-primary,#1677ff);">5</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 今日概况 -->
+        <div class="bottom-card">
+          <div class="card-title">
+            <span>今日概况</span>
+          </div>
+          <div class="info-summary-panel">
+            <div class="info-row">
+              <span class="info-label">当前排队</span>
+              <span class="info-value" style="color:var(--cs-warning,#faad14); font-weight:600;">6 人</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">已接入会话</span>
+              <span class="info-value">1,280</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">已关闭会话</span>
+              <span class="info-value">1,124</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">转接次数</span>
+              <span class="info-value">38</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">AI 托管会话</span>
+              <span class="info-value" style="color:var(--cs-text-secondary,#595959);">142 (11%)</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">首次响应率</span>
+              <span class="info-value" style="color:var(--cs-text-secondary,#595959);">96.4%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+
+    <style>
+    /* --- Layout Shell --- */
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+      font-family: var(--cs-font-family);
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+    }
+
+    /* --- Sidebar --- */
+    .admin-sidebar {
+      width: var(--cs-sidebar-width, 220px);
+      min-width: var(--cs-sidebar-width, 220px);
+      background: var(--cs-bg-sidebar, #001529);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .sidebar-logo {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+
+    .sidebar-logo .logo-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 24px;
+      font-size: 14px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: rgba(22, 119, 255, 0.2);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-item .nav-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+    .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .nav-item .nav-arrow {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.2s ease;
+      opacity: 0.5;
+    }
+
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+
+    .nav-sub-items {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+
+    .nav-sub-items.open { max-height: 200px; }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 24px 8px 48px;
+      font-size: 13px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-sub-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-sub-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: rgba(22, 119, 255, 0.2);
+    }
+
+    .nav-sub-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-sub-item .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.5;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+
+    /* --- Content Wrapper --- */
+    .admin-content-wrapper {
+      flex: 1;
+      margin-left: var(--cs-sidebar-width, 220px);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* --- Header --- */
+    .admin-header {
+      height: var(--cs-header-height, 56px);
+      background: var(--cs-bg-card, #ffffff);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--cs-space-6, 24px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .header-left { flex: 1; min-width: 0; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-4, 16px);
+      flex-shrink: 0;
+    }
+
+    .breadcrumb-area {
+      font-size: 14px;
+      color: var(--cs-text-secondary, #595959);
+    }
+
+    .breadcrumb-area span { color: var(--cs-text, #1f1f1f); font-weight: 500; }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--cs-radius-sm, 6px);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+
+    .user-status-badge {
+      position: relative;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cs-success, #52c41a);
+    }
+
+    .user-status-badge::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1.5px solid var(--cs-bg-card, #ffffff);
+    }
+
+    .user-name { font-size: 14px; color: var(--cs-text, #1f1f1f); white-space: nowrap; }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-avatar svg { width: 14px; height: 14px; color: #ffffff; }
+
+    /* --- Main --- */
+    .admin-main {
+      flex: 1;
+      padding: var(--cs-space-6, 24px);
+      overflow-y: auto;
+    }
+
+    /* ===== PAGE-SPECIFIC: Dashboard ===== */
+
+    /* Stats Cards */
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: var(--cs-bg-card, #ffffff);
+      border-radius: var(--cs-radius-md, 8px);
+      padding: 20px;
+      box-shadow: var(--cs-shadow-card, 0 1px 2px rgba(0,0,0,0.03));
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: var(--cs-transition-normal, all 0.2s ease);
+      cursor: default;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--cs-shadow-card-hover, 0 4px 12px rgba(0,0,0,0.08));
+      transform: translateY(-1px);
+    }
+
+    .stat-card .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--cs-radius-md, 8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-card .stat-icon svg { width: 24px; height: 24px; }
+
+    .stat-card .stat-icon.blue { background: #e6f4ff; color: #1677ff; }
+    .stat-card .stat-icon.green { background: #f6ffed; color: #52c41a; }
+    .stat-card .stat-icon.purple { background: #f9f0ff; color: #722ed1; }
+
+    .stat-card .stat-info { flex: 1; min-width: 0; }
+
+    .stat-card .stat-title {
+      font-size: 14px;
+      color: var(--cs-text-secondary, #595959);
+      margin-bottom: 4px;
+    }
+
+    .stat-card .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--cs-text, #1f1f1f);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .stat-trend {
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 8px;
+      border-radius: var(--cs-radius-sm, 6px);
+      font-weight: 500;
+    }
+
+    .stat-card .stat-trend.up { background: #f6ffed; color: #52c41a; }
+    .stat-card .stat-trend.down { background: #fff1f0; color: #f5222d; }
+
+    /* Charts Row */
+    .charts-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: var(--cs-bg-card, #ffffff);
+      border-radius: var(--cs-radius-md, 8px);
+      padding: 20px;
+      box-shadow: var(--cs-shadow-card, 0 1px 2px rgba(0,0,0,0.03));
+    }
+
+    .chart-card.left { flex: 3; min-width: 0; }
+    .chart-card.right { flex: 2; min-width: 0; }
+
+    .chart-card .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chart-card .card-title .chart-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chart-card .card-title .chart-actions .action-tab {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: var(--cs-radius-sm, 6px);
+      cursor: pointer;
+      color: var(--cs-text-secondary, #595959);
+      background: transparent;
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .chart-card .card-title .chart-actions .action-tab.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+      border-color: var(--cs-primary-border, #91caff);
+    }
+
+    /* Donut chart */
+    .donut-chart-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .donut-chart-wrapper {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin-bottom: 16px;
+    }
+
+    .donut-chart-wrapper svg { width: 180px; height: 180px; }
+
+    .donut-center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .donut-center-text .donut-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--cs-text, #1f1f1f);
+      display: block;
+    }
+
+    .donut-center-text .donut-label {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+    }
+
+    .donut-legend {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 24px;
+      width: 100%;
+    }
+
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--cs-text-secondary, #595959);
+    }
+
+    .donut-legend-item .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .donut-legend-item .legend-value {
+      margin-left: auto;
+      font-weight: 500;
+      color: var(--cs-text, #1f1f1f);
+    }
+
+    /* .unit class for stat card units */
+    .stat-value .unit {
+      font-size: 16px;
+      color: var(--cs-text-secondary, #595959);
+      font-weight: 400;
+    }
+
+    /* Live tag with pulsing green dot */
+    .live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--cs-text, #1f1f1f);
+      padding: 2px 8px;
+      border-radius: var(--cs-radius-sm, 6px);
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+    }
+    .live-tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #52c41a;
+      flex-shrink: 0;
+      animation: livePulse 1.5s infinite;
+    }
+    @keyframes livePulse {
+      0% { opacity: 1; box-shadow: 0 0 0 0 rgba(82,196,26,0.5); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 3px rgba(82,196,26,0); }
+      100% { opacity: 1; box-shadow: 0 0 0 0 rgba(82,196,26,0); }
+    }
+
+    /* Bar chart styles */
+    .bar-chart-card .chart-canvas {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 260px;
+      padding: 0 0 28px;
+    }
+    .fake-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      flex: 1;
+      padding-top: 24px;
+    }
+    .fake-bars .bar {
+      flex: 1;
+      min-width: 12px;
+      background: linear-gradient(180deg, #4096ff, #1677ff);
+      border-radius: var(--cs-radius-xs, 4px) var(--cs-radius-xs, 4px) 0 0;
+      position: relative;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    .fake-bars .bar:hover { opacity: 0.8; }
+    .fake-bars .bar .bar-val {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--cs-text-secondary, #595959);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    .fake-bars .bar .bar-label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      white-space: nowrap;
+    }
+
+    /* Mini avatar for ranking table */
+    .col-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mini-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    /* Star rating styles */
+    .stars {
+      color: #faad14;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+    .stars .empty {
+      color: #e8e8e8;
+    }
+    .score-num {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      margin-left: 4px;
+    }
+
+    /* Ranking table adjustments */
+    .ranking-card .ranking-table td,
+    .ranking-card .ranking-table th {
+      padding: 10px 12px;
+    }
+    .ranking-card .ranking-table thead th {
+      text-align: left;
+      font-weight: 500;
+      color: var(--cs-text-secondary, #595959);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    /* Bottom section layout */
+    .bottom-section {
+      display: flex;
+      gap: 16px;
+    }
+    .bottom-section .bottom-card {
+      flex: 1;
+    }
+    .bottom-section .bottom-card .card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Todo summary styles */
+    .todo-summary-panel { margin-top: 4px; }
+    .todo-summary-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+    .todo-summary-item:last-child { border-bottom: none; }
+    .todo-summary-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .todo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .todo-dot.urgent { background: var(--cs-danger, #f5222d); }
+    .todo-dot.warn { background: var(--cs-warning, #faad14); }
+    .todo-dot.normal { background: var(--cs-primary, #1677ff); }
+    .todo-count {
+      font-size: 14px;
+      color: var(--cs-text, #1f1f1f);
+    }
+    .todo-num {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* Info summary panel (今日概况) */
+    .info-summary-panel { margin-top: 4px; }
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      font-size: 14px;
+      color: var(--cs-text-secondary, #595959);
+    }
+    .info-value {
+      font-size: 14px;
+      color: var(--cs-text, #1f1f1f);
+      font-weight: 500;
+    }
+
+    /* Bottom Card (reused) */
+    .bottom-card {
+      background: var(--cs-bg-card, #ffffff);
+      border-radius: var(--cs-radius-md, 8px);
+      padding: 20px;
+      box-shadow: var(--cs-shadow-card, 0 1px 2px rgba(0,0,0,0.03));
+    }
+    .bottom-card .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+      margin-bottom: 12px;
+    }
+    .bottom-card .card-title .view-all {
+      font-size: 13px;
+      color: var(--cs-primary, #1677ff);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .bottom-card .card-title .view-all:hover { text-decoration: underline; }
+
+    /* Data Tables */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table thead th {
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 500;
+      color: var(--cs-text-secondary, #595959);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .data-table tbody td {
+      padding: 10px 12px;
+      color: var(--cs-text, #1f1f1f);
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+      white-space: nowrap;
+    }
+
+    .data-table tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    .data-table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    .data-table .session-content {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: var(--cs-radius-sm, 6px);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-badge.blue { background: #e6f4ff; color: #1677ff; }
+    .status-badge.gray { background: #f5f5f5; color: #8c8c8c; }
+    .status-badge.orange { background: #fff7e6; color: #fa8c16; }
+
+    /* Medal icons */
+    .medal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .medal.gold { background: #fff7e6; color: #faad14; }
+    .medal.silver { background: #f0f0f0; color: #8c8c8c; }
+    .medal.bronze { background: #fff1e6; color: #d48806; }
+    .medal.normal { background: transparent; color: var(--cs-text-tertiary, #8c8c8c); }
+
+    /* Progress bar */
+    .progress-bar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: #f0f0f0;
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+
+    .progress-bar .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #52c41a, #73d13d);
+      transition: width 0.6s ease;
+    }
+
+    .progress-value {
+      font-size: 12px;
+      color: var(--cs-text-secondary, #595959);
+      white-space: nowrap;
+    }
+
+    /* Time column */
+    .data-table .time-cell { color: var(--cs-text-tertiary, #8c8c8c); font-size: 12px; }
+
+    /* Responsive fix */
+    .page-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .page-title-bar h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+      margin: 0;
+    }
+
+    .page-title-bar .date-picker {
+      font-size: 13px;
+      padding: 6px 14px;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      color: var(--cs-text-secondary, #595959);
+      background: var(--cs-bg-card, #ffffff);
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .page-title-bar .date-picker:hover {
+      border-color: var(--cs-primary, #1677ff);
+      color: var(--cs-primary, #1677ff);
+    }
+  </style>
+</body>
+</html>

@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识库 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <span class="logo-text">在线客服</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- 数据仪表盘 -->
+        <a class="nav-item" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-label">数据仪表盘</span>
+        </a>
+
+        <!-- 会话管理 -->
+        <a class="nav-item nav-group-head" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">会话管理</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items">
+          <a class="nav-sub-item" href="#"><span class="nav-dot"></span><span class="nav-label">客服工作台</span></a>
+          <a class="nav-sub-item" href="#"><span class="nav-dot"></span><span class="nav-label">会话记录</span></a>
+          <a class="nav-sub-item" href="#"><span class="nav-dot"></span><span class="nav-label">待办事项</span></a>
+        </div>
+
+        <!-- 知识库 (active group) -->
+        <a class="nav-item nav-group-head expanded" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">知识库</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items open">
+          <a class="nav-sub-item" href="#"><span class="nav-dot"></span><span class="nav-label">话术库</span></a>
+          <a class="nav-sub-item" href="#"><span class="nav-dot"></span><span class="nav-label">FAQ</span></a>
+          <a class="nav-sub-item active" href="#"><span class="nav-dot"></span><span class="nav-label">知识文档</span></a>
+        </div>
+
+        <!-- 客服设置 -->
+        <a class="nav-item" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </span>
+          <span class="nav-label">客服设置</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ===== Content Wrapper ===== -->
+    <div class="admin-content-wrapper">
+
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb-area">
+            知识库 / <span style="font-weight:600; color:var(--cs-text);">知识文档</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span class="user-status-badge"></span>
+            <span class="user-name">张小明</span>
+            <div class="user-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+
+        <!-- Subtitle + Action Buttons -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <p style="font-size:var(--cs-font-size-base, 13px); color:var(--cs-text-tertiary);">维护帮助文档，按分类组织，供客服查阅与用户端自助查询</p>
+          <div style="display:flex; gap:8px; flex-shrink:0;">
+            <button class="btn">导入文档</button>
+            <button class="btn btn-primary">+ 新建文章</button>
+          </div>
+        </div>
+
+        <!-- Knowledge Layout: Left Tree + Right Content -->
+        <div class="knowledge-layout">
+
+          <!-- Left: Category Tree (内容分类) -->
+          <div class="kb-sidebar">
+            <div class="category-tree">
+              <div class="tree-header">
+                <span class="tree-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>内容分类
+                </span>
+                <span class="tree-add" title="新增分类">+</span>
+              </div>
+
+              <!-- 全部文章 (active) -->
+              <div class="tree-node active">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+                <span class="tree-label">全部文章</span>
+                <span class="tree-count">128</span>
+              </div>
+
+              <div class="tree-group-title">业务分类</div>
+
+              <!-- 订单 -->
+              <div class="tree-node" data-cat="order">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+                <span class="tree-label">订单</span>
+                <span class="tree-count">32</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+              <div class="tree-node" style="padding-left:38px;">
+                <span class="tree-icon">&#8629;</span>
+                <span class="tree-label">订单查询</span>
+                <span class="tree-count">18</span>
+              </div>
+              <div class="tree-node" style="padding-left:38px;">
+                <span class="tree-icon">&#8629;</span>
+                <span class="tree-label">订单修改</span>
+                <span class="tree-count">14</span>
+              </div>
+
+              <!-- 退换货 -->
+              <div class="tree-node" data-cat="return">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
+                <span class="tree-label">退换货</span>
+                <span class="tree-count">28</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <!-- 支付 -->
+              <div class="tree-node" data-cat="pay">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+                <span class="tree-label">支付</span>
+                <span class="tree-count">25</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <!-- 物流 -->
+              <div class="tree-node" data-cat="logistic">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+                <span class="tree-label">物流</span>
+                <span class="tree-count">24</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <!-- 账户 -->
+              <div class="tree-node" data-cat="account">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <span class="tree-label">账户</span>
+                <span class="tree-count">19</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                </span>
+              </div>
+
+              <div class="tree-group-title">其他</div>
+              <div class="tree-node">
+                <span class="tree-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+                <span class="tree-label">回收站</span>
+                <span class="tree-count">6</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Article Table -->
+          <div class="kb-main">
+            <!-- Toolbar -->
+            <div class="kb-toolbar-card">
+              <div class="kb-toolbar">
+                <input type="text" class="filter-search input-search" placeholder="搜索文章标题 / 关键词" />
+                <select class="filter-select" id="kbStatus">
+                  <option value="">全部状态</option>
+                  <option value="published">已发布</option>
+                  <option value="draft">草稿</option>
+                  <option value="offline">已下线</option>
+                </select>
+                <select class="filter-select" id="kbTime">
+                  <option value="">更新时间</option>
+                  <option value="today">今天</option>
+                  <option value="3d">近3天</option>
+                  <option value="7d">近7天</option>
+                  <option value="30d">近30天</option>
+                </select>
+                <div style="margin-left:auto; display:flex; gap:8px;">
+                  <button class="btn" id="kbBtnReset">重置</button>
+                  <button class="btn btn-primary" id="kbBtnQuery">查询</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Article Table -->
+            <div class="table-card">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:42%;">文章标题</th>
+                      <th>分类</th>
+                      <th>状态</th>
+                      <th>浏览量</th>
+                      <th>更新时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何查询我的订单状态？
+                          <span class="title-sub">用户可在「我的-订单」中查看订单详情与实时物流状态，支持按状态筛选…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag order"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 订单</span></td>
+                      <td><span class="st-tag on">已发布</span></td>
+                      <td>1,284</td>
+                      <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">09:42</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          7天无理由退货流程详解
+                          <span class="title-sub">签收后7天内可申请无理由退货，商品需保持原包装完好，部分品类不支持退换…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag return"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 退换货</span></td>
+                      <td><span class="st-tag on">已发布</span></td>
+                      <td>986</td>
+                      <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">16:18</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          支付失败常见原因与解决方案
+                          <span class="title-sub">支付失败可能由余额不足、网络超时、银行卡限额等引起，建议按步骤排查…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag pay"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> 支付</span></td>
+                      <td><span class="st-tag on">已发布</span></td>
+                      <td>742</td>
+                      <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">11:05</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          物流多久可以到货？运费怎么算？
+                          <span class="title-sub">默认顺丰/中通发货，大城市1-3天可达，偏远地区3-7天；满99元包邮…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag logistic"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> 物流</span></td>
+                      <td><span class="st-tag on">已发布</span></td>
+                      <td>1,103</td>
+                      <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">14:36</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何修改账户绑定手机号？
+                          <span class="title-sub">前往「设置-账户安全」通过原手机号验证码校验后即可更换绑定手机号…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag account"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 账户</span></td>
+                      <td><span class="st-tag on">已发布</span></td>
+                      <td>658</td>
+                      <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">10:22</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          仅退款与退货退款有什么区别？
+                          <span class="title-sub">仅退款适用于未发货或协商不退货场景；退货退款需寄回商品经仓库验收…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag return"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 退换货</span></td>
+                      <td><span class="st-tag draft">草稿</span></td>
+                      <td>0</td>
+                      <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">17:51</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>发布</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何申请开具发票？
+                          <span class="title-sub">用户可在订单完成后申请开具电子发票或纸质发票，支持个人和单位抬头…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag order"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 订单</span></td>
+                      <td><span class="st-tag on">已发布</span></td>
+                      <td>0</td>
+                      <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">14:22</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          支持哪些支付方式？能否分期？
+                          <span class="title-sub">支持微信、支付宝、银行卡、花呗分期，部分商品支持白条与信用卡分期…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag pay"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> 支付</span></td>
+                      <td><span class="st-tag draft">草稿</span></td>
+                      <td>0</td>
+                      <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">09:14</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>发布</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何取消未发货的订单？
+                          <span class="title-sub">未发货订单可在订单详情页点击「取消订单」，款项原路退回，预计1-3工作日…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag order"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 订单</span></td>
+                      <td><span class="st-tag on">已发布</span></td>
+                      <td>879</td>
+                      <td>2026-06-07<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">15:43</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          快递显示已签收但我没收到怎么办？
+                          <span class="title-sub">请先联系快递员核实，若仍未解决可在订单页申请售后或联系客服介入…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag logistic"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> 物流</span></td>
+                      <td><span class="st-tag off">已下线</span></td>
+                      <td>412</td>
+                      <td>2026-06-06<br/><span style="font-size:var(--cs-font-size-sm,12px);color:var(--cs-text-tertiary);">13:28</span></td>
+                      <td class="row-actions">
+                        <a>编辑</a><span class="divider">|</span>
+                        <a>预览</a><span class="divider">|</span>
+                        <a>上线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <div class="pagination">
+                <div class="pagination-info">共 128 条</div>
+                <div class="pagination-controls">
+                  <span class="page-btn disabled">&#8249;</span>
+                  <span class="page-btn active">1</span>
+                  <span class="page-btn">2</span>
+                  <span class="page-btn">3</span>
+                  <span class="page-btn">4</span>
+                  <span style="color:var(--cs-text-placeholder);">...</span>
+                  <span class="page-btn">13</span>
+                  <span class="page-btn">&#8250;</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+  <script>
+    // Category tree node click (filter by category)
+    document.querySelectorAll('.tree-node').forEach(node => {
+      node.addEventListener('click', function(e) {
+        if (e.target.closest('.tree-actions')) return;
+        document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Pagination click
+    document.querySelectorAll('.pagination-controls .page-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (this.classList.contains('disabled')) return;
+        document.querySelectorAll('.pagination-controls .page-btn').forEach(b => b.classList.remove('active'));
+        if (this.textContent.trim() && !this.textContent.includes('8') && !this.textContent.includes('9')) {
+          this.classList.add('active');
+        }
+      });
+    });
+
+    // Reset / Query buttons
+    var resetBtn = document.getElementById('kbBtnReset');
+    var queryBtn = document.getElementById('kbBtnQuery');
+    if (resetBtn) resetBtn.addEventListener('click', function() {
+      document.getElementById('kbStatus').value = '';
+      document.getElementById('kbTime').value = '';
+      var searchInput = document.querySelector('.input-search');
+      if (searchInput) searchInput.value = '';
+    });
+    if (queryBtn) queryBtn.addEventListener('click', function() {
+      // Visual feedback only (prototype)
+    });
+  </script>
+
+    <style>
+    /* --- Layout Shell --- */
+    .admin-layout {
+      display: flex !important;
+      min-height: 100vh !important;
+      font-family: var(--cs-font-family);
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+    }
+
+    /* --- Sidebar --- */
+    .admin-sidebar {
+      width: var(--cs-sidebar-width, 220px) !important;
+      min-width: var(--cs-sidebar-width, 220px) !important;
+      background: var(--cs-bg-sidebar, #001529);
+      display: flex !important;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .sidebar-logo {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .sidebar-logo .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: 10px; flex-shrink: 0;
+    }
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+    .sidebar-logo .logo-text { font-size: 16px; font-weight: 600; color: #fff; white-space: nowrap; letter-spacing: 0.5px; }
+
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+
+    .nav-item {
+      display: flex; align-items: center;
+      padding: 10px 24px; font-size: 14px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer; transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none; position: relative; user-select: none;
+    }
+    .nav-item:hover { color: var(--cs-sidebar-text-active, #ffffff); background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08)); }
+    .nav-item.active { color: var(--cs-primary, #1677ff); background: var(--cs-primary-bg, #e6f4ff); }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary, #1677ff); border-radius: 0 2px 2px 0; }
+    .nav-item .nav-icon { width: 16px; height: 16px; margin-right: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+    .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-item .nav-arrow { width: 12px; height: 12px; transition: transform 0.2s ease; opacity: 0.5; }
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-item.nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+
+    .nav-sub-items { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; }
+    .nav-sub-items.open { max-height: 200px; }
+    .nav-sub-item {
+      display: flex; align-items: center;
+      padding: 8px 24px 8px 48px; font-size: 13px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer; transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none; position: relative;
+    }
+    .nav-sub-item:hover { color: var(--cs-sidebar-text-active, #ffffff); background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08)); }
+    .nav-sub-item.active { color: var(--cs-primary, #1677ff); background: var(--cs-primary-bg, #e6f4ff); }
+    .nav-sub-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary, #1677ff); border-radius: 0 2px 2px 0; }
+    .nav-sub-item .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.5; margin-right: 10px; flex-shrink: 0; }
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+
+    /* --- Right Content Area --- */
+    .admin-content-wrapper { flex: 1; margin-left: var(--cs-sidebar-width, 220px); display: flex; flex-direction: column; min-height: 100vh; }
+
+    .admin-header {
+      height: var(--cs-header-height, 56px);
+      background: var(--cs-bg-card, #ffffff);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--cs-space-6, 24px);
+      position: sticky; top: 0; z-index: 50; flex-shrink: 0;
+    }
+    .header-left { flex: 1; min-width: 0; }
+    .header-right { display: flex; align-items: center; gap: var(--cs-space-4, 16px); flex-shrink: 0; }
+    .breadcrumb-area { font-size: 14px; color: var(--cs-text-secondary, #595959); }
+    .breadcrumb-area span { color: var(--cs-text-tertiary, #8c8c8c); }
+    .breadcrumb-area a { color: var(--cs-text-secondary, #595959); text-decoration: none; }
+    .breadcrumb-area a:hover { color: var(--cs-primary, #1677ff); }
+
+    .user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: var(--cs-radius-sm, 6px); transition: var(--cs-transition-fast, all 0.15s ease); }
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+    .user-status-badge { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--cs-success, #52c41a); }
+    .user-status-badge::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 1.5px solid var(--cs-bg-card, #ffffff); }
+    .user-name { font-size: 14px; color: var(--cs-text, #1f1f1f); white-space: nowrap; }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .user-avatar svg { width: 14px; height: 14px; color: #ffffff; }
+
+    .admin-main { flex: 1; padding: var(--cs-space-6, 24px); overflow-y: auto; }
+
+    /* ============================================= */
+    /* --- Knowledge Page Specific Styles --- */
+    /* ============================================= */
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: var(--cs-radius-sm, 6px);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      border: 1px solid var(--cs-border, #d9d9d9);
+      background: var(--cs-bg-card, #fff);
+      color: var(--cs-text, #1f1f1f);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .btn:hover {
+      border-color: var(--cs-primary, #1677ff);
+      color: var(--cs-primary, #1677ff);
+    }
+    .btn-primary {
+      background: var(--cs-primary, #1677ff);
+      border-color: var(--cs-primary, #1677ff);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--cs-primary-hover, #4096ff);
+      border-color: var(--cs-primary-hover, #4096ff);
+      color: #fff;
+    }
+    .btn svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Main Layout: Tree + Content */
+    .knowledge-layout {
+      display: flex;
+      gap: var(--cs-space-4, 16px);
+      align-items: flex-start;
+    }
+
+    /* --- Left Sidebar (kb-sidebar) --- */
+    .kb-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+    }
+
+    /* Category Tree */
+    .category-tree {
+      background: var(--cs-bg-card, #fff);
+      border-radius: var(--cs-radius-md, 8px);
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      box-shadow: var(--cs-shadow-card);
+      padding: var(--cs-space-3, 12px) 0;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .category-tree .tree-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px var(--cs-space-4, 16px) var(--cs-space-3, 12px);
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+    .category-tree .tree-header .tree-title {
+      font-size: var(--cs-font-size-md, 14px);
+      font-weight: var(--cs-font-weight-semibold, 600);
+      color: var(--cs-text);
+    }
+    .category-tree .tree-header .tree-add {
+      font-size: var(--cs-font-size-xl, 16px);
+      color: var(--cs-primary);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .category-tree .tree-header .tree-add:hover { color: var(--cs-primary-hover); }
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: var(--cs-space-2, 8px) var(--cs-space-4, 16px);
+      font-size: var(--cs-font-size-base, 13px);
+      color: var(--cs-text);
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      gap: 6px;
+      position: relative;
+    }
+    .tree-node:hover { background: var(--cs-border-lighter, #f5f5f5); }
+    .tree-node.active {
+      background: var(--cs-primary-bg, #e6f4ff);
+      color: var(--cs-primary, #1677ff);
+      font-weight: var(--cs-font-weight-medium, 500);
+    }
+    .tree-node.active::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary);
+    }
+    .tree-node .tree-icon {
+      width: 16px;
+      text-align: center;
+      font-size: var(--cs-font-size-md, 14px);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count {
+      font-size: var(--cs-font-size-xs, 11px);
+      color: var(--cs-text-tertiary);
+      background: var(--cs-border-lighter, #f5f5f5);
+      border-radius: 10px;
+      padding: 0 7px;
+      line-height: 16px;
+    }
+    .tree-node.active .tree-count {
+      color: var(--cs-primary);
+      background: var(--cs-bg-card, #fff);
+    }
+    .tree-node .tree-actions {
+      display: none;
+      gap: 4px;
+    }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary);
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .tree-node .tree-actions a:hover { color: var(--cs-primary); }
+
+    .tree-group-title {
+      padding: var(--cs-space-3, 12px) var(--cs-space-4, 16px) 6px;
+      font-size: var(--cs-font-size-xs, 11px);
+      color: var(--cs-text-tertiary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* --- Right Main (kb-main) --- */
+    .kb-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Toolbar card */
+    .kb-toolbar-card {
+      background: var(--cs-bg-card, #fff);
+      border-radius: var(--cs-radius-md, 8px);
+      box-shadow: var(--cs-shadow-card);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .kb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-3, 12px);
+      flex-wrap: wrap;
+    }
+    .kb-toolbar .input-search {
+      min-width: 260px;
+      height: 34px;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      padding: 0 10px;
+      font-size: 13px;
+      color: var(--cs-text);
+      outline: none;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      background: var(--cs-bg-card, #fff);
+    }
+    .kb-toolbar .input-search::placeholder { color: var(--cs-text-placeholder); }
+    .kb-toolbar .input-search:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px var(--cs-primary-bg); }
+
+    /* Filter select */
+    .filter-select {
+      height: 34px;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      padding: 0 28px 0 10px;
+      font-size: 13px;
+      color: var(--cs-text);
+      background: var(--cs-bg-card, #fff);
+      outline: none;
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c8c8c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+    .filter-select:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px var(--cs-primary-bg); }
+
+    /* --- Data Table --- */
+    .table-card {
+      background: var(--cs-bg-card, #fff);
+      border-radius: var(--cs-radius-md, 8px);
+      box-shadow: var(--cs-shadow-card);
+      overflow: hidden;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--cs-font-size-base, 13px);
+    }
+    .data-table thead th {
+      background: var(--cs-bg-header, #fafafa);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: var(--cs-font-weight-medium, 500);
+      color: var(--cs-text-secondary);
+      font-size: var(--cs-font-size-md, 14px);
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+      color: var(--cs-text);
+      vertical-align: top;
+    }
+    .data-table tbody tr:hover {
+      background: var(--cs-bg-hover, #fafafa);
+    }
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Article title column */
+    .col-title {
+      font-weight: var(--cs-font-weight-medium, 500);
+      color: var(--cs-text);
+    }
+    .col-title .title-sub {
+      display: block;
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-tertiary);
+      font-weight: var(--cs-font-weight-normal, 400);
+      margin-top: 2px;
+      max-width: 380px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Category tags with color variants */
+    .cat-tag {
+      font-size: var(--cs-font-size-sm, 12px);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .cat-tag svg { flex-shrink: 0; }
+    .cat-tag.order svg { color: var(--cs-primary); }
+    .cat-tag.return svg { color: var(--cs-orange); }
+    .cat-tag.pay svg { color: var(--cs-success); }
+    .cat-tag.logistic svg { color: var(--cs-purple); }
+    .cat-tag.account svg { color: var(--cs-text-tertiary); }
+
+    /* Status tags */
+    .st-tag {
+      display: inline-block;
+      font-size: var(--cs-font-size-sm, 12px);
+      padding: 1px 8px;
+      border-radius: 10px;
+      line-height: 20px;
+      font-weight: var(--cs-font-weight-medium, 500);
+    }
+    .st-tag.on {
+      background: var(--cs-success-bg, #f6ffed);
+      color: var(--cs-success, #52c41a);
+      border: 1px solid var(--cs-success-border, #b7eb8f);
+    }
+    .st-tag.draft {
+      background: var(--cs-warning-bg, #fffbe6);
+      color: var(--cs-warning, #faad14);
+      border: 1px solid var(--cs-warning-border, #ffe58f);
+    }
+    .st-tag.off {
+      background: var(--cs-border-lighter, #f5f5f5);
+      color: var(--cs-text-tertiary);
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+
+    /* Row actions */
+    .row-actions {
+      white-space: nowrap;
+    }
+    .row-actions a {
+      font-size: var(--cs-font-size-sm, 12px);
+      color: var(--cs-text-secondary);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .row-actions a:hover { color: var(--cs-primary); }
+    .row-actions a.danger { color: var(--cs-danger); }
+    .row-actions a.danger:hover { color: var(--cs-danger-hover); }
+    .row-actions .divider {
+      color: var(--cs-border, #d9d9d9);
+      margin: 0 4px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-top: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+    .pagination-info {
+      font-size: 13px;
+      color: var(--cs-text-tertiary);
+    }
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .page-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      font-size: 13px;
+      color: var(--cs-text);
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      background: var(--cs-bg-card, #fff);
+      user-select: none;
+    }
+    .page-btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .page-btn.active {
+      background: var(--cs-primary);
+      border-color: var(--cs-primary);
+      color: #fff;
+    }
+    .page-btn.disabled { color: var(--cs-text-placeholder); cursor: not-allowed; border-color: var(--cs-border-light); }
+  </style>
+</body>
+</html>

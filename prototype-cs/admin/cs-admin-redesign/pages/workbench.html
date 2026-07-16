@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客服工作台 - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <span class="logo-text">在线客服</span>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a class="nav-item" data-nav-key="dashboard">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </span>
+        <span class="nav-label">数据仪表盘</span>
+      </a>
+
+      <a class="nav-item nav-group-head expanded" data-nav-key="session-group">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </span>
+        <span class="nav-label">会话管理</span>
+        <span class="nav-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </span>
+      </a>
+      <div class="nav-sub-items open">
+        <a class="nav-sub-item active" data-nav-key="workbench">
+          <span class="nav-dot"></span>
+          <span class="nav-label">客服工作台</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="session-record">
+          <span class="nav-dot"></span>
+          <span class="nav-label">会话记录</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="todo">
+          <span class="nav-dot"></span>
+          <span class="nav-label">待办事项</span>
+        </a>
+      </div>
+
+      <a class="nav-item nav-group-head" data-nav-key="knowledge-group">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </span>
+        <span class="nav-label">知识库</span>
+        <span class="nav-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </span>
+      </a>
+      <div class="nav-sub-items">
+        <a class="nav-sub-item" data-nav-key="scripts">
+          <span class="nav-dot"></span>
+          <span class="nav-label">话术库</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="faq">
+          <span class="nav-dot"></span>
+          <span class="nav-label">FAQ</span>
+        </a>
+        <a class="nav-sub-item" data-nav-key="knowledge">
+          <span class="nav-dot"></span>
+          <span class="nav-label">知识文档</span>
+        </a>
+      </div>
+
+      <a class="nav-item" data-nav-key="settings">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="nav-label">客服设置</span>
+      </a>
+
+    </nav>
+  </aside>
+
+  <!-- ===== Content Wrapper ===== -->
+  <div class="admin-content-wrapper">
+
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <div class="breadcrumb-area">
+          <span>首页</span>
+          <span class="breadcrumb-sep">/</span>
+          <span>会话管理</span>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">客服工作台</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="online-status">
+          <span class="online-dot"></span>
+          <span>在线接待中</span>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="user-name">客服A · 王小明</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Workbench Main: 3-Panel Layout -->
+    <main class="workbench-main">
+
+      <!-- ====== Left Panel: Session List ====== -->
+      <div class="session-panel">
+
+        <!-- Title + Search -->
+        <div class="session-search">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-size:16px;font-weight:600;color:var(--cs-text);">会话列表</span>
+            <span class="total">共 24 个会话</span>
+          </div>
+          <div style="position:relative;">
+            <span class="search-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
+            <input class="session-search-input" type="text" placeholder="搜索用户 / 订单号" />
+          </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="session-tabs">
+          <div class="session-tab active" data-status="accept">进行中 <span class="tab-count">8</span></div>
+          <div class="session-tab" data-status="wait">等待中 <span class="tab-count">3</span></div>
+          <div class="session-tab" data-status="pending">挂起 <span class="tab-count">2</span></div>
+          <div class="session-tab" data-status="close">已关闭 <span class="tab-count">13</span></div>
+        </div>
+
+        <!-- Session List -->
+        <div class="session-list">
+          <!-- Session 1 - Active, urgent -->
+          <div class="session-item active">
+            <div class="session-avatar">李</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">李晓红</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">14:32</span>
+              </div>
+              <div class="session-last-msg">订单 #20260611 还没发货吗？</div>
+              <div class="session-meta-row">
+                <span class="s-tag urgent">紧急</span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 2 -->
+          <div class="session-item">
+            <div class="session-avatar" style="background: linear-gradient(135deg, #52c41a, #73d13d);">张</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">张伟</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">14:28</span>
+              </div>
+              <div class="session-last-msg">好的，谢谢客服</div>
+              <div class="session-meta-row">
+                <span></span>
+                <span class="unread-badge">2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 3 -->
+          <div class="session-item">
+            <div class="session-avatar" style="background: linear-gradient(135deg, #fa8c16, #ffa940);">陈</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">陈芳</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">14:15</span>
+              </div>
+              <div class="session-last-msg">退款什么时候到账？</div>
+              <div class="session-meta-row">
+                <span></span>
+                <span class="unread-badge">5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 4 - timeout -->
+          <div class="session-item is-timeout">
+            <div class="session-avatar" style="background: linear-gradient(135deg, #722ed1, #9254de);">刘</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">刘强</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">13:50</span>
+              </div>
+              <div class="session-last-msg">商品图片发你了，麻烦看下</div>
+              <div class="session-meta-row">
+                <span class="s-tag warn">即将超时</span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 5 - transferred -->
+          <div class="session-item">
+            <div class="session-avatar" style="background: linear-gradient(135deg, #eb2f96, #f759ab);">王</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">王丽娟</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">13:42</span>
+              </div>
+              <div class="session-last-msg">优惠券怎么用不了？</div>
+              <div class="session-meta-row">
+                <span class="s-tag transferred">转接入</span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 6 -->
+          <div class="session-item">
+            <div class="session-avatar" style="background: linear-gradient(135deg, #13c2c2, #36cfc9);">赵</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">赵敏</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">12:30</span>
+              </div>
+              <div class="session-last-msg">已经收到货了，非常满意！</div>
+            </div>
+          </div>
+
+          <!-- Session 7 -->
+          <div class="session-item">
+            <div class="session-avatar" style="background: linear-gradient(135deg, #f5222d, #ff7875);">孙</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">孙建国</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">11:58</span>
+              </div>
+              <div class="session-last-msg">发票能开企业抬头的吗</div>
+              <div class="session-meta-row">
+                <span></span>
+                <span class="unread-badge">1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 8 - timeout -->
+          <div class="session-item is-timeout">
+            <div class="session-avatar" style="background: linear-gradient(135deg, #faad14, #ffc53d);">周</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">周婷婷</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">11:20</span>
+              </div>
+              <div class="session-last-msg">请问这个颜色有货吗</div>
+              <div class="session-meta-row">
+                <span class="s-tag warn">即将超时</span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 9 - waiting -->
+          <div class="session-item" data-status="wait">
+            <div class="session-avatar waiting" style="background:#bfbfbf;">吴</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">吴鹏</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">排队中</span>
+              </div>
+              <div class="session-last-msg">等待客服接入…</div>
+              <div class="session-meta-row">
+                <span class="s-tag waiting">等待</span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session 10 - pending -->
+          <div class="session-item is-pending" data-status="pending">
+            <div class="session-avatar pending" style="background:#722ed1;">郑</div>
+            <div class="session-info">
+              <div class="session-name-row">
+                <span class="session-name">郑丽华</span>
+                <span class="s-tag channel">H5</span>
+                <span style="flex:1"></span>
+                <span class="session-time">13:10</span>
+              </div>
+              <div class="session-last-msg">挂起中 · 等待用户提供退款凭证</div>
+              <div class="session-meta-row">
+                <span class="s-tag pending">挂起</span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== Center Panel: Chat Window ====== -->
+      <div class="chat-panel">
+
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <div class="chat-customer-avatar">李</div>
+            <div class="chat-customer-info">
+              <h3>
+                李晓红
+                <span class="tag-urgent-inline">紧急</span>
+              </h3>
+            </div>
+          </div>
+          <div class="chat-header-right">
+            <div class="chat-header-actions">
+              <button class="btn-action" id="btnSuspend">挂起</button>
+              <button class="btn-action btn-action-primary" id="btnTransfer">转接</button>
+              <button class="btn-action">更多</button>
+              <button class="btn-action" id="btnEnd">结束会话</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages">
+
+          <!-- System Time Divider -->
+          <div class="msg-system">今天 14:20</div>
+
+          <!-- Customer Message 1 -->
+          <div class="msg-row customer">
+            <div class="msg-avatar customer-av">李</div>
+            <div class="msg-content">
+              <div class="msg-bubble">你好，我昨天下的单 #20260611 还没发货吗？我的手机号是 13812345678，地址是浦东新区张江路88号。</div>
+              <div class="msg-time">14:20:32</div>
+            </div>
+          </div>
+
+          <!-- Agent Message 1 -->
+          <div class="msg-row agent">
+            <div class="msg-avatar agent-av">王</div>
+            <div class="msg-content">
+              <div class="msg-bubble">您好李女士，稍等为您核实一下订单状态。</div>
+              <div class="msg-time">14:20:45</div>
+            </div>
+          </div>
+
+          <!-- Agent Message - Recalled -->
+          <div class="msg-row agent">
+            <div class="msg-avatar agent-av">王</div>
+            <div class="msg-content">
+              <div class="msg-bubble">
+                <span class="msg-recalled">
+                  <svg class="recall-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  你撤回了一条消息
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agent Message - Order Card -->
+          <div class="msg-row agent">
+            <div class="msg-avatar agent-av">王</div>
+            <div class="msg-content">
+              <div class="msg-sender">客服 王小明</div>
+              <div class="thread-card order">
+                <div class="tc-header">
+                  <div class="tc-left"><span class="tc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>订单</div>
+                  <span class="tc-state s-warn">待发货</span>
+                </div>
+                <div class="tc-body">
+                  <div class="tc-row"><span class="k">订单号</span><span class="v">#20260611</span></div>
+                  <div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机（白色） x1</span></div>
+                  <div class="tc-row"><span class="k">实付金额</span><span class="price">¥299.00</span></div>
+                  <div class="tc-row"><span class="k">下单时间</span><span class="v">2026-06-11 09:12</span></div>
+                </div>
+                <div class="tc-footer">
+                  <div class="tc-btn">查看详情</div>
+                  <div class="tc-btn solid">催发货</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Message - Image -->
+          <div class="msg-row customer">
+            <div class="msg-avatar customer-av">李</div>
+            <div class="msg-content">
+              <div class="msg-bubble image-bubble">[商品图片]</div>
+              <div class="msg-time">14:25:10</div>
+            </div>
+          </div>
+
+          <!-- Customer Message 2 -->
+          <div class="msg-row customer">
+            <div class="msg-avatar customer-av">李</div>
+            <div class="msg-content">
+              <div class="msg-bubble">就是这个，颜色发错了我收到的是黑色的，下单是白色。我是深圳市南山区科技园的，电话 13987654321。</div>
+              <div class="msg-time">14:25:18</div>
+            </div>
+          </div>
+
+          <!-- Agent Message - Product Card -->
+          <div class="msg-row agent">
+            <div class="msg-avatar agent-av">王</div>
+            <div class="msg-content">
+              <div class="msg-sender">客服 王小明</div>
+              <div class="thread-card product">
+                <div class="tc-header">
+                  <div class="tc-left"><span class="tc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>商品</div>
+                  <span class="tc-state s-done">有货</span>
+                </div>
+                <div class="tc-body">
+                  <div class="tc-row"><span class="k">商品</span><span class="v">无线蓝牙耳机（白色）</span></div>
+                  <div class="tc-row"><span class="k">SKU</span><span class="v">BT-WHITE-001</span></div>
+                  <div class="tc-row"><span class="k">规格</span><span class="v">颜色:白 / 降噪款</span></div>
+                  <div class="tc-row"><span class="k">售价</span><span class="price">¥299.00</span></div>
+                  <div class="tc-row"><span class="k">库存</span><span class="v">128 件</span></div>
+                </div>
+                <div class="tc-footer">
+                  <div class="tc-btn">查看商品</div>
+                  <div class="tc-btn solid">安排换货</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agent Message - Coupon Card -->
+          <div class="msg-row agent">
+            <div class="msg-avatar agent-av">王</div>
+            <div class="msg-content">
+              <div class="msg-sender">客服 王小明</div>
+              <div class="thread-card coupon">
+                <div class="tc-header">
+                  <div class="tc-left"><span class="tc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M2 12h20"/><path d="M12 2v10"/><path d="M8 2h8l-4 6-4-6z"/></svg></span>优惠券</div>
+                  <span class="tc-state s-warn">可领取</span>
+                </div>
+                <div class="tc-body">
+                  <div class="tc-row"><span class="k">面额</span><span class="v">满 ¥200 减 ¥30</span></div>
+                  <div class="tc-row"><span class="k">适用范围</span><span class="v">全品类</span></div>
+                  <div class="tc-row"><span class="k">有效期</span><span class="v">2026-06-30 前</span></div>
+                </div>
+                <div class="tc-footer">
+                  <div class="tc-btn solid">立即领取</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agent Message - Final -->
+          <div class="msg-row agent">
+            <div class="msg-avatar agent-av">王</div>
+            <div class="msg-content">
+              <div class="msg-sender">客服 王小明</div>
+              <div class="msg-bubble">非常抱歉给您带来不便，已为您加急安排换货，并附上一张优惠券作为补偿，请注意查收~</div>
+              <div class="msg-time">14:28:05</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+          <div class="input-toolbar">
+            <div class="quick-reply-dd" id="qrdd">
+              <div class="qr-trigger" onclick="document.getElementById('qrdd').classList.toggle('open')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>快捷回复 ▾
+              </div>
+              <div class="qr-panel">
+                <div class="qr-cat">-- 常用问候 --</div>
+                <div class="qr-item">您好，很高兴为您服务~</div>
+                <div class="qr-item">请问有什么可以帮您？</div>
+                <div class="qr-cat">-- 售后处理 --</div>
+                <div class="qr-item">已为您登记，将在 24 小时内处理</div>
+                <div class="qr-item">退款已发起，预计 1-3 工作日到账</div>
+                <div class="qr-cat">-- 结束语 --</div>
+                <div class="qr-item">感谢您的咨询，祝您生活愉快！</div>
+              </div>
+            </div>
+            <div class="tool-divider"></div>
+            <button class="card-btn" data-card="order" title="发送订单卡片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></button>
+            <button class="card-btn" data-card="product" title="发送商品卡片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>
+            <button class="card-btn" data-card="coupon" title="发送优惠券"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M2 12h20"/><path d="M12 2v10"/><path d="M8 2h8l-4 6-4-6z"/></svg></button>
+            <button class="card-btn" data-card="image" title="发送图片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5 4 4 3-3L20 17"/></svg></button>
+            <button class="card-btn" data-card="cart" title="发送购物车"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>
+            <button class="card-btn" data-card="logistic" title="发送物流"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></button>
+            <button class="card-btn" data-card="refund" title="发送售后"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="vertical-align:-2px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+            <div class="input-actions-right">
+              <span>Shift + Enter 换行</span>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <textarea class="input-textarea" placeholder="请输入消息内容…（Enter 发送）"></textarea>
+          </div>
+          <div class="input-bottom">
+            <span class="input-hint">Enter发送, Shift+Enter换行</span>
+            <button class="btn-send">发送</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ====== Right Panel: Customer Info ====== -->
+      <div class="info-panel">
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+          <div class="profile-avatar">李</div>
+          <div class="profile-name">
+            李晓红
+          </div>
+          <div class="profile-meta">
+            用户ID: U20240318 · 注册 2 年
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="info-tabs">
+          <div class="info-tab active" data-pane="basic">基础信息</div>
+          <div class="info-tab" data-pane="behavior">行为数据</div>
+          <div class="info-tab" data-pane="trade">交易数据</div>
+          <div class="info-tab" data-pane="service">服务数据</div>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="info-section info-pane active" data-pane="basic">
+          <div class="info-row">
+            <span class="info-label">手机号</span>
+            <span class="info-value">138****6621</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">积分</span>
+            <span class="info-value">3,280</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">企业客户</span>
+            <span class="info-value">客户A</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">品牌商城</span>
+            <span class="info-value">品牌商城1</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">应用端</span>
+            <span class="info-value">小程序</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">所在地区</span>
+            <span class="info-value">广东 · 深圳</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">实名认证</span>
+            <span class="info-value" style="color: #52c41a;">已认证</span>
+          </div>
+
+          <!-- Tags -->
+          <div class="tags-section">
+            <div class="tags-section-title">客户标签</div>
+            <div class="tags-list">
+              <span class="customer-tag-item tag-item-blue">高价值</span>
+              <span class="customer-tag-item tag-item-red">易流失</span>
+              <span class="customer-tag-item tag-item-blue">复购用户</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Behavior Data -->
+        <div class="info-section info-pane" data-pane="behavior">
+          <div class="section-label">最近浏览（近 7 天）</div>
+
+          <div class="behavior-item">
+            <div class="bi-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="bi-text">
+              <div class="bi-title">无线蓝牙耳机（白色）</div>
+              <div class="bi-time">2 分钟前 · 浏览 3 次</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+            <div class="bi-text">
+              <div class="bi-title">加入购物车：蓝牙耳机</div>
+              <div class="bi-time">15 分钟前</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="bi-text">
+              <div class="bi-title">便携充电宝 20000mAh</div>
+              <div class="bi-time">昨天 21:30</div>
+            </div>
+          </div>
+          <div class="behavior-item">
+            <div class="bi-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <div class="bi-text">
+              <div class="bi-title">收藏：运动手环 Pro</div>
+              <div class="bi-time">2026-06-09</div>
+            </div>
+          </div>
+
+          <div class="section-label">活跃度</div>
+          <div class="stat-grid">
+            <div class="stat-mini">
+              <div class="sv">12</div>
+              <div class="sl">近7天访问</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv">3.2h</div>
+              <div class="sl">平均停留</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trade Data -->
+        <div class="info-section info-pane" data-pane="trade">
+          <div class="section-label">交易概览</div>
+          <div class="stat-grid">
+            <div class="stat-mini">
+              <div class="sv">28</div>
+              <div class="sl">累计订单</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv">¥8.6k</div>
+              <div class="sl">累计消费</div>
+            </div>
+          </div>
+
+          <div class="orders-section-title">近期订单</div>
+
+          <div class="order-item">
+            <div class="order-header">
+              <span class="order-id">#20260611</span>
+              <span class="order-status status-blue">待发货</span>
+            </div>
+            <div class="order-detail">无线蓝牙耳机 x1</div>
+            <div class="order-amount" style="color:var(--cs-danger);">¥299.00</div>
+            <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:2px;">06-10 19:22</div>
+          </div>
+
+          <div class="order-item">
+            <div class="order-header">
+              <span class="order-id">#20260588</span>
+              <span class="order-status status-red">退款中</span>
+            </div>
+            <div class="order-detail">便携充电宝 x1</div>
+            <div class="order-amount" style="color:var(--cs-danger);">¥159.00</div>
+            <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:2px;">06-05 14:10</div>
+          </div>
+
+          <div class="order-item">
+            <div class="order-header">
+              <span class="order-id">#20260540</span>
+              <span class="order-status status-green">已完成</span>
+            </div>
+            <div class="order-detail">运动手环Pro x1</div>
+            <div class="order-amount">¥499.00</div>
+            <div style="font-size:11px;color:var(--cs-text-tertiary);margin-top:2px;">05-28 10:05</div>
+          </div>
+        </div>
+
+        <!-- Service Data (minimal) -->
+        <div class="info-section info-pane" data-pane="service">
+          <div class="section-label">服务统计</div>
+          <div class="stat-grid">
+            <div class="stat-mini">
+              <div class="sv">16</div>
+              <div class="sl">累计咨询</div>
+            </div>
+            <div class="stat-mini">
+              <div class="sv">3</div>
+              <div class="sl">本月咨询</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+</div>
+
+
+    <style>
+    /* --- Layout Shell --- */
+    .admin-layout {
+      display: flex !important;
+      min-height: 100vh !important;
+      font-family: var(--cs-font-family);
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+    }
+
+    /* --- Sidebar --- */
+    .admin-sidebar {
+      width: var(--cs-sidebar-width, 220px) !important;
+      min-width: var(--cs-sidebar-width, 220px) !important;
+      background: var(--cs-bg-sidebar, #001529);
+      display: flex !important;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .sidebar-logo {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+
+    .sidebar-logo .logo-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 24px;
+      font-size: 14px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-item .nav-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+
+    .nav-item .nav-label {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-item .nav-arrow {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.2s ease;
+      opacity: 0.5;
+    }
+
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+
+    .nav-sub-items {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+
+    .nav-sub-items.open { max-height: 200px; }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 24px 8px 48px;
+      font-size: 13px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-sub-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-sub-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    .nav-sub-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-sub-item .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.5;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+
+    /* --- Right Content Area --- */
+    .admin-content-wrapper {
+      flex: 1;
+      margin-left: var(--cs-sidebar-width, 220px);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* --- Header --- */
+    .admin-header {
+      height: var(--cs-header-height, 56px);
+      background: var(--cs-bg-card, #ffffff);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--cs-space-6, 24px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .header-left { flex: 1; min-width: 0; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-4, 16px);
+      flex-shrink: 0;
+    }
+
+    .breadcrumb-area {
+      font-size: 14px;
+      color: var(--cs-text-secondary, #595959);
+    }
+
+    .breadcrumb-area .breadcrumb-sep { margin: 0 6px; color: var(--cs-text-tertiary, #8c8c8c); }
+    .breadcrumb-area .breadcrumb-current { color: var(--cs-text, #1f1f1f); font-weight: 500; }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--cs-radius-sm, 6px);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-avatar svg { width: 14px; height: 14px; color: #ffffff; }
+
+    /* Online status */
+    .online-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--cs-success, #52c41a);
+      font-weight: 500;
+    }
+
+    .online-dot {
+      position: relative;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cs-success, #52c41a);
+    }
+
+    .online-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 1.5px solid var(--cs-bg-card, #ffffff);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(82,196,26,0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(82,196,26,0); }
+      100% { box-shadow: 0 0 0 0 rgba(82,196,26,0); }
+    }
+
+    .user-name {
+      font-size: 14px;
+      color: var(--cs-text, #1f1f1f);
+      white-space: nowrap;
+    }
+
+    /* ============================================
+       WORKBENCH 3-PANEL LAYOUT
+       ============================================ */
+    .workbench-main {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    /* --- Left Panel: Session List --- */
+    .session-panel {
+      width: 320px;
+      min-width: 320px;
+      background: var(--cs-bg-card, #ffffff);
+      border-right: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .session-search {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+
+    .session-search-input {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      padding: 0 12px 0 36px;
+      font-size: 13px;
+      color: var(--cs-text, #1f1f1f);
+      background: var(--cs-bg-card, #ffffff);
+      outline: none;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      box-sizing: border-box;
+    }
+
+    .session-search-input::placeholder { color: var(--cs-text-placeholder, #bfbfbf); }
+    .session-search-input:focus { border-color: var(--cs-primary, #1677ff); box-shadow: 0 0 0 2px var(--cs-primary-bg, #e6f4ff); }
+
+    .search-icon-wrapper {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--cs-text-placeholder, #bfbfbf);
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon-wrapper svg { width: 14px; height: 14px; }
+
+    .session-search { position: relative; }
+
+    /* Filter Tabs */
+    .session-tabs {
+      display: flex;
+      padding: 8px 16px;
+      gap: 4px;
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+
+    .session-tab {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      font-size: 13px;
+      color: var(--cs-text-secondary, #595959);
+      cursor: pointer;
+      border-radius: var(--cs-radius-xs, 4px);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      user-select: none;
+    }
+
+    .session-tab:hover { background: var(--cs-bg-hover, #fafafa); color: var(--cs-text, #1f1f1f); }
+
+    .session-tab.active {
+      background: var(--cs-primary-bg, #e6f4ff);
+      color: var(--cs-primary, #1677ff);
+      font-weight: 500;
+    }
+
+    .session-tab .tab-count {
+      display: inline-block;
+      margin-left: 2px;
+      font-size: 11px;
+      opacity: 0.75;
+    }
+
+    /* Session List */
+    .session-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .session-list::-webkit-scrollbar { width: 4px; }
+    .session-list::-webkit-scrollbar-thumb { background: var(--cs-border, #d9d9d9); border-radius: 2px; }
+
+    .session-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+      border-left: 3px solid transparent;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      position: relative;
+    }
+
+    .session-item:hover { background: var(--cs-bg-hover, #fafafa); }
+
+    .session-item.active {
+      background: #f0f7ff;
+      border-left-color: var(--cs-primary, #1677ff);
+    }
+
+    .session-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+
+    .session-info { flex: 1; min-width: 0; }
+
+    .session-name-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .session-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--cs-text, #1f1f1f);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #7c4700;
+      flex-shrink: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .session-time {
+      font-size: 11px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .session-last-msg {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.4;
+    }
+
+    .session-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .unread-badge {
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      background: var(--cs-danger, #f5222d);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+
+    /* --- Center Panel: Chat Window --- */
+    .chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--cs-bg-page, #f0f2f5);
+      min-width: 0;
+    }
+
+    /* Chat Header */
+    .chat-header {
+      height: 56px;
+      background: var(--cs-bg-card, #ffffff);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      flex-shrink: 0;
+    }
+
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-customer-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1677ff, #4096ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .chat-customer-info h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.3;
+    }
+
+    .chat-customer-id {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+    }
+
+    .chat-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .customer-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .tag-blue { background: var(--cs-primary-bg, #e6f4ff); color: var(--cs-primary, #1677ff); }
+    .tag-orange { background: var(--cs-orange-bg, #fff7e6); color: var(--cs-orange, #fa8c16); }
+
+    .order-count {
+      font-size: 12px;
+      color: var(--cs-text-secondary, #595959);
+      padding: 2px 8px;
+      background: var(--cs-border-lighter, #f5f5f5);
+      border-radius: 10px;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action {
+      padding: 5px 12px;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: var(--cs-radius-sm, 6px);
+      background: var(--cs-bg-card, #ffffff);
+      font-size: 12px;
+      color: var(--cs-text-secondary, #595959);
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      white-space: nowrap;
+    }
+
+    .btn-action:hover { color: var(--cs-primary, #1677ff); border-color: var(--cs-primary, #1677ff); }
+
+    /* Message Area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 5px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--cs-border, #d9d9d9); border-radius: 3px; }
+
+    /* System message */
+    .msg-system {
+      text-align: center;
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      padding: 4px 12px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 12px;
+      align-self: center;
+      max-width: 80%;
+    }
+
+    /* Message row */
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      max-width: 70%;
+    }
+
+    .msg-row.agent { align-self: flex-start; }
+    .msg-row.customer { align-self: flex-end; flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .msg-avatar.agent-av { background: linear-gradient(135deg, #1677ff, #722ed1); }
+    .msg-avatar.customer-av { background: linear-gradient(135deg, #1677ff, #4096ff); }
+
+    .msg-content {}
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: var(--cs-radius-md, 8px);
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .msg-row.agent .msg-bubble {
+      background: var(--cs-bg-card, #ffffff);
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      color: var(--cs-text, #1f1f1f);
+      border-top-left-radius: 2px;
+    }
+
+    .msg-row.customer .msg-bubble {
+      background: var(--cs-primary, #1677ff);
+      color: #ffffff;
+      border-top-right-radius: 2px;
+    }
+
+    .msg-time {
+      font-size: 11px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      margin-top: 4px;
+    }
+
+    .msg-row.customer .msg-time { text-align: right; }
+
+    /* Typing indicator */
+    .typing-indicator {
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px 0;
+      margin-bottom: 16px;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+      padding: 10px 14px;
+      background: var(--cs-bg-card, #ffffff);
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      border-radius: var(--cs-radius-md, 8px);
+      border-top-left-radius: 2px;
+    }
+
+    .typing-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cs-text-tertiary, #8c8c8c);
+      animation: typing-bounce 1.4s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing-bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    .typing-text {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+    }
+
+    /* Quick Reply Chips */
+    .quick-replies {
+      padding: 8px 16px;
+      background: var(--cs-bg-card, #ffffff);
+      border-top: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+
+    .quick-replies::-webkit-scrollbar { height: 3px; }
+    .quick-replies::-webkit-scrollbar-thumb { background: var(--cs-border, #d9d9d9); border-radius: 2px; }
+
+    .quick-reply-chip {
+      padding: 4px 12px;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--cs-text-secondary, #595959);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      background: var(--cs-bg-card, #ffffff);
+    }
+
+    .quick-reply-chip:hover {
+      color: var(--cs-primary, #1677ff);
+      border-color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    /* Input Area */
+    .chat-input-area {
+      background: var(--cs-bg-card, #ffffff);
+      border-top: 1px solid var(--cs-border-light, #f0f0f0);
+      flex-shrink: 0;
+    }
+
+    .input-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px 0;
+    }
+
+    .toolbar-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: var(--cs-radius-xs, 4px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .toolbar-btn:hover { background: var(--cs-bg-hover, #fafafa); color: var(--cs-primary, #1677ff); }
+    .toolbar-btn svg { width: 18px; height: 18px; }
+
+    .input-wrapper {
+      padding: 8px 16px;
+    }
+
+    .input-textarea {
+      width: 100%;
+      min-height: 60px;
+      max-height: 120px;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--cs-text, #1f1f1f);
+      font-family: var(--cs-font-family);
+      box-sizing: border-box;
+    }
+
+    .input-textarea::placeholder { color: var(--cs-text-placeholder, #bfbfbf); }
+
+    .input-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px 12px;
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--cs-text-placeholder, #bfbfbf);
+    }
+
+    .btn-send {
+      padding: 6px 20px;
+      background: var(--cs-primary, #1677ff);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--cs-radius-sm, 6px);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .btn-send:hover { background: var(--cs-primary-hover, #4096ff); }
+
+    /* --- Right Panel: Customer Info --- */
+    .info-panel {
+      width: 280px;
+      min-width: 280px;
+      background: var(--cs-bg-card, #ffffff);
+      border-left: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .info-panel::-webkit-scrollbar { width: 4px; }
+    .info-panel::-webkit-scrollbar-thumb { background: var(--cs-border, #d9d9d9); border-radius: 2px; }
+
+    /* Profile Card */
+    .profile-card {
+      padding: 20px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+
+    .profile-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1677ff, #4096ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+      margin: 0 auto 10px;
+    }
+
+    .profile-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .profile-vip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #7c4700;
+    }
+
+    .profile-meta {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      line-height: 1.8;
+    }
+
+    /* Info Tabs */
+    .info-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+
+    .info-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 4px;
+      font-size: 13px;
+      color: var(--cs-text-secondary, #595959);
+      cursor: pointer;
+      position: relative;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .info-tab:hover { color: var(--cs-text, #1f1f1f); }
+
+    .info-tab.active {
+      color: var(--cs-primary, #1677ff);
+      font-weight: 500;
+    }
+
+    .info-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: 32px;
+      height: 2px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 1px;
+    }
+
+    /* Basic Info */
+    .info-section {
+      padding: 12px 16px;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-label {
+      font-size: 13px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      font-size: 13px;
+      color: var(--cs-text, #1f1f1f);
+      text-align: right;
+      word-break: break-all;
+    }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #7c4700;
+    }
+
+    /* Orders Section */
+    .orders-section {
+      padding: 12px 16px;
+      border-top: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+
+    .orders-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+      margin-bottom: 10px;
+    }
+
+    .order-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+
+    .order-item:last-child { border-bottom: none; }
+
+    .order-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .order-id {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+    }
+
+    .order-status {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    .status-blue { background: var(--cs-primary-bg, #e6f4ff); color: var(--cs-primary, #1677ff); }
+    .status-green { background: var(--cs-success-bg, #f6ffed); color: var(--cs-success, #52c41a); }
+    .status-gray { background: var(--cs-border-lighter, #f5f5f5); color: var(--cs-text-tertiary, #8c8c8c); }
+
+    .order-detail {
+      font-size: 13px;
+      color: var(--cs-text, #1f1f1f);
+      margin-bottom: 2px;
+    }
+
+    .order-amount {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+    }
+
+    /* Tags Section */
+    .tags-section {
+      padding: 12px 16px;
+      border-top: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+
+    .tags-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+      margin-bottom: 10px;
+    }
+
+    .tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .customer-tag-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .tag-item-blue { background: var(--cs-primary-bg, #e6f4ff); color: var(--cs-primary, #1677ff); }
+    .tag-item-orange { background: var(--cs-orange-bg, #fff7e6); color: var(--cs-orange, #fa8c16); }
+    .tag-item-purple { background: var(--cs-purple-bg, #f9f0ff); color: var(--cs-purple, #722ed1); }
+
+    .add-tag-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border: 1px dashed var(--cs-border, #d9d9d9);
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .add-tag-btn:hover { border-color: var(--cs-primary, #1677ff); color: var(--cs-primary, #1677ff); }
+    .add-tag-btn svg { width: 14px; height: 14px; }
+
+    /* ===== New Styles for Prototype Matching ===== */
+
+    /* Session total count */
+    .total {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      font-weight: 400;
+    }
+
+    /* Status tags for session items */
+    .s-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      flex-shrink: 0;
+      color: var(--cs-text, #1f1f1f);
+    }
+    .s-tag::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .s-tag.channel {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: var(--cs-primary-bg, #e6f4ff);
+      color: var(--cs-primary, #1677ff);
+      border: 1px solid #91caff;
+      font-size: 10px;
+    }
+    .s-tag.channel::before { display: none; }
+    .s-tag.urgent::before { background: var(--cs-danger, #f5222d); }
+    .s-tag.warn {
+      background: var(--cs-warning-bg, #fffbe6);
+      color: var(--cs-warning, #faad14);
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid #ffe58f;
+    }
+    .s-tag.warn::before { background: var(--cs-warning, #faad14); }
+    .s-tag.transferred {
+      background: var(--cs-primary-bg, #e6f4ff);
+      color: var(--cs-primary, #1677ff);
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid #91caff;
+    }
+    .s-tag.transferred::before { background: var(--cs-primary, #1677ff); }
+    .s-tag.waiting::before { background: var(--cs-orange, #fa8c16); }
+    .s-tag.pending {
+      background: var(--cs-purple-bg, #f9f0ff);
+      color: var(--cs-purple, #722ed1);
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid #d3adf7;
+    }
+    .s-tag.pending::before { background: var(--cs-purple, #722ed1); }
+
+    /* Timeout session item */
+    .session-item.is-timeout {
+      background: #fffbe6;
+    }
+    .session-item.is-timeout.active {
+      background: #fff8e1;
+    }
+
+    /* Pending session item */
+    .session-item.is-pending {
+      background: #faf5ff;
+    }
+    .session-item.is-pending.active {
+      background: #f0e6ff;
+    }
+
+    /* Waiting avatar (gray) */
+    .session-avatar.waiting {
+      background: #bfbfbf !important;
+    }
+    .session-avatar.pending {
+      background: var(--cs-purple, #722ed1) !important;
+    }
+
+    /* Urgent tag inline in chat header */
+    .tag-urgent-inline {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 8px;
+      border-radius: 3px;
+      background: var(--cs-danger-bg, #fff1f0);
+      color: var(--cs-danger, #f5222d);
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid var(--cs-danger-border, #ffccc7);
+    }
+
+    /* Primary action button */
+    .btn-action-primary {
+      background: var(--cs-primary, #1677ff) !important;
+      border-color: var(--cs-primary, #1677ff) !important;
+      color: #ffffff !important;
+    }
+    .btn-action-primary:hover {
+      background: var(--cs-primary-hover, #4096ff) !important;
+      border-color: var(--cs-primary-hover, #4096ff) !important;
+      color: #ffffff !important;
+    }
+
+    /* Message recalled styling */
+    .msg-recalled {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-style: italic;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      font-size: 13px;
+      padding: 4px 0;
+    }
+    .msg-recalled .recall-icon {
+      flex-shrink: 0;
+    }
+
+    /* Image bubble in chat */
+    .image-bubble {
+      width: 160px;
+      height: 110px;
+      background: #d3adf7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1677ff;
+      font-size: 12px;
+      border-radius: var(--cs-radius-md, 8px);
+    }
+    .msg-row.customer .image-bubble {
+      background: rgba(255,255,255,0.15);
+      color: #ffffff;
+    }
+
+    /* Thread card (structured cards in chat) */
+    .thread-card {
+      width: 280px;
+      background: #fff;
+      border: 1px solid var(--cs-border-light, #f0f0f0);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    .thread-card .tc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+    }
+    .thread-card .tc-header .tc-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cs-text, #1f1f1f);
+    }
+    .thread-card .tc-header .tc-icon {
+      color: var(--cs-text-tertiary, #8c8c8c);
+      display: inline-flex;
+    }
+    .thread-card .tc-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .thread-card .tc-state::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .thread-card .tc-state.s-warn::before { background: var(--cs-orange, #fa8c16); }
+    .thread-card .tc-state.s-warn { color: var(--cs-orange, #fa8c16); }
+    .thread-card .tc-state.s-done::before { background: var(--cs-success, #52c41a); }
+    .thread-card .tc-state.s-done { color: var(--cs-success, #52c41a); }
+    .thread-card .tc-body { padding: 10px 12px; }
+    .thread-card .tc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      font-size: 12px;
+    }
+    .thread-card .tc-row .k { color: var(--cs-text-tertiary, #8c8c8c); }
+    .thread-card .tc-row .v { color: var(--cs-text, #1f1f1f); font-weight: 500; }
+    .thread-card .tc-row .price { color: var(--cs-text, #1f1f1f); font-weight: 600; }
+    .thread-card .tc-footer {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-top: 1px solid var(--cs-border-light, #f0f0f0);
+    }
+    .thread-card .tc-btn {
+      flex: 1;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #d9d9d9;
+      color: var(--cs-text-secondary, #595959);
+      background: #fff;
+    }
+    .thread-card .tc-btn:hover {
+      border-color: var(--cs-primary, #1677ff);
+      color: var(--cs-primary, #1677ff);
+    }
+    .thread-card .tc-btn.solid {
+      background: var(--cs-primary, #1677ff);
+      border-color: var(--cs-primary, #1677ff);
+      color: #fff;
+    }
+    .thread-card .tc-btn.solid:hover {
+      background: var(--cs-primary-hover, #4096ff);
+      border-color: var(--cs-primary-hover, #4096ff);
+    }
+
+    /* Agent card in agent messages */
+    .msg-row.agent .thread-card {
+      border-color: #d9d9d9;
+    }
+
+    /* Sender label on cards */
+    .msg-sender {
+      font-size: 11px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      margin-bottom: 4px;
+    }
+
+    /* Quick Reply Dropdown */
+    .quick-reply-dd {
+      position: relative;
+    }
+    .qr-trigger {
+      padding: 4px 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--cs-text-secondary, #595959);
+    }
+    .qr-trigger:hover {
+      border-color: var(--cs-primary, #1677ff);
+      color: var(--cs-primary, #1677ff);
+    }
+    .qr-panel {
+      position: absolute;
+      bottom: 36px;
+      left: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+      padding: 8px;
+      display: none;
+      z-index: 5;
+    }
+    .quick-reply-dd.open .qr-panel { display: block; }
+    .qr-cat {
+      font-size: 11px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      padding: 6px 8px 2px;
+      font-weight: 600;
+    }
+    .qr-item {
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--cs-text-secondary, #595959);
+    }
+    .qr-item:hover {
+      background: #f5f5f5;
+      color: var(--cs-primary, #1677ff);
+    }
+
+    /* Toolbar card buttons */
+    .card-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--cs-text-secondary, #595959);
+      transition: all 0.15s;
+    }
+    .card-btn:hover {
+      border-color: var(--cs-primary, #1677ff);
+      color: var(--cs-primary, #1677ff);
+    }
+
+    /* Tool divider */
+    .tool-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--cs-border, #d9d9d9);
+      margin: 0 4px;
+    }
+
+    /* Input actions right */
+    .input-actions-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+    }
+
+    /* Status-red for order status */
+    .status-red {
+      background: var(--cs-danger-bg, #fff1f0);
+      color: var(--cs-danger, #f5222d);
+    }
+
+    /* Tag item red (urgent/loss-risk) */
+    .tag-item-red {
+      background: var(--cs-danger-bg, #fff1f0);
+      color: var(--cs-danger, #f5222d);
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      font-weight: 600;
+      margin: 16px 0 8px;
+      letter-spacing: 0.3px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* Stat grid */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .stat-mini {
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+    .stat-mini .sv {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--cs-primary, #1677ff);
+    }
+    .stat-mini .sl {
+      font-size: 11px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      margin-top: 2px;
+    }
+
+    /* Behavior item */
+    .behavior-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--cs-border-lighter, #f5f5f5);
+      font-size: 13px;
+    }
+    .behavior-item .bi-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--cs-primary-bg, #e6f4ff);
+      color: var(--cs-primary, #1677ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .behavior-item .bi-text { flex: 1; min-width: 0; }
+    .behavior-item .bi-title {
+      font-size: 13px;
+      color: var(--cs-text, #1f1f1f);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .behavior-item .bi-time {
+      font-size: 11px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      margin-top: 2px;
+    }
+
+    /* Info pane switching */
+    .info-pane { display: none; }
+    .info-pane.active { display: block; }
+
+    /* Message actions trigger (three-dot menu on messages) */
+    .msg-actions-trigger {
+      position: absolute;
+      top: 2px;
+      right: -4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--cs-text-tertiary, #8c8c8c);
+      z-index: 3;
+      transition: all 0.15s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .msg-actions-trigger:hover {
+      border-color: var(--cs-primary, #1677ff);
+      color: var(--cs-primary, #1677ff);
+    }
+    .msg-content { position: relative; }
+    .msg-content:hover .msg-actions-trigger { display: flex; }
+    .msg-actions-menu {
+      position: absolute;
+      top: 26px;
+      right: -4px;
+      background: #fff;
+      border: 1px solid var(--cs-border, #d9d9d9);
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      padding: 4px 0;
+      z-index: 4;
+      display: none;
+      min-width: 90px;
+    }
+    .msg-actions-menu.show { display: block; }
+    .msg-row.customer .msg-actions-trigger { right: auto; left: -4px; }
+    .msg-row.customer .msg-actions-menu { right: auto; left: -4px; }
+    .msg-actions-menu .ma-item {
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--cs-text-secondary, #595959);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.12s;
+    }
+    .msg-actions-menu .ma-item:hover {
+      background: var(--cs-bg-hover, #fafafa);
+      color: var(--cs-primary, #1677ff);
+    }
+    .msg-actions-menu .ma-item.danger:hover {
+      color: var(--cs-danger, #f5222d);
+    }
+  </style>
+</body>
+</html>

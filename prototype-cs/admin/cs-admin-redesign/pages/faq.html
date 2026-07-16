@@ -1,0 +1,1083 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - 在线客服后台</title>
+    <style id="theme-vars">
+/* ============================================================
+   CS Online Customer Service Admin — Brand Design Tokens
+   Based on Ant Design v5 style system, modernized for canvas
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+  --cs-primary-bg-hover: #bae0ff;
+  --cs-primary-border: #91caff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+  --cs-success-border: #b7eb8f;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+  --cs-warning-border: #ffe58f;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+  --cs-danger-border: #ffccc7;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+  --cs-bg-sidebar: #001529;
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 12px;
+  --cs-radius-xl: 16px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Shadows --- */
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* --- Dark Sidebar Tokens --- */
+  --cs-sidebar-text: rgba(255,255,255,0.65);
+  --cs-sidebar-text-active: #ffffff;
+  --cs-sidebar-item-hover: rgba(255,255,255,0.08);
+  --cs-sidebar-item-active: var(--cs-primary);
+  --cs-sidebar-width: 220px;
+  --cs-header-height: 56px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--cs-primary);
+    --color-border: var(--cs-border);
+  }
+  @layer base {
+    body { background: var(--cs-background); color: var(--cs-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <span class="logo-text">在线客服</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- 数据仪表盘 -->
+        <a class="nav-item" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-label">数据仪表盘</span>
+        </a>
+
+        <!-- 会话管理 -->
+        <a class="nav-item nav-group-head expanded" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">会话管理</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items open">
+          <a class="nav-sub-item" href="#">
+            <span class="nav-dot"></span>
+            <span class="nav-label">客服工作台</span>
+          </a>
+          <a class="nav-sub-item" href="#">
+            <span class="nav-dot"></span>
+            <span class="nav-label">会话记录</span>
+          </a>
+          <a class="nav-sub-item" href="#">
+            <span class="nav-dot"></span>
+            <span class="nav-label">待办事项</span>
+          </a>
+        </div>
+
+        <!-- 知识库 -->
+        <a class="nav-item nav-group-head expanded" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </span>
+          <span class="nav-label">知识库</span>
+          <span class="nav-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </a>
+        <div class="nav-sub-items open">
+          <a class="nav-sub-item" href="#">
+            <span class="nav-dot"></span>
+            <span class="nav-label">话术库</span>
+          </a>
+          <a class="nav-sub-item active" href="#">
+            <span class="nav-dot"></span>
+            <span class="nav-label">FAQ</span>
+          </a>
+          <a class="nav-sub-item" href="#">
+            <span class="nav-dot"></span>
+            <span class="nav-label">知识文档</span>
+          </a>
+        </div>
+
+        <!-- 客服设置 -->
+        <a class="nav-item" href="#">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </span>
+          <span class="nav-label">客服设置</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ===== Content Wrapper ===== -->
+    <div class="admin-content-wrapper">
+
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb-area">首页 / 知识库 / <span>FAQ</span></div>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span class="user-status-badge"></span>
+            <span class="user-name">客服A · 王小明</span>
+            <div class="user-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>FAQ</h2>
+            <p>维护常见问题（Q/A），供<strong>移动端自动发送 FAQ 卡片</strong>：用户咨询命中关键词或进入自助时，系统以卡片形式推送对应 FAQ。</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-primary" id="btnAddFaq">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              + 新建 FAQ
+            </button>
+          </div>
+        </div>
+
+        <!-- Two-Column Layout -->
+        <div class="faq-layout">
+
+          <!-- Left: Category Tree -->
+          <div class="kb-sidebar">
+            <div class="category-tree">
+              <div class="tree-header">
+                <span class="tree-title">FAQ 分类</span>
+                <span class="tree-add" title="新增分类">+</span>
+              </div>
+              <div class="tree-node active" data-cat="all">
+                <span class="tree-label">全部FAQ</span>
+                <span class="tree-count">42</span>
+              </div>
+              <div class="tree-node" data-cat="logistic">
+                <span class="tree-label">物流配送</span>
+                <span class="tree-count">8</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                  <a title="删除" class="cat-del">&#10005;</a>
+                </span>
+              </div>
+              <div class="tree-node" data-cat="aftersale">
+                <span class="tree-label">售后服务</span>
+                <span class="tree-count">7</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                  <a title="删除" class="cat-del">&#10005;</a>
+                </span>
+              </div>
+              <div class="tree-node" data-cat="order">
+                <span class="tree-label">订单相关</span>
+                <span class="tree-count">6</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                  <a title="删除" class="cat-del">&#10005;</a>
+                </span>
+              </div>
+              <div class="tree-node" data-cat="promo">
+                <span class="tree-label">促销活动</span>
+                <span class="tree-count">5</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                  <a title="删除" class="cat-del">&#10005;</a>
+                </span>
+              </div>
+              <div class="tree-node" data-cat="account">
+                <span class="tree-label">账户问题</span>
+                <span class="tree-count">6</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                  <a title="删除" class="cat-del">&#10005;</a>
+                </span>
+              </div>
+              <div class="tree-node" data-cat="other">
+                <span class="tree-label">其他</span>
+                <span class="tree-count">4</span>
+                <span class="tree-actions">
+                  <a title="编辑">&#9998;</a>
+                  <a title="新增子类">+</a>
+                  <a title="删除" class="cat-del">&#10005;</a>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: FAQ Table -->
+          <div class="kb-main">
+
+            <!-- 工具条 -->
+            <div class="card" style="padding:16px; margin-bottom:var(--cs-space-4); background:var(--cs-bg-card); border-radius:var(--cs-radius-md); border:1px solid var(--cs-border-light); box-shadow:var(--cs-shadow-card);">
+              <div class="kb-toolbar">
+                <input type="text" id="fqSearch" class="ipt input-search" placeholder="搜索问题或关键词" style="min-width:240px;color:var(--cs-text); padding:7px 10px 7px 32px; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); font-size:var(--cs-font-size-md); font-family:var(--cs-font-family); outline:none; box-sizing:border-box; background:var(--cs-bg-card) url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23bfbfbf' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E&quot;) 10px center no-repeat;" />
+                <select id="fqStatus" class="select" style="min-width:110px; padding:7px 28px 7px 10px; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); font-size:var(--cs-font-size-md); color:var(--cs-text); font-family:var(--cs-font-family); outline:none; appearance:none; cursor:pointer; box-sizing:border-box; background:var(--cs-bg-card) url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23bfbfbf' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;) right 8px center no-repeat;">
+                  <option value="">全部状态</option>
+                  <option value="on">启用</option>
+                  <option value="off">停用</option>
+                </select>
+                <div style="margin-left:auto;" class="page-header-actions">
+                  <button id="fqBtnReset" class="btn">重置</button>
+                  <button id="fqBtnQuery" class="btn btn-primary">查询</button>
+                  <button id="btnAddFaq2" class="btn btn-primary">+ 新增FAQ</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ 表格 -->
+            <div style="background:var(--cs-bg-card); border-radius:var(--cs-radius-md); border:1px solid var(--cs-border-light); box-shadow:var(--cs-shadow-card); overflow:hidden;">
+              <div class="table-wrap" style="overflow-x:auto;">
+                <table class="data-table faq-table">
+                  <thead>
+                    <tr>
+                      <th style="width:30%;">问题</th>
+                      <th style="width:35%;">回答</th>
+                      <th>关键词</th>
+                      <th>状态</th>
+                      <th>使用次数</th>
+                      <th style="width:150px;">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr data-cat="order" data-status="on">
+                      <td><div class="col-title">如何查询我的订单状态？
+                        <span class="title-sub">进入「我的-订单」按状态筛选查看</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">用户可在「我的-订单」查看订单详情与实时物流，支持按状态筛选…</div></td>
+                      <td><span class="faq-meta">订单查询、订单状态、我的订单</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>1,284</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="pay" data-status="on">
+                      <td><div class="col-title">支持哪些支付方式？
+                        <span class="title-sub">微信/支付宝/银行卡/花呗分期</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">支持微信、支付宝、银行卡、花呗分期，部分商品支持白条与信用卡分期…</div></td>
+                      <td><span class="faq-meta">支付方式、怎么付款、分期</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>962</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="aftersale" data-status="on">
+                      <td><div class="col-title">如何申请退款？
+                        <span class="title-sub">订单详情页申请，1-3 工作日原路退回</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">在订单详情页点击「申请退款」，选择仅退款/退货退款…</div></td>
+                      <td><span class="faq-meta">退款、退钱、申请退款</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>874</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="aftersale" data-status="on">
+                      <td><div class="col-title">7 天无理由退货流程？
+                        <span class="title-sub">签收 7 天内，商品完好可申请</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">签收后 7 天内可申请无理由退货，商品需保持原包装完好…</div></td>
+                      <td><span class="faq-meta">退货、7天无理由、换货</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>731</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="promo" data-status="on">
+                      <td><div class="col-title">优惠券怎么用？
+                        <span class="title-sub">下单满足门槛即可选用，每单一张</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">满减券需满足对应金额门槛，下单时在结算页选用…</div></td>
+                      <td><span class="faq-meta">优惠券、满减、券怎么用</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>645</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="order" data-status="on">
+                      <td><div class="col-title">如何开具发票？
+                        <span class="title-sub">订单完成后 24h 内自动开具电子发票</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">电子发票在订单完成后 24 小时内自动开具…</div></td>
+                      <td><span class="faq-meta">发票、抬头、开票</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>512</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="account" data-status="on">
+                      <td><div class="col-title">忘记密码怎么办？
+                        <span class="title-sub">登录页「忘记密码」验证后重置</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">登录页点击「忘记密码」，通过绑定手机号或邮箱验证后重置…</div></td>
+                      <td><span class="faq-meta">忘记密码、登录不了、重置密码</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>388</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="logistic" data-status="on">
+                      <td><div class="col-title">物流一直不更新怎么办？
+                        <span class="title-sub">联系快递员核实或申请客服介入</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">请先联系快递员核实；若仍未解决可在订单页申请售后…</div></td>
+                      <td><span class="faq-meta">物流、快递、没更新</span></td>
+                      <td><span class="fq-tag on">启用</span></td>
+                      <td>297</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="aftersale" data-status="off">
+                      <td><div class="col-title">商品有质量问题怎么办？
+                        <span class="title-sub">提供照片凭证，申请退换货</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">请拍摄商品质量问题照片，在订单页申请退换货…</div></td>
+                      <td><span class="faq-meta">质量问题、破损、坏</span></td>
+                      <td><span class="fq-tag off">停用</span></td>
+                      <td>89</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                    <tr data-cat="account" data-status="off">
+                      <td><div class="col-title">会员等级与权益？
+                        <span class="title-sub">按成长值升级，享对应权益</span></div></td>
+                      <td><div style="color:var(--cs-text-tertiary); font-size:var(--cs-font-size-sm); max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">会员按成长值升级（银卡/金卡/铂金），不同等级享折扣、包邮…</div></td>
+                      <td><span class="faq-meta">会员、等级、权益</span></td>
+                      <td><span class="fq-tag off">停用</span></td>
+                      <td>54</td>
+                      <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <div class="pagination" style="padding:16px; display:flex; align-items:center; gap:4px; border-top:1px solid var(--cs-border-lighter);">
+                <span class="pg-info" style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">共 42 条</span>
+                <span class="pg-btn disabled" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-md); color:var(--cs-text-placeholder); border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-sm); background:var(--cs-bg-card); cursor:not-allowed;">&#8249;</span>
+                <span class="pg-num active" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-md); border:1px solid var(--cs-primary); border-radius:var(--cs-radius-sm); background:var(--cs-primary); color:#ffffff; cursor:pointer;">1</span>
+                <span class="pg-num" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-md); border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); background:var(--cs-bg-card); color:var(--cs-text); cursor:pointer;">2</span>
+                <span class="pg-num" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-md); border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); background:var(--cs-bg-card); color:var(--cs-text); cursor:pointer;">3</span>
+                <span class="pg-num" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-md); border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); background:var(--cs-bg-card); color:var(--cs-text); cursor:pointer;">4</span>
+                <span class="pg-num" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-md); border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); background:var(--cs-bg-card); color:var(--cs-text); cursor:pointer;">5</span>
+                <span class="pg-btn" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:var(--cs-font-size-md); border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); background:var(--cs-bg-card); color:var(--cs-text); cursor:pointer;">&#8250;</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <p style="margin-top:16px; font-size:12px; color:var(--cs-text-placeholder);">
+          数据模型：customer_chat_faqs（FAQ Q/A）· 移动端命中关键词或进入自助时，以 FAQ 卡片（faq_card）自动推送；客服端可在工作台手动发送。
+        </p>
+
+      </main>
+    </div>
+
+  </div>
+
+    <style>
+    /* --- Layout Shell --- */
+    .admin-layout {
+      display: flex !important;
+      min-height: 100vh !important;
+      font-family: var(--cs-font-family);
+      background: var(--cs-bg-page);
+      color: var(--cs-text);
+    }
+
+    /* --- Sidebar --- */
+    .admin-sidebar {
+      width: var(--cs-sidebar-width, 220px) !important;
+      min-width: var(--cs-sidebar-width, 220px) !important;
+      background: var(--cs-bg-sidebar, #001529);
+      display: flex !important;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .admin-sidebar::-webkit-scrollbar { width: 4px; }
+    .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .sidebar-logo {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo .logo-icon svg { width: 16px; height: 16px; }
+
+    .sidebar-logo .logo-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 24px;
+      font-size: 14px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-item .nav-icon {
+      width: 16px; height: 16px;
+      margin-right: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-item .nav-icon svg { width: 16px; height: 16px; }
+
+    .nav-item .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .nav-item .nav-arrow {
+      width: 12px; height: 12px;
+      transition: transform 0.2s ease;
+      opacity: 0.5;
+    }
+
+    .nav-item .nav-arrow svg { width: 12px; height: 12px; }
+    .nav-group-head.expanded .nav-arrow { transform: rotate(90deg); }
+
+    .nav-sub-items {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+
+    .nav-sub-items.open { max-height: 200px; }
+
+    .nav-sub-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 24px 8px 48px;
+      font-size: 13px;
+      color: var(--cs-sidebar-text, rgba(255,255,255,0.65));
+      cursor: pointer;
+      transition: var(--cs-transition-fast, all 0.15s ease);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-sub-item:hover {
+      color: var(--cs-sidebar-text-active, #ffffff);
+      background: var(--cs-sidebar-item-hover, rgba(255,255,255,0.08));
+    }
+
+    .nav-sub-item.active {
+      color: var(--cs-primary, #1677ff);
+      background: var(--cs-primary-bg, #e6f4ff);
+    }
+
+    .nav-sub-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary, #1677ff);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-sub-item .nav-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.5;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-sub-item.active .nav-dot { opacity: 1; }
+
+    /* --- Right Content Area --- */
+    .admin-content-wrapper {
+      flex: 1;
+      margin-left: var(--cs-sidebar-width, 220px);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      height: var(--cs-header-height, 56px);
+      background: var(--cs-bg-card, #ffffff);
+      border-bottom: 1px solid var(--cs-border-light, #f0f0f0);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--cs-space-6, 24px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .header-left { flex: 1; min-width: 0; }
+    .header-right { display: flex; align-items: center; gap: var(--cs-space-4, 16px); flex-shrink: 0; }
+
+    .breadcrumb-area { font-size: 14px; color: var(--cs-text-secondary, #595959); }
+    .breadcrumb-area span { color: var(--cs-text); font-weight: 500; }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--cs-radius-sm, 6px);
+      transition: var(--cs-transition-fast, all 0.15s ease);
+    }
+
+    .user-info:hover { background: var(--cs-bg-hover, #fafafa); }
+
+    .user-status-badge {
+      position: relative;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--cs-success, #52c41a);
+    }
+
+    .user-status-badge::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1.5px solid var(--cs-bg-card, #ffffff);
+    }
+
+    .user-name { font-size: 14px; color: var(--cs-text, #1f1f1f); white-space: nowrap; }
+
+    .user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary, #1677ff), var(--cs-purple, #722ed1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-avatar svg { width: 14px; height: 14px; color: #ffffff; }
+
+    .admin-main {
+      flex: 1;
+      padding: var(--cs-space-6, 24px);
+      overflow-y: auto;
+    }
+
+    /* ===== FAQ Page Specific Styles ===== */
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .page-header-left h2 {
+      font-size: var(--cs-font-size-2xl, 20px);
+      font-weight: var(--cs-font-weight-semibold, 600);
+      color: var(--cs-text);
+      margin: 0 0 6px 0;
+    }
+    .page-header-left p {
+      font-size: var(--cs-font-size-md, 14px);
+      color: var(--cs-text-secondary);
+      margin: 0;
+    }
+    .page-header-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      font-size: var(--cs-font-size-md, 14px);
+      border-radius: var(--cs-radius-sm, 6px);
+      cursor: pointer;
+      transition: var(--cs-transition-fast);
+      border: 1px solid var(--cs-border, #d9d9d9);
+      background: var(--cs-bg-card);
+      color: var(--cs-text);
+      font-family: var(--cs-font-family);
+      white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .btn-primary {
+      background: var(--cs-primary);
+      border-color: var(--cs-primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--cs-primary-hover);
+      border-color: var(--cs-primary-hover);
+      color: #ffffff;
+    }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Two-Column Layout */
+    .faq-layout {
+      display: flex;
+      gap: var(--cs-space-4, 16px);
+      align-items: flex-start;
+    }
+
+    .kb-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+    }
+    .kb-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Category Tree */
+    .category-tree {
+      background: var(--cs-bg-card);
+      border-radius: var(--cs-radius-md);
+      border: 1px solid var(--cs-border-light);
+      box-shadow: var(--cs-shadow-card);
+      padding: var(--cs-space-3) 0;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .category-tree .tree-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px var(--cs-space-4) var(--cs-space-3);
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .category-tree .tree-header .tree-title {
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+    }
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: var(--cs-space-2) var(--cs-space-4);
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text);
+      cursor: pointer;
+      transition: var(--cs-transition-fast);
+      gap: 6px;
+      position: relative;
+    }
+    .tree-node:hover { background: var(--cs-border-lighter); }
+    .tree-node.active {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .tree-node.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--cs-primary);
+    }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      background: var(--cs-border-light);
+      border-radius: 10px;
+      padding: 0 7px;
+      line-height: 16px;
+    }
+    .tree-node.active .tree-count {
+      color: var(--cs-primary);
+      background: var(--cs-bg-card);
+    }
+    .category-tree .tree-header .tree-add {
+      font-size: var(--cs-font-size-xl);
+      color: var(--cs-primary);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .category-tree .tree-header .tree-add:hover { color: var(--cs-primary-hover); }
+    .tree-node .tree-actions { display: none; gap: 4px; }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .tree-node .tree-actions a:hover { color: var(--cs-primary); }
+
+    /* Toolbar */
+    .kb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-3);
+      flex-wrap: wrap;
+    }
+
+    /* Data Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--cs-font-size-md);
+    }
+    .data-table thead th {
+      background: var(--cs-bg-page, #fafafa);
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: var(--cs-font-weight-medium, 500);
+      color: var(--cs-text-secondary);
+      font-size: var(--cs-font-size-base, 13px);
+      border-bottom: 1px solid var(--cs-border-light);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .data-table tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--cs-border-lighter);
+      color: var(--cs-text);
+      vertical-align: middle;
+    }
+    .data-table tbody tr { transition: background 0.1s ease; }
+    .data-table tbody tr:hover { background: #fafbfc; }
+
+    /* Question column */
+    .data-table .col-title {
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+    }
+    .data-table .col-title .title-sub {
+      display: block;
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      font-weight: var(--cs-font-weight-normal);
+      margin-top: 2px;
+      max-width: 420px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* FAQ meta / keywords */
+    .faq-meta {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-secondary);
+    }
+
+    /* Status tags */
+    .fq-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--cs-font-size-sm);
+      line-height: 1.5;
+      color: var(--cs-text);
+    }
+    .fq-tag::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fq-tag.on::before { background: var(--cs-success); }
+    .fq-tag.off::before { background: #bfbfbf; }
+
+    /* Row actions */
+    .row-actions a {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-primary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .row-actions a:hover { text-decoration: underline; }
+    .row-actions .divider {
+      color: var(--cs-border);
+      margin: 0 4px;
+    }
+    .row-actions a.danger { color: var(--cs-danger); }
+    .row-actions a.danger:hover { color: var(--cs-danger-hover); }
+
+    @media (max-width: 1100px) { .faq-layout { flex-direction: column; } .kb-sidebar { width: 100%; } }
+    </style>
+
+    <script>
+    /* FAQ 交互：左树分类筛选 + 右侧搜索/状态 + 行操作委派 + 分页 */
+    (function () {
+      'use strict';
+      var $ = function (s, c) { return (c || document).querySelector(s); };
+      var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+
+      function rows() { return $$('.faq-table tbody tr'); }
+
+      /* ---------- 1. 筛选状态 ---------- */
+      var currentCat = 'all';
+      var fSearch = $('#fqSearch'), fStatus = $('#fqStatus');
+      var btnQuery = $('#fqBtnQuery'), btnReset = $('#fqBtnReset');
+
+      function applyFilters() {
+        var kw = (fSearch ? fSearch.value : '').trim().toLowerCase();
+        var st = fStatus ? fStatus.value : '';
+        rows().forEach(function (tr) {
+          var ok = (currentCat === 'all' || tr.getAttribute('data-cat') === currentCat)
+                && (!st || tr.getAttribute('data-status') === st);
+          if (ok && kw) { ok = (tr.textContent || '').toLowerCase().indexOf(kw) !== -1; }
+          tr.style.display = ok ? '' : 'none';
+        });
+      }
+
+      /* ---------- 2. 分类树点击 → 联动 ---------- */
+      $$('.category-tree .tree-node').forEach(function (node) {
+        node.addEventListener('click', function () {
+          $$('.category-tree .tree-node').forEach(function (n) { n.classList.remove('active'); });
+          node.classList.add('active');
+          currentCat = node.getAttribute('data-cat') || 'all';
+          applyFilters();
+        });
+      });
+
+      /* ---------- 3. 工具条筛选 ---------- */
+      [fSearch, fStatus].forEach(function (el) {
+        if (!el) return;
+        el.addEventListener('change', applyFilters);
+        if (el === fSearch) el.addEventListener('input', applyFilters);
+      });
+      if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); });
+      if (btnReset) btnReset.addEventListener('click', function () {
+        if (fSearch) fSearch.value = '';
+        if (fStatus) fStatus.value = '';
+        currentCat = 'all';
+        $$('.category-tree .tree-node').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-cat') === 'all'); });
+        applyFilters();
+      });
+
+      /* ---------- 4. 行操作委派（编辑/停用/启用/删除） ---------- */
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest('.faq-table .row-actions a');
+        if (!a) return;
+        e.preventDefault();
+        var txt = (a.textContent || '').trim();
+        var tr = a.closest('tr');
+
+        if (a.classList.contains('danger')) {
+          if (confirm('确认删除该 FAQ？删除后不可恢复。')) {
+            tr.style.display = 'none';
+          }
+          return;
+        }
+        if (txt === '编辑') {
+          alert('编辑 FAQ（演示）');
+          return;
+        }
+        if (txt === '停用') {
+          var s1 = $('.fq-tag', tr);
+          if (s1) { s1.className = 'fq-tag off'; s1.textContent = '停用'; tr.setAttribute('data-status', 'off'); }
+          a.textContent = '启用';
+        } else if (txt === '启用') {
+          var s2 = $('.fq-tag', tr);
+          if (s2) { s2.className = 'fq-tag on'; s2.textContent = '启用'; tr.setAttribute('data-status', 'on'); }
+          a.textContent = '停用';
+        }
+      });
+
+      /* ---------- 5. 分页 ---------- */
+      $$('.pg-num').forEach(function (n) {
+        n.addEventListener('click', function () {
+          $$('.pg-num').forEach(function (x) { x.classList.remove('active'); x.style.background = ''; x.style.color = ''; x.style.borderColor = ''; });
+          n.classList.add('active');
+        });
+      });
+
+      applyFilters();
+    })();
+    </script>
+</body>
+</html>
