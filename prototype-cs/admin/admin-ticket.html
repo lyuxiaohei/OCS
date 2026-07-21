@@ -3,108 +3,455 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>工单系统 — CS 商城客服系统</title>
+  <title>工单列表 — 客服模块</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
+  <script src="js/notify.js"></script>
   <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--cs-bg-page);
-      padding: 24px;
-    }
+    /* ===== admin-ticket.html 页面特有样式(对齐 admin-session-record) ===== */
 
-    .placeholder-card {
-      width: 520px;
-      background: var(--cs-bg-card);
-      border: 1px solid var(--cs-border-light);
-      border-radius: 10px;
-      padding: 40px 36px;
-      text-align: center;
+    /* 统计摘要条(沿用 session-record 的 .stat-summary,扩展 danger/ok 变体) */
+    .stat-summary {
+      display: flex; align-items: center; gap: 24px;
+      padding: 12px 16px; background: var(--cs-bg-header);
+      border-radius: var(--cs-radius-sm); margin-bottom: var(--cs-space-4);
+      font-size: var(--cs-font-size-base); color: var(--cs-text-secondary);
     }
+    .stat-summary .stat-item .num {
+      font-size: 18px; font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text); margin-right: 4px;
+    }
+    .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
+    .stat-summary .stat-item.warn   .num { color: var(--cs-orange); }
+    .stat-summary .stat-item.danger .num { color: var(--cs-danger); }
+    .stat-summary .stat-item.ok     .num { color: var(--cs-success); }
 
-    .status-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--cs-text-placeholder);
-      margin: 0 auto 20px;
-      display: block;
+    /* 工单状态标签(圆点 + 黑字) */
+    .s-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: var(--cs-font-size-sm); line-height: 1.5;
+      color: var(--cs-text); white-space: nowrap;
     }
+    .s-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .s-tag.untreated::before  { background: var(--cs-primary); }
+    .s-tag.processing::before { background: var(--cs-primary); }
+    .s-tag.done::before       { background: var(--cs-text-placeholder); }
 
-    .ph-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--cs-text);
-      margin: 0 0 6px;
-    }
+    /* 新建(待分配)行:浅橙底突出显示(同会话记录 is-offline) */
+    .data-table tbody tr.is-new { background: #fff7e6; }
+    .data-table tbody tr.is-new:hover { background: #fff1d6; }
 
-    .ph-phase {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 4px;
-      background: var(--cs-success-bg);
-      color: var(--cs-success);
-      margin-bottom: 16px;
-    }
+    /* 优先级:纯文本,仅「紧急」标红(同待办页只标异常项的约定) */
+    .pri { font-weight: var(--cs-font-weight-medium); color: var(--cs-text); }
 
-    .ph-desc {
-      font-size: 13px;
-      color: var(--cs-text-tertiary);
-      line-height: 1.7;
-      margin: 0 0 20px;
-    }
+    .unassigned { color: var(--cs-text-placeholder); font-style: italic; }
 
-    .ph-features {
-      text-align: left;
-      background: var(--cs-bg-page);
-      border: 1px solid var(--cs-border-lighter);
-      border-radius: 6px;
-      padding: 14px 18px;
-      margin: 0;
-    }
-    .ph-features li {
-      font-size: 12px;
-      color: var(--cs-text-secondary);
-      line-height: 2;
-      list-style: none;
-    }
-    .ph-features li::before {
-      content: '○';
-      color: var(--cs-text-placeholder);
-      margin-right: 8px;
-    }
+    /* 操作链接不换行 */
+    .data-table .row-actions a { white-space: nowrap; }
 
-    .ph-back {
-      display: inline-block;
-      margin-top: 24px;
-      font-size: 12px;
-      color: var(--cs-primary);
-      text-decoration: none;
-    }
-    .ph-back:hover { text-decoration: underline; }
+    .col-title { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cs-text); }
+    /* 工单来源(会话ID)内联编辑 */
+    .src-cell { font-size:var(--cs-font-size-xs); white-space:nowrap; }
+    .src-val { color:var(--cs-primary); cursor:pointer; }
+    .src-val:hover { text-decoration:underline; }
+    .src-val.empty { color:var(--cs-text-placeholder); }
+    .src-input { width:130px; border:1px solid var(--cs-primary); border-radius:4px; padding:3px 6px; font-size:var(--cs-font-size-xs); outline:none; }
+    .order-cell { font-size:var(--cs-font-size-xs); white-space:nowrap; }
+    .order-link { color:var(--cs-primary); cursor:pointer; }
+    .order-link:hover { text-decoration:underline; }
+    .order-empty { color:var(--cs-text-placeholder); }
   </style>
 </head>
 <body>
-  <div class="placeholder-card">
-    <span class="status-dot"></span>
-    <h1 class="ph-title">工单系统</h1>
-    <span class="ph-phase">2期 · 待开发</span>
-    <p class="ph-desc">
-      该页面为占位原型，尚未实现。<br>
-      工单用于跨部门流转处理用户问题，可从会话页/客户详情页创建。
-    </p>
-    <ul class="ph-features">
-      <li>工单字段（标题/分类/描述/附件/优先级/指派人）</li>
-      <li>状态流转（未分配&gt;待处理&gt;处理中&gt;已解决&gt;已关闭）</li>
-      <li>工单操作（接单/转单/回复/加抄送）</li>
-      <li>与我相关（待我处理/我创建的/抄送我的）</li>
-      <li>消息联动（自动生成 / 一键生成）</li>
-    </ul>
-    <a class="ph-back" href="index.html">&lt; 返回原型首页</a>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="ticket"></aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">客服工单 / <span style="color:var(--cs-text);font-weight:600;">工单列表</span></div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 + 操作 -->
+      <div class="flex-between mb-16">
+        <div>
+           <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">客服解决不了的售后问题(退款/退货/换货/投诉等)转为工单持续跟进,处理进度同步通知用户。</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-default" id="btnExport">导出</button>
+          <button class="btn-primary" id="btnCreate">+ 新建工单</button>
+        </div>
+      </div>
+
+      <!-- 统计摘要条 -->
+      <div class="stat-summary">
+        <div class="stat-item">工单总数 <span class="num">326</span></div>
+        <div class="stat-item accent">待处理 <span class="num">48</span></div>
+        <div class="stat-item">处理中 <span class="num">40</span></div>
+        <div class="stat-item ok">今日解决 <span class="num">23</span></div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="card" style="padding:16px;">
+        <div class="filter-bar">
+          <div class="field">
+            <span class="field-label">工单类型</span>
+            <select class="select" id="fType">
+              <option value="">全部类型</option>
+              <option>退款</option><option>退货退款</option><option>换货</option>
+              <option>投诉</option><option>补发</option><option>价格干预</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">优先级</span>
+            <select class="select" id="fPriority">
+              <option value="">全部</option>
+              <option>紧急</option><option>高</option><option>中</option><option>低</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">状态</span>
+            <select class="select" id="fStatus">
+              <option value="">全部状态</option>
+              <option>未处理</option>
+              <option>处理中</option>
+              <option>已完工</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">客户昵称/手机号</span>
+            <input class="select" id="fCustomer" placeholder="搜索客户" style="appearance:auto;">
+          </div>
+          <div class="field">
+            <span class="field-label">处理人</span>
+            <input class="select" id="fHandler" placeholder="搜索处理人" style="appearance:auto;">
+          </div>
+          <div class="field">
+            <span class="field-label">来源会话</span>
+            <input class="select" id="fSession" placeholder="会话 ID" style="appearance:auto;">
+          </div>
+          <div class="field">
+            <span class="field-label">关联订单号</span>
+            <input class="select" id="fOrder" placeholder="订单号" style="appearance:auto;">
+          </div>
+          <div class="field">
+            <span class="field-label">创建日期</span>
+            <span class="ipt">2026-07-01</span>
+            <span style="color:var(--cs-text-placeholder);">~</span>
+            <span class="ipt">2026-07-17</span>
+          </div>
+          <div style="margin-left:auto;" class="flex gap-8">
+            <button class="btn-default" id="btnReset">重置</button>
+            <button class="btn-primary" id="btnQuery">查询</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表卡片 -->
+      <div class="card mt-16" style="padding:0;">
+
+        <!-- 状态 Tab -->
+        <div class="status-tabs" style="padding:0 16px;">
+          <div class="status-tab active" data-filter="">全部 <span class="tab-count">326</span></div>
+          <div class="status-tab" data-filter="未处理">未处理 <span class="tab-count">15</span></div>
+          <div class="status-tab" data-filter="处理中">处理中 <span class="tab-count">43</span></div>
+          <div class="status-tab" data-filter="已完工">已完工 <span class="tab-count">268</span></div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>工单号</th>
+                <th>标题</th>
+                <th>工单类型</th>
+                <th>优先级</th>
+                <th>状态</th>
+                <th>来源会话</th>
+                <th>关联订单</th>
+                <th>客户</th>
+                <th>处理人</th>
+                <th>更新人/更新时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="ticketBody">
+              <!-- 紧急 处理中 临期 -->
+              <tr data-status="处理中" data-priority="紧急" data-agent="张小明" data-type="退款">
+                <td class="col-id">#TK20260716001</td>
+                <td class="col-title">订单退款两天未到账,客户催促</td>
+                <td>退款</td>
+                <td><span class="pri urgent">紧急</span></td>
+                <td><span class="s-tag processing">处理中</span></td>
+                <td class="src-cell"><span class="src-val" onclick="editSource(this)">#CS20260716088</span></td>
+                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260710003')">#DD20260710003</a></td>
+                <td><div class="col-user"><div class="mini-avatar">陈</div><div><div>陈芳</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">138****2891</div></div></div></td>
+                <td>张小明</td>
+                <td>张小明<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-16 09:24</span></td>
+                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+              </tr>
+              <!-- 紧急 处理中 已超时 -->
+              <tr data-status="处理中" data-priority="紧急" data-agent="李静" data-type="投诉">
+                <td class="col-id">#TK20260716002</td>
+                <td class="col-title">物流显示签收但未收到货,投诉</td>
+                <td>投诉</td>
+                <td><span class="pri urgent">紧急</span></td>
+                <td><span class="s-tag processing">处理中</span></td>
+                <td class="src-cell"><span class="src-val" onclick="editSource(this)">#CS20260716090</span></td>
+                <td class="order-cell"><span class="order-empty">-</span></td>
+                <td><div class="col-user"><div class="mini-avatar orange">刘</div><div><div>刘洋</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">139****5678</div></div></div></td>
+                <td>李静</td>
+                <td>李静<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-16 08:10</span></td>
+                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+              </tr>
+              <!-- 高 新建 待分配 -->
+              <tr data-status="未处理" data-priority="高" data-agent="未分配" data-type="补发">
+                <td class="col-id">#TK20260716003</td>
+                <td class="col-title">收到的商品有破损,要求补发</td>
+                <td>补发</td>
+                <td>高</td>
+                <td><span class="s-tag untreated">未处理</span></td>
+                <td class="src-cell"><span class="src-val empty" onclick="editSource(this)">-</span></td>
+                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260709001')">#DD20260709001</a></td>
+                <td><div class="col-user"><div class="mini-avatar">周</div><div><div>周婷婷</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">137****1024</div></div></div></td>
+                <td><span class="unassigned">未分配</span></td>
+                <td>—<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-16 10:02</span></td>
+                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-assign">分配</a></td>
+              </tr>
+              <!-- 高 待回复 -->
+              <tr data-status="处理中" data-priority="高" data-agent="王芳" data-type="退货退款">
+                <td class="col-id">#TK20260715008</td>
+                <td class="col-title">退货退款,等客户提供物流单号</td>
+                <td>退货退款</td>
+                <td>高</td>
+                <td><span class="s-tag processing">处理中</span></td>
+                <td class="src-cell"><span class="src-val" onclick="editSource(this)">#CS20260715088</span></td>
+                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260711001')">#DD20260711001</a></td>
+                <td><div class="col-user"><div class="mini-avatar">赵</div><div><div>赵磊</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">135****8821</div></div></div></td>
+                <td>王芳</td>
+                <td>王芳<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-15 16:45</span></td>
+                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+              </tr>
+              <!-- 中 阻塞 -->
+              <tr data-status="处理中" data-priority="中" data-agent="张小明" data-type="换货">
+                <td class="col-id">#TK20260715006</td>
+                <td class="col-title">换货 — 等仓库确认目标尺码库存</td>
+                <td>换货</td>
+                <td>中</td>
+                <td><span class="s-tag processing">处理中</span></td>
+                <td class="src-cell"><span class="src-val" onclick="editSource(this)">#CS20260715086</span></td>
+                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260710002')">#DD20260710002</a></td>
+                <td><div class="col-user"><div class="mini-avatar">孙</div><div><div>孙莉</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">136****4477</div></div></div></td>
+                <td>张小明</td>
+                <td>张小明<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-15 11:20</span></td>
+                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-reply">回复</a></td>
+              </tr>
+              <!-- 低 已解决 -->
+              <tr data-status="已完工" data-priority="低" data-agent="张小明" data-type="价格干预">
+                <td class="col-id">#TK20260714005</td>
+                <td class="col-title">活动价格差异,已补差价</td>
+                <td>价格干预</td>
+                <td>低</td>
+                <td><span class="s-tag done">已完工</span></td>
+                <td class="src-cell"><span class="src-val empty" onclick="editSource(this)">-</span></td>
+                <td class="order-cell"><span class="order-empty">-</span></td>
+                <td><div class="col-user"><div class="mini-avatar green">吴</div><div><div>吴强</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">133****6290</div></div></div></td>
+                <td>张小明</td>
+                <td>张小明<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-14 14:08</span></td>
+                <td class="row-actions"><a class="tk-detail">详情</a></td>
+              </tr>
+              <!-- 已关闭 -->
+              <tr data-status="已完工" data-priority="低" data-agent="李静" data-type="退款">
+                <td class="col-id">#TK20260713002</td>
+                <td class="col-title">退款已到账,用户确认</td>
+                <td>退款</td>
+                <td>低</td>
+                <td><span class="s-tag done">已完工</span></td>
+                <td class="src-cell"><span class="src-val empty" onclick="editSource(this)">-</span></td>
+                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260708001')">#DD20260708001</a></td>
+                <td><div class="col-user"><div class="mini-avatar">郑</div><div><div>郑敏</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">132****3315</div></div></div></td>
+                <td>李静</td>
+                <td>李静<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-13 09:55</span></td>
+                <td class="row-actions"><a class="tk-detail">详情</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" style="padding:16px;">
+          <span class="pg-info">共 326 条</span>
+          <span class="pg-btn disabled">&lt;</span>
+          <span class="pg-num active">1</span>
+          <span class="pg-num">2</span>
+          <span class="pg-num">3</span>
+          <span class="pg-num">4</span>
+          <span style="color:var(--cs-text-placeholder);">...</span>
+          <span class="pg-num">33</span>
+          <span class="pg-btn">&gt;</span>
+          <span class="pg-jump">跳至<input value="1" />页</span>
+        </div>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:16px; font-size:var(--cs-font-size-sm); color:var(--cs-text-placeholder);">
+        工单处理流程：未处理→处理中→已完工(终态,不可操作,继续处理需新建工单)。处理进度回写来源会话通知用户。
+      </p>
+
+    </main>
   </div>
+
+</div>
+
+<script src="js/cs-icons.js"></script>
+<script src="nav.js"></script>
+<script>
+(function () {
+  'use strict';
+  var toast = function (t, d) { if (window.csModal && csModal.toast) csModal.toast(t, d); };
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#ticketBody tr'));
+
+  /* 1. 状态 Tab 过滤(按 data-filter) */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.status-tab'));
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      applyFilters();
+    });
+  });
+
+  /* 2. 筛选(Tab + 类型/优先级/状态/处理人 联合) */
+  function applyFilters() {
+    var tabF = (document.querySelector('.status-tab.active') || {}).getAttribute
+      ? document.querySelector('.status-tab.active').getAttribute('data-filter') : '';
+    var st = document.getElementById('fStatus').value;
+    var pr = document.getElementById('fPriority').value;
+    var tp = document.getElementById('fType').value;
+    var ag = document.getElementById('fCustomer').value.trim();
+    var hd = document.getElementById('fHandler').value.trim();
+    var ss = document.getElementById('fSession').value.trim();
+    var od = document.getElementById('fOrder').value.trim();
+    rows.forEach(function (r) {
+      var cust = (r.querySelector('.col-user') || {}).textContent || '';
+      var handler = r.getAttribute('data-agent') || '';
+      var src = (r.querySelector('.src-cell') || {}).textContent || '';
+      var order = (r.querySelector('.order-cell') || {}).textContent || '';
+      var ok = (!tabF || r.getAttribute('data-status') === tabF)
+            && (!st || r.getAttribute('data-status') === st)
+            && (!pr || r.getAttribute('data-priority') === pr)
+            && (!tp || r.getAttribute('data-type') === tp)
+            && (!ag || cust.indexOf(ag) >= 0)
+            && (!hd || handler.indexOf(hd) >= 0)
+            && (!ss || src.indexOf(ss) >= 0)
+            && (!od || order.indexOf(od) >= 0);
+      r.style.display = ok ? '' : 'none';
+    });
+  }
+  document.getElementById('btnQuery').addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  ['fStatus', 'fPriority', 'fType'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', applyFilters);
+  });
+  ['fCustomer', 'fHandler', 'fSession', 'fOrder'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', applyFilters);
+  });
+  document.getElementById('btnReset').addEventListener('click', function () {
+    ['fStatus', 'fPriority', 'fType', 'fCustomer', 'fHandler', 'fSession', 'fOrder'].forEach(function (id) { document.getElementById(id).value = ''; });
+    tabs.forEach(function (t, i) { t.classList.toggle('active', i === 0); });
+    rows.forEach(function (r) { r.style.display = ''; });
+    toast('已重置筛选');
+  });
+
+  /* 3. 顶部按钮 */
+  document.getElementById('btnCreate').addEventListener('click', function () {
+    csModal.open('modals/modal-create-ticket.html?mode=standalone', { variant: 'center', width: 560,
+      onConfirm: function (d) { toast('工单已创建' + (d && d.title ? ':' + d.title : '')); }
+    });
+  });
+  document.getElementById('btnExport').addEventListener('click', function () { toast('正在导出工单列表…', 2000); });
+
+  /* 4. 行操作(按文案委派) */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var txt = (a.textContent || '').trim();
+    if (txt === '详情') {
+      csModal.open('modals/drawer-ticket-detail.html', { variant: 'drawer-right', width: 640 });
+    } else if (txt === '回复') {
+      toast('跳转到会话工作台回复用户');
+      setTimeout(function () { location.href = 'admin-workbench.html'; }, 600);
+    } else if (txt === '转单') {
+      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
+        onConfirm: function (d) { toast('工单已转派' + (d && d.assignee ? '给 ' + d.assignee : '')); }
+      });
+    } else if (txt === '分配') {
+      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
+        onConfirm: function (d) { toast('已分配' + (d && d.assignee ? '给 ' + d.assignee : '')); }
+      });
+    }
+  });
+
+  /* 5. 分页 */
+  document.querySelectorAll('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      document.querySelectorAll('.pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  /* 工单来源(会话ID):点击内联编辑,手动关联/修改/清除 */
+  window.editSource = function (span) {
+    var td = span.parentElement;
+    var old = span.textContent.trim();
+    td.innerHTML = '<input class="src-input" value="' + (old === '-' ? '' : old) + '" placeholder="会话ID / 留空清除"><a class="src-val" onclick="saveSource(this)" style="margin-left:4px;">保存</a>';
+    var inp = td.querySelector('input'); inp.focus(); inp.select();
+  };
+  window.saveSource = function (a) {
+    var td = a.parentElement;
+    var v = td.querySelector('input').value.trim();
+    td.innerHTML = v ? '<span class="src-val" onclick="editSource(this)">' + v + '</span>' : '<span class="src-val empty" onclick="editSource(this)">-</span>';
+    toast(v ? '已关联会话 ' + v : '已清除会话关联');
+  };
+
+  /* 分页:页码 click 切 active(已有);补上/下页按钮 + 跳页 */
+  var pgNums = Array.prototype.slice.call(document.querySelectorAll('.pg-num'));
+  document.querySelectorAll('.pg-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (btn.classList.contains('disabled')) return;
+      var i = -1; pgNums.forEach(function (n, idx) { if (n.classList.contains('active')) i = idx; });
+      var ni = btn.textContent.indexOf('<') >= 0 ? i - 1 : i + 1;
+      ni = Math.max(0, Math.min(pgNums.length - 1, ni));
+      if (ni === i) return;
+      pgNums.forEach(function (n) { n.classList.remove('active'); });
+      if (pgNums[ni]) pgNums[ni].classList.add('active');
+      document.querySelector('.pg-btn:first-child').classList.toggle('disabled', ni === 0);
+      toast('第 ' + (ni + 1) + ' 页');
+    });
+  });
+  /* 查看关联订单(开订单详情弹窗;独立订单管理列表页待建) */
+  window.viewOrder = function (orderId) {
+    csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 540 });
+    toast('查看订单 ' + orderId);
+  };
+
+  applyFilters();
+})();
+</script>
+
 </body>
 </html>

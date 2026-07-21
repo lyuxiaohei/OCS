@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工单设置 — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/settings.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    /* 收窄:配置卡片不铺满 */
+    .card.setting-section { max-width: 880px; }
+    /* 类型/优先级 增删改列表 */
+    .cfg-list { display:flex; flex-direction:column; gap:8px; }
+    .cfg-row { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); }
+    .cfg-row .cfg-name { flex:0 0 130px; border:1px solid var(--cs-border); border-radius:4px; padding:5px 8px; font-size:var(--cs-font-size-sm); background:#fff; outline:none; }
+    .cfg-row .cfg-name:focus { border-color:var(--cs-primary); }
+    .cfg-row .cfg-desc { flex:0 1 220px; border:1px solid var(--cs-border); border-radius:4px; padding:5px 8px; font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); background:#fff; outline:none; }
+    .cfg-row .cfg-desc:focus { border-color:var(--cs-primary); }
+    .cfg-row .cfg-count { flex-shrink:0; width:96px; text-align:right; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
+    .cfg-row .cfg-count .num { color:var(--cs-text); font-weight:var(--cs-font-weight-semibold); font-size:var(--cs-font-size-sm); margin-right:4px; }
+    .cfg-row .cfg-del { flex-shrink:0; width:28px; height:28px; border:none; background:transparent; color:var(--cs-text-tertiary); cursor:pointer; font-size:16px; line-height:1; border-radius:4px; }
+    .cfg-row .cfg-del:hover { color:var(--cs-danger); background:#fff1f0; }
+    .cfg-add { display:inline-flex; align-items:center; gap:4px; margin-top:10px; padding:6px 14px; border:1px dashed var(--cs-border); background:transparent; color:var(--cs-text-secondary); border-radius:var(--cs-radius-sm); cursor:pointer; font-size:var(--cs-font-size-sm); }
+    .cfg-add:hover { color:var(--cs-primary); border-color:var(--cs-primary); }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="ticket-rule"></aside>
+
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+    <header class="admin-header">
+      <div class="breadcrumb">客服设置 / <span style="color:var(--cs-text);font-weight:600;">工单设置</span></div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <div class="flex-between mb-16" style="max-width:880px;">
+        <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单类型与优先级(可增删改)。右侧显示该配置当前的工单数量。保存后生效。</p></div>
+      </div>
+
+      <!-- 工单类型(增删改 + 数量) -->
+      <div class="card setting-section" id="type">
+        <div class="section-head">
+          <h3>工单类型 <span class="head-desc">新建工单时可选的类型</span></h3>
+        </div>
+        <div class="cfg-list" id="typeList">
+          <div class="cfg-row"><input class="cfg-name" value="退款"><input class="cfg-desc" value="仅退款,不退货"><span class="cfg-count"><span class="num">128</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="退货退款"><input class="cfg-desc" value="退货并退款"><span class="cfg-count"><span class="num">95</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="换货"><input class="cfg-desc" value="换货处理"><span class="cfg-count"><span class="num">60</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="投诉"><input class="cfg-desc" value="客户投诉处理"><span class="cfg-count"><span class="num">30</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="补发"><input class="cfg-desc" value="补发商品"><span class="cfg-count"><span class="num">25</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="价格干预"><input class="cfg-desc" value="退差价 / 价格调整"><span class="cfg-count"><span class="num">15</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
+        </div>
+        <button class="cfg-add" onclick="addRow('type')">+ 添加类型</button>
+      </div>
+
+      <!-- 优先级(增删改 + 数量) -->
+      <div class="card setting-section" id="priority">
+        <div class="section-head">
+          <h3>优先级 <span class="head-desc">用于排序/标识(无 SLA)</span></h3>
+        </div>
+        <div class="cfg-list" id="priorityList">
+          <div class="cfg-row"><input class="cfg-name" value="紧急"><input class="cfg-desc" value="最高优先,立即处理"><span class="cfg-count"><span class="num">42</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="高"><input class="cfg-desc" value="优先处理"><span class="cfg-count"><span class="num">86</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="中"><input class="cfg-desc" value="常规处理"><span class="cfg-count"><span class="num">120</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="低"><input class="cfg-desc" value="空闲时处理"><span class="cfg-count"><span class="num">78</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
+        </div>
+        <button class="cfg-add" onclick="addRow('priority')">+ 添加优先级</button>
+      </div>
+
+      <!-- 吸底保存栏 -->
+      <div class="settings-footer">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div class="footer-tip">修改后请点击「保存设置」生效</div>
+          <span class="save-hint" id="saveHint" style="display:none;">⚠️ 有 <span id="dirtyCount">0</span> 个模块已修改</span>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-default" id="btnReset">重置默认</button>
+          <button class="btn-primary" id="btnSave">保存设置</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+var dirtySections = new Set();
+var saveHint = document.getElementById('saveHint');
+var dirtyCountEl = document.getElementById('dirtyCount');
+function updateDirtyUI() {
+  var count = dirtySections.size;
+  if (count > 0) { saveHint.style.display = ''; dirtyCountEl.textContent = count; }
+  else { saveHint.style.display = 'none'; }
+}
+function markDirty(section) {
+  if (!section || !section.id) return;
+  dirtySections.add(section.id);
+  section.classList.add('dirty');
+  updateDirtyUI();
+}
+/* 增删改(新增项数量为 0) */
+function addRow(group) {
+  var list = document.getElementById(group + 'List');
+  var row = document.createElement('div');
+  row.className = 'cfg-row';
+  if (group === 'priority') {
+    row.innerHTML = '<input class="cfg-name" value="新优先级"><input class="cfg-desc" value="说明"><span class="cfg-count"><span class="num">0</span>个工单</span><button class="cfg-del" onclick="delRow(this,\'priority\')" title="删除">×</button>';
+  } else {
+    row.innerHTML = '<input class="cfg-name" value="新类型"><input class="cfg-desc" value="说明"><span class="cfg-count"><span class="num">0</span>个工单</span><button class="cfg-del" onclick="delRow(this,\'type\')" title="删除">×</button>';
+  }
+  list.appendChild(row);
+  markDirty(document.getElementById(group));
+}
+function delRow(btn, group) {
+  var list = document.getElementById(group + 'List');
+  if (list.children.length <= 1) { if (window.csModal && csModal.toast) csModal.toast('至少保留 1 项'); return; }
+  btn.parentElement.remove();
+  markDirty(document.getElementById(group));
+}
+document.querySelectorAll('.card.setting-section').forEach(function (section) {
+  section.addEventListener('input', function () { markDirty(section); });
+});
+document.getElementById('btnSave').addEventListener('click', function () {
+  dirtySections.clear();
+  document.querySelectorAll('.card.setting-section.dirty').forEach(function (s) { s.classList.remove('dirty'); });
+  updateDirtyUI();
+  if (window.csModal && csModal.toast) csModal.toast('工单设置已保存');
+});
+document.getElementById('btnReset').addEventListener('click', function () {
+  if (window.csModal && csModal.toast) csModal.toast('已重置为默认值(原型演示)');
+});
+</script>
+<script src="js/cs-icons.js"></script>
+<script src="nav.js"></script>
+</body>
+</html>

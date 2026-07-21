@@ -17,26 +17,28 @@ const MENU_DATA = [
   {
     type: 'group', label: '会话管理', icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
     items: [
-      { id: 'workbench',      label: '客服工作台', href: 'admin-workbench.html' },
-      { id: 'todo',           label: '待办事项',   href: 'admin-todo.html' },
-      { id: 'session-record', label: '会话记录',   href: 'admin-session-record.html' },
-      { id: 'transfer',       label: '会话转接',   href: 'admin-transfer.html' },
-      { id: 'rating',         label: '评价管理',   href: 'admin-rating-mgmt.html' },
+      { id: 'workbench',      label: '客服工作台', href: 'admin-workbench.html', version: 'V1.0' },
+      { id: 'todo',           label: '待办事项',   href: 'admin-todo.html', version: 'V1.0' },
+      { id: 'session-record', label: '会话记录',   href: 'admin-session-record.html', version: 'V1.0' },
+      { id: 'transfer',       label: '会话转接',   href: 'admin-transfer.html', version: 'V1.0' },
+      { id: 'rating',         label: '评价管理',   href: 'admin-rating-mgmt.html', version: 'V1.0' },
     ]
   },
+  { type: 'item', id: 'ticket', label: '客服工单', href: 'admin-ticket.html', version: 'V1.5', icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/>' },
   {
     type: 'group', label: '知识库', icon: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
     items: [
-      { id: 'scripts',   label: '话术库', href: 'admin-scripts.html' },
-      { id: 'faq',       label: 'FAQ',   href: 'admin-faq.html' },
+      { id: 'scripts',   label: '话术库', href: 'admin-scripts.html', version: 'V1.0' },
+      { id: 'faq',       label: 'FAQ',   href: 'admin-faq.html', version: 'V1.0' },
       { id: 'knowledge', label: '知识文档', href: 'admin-knowledge.html', version: 'V3.0' },
     ]
   },
   {
     type: 'group', label: '客服设置', icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/>',
     items: [
-      { id: 'session-rule', label: '会话规则', href: 'admin-settings.html' },
-      { id: 'autoreply',    label: '自动回复', href: 'admin-auto-reply.html' },
+      { id: 'session-rule', label: '会话规则', href: 'admin-settings.html', version: 'V1.0' },
+      { id: 'ticket-rule',  label: '工单设置', href: 'admin-ticket-settings.html', version: 'V1.5' },
+      { id: 'autoreply',    label: '自动回复', href: 'admin-auto-reply.html', version: 'V1.0' },
     ]
   },
 ];
