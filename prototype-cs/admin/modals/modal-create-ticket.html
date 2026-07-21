@@ -146,11 +146,28 @@
   var state = { user_id:'', user_name:'', order_id:'', session_id:'' };
   var mode = new URLSearchParams(location.search).get('mode') || '';
   var standalone = mode === 'standalone';
+  var orderMode = mode === 'order';
 
   if (standalone) {
     document.getElementById('ctxBox').style.display = 'none';
     document.getElementById('fCustomerPick').style.display = '';
     document.getElementById('fOrderPick').style.display = '';
+  } else if (orderMode) {
+    /* 纪要③ 订单受理带入:订单管理页「受理」→带订单/客户建单(OMS 收货/项目名字段待梳理后补) */
+    var p = new URLSearchParams(location.search);
+    var oid = p.get('oid') || '', goods = p.get('goods') || '', phone = p.get('phone') || '', amount = p.get('amount') || '', ostate = p.get('state') || '';
+    var ctxBox = document.getElementById('ctxBox');
+    ctxBox.style.display = '';
+    ctxBox.innerHTML = '<div class="ctx-title">已从订单受理带入</div>'
+      + '<div class="ctx-row">关联订单:<b>' + esc(oid) + '</b> · 商品:<b>' + esc(goods) + '</b> · ' + esc(amount) + '</div>'
+      + '<div class="ctx-row">客户:<b>' + esc(phone) + '</b> · 订单状态:' + esc(ostate) + '</div>';
+    document.getElementById('fCustomerRO').style.display = '';
+    document.getElementById('fOrderRO').style.display = '';
+    document.getElementById('fCustomerRO').value = phone || '(订单未关联客户)';
+    document.getElementById('fOrderRO').value = oid + (goods ? ' · ' + goods : '') + (amount ? ' (' + amount + ')' : '');
+    document.getElementById('fTitle').value = goods ? ('订单售后受理 - ' + goods) : '';
+    state.user_name = phone || '(订单未关联客户)';
+    state.order_id = oid;
   } else {
     document.getElementById('fCustomerRO').style.display = '';
     document.getElementById('fOrderRO').style.display = '';
