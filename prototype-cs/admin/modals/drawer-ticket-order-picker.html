@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>选择订单 · 工单创建</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background:#fff; margin:0; }
+    .dw-body { display:flex; flex-direction:column; min-height:100vh; }
+    .drawer-head { padding:16px 24px; border-bottom:1px solid var(--cs-border-light); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .drawer-head .title { font-size:16px; font-weight:600; }
+    .drawer-head .title .sub { font-size:12px; font-weight:400; color:var(--cs-text-tertiary); margin-left:8px; }
+    .drawer-head .close { font-size:20px; color:var(--cs-text-tertiary); cursor:pointer; line-height:1; }
+    .drawer-body { flex:1; overflow-y:auto; padding:16px 24px; }
+
+    /* 订单列表项(复用 drawer-order-picker 模式) */
+    .order-list { display:flex; flex-direction:column; gap:10px; }
+    .order-item { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md); padding:12px 14px; cursor:pointer; background:#fff; transition:border-color .15s, box-shadow .15s; position:relative; }
+    .order-item:hover { border-color:var(--cs-primary); }
+    .order-item.selected { border-color:var(--cs-primary); background:var(--cs-primary-bg); box-shadow:0 0 0 2px rgba(22,119,255,0.12); }
+    .order-item.selected::after { content:"✓"; position:absolute; top:10px; right:12px; width:18px; height:18px; border-radius:50%; background:var(--cs-primary); color:#fff; font-size:12px; line-height:18px; text-align:center; }
+    .order-item .oi-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    .order-item .oi-id { font-size:13px; font-weight:600; color:var(--cs-text); }
+    .order-item .oi-state { display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:500; }
+    .order-item .oi-state::before { content:""; width:6px; height:6px; border-radius:50%; }
+    .order-item .oi-state.s-warn::before { background:var(--cs-orange); }
+    .order-item .oi-state.s-warn { color:var(--cs-orange); }
+    .order-item .oi-state.s-done::before { background:var(--cs-success); }
+    .order-item .oi-state.s-done { color:var(--cs-success); }
+    .order-item .oi-state.s-danger::before { background:var(--cs-danger); }
+    .order-item .oi-state.s-danger { color:var(--cs-danger); }
+    .order-item .oi-goods { font-size:12px; color:var(--cs-text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:6px; }
+    .order-item .oi-bottom { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--cs-text-tertiary); }
+    .order-item .oi-amount { font-size:14px; font-weight:600; color:var(--cs-text); }
+
+    .empty-state { text-align:center; padding:48px 16px; color:var(--cs-text-tertiary); }
+    .empty-state .es-text { font-size:13px; }
+
+    .drawer-foot { padding:12px 24px; border-top:1px solid var(--cs-border-light); display:flex; justify-content:flex-end; gap:8px; flex-shrink:0; }
+    .drawer-foot .btn-default { padding:7px 16px; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); background:#fff; font-size:13px; cursor:pointer; color:var(--cs-text-secondary); }
+    .drawer-foot .btn-primary { padding:7px 16px; border:none; border-radius:var(--cs-radius-sm); background:var(--cs-primary); color:#fff; font-size:13px; cursor:pointer; }
+    .drawer-foot .btn-primary:disabled { background:var(--cs-border); cursor:not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="dw-body">
+    <div class="drawer-head">
+      <div class="title">选择订单<span class="sub" id="custName"></span></div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="drawer-body">
+      <div class="order-list" id="orderList"><!-- JS 渲染 --></div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn" disabled>确认选择</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    var STATE_MAP = {
+      '待发货':'s-warn', '运输中':'s-warn', '已签收':'s-done',
+      '已完成':'s-done', '已退款':'s-danger', '退款中':'s-danger', '已取消':'s-danger'
+    };
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+
+    /* 从 URL 读 user_id / name(由建单弹窗传入) */
+    var qs = new URLSearchParams(location.search);
+    var userId = qs.get('user_id') || '';
+    var custName = qs.get('name') || '';
+    if (custName) document.getElementById('custName').textContent = '· ' + custName;
+
+    /* mock 订单数据(1 期;正式接口 GET /api/backend/customer/orders?user_id=,2 期切 OMS) */
+    var ALL_ORDERS = [
+      { user_id:'U20260710001', order_id:'#DD20260710003', goods:'无线蓝牙耳机(黑色)', amount:'¥299', time:'2026-07-10', state:'已签收' },
+      { user_id:'U20260710001', order_id:'#DD20260708001', goods:'不锈钢保温杯 500ml', amount:'¥89',  time:'2026-07-08', state:'已完成' },
+      { user_id:'U20260710002', order_id:'#DD20260712001', goods:'男士跑步鞋 42码', amount:'¥459', time:'2026-07-12', state:'待发货' },
+      { user_id:'U20260710003', order_id:'#DD20260709001', goods:'玻璃水杯(破损补发)', amount:'¥39',  time:'2026-07-09', state:'运输中' },
+      { user_id:'U20260710004', order_id:'#DD20260711001', goods:'羽绒被 1.8m', amount:'¥699', time:'2026-07-11', state:'已签收' },
+      { user_id:'U20260710006', order_id:'#DD20260713001', goods:'护肤套装( deluxe )', amount:'¥1280', time:'2026-07-13', state:'已完成' },
+      { user_id:'U20260710007', order_id:'#DD20260710002', goods:'尺码换货 · 连衣裙 M', amount:'¥259', time:'2026-07-10', state:'运输中' }
+    ];
+    var orders = ALL_ORDERS.filter(function (o) { return o.user_id === userId; });
+
+    var listEl = document.getElementById('orderList');
+    var confirmBtn = document.getElementById('confirmBtn');
+    var selectedOrder = null;
+
+    if (orders.length === 0) {
+      listEl.innerHTML = '<div class="empty-state"><div class="es-text">该客户暂无订单(可留空创建无订单工单)</div></div>';
+    } else {
+      orders.forEach(function (o, idx) {
+        var st = o.state || '待发货';
+        var sc = STATE_MAP[st] || 's-warn';
+        var div = document.createElement('div');
+        div.className = 'order-item';
+        div.innerHTML =
+            '<div class="oi-top">'
+          +   '<span class="oi-id">' + esc(o.order_id) + '</span>'
+          +   '<span class="oi-state ' + sc + '">' + esc(st) + '</span>'
+          + '</div>'
+          + '<div class="oi-goods">' + esc(o.goods) + '</div>'
+          + '<div class="oi-bottom"><span>' + esc(o.time) + '</span><span class="oi-amount">' + esc(o.amount) + '</span></div>';
+        div.addEventListener('click', function () {
+          var all = listEl.querySelectorAll('.order-item');
+          for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
+          div.classList.add('selected');
+          selectedOrder = o;
+          confirmBtn.disabled = false;
+        });
+        listEl.appendChild(div);
+      });
+    }
+
+    confirmBtn.addEventListener('click', function () {
+      if (!selectedOrder) return;
+      window.csModalBridge.confirm({
+        order_id: selectedOrder.order_id, goods: selectedOrder.goods,
+        amount: selectedOrder.amount, time: selectedOrder.time, state: selectedOrder.state
+      });
+    });
+  </script>
+</body>
+</html>

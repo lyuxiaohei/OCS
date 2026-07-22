@@ -152,8 +152,7 @@ erDiagram
         int score
         int source
         datetime created_at
-        datetime resolved_at
-        datetime closed_at
+        datetime finished_at
     }
     TICKET_EXTENSION {
         string ticket_id FK
@@ -179,7 +178,7 @@ erDiagram
     }
 ```
 
-> 相比 V0.2:TICKET 表移除 `sla_response_due` / `sla_resolve_due`。其余不变。
+> 相比 V0.2:TICKET 表移除 `sla_response_due` / `sla_resolve_due`;`resolved_at` → `finished_at`,移除 `closed_at`(对齐 3 态)。
 
 ### 三.2 字段说明
 
@@ -199,18 +198,17 @@ erDiagram
 | 10 | handler_admin_id | 处理人 | varchar(32) | 否 | FK → ADMIN | 指派时写入 |
 | 11 | handler_group | 处理组 | varchar(32) | 否 | — | 分派时写入(一期预留) |
 | 12 | created_at | 创建时间 | datetime | 是 | 系统时间 | 系统自动 |
-| 13 | resolved_at | 解决时间 | datetime | 否 | — | 已解决时写入 |
-| 14 | closed_at | 关闭时间 | datetime | 否 | — | 已关闭时写入 |
-| 15 | source | 来源 | tinyint | 是 | 1=客服 / 0=用户 / 2=系统 | 创建时确定 |
-| 16 | score | 工单评分 | tinyint | 否 | 1-5 | 已解决后用户评价 |
-| 17 | description | 工单描述 | text | 否 | — | 创建时填写;详情可编辑,保留历史版本(存 TICKET_EVENT 或独立 desc_versions 表) |
+| 13 | finished_at | 完工时间 | datetime | 否 | — | 完工时写入(终态) |
+| 14 | source | 来源 | tinyint | 是 | 0=用户 / 1=客服 / 2=系统 / 3=订单受理 | 创建时确定(会话转工单/手动创建=客服;从订单受理创建=订单受理,见修订25) |
+| 15 | score | 工单评分 | tinyint | 否 | 1-5 | 2 期评价;本期内部工单无评价,字段保留 |
+| 16 | description | 工单描述 | text | 否 | — | 创建时填写;详情可编辑,保留历史版本(存 TICKET_EVENT 或独立 desc_versions 表) |
 
-> 相比 V0.2:移除 `sla_response_due` / `sla_resolve_due`(序号 13/14 在 V0.2)。`priority` 改为**非必填**(无 SLA 后,优先级仅为可选分类)。
+> 相比 V0.2:移除 `sla_response_due` / `sla_resolve_due`(V0.2 序号 13/14);`resolved_at` → `finished_at`(3 态无"已解决",完工即终态);移除 `closed_at`(3 态无"已关闭")。`priority` 改为**非必填**(无 SLA 后,优先级仅为可选分类)。`source` 增 `3=订单受理`(修订25 创建方式③)。
 
 #### 三.2.2 ~ 三.2.5(事件流水 / 备注 / MESSAGE 扩展 / SESSION 扩展)
 
 沿用 V0.2,无变化:
-- `customer_chat_ticket_events`:`ticket.created` / `ticket.assigned` / `ticket.replied` / `ticket.resolved` / `ticket.reopened` / `ticket.transferred` / `ticket.closed`(注意:V0.3 移除 `ticket.escalated`)。`operator_type` = admin/customer/system。
+- `customer_chat_ticket_events`:`ticket.created` / `ticket.assigned` / `ticket.replied` / `ticket.transferred`(V0.3 移除 `ticket.escalated`;3 态无已解决/重启/已关闭,故移除 `resolved` / `reopened` / `closed`)。`operator_type` = admin/customer/system。
 - `customer_chat_ticket_comments`:internal(内部)/ public(对客,回写会话)。
 - MESSAGE + `ticket_id`(回写消息可追溯)。
 - SESSION + `ticket_id`(转工单标记 + 反向跳转)。
@@ -261,7 +259,7 @@ erDiagram
 | 客户 | 昵称 + 脱敏手机 | CUSTOMER 表 |
 | 处理人 | 客服名 / 「未分配」 | — |
 | 更新人/更新时间 | 更新人 + 更新时间(合并列) | — |
-| 操作 | 详情 / 回复(跳工作台) / 转派 / 指派 / 完工(处理中态) | 按状态+角色显示 |
+| 操作 | 详情 / 回复(跳工作台) / 转派(转单) / 指派(未处理态) | 按状态+角色显示;**完工在详情抽屉底部(非行操作,对齐六.2)** |
 
 > 相比 V0.2:移除「SLA 倒计时」列、「即将超时/已超时/SLA 达成率」统计、「SLA 排序」。统计回归 4 项。
 
@@ -296,7 +294,7 @@ flowchart LR
     A -.->|R-SYS 自动| A2[会话 end 原因: converted_to_ticket]
     B --> C[工单处理]
     C -->|状态变更| D[回写来源会话 推 notice 通知用户]
-    D --> E[工单已解决]
+    D --> E[工单已完工]
 ```
 
 > 相比 V0.2:流程图移除「SLA 超时 → 两级升级」支路。
@@ -398,7 +396,7 @@ stateDiagram-v2
 | 指标 | 口径 |
 |------|------|
 | 工单量 | 时段内新建工单数(按类型/优先级分类) |
-| 平均处理时长 | `resolved_at − created_at` 均值 |
+| 平均处理时长 | `finished_at − created_at` 均值 |
 | 工单满意度 | TICKET.score 均值(1-5) |
 | 客服工单绩效 | 处理量 / 平均时长,按 handler_admin_id 聚合 |
 
@@ -424,14 +422,11 @@ stateDiagram-v2
 
 | 阶段 | 触发 | 字段变更 | 关联动作 |
 |------|------|----------|----------|
-| 创建 | 会话转工单 / 客服手动创建 | ticket_id / ticket_no / type / priority / status=处理中 / user_id / order_id / session_id / created_at | 写 `ticket.created` 事件;触发轮询分派;若 session_id则会话标记 end + ticket_id |
-| 指派 | 手动/轮询 cron | handler_admin_id / status=处理中 | 写 `ticket.assigned` 事件 |
-| 待回复 | 等用户补充 | status=待回复 | — |
-| 完工 | 客服完工 | status=已完工 / finished_at | 回写会话 notice;终态不可操作 |
-| 关闭(自动) | 用户确认 / 超时 | status=已关闭 / closed_at | (2 期) |
-| 重启 | 用户不满意 | status=处理中 | 写 `ticket.reopened` 事件 |
+| 创建 | 会话转工单 / 客服手动创建 / 从订单受理创建 | ticket_id / ticket_no / type / priority / **status=未处理** / user_id / order_id / session_id / source / created_at | 写 `ticket.created` 事件;若 session_id 则会话标记 end(reason=converted_to_ticket)+ ticket_id;进入轮询分派池 |
+| 指派 | 手动/轮询 cron | handler_admin_id / **status=处理中** | 写 `ticket.assigned` 事件 |
+| 完工 | 客服完工 | **status=已完工** / finished_at | 回写会话 notice;**终态,不可操作,继续需新建工单** |
 
-> 相比 V0.2:移除「升级」阶段(SLA 超时转派/升级主管)。
+> 相比 V0.2:移除「升级」阶段(SLA 超时转派/升级主管);**对齐 3 态状态机(六.1)**——创建→未处理(原误为"处理中"),移除「待回复」「关闭(自动)」「重启」(三态外阶段;2 期自动关单/重启需另行评估状态)。
 
 ---
 
@@ -444,7 +439,7 @@ stateDiagram-v2
 | 1 | 工单列表 | GET | `/api/backend/ticket/list` | 筛选条件(type/priority/status/handler/date) | 空数据 |
 | 2 | 工单详情 | GET | `/api/backend/ticket/detail` | ticket_id | 无权限 / 不存在 |
 | 3 | 创建工单(含转工单) | POST | `/api/backend/ticket/create` | type / priority / title / user_id / order_id / session_id | 参数缺失 / order_id 无效 |
-| 4 | 状态变更 | POST | `/api/backend/ticket/update` | ticket_id / action(resolve / block / reopen / close 等) | 非法状态迁移 |
+| 4 | 状态变更 | POST | `/api/backend/ticket/update` | ticket_id / action(**assign 指派 / transfer 转派 / finish 完工**) | 非法状态迁移(3 态:未处理→处理中→已完工) |
 | 5 | 指派/转派 | POST | `/api/backend/ticket/assign` | ticket_id / handler_admin_id | 目标满载 |
 | 6 | 备注 | POST | `/api/backend/ticket/comment` | ticket_id / type / content | — |
 | 7 | 工单类型配置 | GET/POST | `/api/backend/ticket/type-config` | 类型启停列表 | — |

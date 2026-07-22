@@ -128,10 +128,17 @@
     <!-- 内部备注(仅客服可见;对客回复请点「回复用户」跳转会话工作台) -->
     <div class="section">
       <div class="section-title">内部备注</div>
-      <div class="reply-box">
+      <!-- 备注历史(对客/内部 双通道 timeline;此处为内部备注,录入结果清晰可见 UC-TD-11) -->
+      <div class="timeline" id="noteTimeline">
+        <div class="tl-item internal">
+          <div class="tl-head"><span class="who">张小明</span><span class="tag-int">内部</span><span>07-16 09:30</span></div>
+          <div class="tl-bubble">已联系支付通道核实,退款在途,预计今日到账。</div>
+        </div>
+      </div>
+      <div class="reply-box" style="margin-top:12px;">
         <textarea id="replyInput" placeholder="添加内部备注(仅客服可见)…"></textarea>
         <div class="reply-foot">
-          <span class="hint" id="modeHint">内部备注仅客服可见,不会发给用户;回复用户请点上方「回复用户」</span>
+          <span class="hint" id="modeHint">内部备注仅客服可见,不会发给用户;回复用户请点下方「回复用户」</span>
           <button class="btn-primary" onclick="sendReply()">添加备注</button>
         </div>
       </div>
@@ -165,7 +172,7 @@
   function sendReply() {
     var v = document.getElementById('replyInput').value.trim();
     if (!v) { toast('请输入内部备注'); return; }
-    var tl = document.querySelector('.timeline');
+    var tl = document.getElementById('noteTimeline');
     var item = document.createElement('div');
     item.className = 'tl-item internal';
     var now = new Date();
