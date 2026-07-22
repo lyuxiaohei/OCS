@@ -343,7 +343,30 @@
               <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-text);">6.2<span style="font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-normal); color:var(--cs-text-tertiary);"> 小时</span></div>
               <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">平均处理时长</div>
             </div>
+            <div style="flex:1 1 0; min-width:120px;">
+              <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-danger);">6</div>
+              <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">超期工单</div>
+            </div>
           </div>
+        </div>
+
+        <!-- ===== V0.5 十.1 客服工单绩效(按 handler 聚合) ===== -->
+        <div class="card mb-24">
+          <div class="section-row">
+            <h3>客服工单绩效</h3>
+            <span style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">本周 · 按处理人聚合</span>
+          </div>
+          <table class="data-table" style="margin-top:8px;">
+            <thead>
+              <tr><th>客服</th><th>处理量</th><th>平均处理时长</th><th>已完工</th><th>超期</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>张小明</td><td>42</td><td>5.8 小时</td><td>35</td><td><span style="color:var(--cs-danger);font-weight:600;">3</span></td></tr>
+              <tr><td>李静</td><td>38</td><td>6.5 小时</td><td>30</td><td><span style="color:var(--cs-danger);font-weight:600;">2</span></td></tr>
+              <tr><td>王芳</td><td>29</td><td>7.1 小时</td><td>22</td><td><span style="color:var(--cs-danger);font-weight:600;">1</span></td></tr>
+              <tr><td>赵磊</td><td>24</td><td>5.2 小时</td><td>20</td><td><span style="color:var(--cs-text-tertiary);">0</span></td></tr>
+            </tbody>
+          </table>
         </div>
 
         <!-- ===== 图表区 ===== -->

@@ -2539,23 +2539,12 @@
           });
         });
       }
-      // 转工单(会话转工单:带上下文建单,提交后会话自动结束 reason=converted_to_ticket)
+      // 转工单(会话转工单:跳建单独立页,带会话上下文;提交后会话自动结束 reason=converted_to_ticket)
       var btnTicket = document.getElementById('btnTicket');
       if (btnTicket) {
         btnTicket.addEventListener('click', function () {
-          csModal.open('modals/modal-create-ticket.html', { variant: 'center', width: 560,
-            onConfirm: function (data) {
-              if (window.csModal && csModal.toast) csModal.toast('已转工单' + (data && data.title ? '：' + data.title : ''));
-              var thread = document.querySelector('.msg-thread');
-              if (thread) {
-                var notice = document.createElement('div');
-                notice.className = 'resume-notice';
-                notice.innerHTML = '🎫 会话已转工单 · 会话已自动结束(原因:转工单),处理进度将回写通知用户';
-                thread.appendChild(notice);
-                thread.scrollTop = thread.scrollHeight;
-              }
-            }
-          });
+          if (window.csModal && csModal.toast) csModal.toast('跳转建单页(会话上下文已带入)', 800);
+          setTimeout(function () { location.href = 'admin-ticket-create.html?mode=session'; }, 500);
         });
       }
       // 结束会话

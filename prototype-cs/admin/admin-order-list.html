@@ -579,15 +579,15 @@
     var amount = (tr.querySelector('.price-total') || {}).textContent || '';
     var stEl = tr.querySelector('.st-tag');
     var ostate = stEl ? stEl.textContent : '';
+    /* V0.5 五.2:受理带出 收货人/项目名/收货地址(OMS 字段未就绪,原型 mock:项目取所属商城,收货人取客户手机,地址待对接) */
+    var cells = tr.children;
+    var mall = (cells[5] ? cells[5].textContent : '').trim();
+    var project = mall ? (mall + '项目') : '';
+    var receiver = phone.trim();
+    var raddr = '详见 OMS 收货地址(字段待对接)';
     oid = oid.trim(); goods = goods.trim(); phone = phone.trim(); amount = amount.trim(); ostate = ostate.trim();
-    var qs = '?mode=order&oid=' + encodeURIComponent(oid) + '&goods=' + encodeURIComponent(goods) + '&phone=' + encodeURIComponent(phone) + '&amount=' + encodeURIComponent(amount) + '&state=' + encodeURIComponent(ostate);
-    csModal.open('modals/modal-create-ticket.html' + qs, {
-      variant: 'center',
-      onConfirm: function () {
-        var tid = 'TK' + (Math.floor(Math.random() * 9000) + 1000);
-        csModal.toast('已创建工单 #' + tid + '(订单 ' + oid + ')');
-      }
-    });
+    var qs = '?mode=order&oid=' + encodeURIComponent(oid) + '&goods=' + encodeURIComponent(goods) + '&phone=' + encodeURIComponent(phone) + '&amount=' + encodeURIComponent(amount) + '&state=' + encodeURIComponent(ostate) + '&project=' + encodeURIComponent(project) + '&receiver=' + encodeURIComponent(receiver) + '&raddr=' + encodeURIComponent(raddr);
+    location.href = 'admin-ticket-create.html' + qs;
   });
 </script>
 </body>

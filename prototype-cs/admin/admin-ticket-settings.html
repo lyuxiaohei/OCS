@@ -9,8 +9,8 @@
   <script src="js/cs-modal.js"></script>
   <style>
     /* 收窄:配置卡片不铺满 */
-    .card.setting-section { max-width: 880px; }
-    /* 类型/优先级 增删改列表 */
+    .card.setting-section { max-width: 920px; }
+    /* 行式配置(责任承担方 / 优先级 / 完成期限值) */
     .cfg-list { display:flex; flex-direction:column; gap:8px; }
     .cfg-row { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); }
     .cfg-row .cfg-name { flex:0 0 130px; border:1px solid var(--cs-border); border-radius:4px; padding:5px 8px; font-size:var(--cs-font-size-sm); background:#fff; outline:none; }
@@ -23,6 +23,24 @@
     .cfg-row .cfg-del:hover { color:var(--cs-danger); background:#fff1f0; }
     .cfg-add { display:inline-flex; align-items:center; gap:4px; margin-top:10px; padding:6px 14px; border:1px dashed var(--cs-border); background:transparent; color:var(--cs-text-secondary); border-radius:var(--cs-radius-sm); cursor:pointer; font-size:var(--cs-font-size-sm); }
     .cfg-add:hover { color:var(--cs-primary); border-color:var(--cs-primary); }
+
+    /* V0.5:三级分类树 */
+    .cat-group { margin-bottom:20px; padding-bottom:16px; border-bottom:1px dashed var(--cs-border-light); }
+    .cat-group:last-child { border-bottom:none; margin-bottom:0; }
+    .cat-l1 { font-size:var(--cs-font-size-base); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+    .cat-l1 .cat-hint { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; }
+    .cat-l2-block { margin-left:18px; margin-bottom:14px; }
+    .cat-l2-head { font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-medium); color:var(--cs-text-secondary); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+    .cat-l2-head .cat-l2-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; }
+    .cat-l2-head .l2-del { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); cursor:pointer; }
+    .cat-l2-head .l2-del:hover { color:var(--cs-danger); }
+    .cat-l3 { display:flex; flex-wrap:wrap; gap:6px; margin-left:16px; margin-bottom:6px; }
+    .cat-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; background:var(--cs-bg-header); border:1px solid var(--cs-border-light); border-radius:12px; font-size:var(--cs-font-size-xs); color:var(--cs-text-secondary); }
+    .cat-chip a { color:var(--cs-text-tertiary); cursor:pointer; font-size:12px; line-height:1; }
+    .cat-chip a:hover { color:var(--cs-danger); }
+    .cat-add { margin-left:16px; }
+    .cat-add input { width:160px; border:1px dashed var(--cs-border); border-radius:4px; padding:4px 8px; font-size:var(--cs-font-size-xs); outline:none; }
+    .cat-add input:focus { border-color:var(--cs-primary); border-style:solid; }
   </style>
 </head>
 <body>
@@ -41,38 +59,121 @@
 
     <main class="admin-content">
 
-      <div class="flex-between mb-16" style="max-width:880px;">
-        <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单类型与优先级(可增删改)。右侧显示该配置当前的工单数量。保存后生效。</p></div>
+      <div class="flex-between mb-16" style="max-width:920px;">
+        <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单三级分类、责任承担方、优先级、完成期限值(均可增删改)。右侧显示该配置当前的工单数量。保存后全局生效。</p></div>
       </div>
 
-      <!-- 工单类型(增删改 + 数量) -->
-      <div class="card setting-section" id="type">
+      <!-- V0.5:工单分类(三级) -->
+      <div class="card setting-section" id="category">
         <div class="section-head">
-          <h3>工单类型 <span class="head-desc">新建工单时可选的类型</span></h3>
+          <h3>工单分类(三级) <span class="head-desc">受理业务类型 → 咨询/投诉类别 → 具体类型</span></h3>
         </div>
-        <div class="cfg-list" id="typeList">
-          <div class="cfg-row"><input class="cfg-name" value="退款"><input class="cfg-desc" value="仅退款,不退货"><span class="cfg-count"><span class="num">128</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="退货退款"><input class="cfg-desc" value="退货并退款"><span class="cfg-count"><span class="num">95</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="换货"><input class="cfg-desc" value="换货处理"><span class="cfg-count"><span class="num">60</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="投诉"><input class="cfg-desc" value="客户投诉处理"><span class="cfg-count"><span class="num">30</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="补发"><input class="cfg-desc" value="补发商品"><span class="cfg-count"><span class="num">25</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="价格干预"><input class="cfg-desc" value="退差价 / 价格调整"><span class="cfg-count"><span class="num">15</span>个工单</span><button class="cfg-del" onclick="delRow(this,'type')" title="删除">×</button></div>
+
+        <div class="cat-group">
+          <div class="cat-l1">咨询业务 <span class="cat-hint">一级(枚举,一般不改)</span></div>
+          <div class="cat-l2-block">
+            <div class="cat-l2-head">产品咨询 <span class="cat-l2-count">9 个类型</span></div>
+            <div class="cat-l3">
+              <span class="cat-chip">产品信息<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">操作使用<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">售后网点<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">产品原因更换<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">产品原因退货<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">缺货更换<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">缺货取消<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">开具发票<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">其他<a onclick="delChip(this)">×</a></span>
+            </div>
+            <div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>
+          </div>
+          <div class="cat-l2-block">
+            <div class="cat-l2-head">物流咨询 <span class="cat-l2-count">8 个类型</span></div>
+            <div class="cat-l3">
+              <span class="cat-chip">配送情况<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">更改配送地址<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">客户原因取消配送<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">客户原因重新配送<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">物流原因取消配送<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">物流原因重新配送<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">商务导单错误<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">其他<a onclick="delChip(this)">×</a></span>
+            </div>
+            <div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>
+          </div>
+          <button class="cfg-add" onclick="addL2(this,'咨询业务')">+ 添加二级类别</button>
         </div>
-        <button class="cfg-add" onclick="addRow('type')">+ 添加类型</button>
+
+        <div class="cat-group">
+          <div class="cat-l1">投诉业务 <span class="cat-hint">一级(枚举,一般不改;投诉类必填责任承担方)</span></div>
+          <div class="cat-l2-block">
+            <div class="cat-l2-head">产品投诉 <span class="cat-l2-count">7 个类型</span></div>
+            <div class="cat-l3">
+              <span class="cat-chip">产品原因更换<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">产品原因退货<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">返修<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">补配件<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">缺货超时未收到<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">补偿<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">其他<a onclick="delChip(this)">×</a></span>
+            </div>
+            <div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>
+          </div>
+          <div class="cat-l2-block">
+            <div class="cat-l2-head">物流投诉 <span class="cat-l2-count">8 个类型</span></div>
+            <div class="cat-l3">
+              <span class="cat-chip">超时未收到<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">否认签收<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">少货<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">错货<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">物流破损更换<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">物流破损退货<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">丢失<a onclick="delChip(this)">×</a></span>
+              <span class="cat-chip">其他<a onclick="delChip(this)">×</a></span>
+            </div>
+            <div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>
+          </div>
+          <button class="cfg-add" onclick="addL2(this,'投诉业务')">+ 添加二级类别</button>
+        </div>
       </div>
 
-      <!-- 优先级(增删改 + 数量) -->
+      <!-- V0.5:责任承担方(投诉类用,可配) -->
+      <div class="card setting-section" id="responsible">
+        <div class="section-head">
+          <h3>责任承担方 <span class="head-desc">投诉类工单必填;选项可配</span></h3>
+        </div>
+        <div class="cfg-list" id="responsibleList">
+          <div class="cfg-row"><input class="cfg-name" value="宏兆"><input class="cfg-desc" value="自营主体"><span class="cfg-count"><span class="num">52</span>个工单</span><button class="cfg-del" onclick="delRow(this,'responsible')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="供应商"><input class="cfg-desc" value="供货方责任"><span class="cfg-count"><span class="num">38</span>个工单</span><button class="cfg-del" onclick="delRow(this,'responsible')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="东莞邮政"><input class="cfg-desc" value="物流承运商"><span class="cfg-count"><span class="num">21</span>个工单</span><button class="cfg-del" onclick="delRow(this,'responsible')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="昆山吉波"><input class="cfg-desc" value="物流承运商"><span class="cfg-count"><span class="num">14</span>个工单</span><button class="cfg-del" onclick="delRow(this,'responsible')" title="删除">×</button></div>
+        </div>
+        <button class="cfg-add" onclick="addRow('responsible')">+ 添加责任承担方</button>
+      </div>
+
+      <!-- V0.5:优先级(一般/紧急/特急) -->
       <div class="card setting-section" id="priority">
         <div class="section-head">
-          <h3>优先级 <span class="head-desc">用于排序/标识(无 SLA)</span></h3>
+          <h3>优先级 <span class="head-desc">用于分类/排序/视觉标识(不驱动时效)</span></h3>
         </div>
         <div class="cfg-list" id="priorityList">
-          <div class="cfg-row"><input class="cfg-name" value="紧急"><input class="cfg-desc" value="最高优先,立即处理"><span class="cfg-count"><span class="num">42</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="高"><input class="cfg-desc" value="优先处理"><span class="cfg-count"><span class="num">86</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="中"><input class="cfg-desc" value="常规处理"><span class="cfg-count"><span class="num">120</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="低"><input class="cfg-desc" value="空闲时处理"><span class="cfg-count"><span class="num">78</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="一般"><input class="cfg-desc" value="常规处理"><span class="cfg-count"><span class="num">120</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="紧急"><input class="cfg-desc" value="优先处理"><span class="cfg-count"><span class="num">86</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="特急"><input class="cfg-desc" value="立即处理"><span class="cfg-count"><span class="num">42</span>个工单</span><button class="cfg-del" onclick="delRow(this,'priority')" title="删除">×</button></div>
         </div>
         <button class="cfg-add" onclick="addRow('priority')">+ 添加优先级</button>
+      </div>
+
+      <!-- V0.5:完成期限值(代替 SLA,可配) -->
+      <div class="card setting-section" id="deadline">
+        <div class="section-head">
+          <h3>完成期限值 <span class="head-desc">代替 SLA 时效;到期→超时标记+通知</span></h3>
+        </div>
+        <div class="cfg-list" id="deadlineList">
+          <div class="cfg-row"><input class="cfg-name" value="1天"><input class="cfg-desc" value="紧急售后"><span class="cfg-count"><span class="num">35</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="7天"><input class="cfg-desc" value="常规售后"><span class="cfg-count"><span class="num">180</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="15天"><input class="cfg-desc" value="复杂/跨部门"><span class="cfg-count"><span class="num">111</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
+        </div>
+        <button class="cfg-add" onclick="addRow('deadline')">+ 添加期限值</button>
       </div>
 
       <!-- 吸底保存栏 -->
@@ -92,6 +193,7 @@
 </div>
 
 <script>
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 var dirtySections = new Set();
 var saveHint = document.getElementById('saveHint');
 var dirtyCountEl = document.getElementById('dirtyCount');
@@ -106,16 +208,13 @@ function markDirty(section) {
   section.classList.add('dirty');
   updateDirtyUI();
 }
-/* 增删改(新增项数量为 0) */
+
+/* 行式增删改(责任承担方 / 优先级 / 完成期限值) */
 function addRow(group) {
   var list = document.getElementById(group + 'List');
   var row = document.createElement('div');
   row.className = 'cfg-row';
-  if (group === 'priority') {
-    row.innerHTML = '<input class="cfg-name" value="新优先级"><input class="cfg-desc" value="说明"><span class="cfg-count"><span class="num">0</span>个工单</span><button class="cfg-del" onclick="delRow(this,\'priority\')" title="删除">×</button>';
-  } else {
-    row.innerHTML = '<input class="cfg-name" value="新类型"><input class="cfg-desc" value="说明"><span class="cfg-count"><span class="num">0</span>个工单</span><button class="cfg-del" onclick="delRow(this,\'type\')" title="删除">×</button>';
-  }
+  row.innerHTML = '<input class="cfg-name" value="新选项"><input class="cfg-desc" value="说明"><span class="cfg-count"><span class="num">0</span>个工单</span><button class="cfg-del" onclick="delRow(this,\'' + group + '\')" title="删除">×</button>';
   list.appendChild(row);
   markDirty(document.getElementById(group));
 }
@@ -125,6 +224,43 @@ function delRow(btn, group) {
   btn.parentElement.remove();
   markDirty(document.getElementById(group));
 }
+
+/* V0.5:三级分类 chip 增删 + 二级类别增 */
+function delChip(a) {
+  a.parentElement.remove();
+  markDirty(document.getElementById('category'));
+}
+function addChip(e, input) {
+  if (e.key !== 'Enter' || !input.value.trim()) return;
+  var block = input.closest('.cat-l2-block');
+  var box = block.querySelector('.cat-l3');
+  var chip = document.createElement('span');
+  chip.className = 'cat-chip';
+  chip.innerHTML = esc(input.value.trim()) + '<a onclick="delChip(this)">×</a>';
+  box.appendChild(chip);
+  input.value = '';
+  markDirty(document.getElementById('category'));
+}
+function addL2(btn, l1) {
+  var group = btn.parentElement;
+  var block = document.createElement('div');
+  block.className = 'cat-l2-block';
+  block.innerHTML =
+    '<div class="cat-l2-head">新类别 <span class="cat-l2-count">0 个类型</span><span class="l2-del" onclick="delL2(this)">删除类别</span></div>' +
+    '<div class="cat-l3"></div>' +
+    '<div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>';
+  group.insertBefore(block, btn);
+  /* 进入改名 */
+  var head = block.querySelector('.cat-l2-head');
+  head.firstChild.textContent = '新类别';
+  head.style.cursor = 'text';
+  markDirty(document.getElementById('category'));
+}
+function delL2(span) {
+  span.closest('.cat-l2-block').remove();
+  markDirty(document.getElementById('category'));
+}
+
 document.querySelectorAll('.card.setting-section').forEach(function (section) {
   section.addEventListener('input', function () { markDirty(section); });
 });
@@ -132,7 +268,7 @@ document.getElementById('btnSave').addEventListener('click', function () {
   dirtySections.clear();
   document.querySelectorAll('.card.setting-section.dirty').forEach(function (s) { s.classList.remove('dirty'); });
   updateDirtyUI();
-  if (window.csModal && csModal.toast) csModal.toast('工单设置已保存');
+  if (window.csModal && csModal.toast) csModal.toast('工单设置已保存(三级分类 / 责任承担方 / 优先级 / 完成期限值)');
 });
 document.getElementById('btnReset').addEventListener('click', function () {
   if (window.csModal && csModal.toast) csModal.toast('已重置为默认值(原型演示)');

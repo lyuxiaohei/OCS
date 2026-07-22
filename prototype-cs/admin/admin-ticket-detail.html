@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工单详情 — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    .detail-wrap { max-width: 1040px; }
+    .tk-state-bar { display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:var(--cs-radius-md);
+      background:var(--cs-bg-header); border:1px solid var(--cs-border-light); margin-bottom:16px; flex-wrap:wrap; }
+    .tk-state-bar .s-tag { font-size:var(--cs-font-size-md); }
+    .tk-state-bar .urgency { font-size:var(--cs-font-size-xs); }
+    .tk-state-bar .urgency.urgent, .tk-state-bar .urgency.critical { color: var(--cs-danger); }
+    .tk-state-bar .resp-tag { display:inline-block; font-size:var(--cs-font-size-xs); padding:2px 8px; border-radius:3px; background:#fff7e6; color:#d46b08; border:1px solid #ffd591; }
+    .tk-state-bar .countdown { font-size:var(--cs-font-size-sm); }
+    .tk-state-bar .countdown.warn { color:var(--cs-orange); font-weight:var(--cs-font-weight-semibold); }
+    .tk-state-bar .countdown.overdue { color:var(--cs-danger); font-weight:var(--cs-font-weight-semibold); }
+
+    .info-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:4px 24px; }
+    .info-grid .info-row { display:flex; font-size:var(--cs-font-size-sm); padding:5px 0; }
+    .info-grid .info-label { color:var(--cs-text-tertiary); width:88px; flex-shrink:0; }
+    .info-grid .info-content { color:var(--cs-text); }
+    .info-grid .info-content a { color:var(--cs-primary); text-decoration:none; cursor:pointer; }
+    .info-grid .info-content a:hover { text-decoration:underline; }
+    .info-grid .type-three { color:var(--cs-text-secondary); font-size:var(--cs-font-size-xs); margin-left:4px; }
+
+    .section-title { font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text-secondary); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .section-title::before { content:""; width:3px; height:13px; background:var(--cs-primary); border-radius:2px; }
+    .section-title .desc-link { margin-left:10px; font-size:var(--cs-font-size-xs); color:var(--cs-primary); cursor:pointer; font-weight:normal; }
+    .desc-text { font-size:var(--cs-font-size-sm); color:var(--cs-text); line-height:1.7; padding:10px 14px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); }
+    .desc-input { width:100%; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); padding:8px 10px; font-size:var(--cs-font-size-sm); font-family:inherit; outline:none; resize:vertical; min-height:70px; line-height:1.6; }
+    .desc-input:focus { border-color:var(--cs-primary); }
+    .desc-ver { padding:5px 0; font-size:var(--cs-font-size-xs); }
+    .desc-ver .ver-tag { display:inline-block; background:var(--cs-bg-header); color:var(--cs-text-secondary); padding:0 5px; border-radius:3px; margin-right:6px; }
+    .desc-ver .ver-meta { color:var(--cs-text-tertiary); }
+    .desc-ver .ver-text { color:var(--cs-text-secondary); margin-top:2px; line-height:1.5; }
+
+    .att-item { display:flex; align-items:center; gap:8px; padding:7px 10px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); margin-bottom:6px; font-size:var(--cs-font-size-sm); }
+    .att-item .att-name { color:var(--cs-text); }
+    .att-item .att-meta { color:var(--cs-text-tertiary); font-size:var(--cs-font-size-xs); margin-left:auto; }
+
+    .timeline { position:relative; padding-left:18px; }
+    .timeline::before { content:""; position:absolute; left:5px; top:4px; bottom:4px; width:2px; background:var(--cs-border-light); }
+    .tl-item { position:relative; margin-bottom:14px; }
+    .tl-item::before { content:""; position:absolute; left:-16px; top:5px; width:10px; height:10px; border-radius:50%; background:var(--cs-primary); border:2px solid #fff; box-shadow:0 0 0 1px var(--cs-border); }
+    .tl-item.internal::before { background:var(--cs-text-tertiary); }
+    .tl-item .tl-head { display:flex; align-items:center; gap:8px; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-bottom:4px; }
+    .tl-item .tl-head .who { color:var(--cs-text-secondary); font-weight:var(--cs-font-weight-medium); }
+    .tl-item .tl-head .tag-int { font-size:10px; padding:0 5px; border-radius:3px; background:var(--cs-bg-header); color:var(--cs-text-tertiary); border:1px solid var(--cs-border-light); }
+    .tl-item .tl-bubble { display:inline-block; max-width:100%; padding:8px 12px; border-radius:var(--cs-radius-sm); font-size:var(--cs-font-size-sm); color:var(--cs-text); line-height:1.6; background:#f6f8fa; border:1px solid var(--cs-border-light); }
+    .tl-item.internal .tl-bubble { background:var(--cs-bg-header); color:var(--cs-text-secondary); font-style:italic; }
+
+    .reply-box { border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); overflow:hidden; }
+    .reply-box textarea { width:100%; border:none; padding:10px 12px; font-size:var(--cs-font-size-sm); font-family:inherit; resize:vertical; min-height:72px; outline:none; line-height:1.6; }
+    .reply-foot { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light); }
+    .reply-foot .hint { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
+
+    .event-flow { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-sm); }
+    .ev-item { display:flex; padding:8px 12px; font-size:var(--cs-font-size-xs); border-bottom:1px solid var(--cs-border-lighter); }
+    .ev-item:last-child { border-bottom:none; }
+    .ev-item .ev-time { width:120px; color:var(--cs-text-tertiary); flex-shrink:0; }
+    .ev-item .ev-text { color:var(--cs-text-secondary); flex:1; }
+    .ev-item .ev-op { margin-left:8px; font-size:10px; padding:0 5px; border-radius:3px; }
+    .ev-item .ev-op.sys { background:var(--cs-bg-header); color:var(--cs-text-tertiary); }
+    .ev-item .ev-op.human { background:var(--cs-primary-bg); color:var(--cs-primary); }
+
+    .action-bar { display:flex; align-items:center; gap:8px; }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="ticket"></aside>
+
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+    <header class="admin-header">
+      <div class="breadcrumb">客服工单 / <a href="admin-ticket.html" style="color:var(--cs-primary);">工单列表</a> / <span style="color:var(--cs-text);font-weight:600;">工单详情</span><span id="tkno" style="color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;"></span></div>
+      <div class="action-bar" id="actionBar"></div>
+    </header>
+
+    <main class="admin-content detail-wrap">
+
+      <!-- 状态摘要 -->
+      <div class="tk-state-bar">
+        <span class="s-tag untreated" id="stateTag">未处理</span>
+        <span class="urgency" id="urgencyTag">紧急</span>
+        <span class="resp-tag" id="respTag">责任:供应商</span>
+        <span class="countdown warn" id="countdownTag">剩余 6天0小时(7天期限)</span>
+      </div>
+
+      <!-- 基本信息(元信息) -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="info-grid">
+          <div class="info-row"><span class="info-label">标题</span><span class="info-content" id="dTitle">—</span></div>
+          <div class="info-row"><span class="info-label">工单类型</span><span class="info-content" id="dType">—</span></div>
+          <div class="info-row" id="dRespRow"><span class="info-label">责任承担方</span><span class="info-content" id="dResp">—</span></div>
+          <div class="info-row"><span class="info-label">完成期限</span><span class="info-content" id="dDeadline">—</span></div>
+          <div class="info-row"><span class="info-label">客户</span><span class="info-content" id="dCustomer">—</span></div>
+          <div class="info-row"><span class="info-label">联系人</span><span class="info-content" id="dContact">—</span></div>
+          <div class="info-row"><span class="info-label">关联订单</span><span class="info-content" id="dOrder">—</span></div>
+          <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
+          <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
+          <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content">电话</span></div>
+          <div class="info-row"><span class="info-label">提交部门</span><span class="info-content">客服部</span></div>
+          <div class="info-row"><span class="info-label">二次投诉</span><span class="info-content">否</span></div>
+          <div class="info-row"><span class="info-label">处理人</span><span class="info-content" id="dAgent">—</span></div>
+          <div class="info-row"><span class="info-label">创建时间</span><span class="info-content">2026-07-16 10:30</span></div>
+        </div>
+      </div>
+
+      <!-- 工单描述 -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="section-title">工单描述 <a class="desc-link" onclick="editDesc()">编辑</a><a class="desc-link" onclick="toggleHistory()">历史版本(2)</a></div>
+        <div class="desc-text" id="descText">客户申请退货退款,等客户提供物流单号后录入。从会话转入,附带完整聊天记录。</div>
+        <div class="desc-editor" id="descEditor" style="display:none;margin-top:8px;">
+          <textarea id="descInput" class="desc-input" rows="3"></textarea>
+          <div style="margin-top:6px;display:flex;gap:8px;">
+            <button class="btn-primary" onclick="saveDesc()">保存为新版本</button>
+            <button class="btn-default" onclick="cancelDesc()">取消</button>
+          </div>
+        </div>
+        <div id="descHistory" style="display:none;margin-top:10px;border-top:1px dashed var(--cs-border-light);padding-top:10px;">
+          <div class="desc-ver"><span class="ver-tag">v1</span><span class="ver-meta">07-16 10:30 · 张小明(创建)</span><div class="ver-text">客户申请退货退款。</div></div>
+          <div class="desc-ver"><span class="ver-tag">v2</span><span class="ver-meta">07-16 11:00 · 张小明</span><div class="ver-text">已寄回,等客户物流单号。</div></div>
+        </div>
+      </div>
+
+      <!-- 附件 -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="section-title">附件 / 追加材料 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">处理记录不可改,附件只增</span></div>
+        <div id="attachList">
+          <div class="att-item"><span>📎</span><span class="att-name">退货物流凭证.jpg</span><span class="att-meta">张小明 · 07-16 11:05</span></div>
+        </div>
+        <button class="btn-default" onclick="uploadAttach()" style="margin-top:6px;">+ 上传附件 / 追加材料</button>
+      </div>
+
+      <!-- 内部备注 -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="section-title">内部备注</div>
+        <div class="timeline" id="noteTimeline">
+          <div class="tl-item internal">
+            <div class="tl-head"><span class="who">张小明</span><span class="tag-int">内部</span><span>07-16 10:35</span></div>
+            <div class="tl-bubble">已联系确认,等客户寄出后录单号。</div>
+          </div>
+        </div>
+        <div class="reply-box" style="margin-top:12px;">
+          <textarea id="replyInput" placeholder="添加内部备注(仅客服可见)…"></textarea>
+          <div class="reply-foot">
+            <span class="hint">内部备注仅客服可见;回复用户请点顶部「回复用户」</span>
+            <button class="btn-primary" onclick="sendReply()">添加备注</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作日志 -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="section-title">操作日志</div>
+        <div class="event-flow" id="eventFlow">
+          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-op human">客服</span></div>
+          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待接单)</span><span class="ev-op sys">系统</span></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/cs-icons.js"></script>
+<script src="nav.js"></script>
+<script>
+  function toast(t) { try { if (window.csModal && csModal.toast) csModal.toast(t); else alert(t); } catch (e) { alert(t); } }
+
+  /* 随行:从列表 query 读取工单数据 */
+  var P = new URLSearchParams(location.search);
+  var DATA = {
+    id: P.get('id') || '#TK20260716004',
+    status: P.get('status') || '未处理',
+    priority: P.get('priority') || '紧急',
+    category: P.get('category') || '投诉业务',
+    sub: P.get('sub') || '产品投诉',
+    type: P.get('type') || '产品原因退货',
+    responsible: P.get('responsible') || '供应商',
+    deadline: P.get('deadline') || '7天',
+    deadlineAt: P.get('deadline_at') || '2026-07-23T16:00:00',
+    agent: P.get('agent') || '张小明',
+    order: P.get('order') || '#DD20260711001',
+    project: P.get('project') || '昆山吉波项目',
+    title: P.get('title') || '退货退款,等客户提供物流单号',
+    customer: P.get('customer') || '赵磊(135****8821)',
+    session: P.get('session') || '#CS20260715088'
+  };
+  function setText(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
+
+  var MOCK_NOW = new Date('2026-07-17T12:00:00');
+  function renderDetailCountdown() {
+    var el = document.getElementById('countdownTag');
+    if (!el) return;
+    if (DATA.status === '已完工' || !DATA.deadlineAt) { el.style.display = 'none'; return; }
+    var d = new Date(DATA.deadlineAt);
+    var diff = d - MOCK_NOW;
+    el.className = 'countdown';
+    if (diff < 0) { el.classList.add('overdue'); el.textContent = '已超时 ' + Math.ceil(-diff / 86400000) + ' 天(' + (DATA.deadline || '') + '期限)'; }
+    else { var days = Math.floor(diff / 86400000); var hours = Math.floor((diff % 86400000) / 3600000); if (days <= 1) el.classList.add('warn'); el.textContent = '剩余 ' + days + '天' + hours + '小时(' + (DATA.deadline || '') + '期限)'; }
+  }
+
+  /* 填充元信息 */
+  setText('tkno', DATA.id);
+  setText('dTitle', DATA.title);
+  document.getElementById('dType').innerHTML = DATA.type + ' <span class="type-three">(' + DATA.category + ' · ' + DATA.sub + ')</span>';
+  if (DATA.responsible) { setText('dResp', DATA.responsible); setText('respTag', '责任:' + DATA.responsible); }
+  else { document.getElementById('dRespRow').style.display = 'none'; document.getElementById('respTag').style.display = 'none'; }
+  setText('dCustomer', DATA.customer);
+  setText('dContact', DATA.customer);
+  document.getElementById('dOrder').innerHTML = DATA.order ? '<a onclick="toast(\'打开订单详情(OMS)\')">查看 ' + DATA.order + ' →</a>' : '-';
+  setText('dProject', DATA.project || '-');
+  document.getElementById('dSession').innerHTML = (DATA.session && DATA.session !== '-') ? '<a onclick="toast(\'跳回客服工作台并定位会话(占位)\')">查看 ' + DATA.session + ' →</a>' : '-';
+  setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');
+  setText('dAgent', DATA.agent === '未分配' ? '未分配' : DATA.agent);
+  var urgEl = document.getElementById('urgencyTag');
+  if (urgEl) { urgEl.textContent = DATA.priority || ''; urgEl.className = 'urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
+
+  /* 状态机(随行初始状态;操作按钮按状态置顶) */
+  var STATUS = DATA.status;
+  function renderActions() {
+    var bar = document.getElementById('actionBar');
+    if (STATUS === '未处理') {
+      bar.innerHTML = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-primary" onclick="acceptTicket()">接单</button>';
+    } else if (STATUS === '处理中') {
+      bar.innerHTML = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button><button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-primary" style="color:var(--cs-success);border-color:var(--cs-success);" onclick="finishTicket()">完工</button>';
+    } else {
+      bar.innerHTML = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button>';
+    }
+  }
+  function setState(s) {
+    STATUS = s;
+    var st = document.getElementById('stateTag');
+    if (s === '未处理') { st.className = 's-tag untreated'; st.textContent = '未处理'; }
+    else if (s === '处理中') { st.className = 's-tag processing'; st.textContent = '处理中'; }
+    else { st.className = 's-tag done'; st.textContent = '已完工'; }
+    renderDetailCountdown();
+    renderActions();
+  }
+  setState(DATA.status);
+
+  function acceptTicket() { setState('处理中'); toast('已接单,开始处理(状态:处理中)'); addEvent('接单(客服确认领取)→ 处理中', 'human'); }
+  function remindTicket() { toast('已催办,已通知处理人'); addEvent('催办', 'human'); }
+  function uploadAttach() {
+    var list = document.getElementById('attachList');
+    var now = new Date();
+    var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    var item = document.createElement('div'); item.className = 'att-item';
+    item.innerHTML = '<span>📎</span><span class="att-name">追加材料-' + ts + '.png</span><span class="att-meta">张小明 · ' + ts + '</span>';
+    list.appendChild(item); toast('附件已上传(追加材料,不可改)'); addEvent('上传附件 / 追加材料', 'human');
+  }
+  function sendReply() {
+    var v = document.getElementById('replyInput').value.trim();
+    if (!v) { toast('请输入内部备注'); return; }
+    var tl = document.getElementById('noteTimeline');
+    var item = document.createElement('div'); item.className = 'tl-item internal';
+    var now = new Date();
+    var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    item.innerHTML = '<div class="tl-head"><span class="who">张小明</span><span class="tag-int">内部</span><span>' + ts + '</span></div><div class="tl-bubble">' + v.replace(/</g, '&lt;') + '</div>';
+    tl.appendChild(item); document.getElementById('replyInput').value = '';
+    toast('内部备注已添加'); addEvent('添加内部备注', 'human');
+  }
+  function gotoWorkbench() { toast('跳转到会话工作台回复用户'); setTimeout(function () { location.href = 'admin-workbench.html'; }, 400); }
+  function transferTicket() {
+    try {
+      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
+        onConfirm: function (d) { toast('工单已转派' + (d && d.assignee ? '给 ' + d.assignee : '')); addEvent('转派工单', 'human'); }
+      });
+    } catch (e) { toast('转派工单(原型演示)'); }
+  }
+  function addEvent(text, op) {
+    var flow = document.getElementById('eventFlow');
+    var it = document.createElement('div'); it.className = 'ev-item';
+    var now = new Date();
+    var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    it.innerHTML = '<span class="ev-time">' + ts + '</span><span class="ev-text">' + text + '</span><span class="ev-op ' + op + '">' + (op === 'sys' ? '系统' : '客服') + '</span>';
+    flow.appendChild(it);
+  }
+  function editDesc() { document.getElementById('descInput').value = document.getElementById('descText').textContent; document.getElementById('descEditor').style.display = ''; document.getElementById('descText').style.display = 'none'; }
+  function cancelDesc() { document.getElementById('descEditor').style.display = 'none'; document.getElementById('descText').style.display = ''; }
+  function saveDesc() { var v = document.getElementById('descInput').value.trim(); if (!v) { toast('请输入工单描述'); return; } document.getElementById('descText').textContent = v; cancelDesc(); toast('描述已更新为新版本(旧版本已保留)'); addEvent('更新工单描述(保留历史版本)', 'human'); }
+  function toggleHistory() { var h = document.getElementById('descHistory'); h.style.display = h.style.display === 'none' ? '' : 'none'; }
+  function finishTicket() { setState('已完工'); toast('工单已完工(终态,如需继续请新建工单)'); addEvent('完工 → 已完工', 'human'); }
+</script>
+</body>
+</html>
