@@ -102,11 +102,21 @@
           <div class="info-row"><span class="info-label">关联订单</span><span class="info-content" id="dOrder">—</span></div>
           <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
           <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
-          <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content">电话</span></div>
-          <div class="info-row"><span class="info-label">提交部门</span><span class="info-content">客服部</span></div>
-          <div class="info-row"><span class="info-label">二次投诉</span><span class="info-content">否</span></div>
+          <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content" id="dFeedback">电话</span></div>
+          <div class="info-row"><span class="info-label">提交部门</span><span class="info-content" id="dDept">客服部</span></div>
+          <div class="info-row"><span class="info-label">二次投诉</span><span class="info-content" id="dSecondary">否</span></div>
           <div class="info-row"><span class="info-label">处理人</span><span class="info-content" id="dAgent">—</span></div>
-          <div class="info-row"><span class="info-label">创建时间</span><span class="info-content">2026-07-16 10:30</span></div>
+          <div class="info-row"><span class="info-label">创建时间</span><span class="info-content" id="dCreated">2026-07-16 10:30</span></div>
+        </div>
+        <!-- V0.5 三.2.6:新联系人信息(收货人以外的实际联系人,有则展示) -->
+        <div id="dNewContactGroup" style="display:none; margin-top:14px; padding-top:12px; border-top:1px dashed var(--cs-border-light);">
+          <div class="section-title" style="margin-bottom:8px;">新联系人信息 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">收货人以外的实际联系人</span></div>
+          <div class="info-grid">
+            <div class="info-row"><span class="info-label">新联系人</span><span class="info-content" id="dNewName">—</span></div>
+            <div class="info-row"><span class="info-label">新移动电话</span><span class="info-content" id="dNewPhone">—</span></div>
+            <div class="info-row"><span class="info-label">新座机</span><span class="info-content" id="dNewTel">—</span></div>
+            <div class="info-row"><span class="info-label">新地址</span><span class="info-content" id="dNewAddr">—</span></div>
+          </div>
         </div>
       </div>
 
@@ -189,7 +199,16 @@
     project: P.get('project') || '昆山吉波项目',
     title: P.get('title') || '退货退款,等客户提供物流单号',
     customer: P.get('customer') || '赵磊(135****8821)',
-    session: P.get('session') || '#CS20260715088'
+    session: P.get('session') || '#CS20260715088',
+    /* V0.5 三.2.6:受理字段 + 新联系人(收货人以外的实际联系人) */
+    feedback: P.get('feedback') || '电话',
+    dept: P.get('dept') || '客服部',
+    secondary: P.get('secondary') || '否',
+    created: P.get('created') || '2026-07-16 10:30',
+    newName: P.get('new_name') || '',
+    newPhone: P.get('new_phone') || '',
+    newTel: P.get('new_tel') || '',
+    newAddr: P.get('new_addr') || ''
   };
   function setText(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
 
@@ -218,19 +237,38 @@
   document.getElementById('dSession').innerHTML = (DATA.session && DATA.session !== '-') ? '<a onclick="toast(\'跳回客服工作台并定位会话(占位)\')">查看 ' + DATA.session + ' →</a>' : '-';
   setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');
   setText('dAgent', DATA.agent === '未分配' ? '未分配' : DATA.agent);
+  setText('dFeedback', DATA.feedback || '—');
+  setText('dDept', DATA.dept || '—');
+  setText('dSecondary', DATA.secondary || '—');
+  setText('dCreated', DATA.created || '—');
+  /* V0.5 三.2.6:新联系人信息(有则展示) */
+  if (DATA.newName) {
+    setText('dNewName', DATA.newName);
+    setText('dNewPhone', DATA.newPhone || '—');
+    setText('dNewTel', DATA.newTel || '—');
+    setText('dNewAddr', DATA.newAddr || '—');
+    var ncg = document.getElementById('dNewContactGroup'); if (ncg) ncg.style.display = '';
+  }
   var urgEl = document.getElementById('urgencyTag');
   if (urgEl) { urgEl.textContent = DATA.priority || ''; urgEl.className = 'urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
 
-  /* 状态机(随行初始状态;操作按钮按状态置顶) */
+  /* 状态机(随行初始状态;操作按钮按状态置顶)
+   * V0.5 六.1/四.2:未处理态按是否已指派分流——未分配→「指派」(状态不变);已分配→「接单」(→处理中)。转单=转派仅处理中态。 */
   var STATUS = DATA.status;
+  var ASSIGNED = !!DATA.agent && DATA.agent !== '未分配';
   function renderActions() {
     var bar = document.getElementById('actionBar');
+    var back = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button>';
     if (STATUS === '未处理') {
-      bar.innerHTML = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-primary" onclick="acceptTicket()">接单</button>';
+      if (ASSIGNED) {
+        bar.innerHTML = back + '<button class="btn-primary" onclick="acceptTicket()">接单</button>';
+      } else {
+        bar.innerHTML = back + '<button class="btn-primary" onclick="assignTicket()">指派</button>';
+      }
     } else if (STATUS === '处理中') {
-      bar.innerHTML = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button><button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-primary" style="color:var(--cs-success);border-color:var(--cs-success);" onclick="finishTicket()">完工</button>';
+      bar.innerHTML = back + '<button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-primary" style="color:var(--cs-success);border-color:var(--cs-success);" onclick="finishTicket()">完工</button>';
     } else {
-      bar.innerHTML = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button>';
+      bar.innerHTML = back;
     }
   }
   function setState(s) {
@@ -245,6 +283,19 @@
   setState(DATA.status);
 
   function acceptTicket() { setState('处理中'); toast('已接单,开始处理(状态:处理中)'); addEvent('接单(客服确认领取)→ 处理中', 'human'); }
+  function assignTicket() {
+    try {
+      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
+        onConfirm: function (d) {
+          var who = (d && d.assignee) ? d.assignee : '处理人';
+          ASSIGNED = true; DATA.agent = who; setText('dAgent', who);
+          toast('已指派给 ' + who + '(状态保持未处理,待对方接单)');
+          addEvent('指派给 ' + who + '(状态保持未处理,待接单)', 'sys');
+          renderActions();
+        }
+      });
+    } catch (e) { toast('指派处理人(原型演示)'); }
+  }
   function remindTicket() { toast('已催办,已通知处理人'); addEvent('催办', 'human'); }
   function uploadAttach() {
     var list = document.getElementById('attachList');

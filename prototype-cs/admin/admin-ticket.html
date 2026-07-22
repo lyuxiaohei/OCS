@@ -354,6 +354,17 @@
   /* V0.5 UC-TL-02:受理客服(创建人)mock 映射 */
   var CREATOR = { '#TK20260716001':'张小明', '#TK20260716002':'李静', '#TK20260716003':'张小明', '#TK20260716004':'张小明', '#TK20260715006':'张小明', '#TK20260714005':'张小明', '#TK20260713002':'李静' };
 
+  /* V0.5 三.2.6:受理字段(反馈方式/提交部门/二次投诉)+ 新联系人(收货人以外)mock;详情经 detailQuery 带入。正式从后端取。 */
+  var META = {
+    '#TK20260716001': { feedback:'电话', dept:'客服部', secondary:'否' },
+    '#TK20260716002': { feedback:'电话', dept:'客服部', secondary:'是', newName:'王强(代收)', newPhone:'138****0022', newAddr:'南京市玄武区代收点A' },
+    '#TK20260716003': { feedback:'业务口', dept:'商品部', secondary:'否' },
+    '#TK20260716004': { feedback:'电话', dept:'客服部', secondary:'否' },
+    '#TK20260715006': { feedback:'电话', dept:'客服部', secondary:'否' },
+    '#TK20260714005': { feedback:'合作商平台', dept:'商务部', secondary:'否' },
+    '#TK20260713002': { feedback:'电话', dept:'客服部', secondary:'是' }
+  };
+
   /* V0.5 字典统一引用 js/ticket-dict.js */
   var CATEGORY_TREE = window.TICKET_DICT.CATEGORY_TREE;
   function fillSelect(sel, arr, allText) {
@@ -484,6 +495,7 @@
     var title = (tr.querySelector('.col-title') || {}).textContent || '';
     var cust = (tr.querySelector('.col-user') || {}).textContent || '';
     var src = (tr.querySelector('.src-val') || {}).textContent || '';
+    var meta = META[(id || '').trim()] || {};
     var p = [
       'id=' + encodeURIComponent(id.trim()),
       'status=' + encodeURIComponent(tr.getAttribute('data-status') || ''),
@@ -499,7 +511,14 @@
       'project=' + encodeURIComponent(tr.getAttribute('data-project') || ''),
       'title=' + encodeURIComponent(title.trim()),
       'customer=' + encodeURIComponent(cust.replace(/\s+/g, ' ').trim()),
-      'session=' + encodeURIComponent(src.trim())
+      'session=' + encodeURIComponent(src.trim()),
+      'feedback=' + encodeURIComponent((meta.feedback || '')),
+      'dept=' + encodeURIComponent((meta.dept || '')),
+      'secondary=' + encodeURIComponent((meta.secondary || '')),
+      'new_name=' + encodeURIComponent((meta.newName || '')),
+      'new_phone=' + encodeURIComponent((meta.newPhone || '')),
+      'new_tel=' + encodeURIComponent((meta.newTel || '')),
+      'new_addr=' + encodeURIComponent((meta.newAddr || ''))
     ];
     return '?' + p.join('&');
   }

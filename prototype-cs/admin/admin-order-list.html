@@ -145,6 +145,10 @@
     .op-more { color:var(--cs-primary); cursor:pointer; display:inline-flex; align-items:center; gap:2px; }
     .op-more svg { width:10px; height:10px; }
 
+    /* 工具栏按钮组 + 批量按钮禁用态 */
+    .table-toolbar .tb-actions { display:flex; gap:10px; align-items:center; }
+    #btnBatchTicket:disabled { opacity:.5; cursor:not-allowed; pointer-events:none; }
+
     /* 分页 */
     .table-pager { display:flex; align-items:center; justify-content:flex-end; gap:10px;
       padding:12px 16px; font-size:var(--cs-font-size-base); color:var(--cs-text-secondary); }
@@ -332,7 +336,10 @@
         <!-- 表格 -->
         <div class="table-card">
           <div class="table-toolbar">
-            <button class="btn-default">导出订单</button>
+            <div class="tb-actions">
+              <button class="btn-default">导出订单</button>
+              <button class="btn-primary" id="btnBatchTicket" disabled title="勾选多个订单后批量创建工单">批量创建工单</button>
+            </div>
             <svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" title="列设置"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-1.82.33A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/></svg>
           </div>
           <div class="table-wrap">
@@ -552,25 +559,46 @@
   var checkAll = document.getElementById('checkAll');
   var rowChecks = document.querySelectorAll('.row-check');
   function syncRow(tr) { tr.classList.toggle('checked', tr.querySelector('.row-check').checked); }
+
+  /* V0.5:批量创建工单按钮 —— 随勾选联动激活并显示已选数量 */
+  var btnBatch = document.getElementById('btnBatchTicket');
+  function syncBatchBtn() {
+    var n = document.querySelectorAll('.row-check:checked').length;
+    btnBatch.disabled = n === 0;
+    btnBatch.textContent = n > 0 ? ('批量创建工单(' + n + ')') : '批量创建工单';
+  }
+  syncBatchBtn();
+
   checkAll.addEventListener('change', function () {
     rowChecks.forEach(function (c) { c.checked = checkAll.checked; syncRow(c.closest('tr')); });
+    syncBatchBtn();
   });
   rowChecks.forEach(function (c) {
     c.addEventListener('change', function () {
       syncRow(c.closest('tr'));
       checkAll.checked = document.querySelectorAll('.row-check:checked').length === rowChecks.length;
+      syncBatchBtn();
     });
   });
+  btnBatch.addEventListener('click', function () {
+    var picked = [];
+    rowChecks.forEach(function (c) {
+      if (c.checked) { var tr = c.closest('tr'); var oid = (tr.querySelector('.order-id-link') || {}).textContent || ''; if (oid.trim()) picked.push(oid.trim()); }
+    });
+    if (!picked.length) { if (window.csModal && csModal.toast) csModal.toast('请先勾选订单'); return; }
+    /* 不限制客户:所选订单合并为一张工单(工单-订单 1 对多),进建单页补充分类后提交 */
+    location.href = 'admin-ticket-create.html?mode=batch&oids=' + encodeURIComponent(picked.join(','));
+  });
 
-  /* 纪要③ 订单受理→建工单:每行操作列注入「受理」,点击带订单/客户打开建单弹窗 */
+  /* 纪要③/V0.5 五.1 方式③ 订单→建工单:每行操作列注入「创建工单」,点击带订单/客户上下文打开建单页 */
   document.querySelectorAll('#orderTbody .col-op').forEach(function (td) {
     var a = document.createElement('span');
-    a.className = 'op-link op-accept';
-    a.textContent = '受理';
+    a.className = 'op-link op-create';
+    a.textContent = '创建工单';
     td.insertBefore(a, td.firstChild);
   });
   document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.op-accept');
+    var btn = e.target.closest('.op-create');
     if (!btn) return;
     var tr = btn.closest('tr');
     var oid = (tr.querySelector('.order-id-link') || {}).textContent || '';
