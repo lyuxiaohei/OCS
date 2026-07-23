@@ -123,6 +123,17 @@
             </select>
           </div>
         </div>
+        <div class="fm-row" id="sourceRow" style="display:none;">
+          <div class="fm-field flex1">
+            <label class="fm-label">来源<span class="opt">(自定义,手动/批量建单选填)</span></label>
+            <select class="fm-select" id="fSource">
+              <option value="客服创建">客服创建</option>
+              <option value="电话">电话</option>
+              <option value="邮件">邮件</option>
+              <option value="线下/其他">线下/其他</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!-- 客户与订单 -->
@@ -283,18 +294,20 @@
   var mode = new URLSearchParams(location.search).get('mode') || 'session';
   var standalone = mode === 'standalone';
   var orderMode = mode === 'order';
+  var batchMode = mode === 'batch';
 
   if (standalone) {
     document.getElementById('ctxBox').style.display = 'none';
     document.getElementById('fCustomerPick').style.display = '';
     document.getElementById('fOrderPick').style.display = '';
+    document.getElementById('sourceRow').style.display = '';
   } else if (orderMode) {
     var p = new URLSearchParams(location.search);
     var oid = p.get('oid') || '', goods = p.get('goods') || '', phone = p.get('phone') || '', amount = p.get('amount') || '', ostate = p.get('state') || '';
     var project = p.get('project') || '', receiver = p.get('receiver') || '', raddr = p.get('raddr') || '';
     var ctxBox = document.getElementById('ctxBox');
     ctxBox.style.display = '';
-    ctxBox.innerHTML = '<div class="ctx-title">已从订单受理带入</div>'
+    ctxBox.innerHTML = '<div class="ctx-title">已从订单带入(创建工单)</div>'
       + '<div class="ctx-row">关联订单:<b>' + esc(oid) + '</b> · 商品:<b>' + esc(goods) + '</b> · ' + esc(amount) + '</div>'
       + '<div class="ctx-row">客户:<b>' + esc(phone) + '</b> · 收货人:<b>' + esc(receiver) + '</b> · ' + esc(raddr) + '</div>'
       + '<div class="ctx-row">项目:<b>' + esc(project) + '</b> · 订单状态:' + esc(ostate) + '</div>';
@@ -302,13 +315,29 @@
     document.getElementById('fOrderRO').style.display = '';
     document.getElementById('fCustomerRO').value = receiver ? (receiver + '(' + phone + ')') : (phone || '(订单未关联客户)');
     document.getElementById('fOrderRO').value = oid + (goods ? ' · ' + goods : '') + (amount ? ' (' + amount + ')' : '');
-    document.getElementById('fTitle').value = goods ? ('订单售后受理 - ' + goods) : '';
+    document.getElementById('fTitle').value = goods ? ('订单售后 - ' + goods) : '';
     document.getElementById('fContactName').value = receiver;
     document.getElementById('fContactPhone').value = phone;
     document.getElementById('fContactAddr').value = raddr;
     document.getElementById('fProject').value = project;
     state.user_name = receiver ? (receiver + '(' + phone + ')') : (phone || '(订单未关联客户)');
     state.order_ids = oid ? [oid] : [];
+  } else if (batchMode) {
+    /* 批量创建工单:所选订单合并为一张(工单-订单 1 对多),不限制客户 */
+    var bp = new URLSearchParams(location.search);
+    var boids = (bp.get('oids') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    var bctx = document.getElementById('ctxBox');
+    bctx.style.display = '';
+    bctx.innerHTML = '<div class="ctx-title">已批量带入 ' + boids.length + ' 个订单 · 合并为一张工单(不限制客户)</div>'
+      + '<div class="ctx-row">关联订单:<b>' + esc(boids.join(' · ')) + '</b></div>'
+      + '<div class="ctx-row">请在下方补充分类 / 描述后提交;多单关联为工单-订单 1 对多</div>';
+    document.getElementById('fCustomerRO').style.display = '';
+    document.getElementById('fOrderRO').style.display = '';
+    document.getElementById('fCustomerRO').value = '(' + boids.length + ' 个订单批量创建,提交时绑定客户)';
+    document.getElementById('fOrderRO').value = boids.join(' · ') + ' (' + boids.length + ' 单)';
+    document.getElementById('fTitle').value = '批量售后 - ' + boids.length + ' 个订单';
+    document.getElementById('sourceRow').style.display = '';
+    state.order_ids = boids.slice();
   } else {
     /* 转工单(session)默认带入 */
     document.getElementById('fCustomerRO').style.display = '';

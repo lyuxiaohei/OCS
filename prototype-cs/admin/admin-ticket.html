@@ -86,7 +86,7 @@
         </div>
         <div class="flex gap-8">
           <button class="btn-default" id="btnExport">导出</button>
-          <button class="btn-primary" id="btnCreate">+ 新建工单</button>
+          <button class="btn-primary" id="btnCreate">+ 创建工单</button>
         </div>
       </div>
 
@@ -265,7 +265,7 @@
                 <td><div class="col-user"><div class="mini-avatar">赵</div><div><div>赵磊</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">135****8821</div></div></div></td>
                 <td>张小明</td>
                 <td>张小明<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">2026-07-16 10:30</span></td>
-                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="op-accept tk-accept">接单</a></td>
+                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="op-accept tk-accept">受理</a></td>
               </tr>
               <tr data-status="处理中" data-priority="中" data-agent="张小明" data-category="咨询业务" data-sub="物流咨询" data-type="更改配送地址" data-deadline="7天" data-deadline-at="2026-07-21T11:00:00" data-responsible="" data-order="#DD20260710002" data-goods="测试产品" data-project="宏兆自营">
                 <td class="col-id">#TK20260715006</td>
@@ -335,7 +335,7 @@
       </div>
 
       <p style="margin-top:16px; font-size:var(--cs-font-size-sm); color:var(--cs-text-placeholder);">
-        工单处理流程:未处理(指派)→ 接单 → 处理中 → 已完工(终态)。完成期限到期自动超时标记+通知处理人与主管。
+        工单处理流程:未处理(指派)→ 受理 → 处理中 → 已完工(终态)。完成期限到期自动超时标记+通知处理人与主管。
       </p>
 
     </main>
@@ -542,15 +542,15 @@
     } else if (txt === '分配') {
       csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
         onConfirm: function (d) {
-          toast('已分配' + (d && d.assignee ? '给 ' + d.assignee : '') + ';待对方接单');
+          toast('已分配' + (d && d.assignee ? '给 ' + d.assignee : '') + ';待对方受理');
           if (d && d.assignee && tr) {
             var h = tr.children[11]; if (h) h.innerHTML = d.assignee;
-            var op = tr.querySelector('.row-actions'); if (op) op.innerHTML = '<a class="tk-detail">详情</a><span class="divider">|</span><a class="op-accept tk-accept">接单</a>';
+            var op = tr.querySelector('.row-actions'); if (op) op.innerHTML = '<a class="tk-detail">详情</a><span class="divider">|</span><a class="op-accept tk-accept">受理</a>';
           }
         }
       });
-    } else if (txt === '接单') {
-      toast('已接单,开始处理');
+    } else if (txt === '受理') {
+      toast('已受理,开始处理');
       if (tr) {
         tr.setAttribute('data-status', '处理中');
         var stag = tr.querySelector('td:nth-child(8) .s-tag');

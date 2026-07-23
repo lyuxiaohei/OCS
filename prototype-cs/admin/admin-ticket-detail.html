@@ -169,7 +169,7 @@
         <div class="section-title">操作日志</div>
         <div class="event-flow" id="eventFlow">
           <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-op human">客服</span></div>
-          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待接单)</span><span class="ev-op sys">系统</span></div>
+          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待受理)</span><span class="ev-op sys">系统</span></div>
         </div>
       </div>
 
@@ -253,7 +253,7 @@
   if (urgEl) { urgEl.textContent = DATA.priority || ''; urgEl.className = 'urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
 
   /* 状态机(随行初始状态;操作按钮按状态置顶)
-   * V0.5 六.1/四.2:未处理态按是否已指派分流——未分配→「指派」(状态不变);已分配→「接单」(→处理中)。转单=转派仅处理中态。 */
+   * V0.5 六.1/四.2:未处理态按是否已指派分流——未分配→「指派」(状态不变);已分配→「受理」(→处理中)。转单=转派仅处理中态。 */
   var STATUS = DATA.status;
   var ASSIGNED = !!DATA.agent && DATA.agent !== '未分配';
   function renderActions() {
@@ -261,7 +261,7 @@
     var back = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button>';
     if (STATUS === '未处理') {
       if (ASSIGNED) {
-        bar.innerHTML = back + '<button class="btn-primary" onclick="acceptTicket()">接单</button>';
+        bar.innerHTML = back + '<button class="btn-primary" onclick="acceptTicket()">受理</button>';
       } else {
         bar.innerHTML = back + '<button class="btn-primary" onclick="assignTicket()">指派</button>';
       }
@@ -282,15 +282,15 @@
   }
   setState(DATA.status);
 
-  function acceptTicket() { setState('处理中'); toast('已接单,开始处理(状态:处理中)'); addEvent('接单(客服确认领取)→ 处理中', 'human'); }
+  function acceptTicket() { setState('处理中'); toast('已受理,开始处理(状态:处理中)'); addEvent('受理(客服确认承接)→ 处理中', 'human'); }
   function assignTicket() {
     try {
       csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
         onConfirm: function (d) {
           var who = (d && d.assignee) ? d.assignee : '处理人';
           ASSIGNED = true; DATA.agent = who; setText('dAgent', who);
-          toast('已指派给 ' + who + '(状态保持未处理,待对方接单)');
-          addEvent('指派给 ' + who + '(状态保持未处理,待接单)', 'sys');
+          toast('已指派给 ' + who + '(状态保持未处理,待对方受理)');
+          addEvent('指派给 ' + who + '(状态保持未处理,待受理)', 'sys');
           renderActions();
         }
       });
