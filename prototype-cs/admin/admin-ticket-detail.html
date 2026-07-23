@@ -67,6 +67,21 @@
     .ev-item .ev-op.human { background:var(--cs-primary-bg); color:var(--cs-primary); }
 
     .action-bar { display:flex; align-items:center; gap:8px; }
+
+    /* 关联订单(独立卡) */
+    .ord-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
+    .ord-card-item { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-sm); padding:10px 12px; margin-bottom:8px; }
+    .ord-card-item:last-child { margin-bottom:0; }
+    .ord-card-item .oci-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .ord-card-item .oci-id { font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); font-size:var(--cs-font-size-sm); }
+    .ord-card-item .oci-state { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
+    .ord-card-item .oci-goods { font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); margin-bottom:6px; }
+    .ord-card-item .oci-foot { display:flex; align-items:center; justify-content:space-between; font-size:var(--cs-font-size-xs); }
+    .ord-card-item .oci-view { color:var(--cs-primary); cursor:pointer; }
+    .ord-card-item .oci-view:hover { text-decoration:underline; }
+    .ord-card-item .oci-del { color:var(--cs-text-tertiary); cursor:pointer; }
+    .ord-card-item .oci-del:hover { color:var(--cs-danger); }
+    .ord-empty { font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); }
   </style>
 </head>
 <body>
@@ -99,7 +114,6 @@
           <div class="info-row"><span class="info-label">完成期限</span><span class="info-content" id="dDeadline">—</span></div>
           <div class="info-row"><span class="info-label">客户</span><span class="info-content" id="dCustomer">—</span></div>
           <div class="info-row"><span class="info-label">联系人</span><span class="info-content" id="dContact">—</span></div>
-          <div class="info-row"><span class="info-label">关联订单</span><span class="info-content" id="dOrder">—</span></div>
           <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
           <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
           <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content" id="dFeedback">电话</span></div>
@@ -120,6 +134,12 @@
         </div>
       </div>
 
+      <!-- 关联订单(独立卡,可查询关联一或多个) -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="section-title">关联订单 <span class="ord-count" id="ordCountTag"></span><a class="desc-link" style="margin-left:auto;" onclick="openOrderPicker()">+ 添加订单</a></div>
+        <div id="orderCardList"></div>
+      </div>
+
       <!-- 工单描述 -->
       <div class="card" style="padding:14px 18px; margin-bottom:16px;">
         <div class="section-title">工单描述 <a class="desc-link" onclick="editDesc()">编辑</a><a class="desc-link" onclick="toggleHistory()">历史版本(2)</a></div>
@@ -135,15 +155,6 @@
           <div class="desc-ver"><span class="ver-tag">v1</span><span class="ver-meta">07-16 10:30 · 张小明(创建)</span><div class="ver-text">客户申请退货退款。</div></div>
           <div class="desc-ver"><span class="ver-tag">v2</span><span class="ver-meta">07-16 11:00 · 张小明</span><div class="ver-text">已寄回,等客户物流单号。</div></div>
         </div>
-      </div>
-
-      <!-- 附件 -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title">附件 / 追加材料 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">处理记录不可改,附件只增</span></div>
-        <div id="attachList">
-          <div class="att-item"><span>📎</span><span class="att-name">退货物流凭证.jpg</span><span class="att-meta">张小明 · 07-16 11:05</span></div>
-        </div>
-        <button class="btn-default" onclick="uploadAttach()" style="margin-top:6px;">+ 上传附件 / 追加材料</button>
       </div>
 
       <!-- 内部备注 -->
@@ -164,6 +175,15 @@
         </div>
       </div>
 
+      <!-- 附件 -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="section-title">附件 / 追加材料 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">处理记录不可改,附件只增</span></div>
+        <div id="attachList">
+          <div class="att-item"><span>📎</span><span class="att-name">退货物流凭证.jpg</span><span class="att-meta">张小明 · 07-16 11:05</span></div>
+        </div>
+        <button class="btn-default" onclick="uploadAttach()" style="margin-top:6px;">+ 上传附件 / 追加材料</button>
+      </div>
+
       <!-- 操作日志 -->
       <div class="card" style="padding:14px 18px; margin-bottom:16px;">
         <div class="section-title">操作日志</div>
@@ -181,6 +201,7 @@
 <script src="nav.js"></script>
 <script>
   function toast(t) { try { if (window.csModal && csModal.toast) csModal.toast(t); else alert(t); } catch (e) { alert(t); } }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
 
   /* 随行:从列表 query 读取工单数据 */
   var P = new URLSearchParams(location.search);
@@ -196,6 +217,9 @@
     deadlineAt: P.get('deadline_at') || '2026-07-23T16:00:00',
     agent: P.get('agent') || '张小明',
     order: P.get('order') || '#DD20260711001',
+    orderGoods: P.get('order_goods') || '羽绒被 1.8m',
+    orderAmount: P.get('order_amount') || '¥699',
+    orderState: P.get('order_state') || '已签收',
     project: P.get('project') || '昆山吉波项目',
     title: P.get('title') || '退货退款,等客户提供物流单号',
     customer: P.get('customer') || '赵磊(135****8821)',
@@ -210,6 +234,35 @@
     newTel: P.get('new_tel') || '',
     newAddr: P.get('new_addr') || ''
   };
+
+  /* 关联订单(独立卡):初始带入 + 抽屉查询关联一或多个(工单-订单 1 对多) */
+  var relatedOrders = DATA.order ? [{ id: DATA.order, goods: DATA.orderGoods, amount: DATA.orderAmount, state: DATA.orderState }] : [];
+  function renderOrderCards() {
+    var box = document.getElementById('orderCardList');
+    var tag = document.getElementById('ordCountTag');
+    if (tag) tag.textContent = relatedOrders.length ? (relatedOrders.length + ' 单') : '';
+    if (!relatedOrders.length) { box.innerHTML = '<div class="ord-empty">暂无关联订单,点「+ 添加订单」查询关联</div>'; return; }
+    box.innerHTML = relatedOrders.map(function (o, i) {
+      return '<div class="ord-card-item">'
+        + '<div class="oci-top"><span class="oci-id">' + esc(o.id) + '</span><span class="oci-state">' + esc(o.state || '') + '</span></div>'
+        + (o.goods ? '<div class="oci-goods">' + esc(o.goods) + (o.amount ? ' · ' + esc(o.amount) : '') + '</div>' : '')
+        + '<div class="oci-foot"><a class="oci-view" onclick="toast(\'打开订单详情(OMS)\')">查看详情 →</a><a class="oci-del" onclick="removeOrder(' + i + ')">移除</a></div>'
+        + '</div>';
+    }).join('');
+  }
+  function removeOrder(i) { relatedOrders.splice(i, 1); renderOrderCards(); toast('已移除关联订单'); }
+  function openOrderPicker() {
+    try {
+      csModal.open('modals/drawer-ticket-order.html', { variant: 'drawer-right', width: 520,
+        onConfirm: function (d) {
+          var arr = (d && d.orders) ? d.orders : []; var added = 0;
+          arr.forEach(function (o) { if (!relatedOrders.some(function (r) { return r.id === o.id; })) { relatedOrders.push(o); added++; } });
+          renderOrderCards();
+          toast(added ? ('已关联 ' + added + ' 个订单') : '未新增(已存在)');
+        }
+      });
+    } catch (e) { toast('关联订单(原型演示)'); }
+  }
   function setText(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
 
   var MOCK_NOW = new Date('2026-07-17T12:00:00');
@@ -232,7 +285,7 @@
   else { document.getElementById('dRespRow').style.display = 'none'; document.getElementById('respTag').style.display = 'none'; }
   setText('dCustomer', DATA.customer);
   setText('dContact', DATA.customer);
-  document.getElementById('dOrder').innerHTML = DATA.order ? '<a onclick="toast(\'打开订单详情(OMS)\')">查看 ' + DATA.order + ' →</a>' : '-';
+  renderOrderCards();
   setText('dProject', DATA.project || '-');
   document.getElementById('dSession').innerHTML = (DATA.session && DATA.session !== '-') ? '<a onclick="toast(\'跳回客服工作台并定位会话(占位)\')">查看 ' + DATA.session + ' →</a>' : '-';
   setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');

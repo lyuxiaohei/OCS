@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>关联订单 · 抽屉</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background:#fff; margin:0; }
+    .dw-body { display:flex; flex-direction:column; min-height:100vh; }
+    .drawer-head { padding:16px 24px; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .drawer-head .title { font-size:16px; font-weight:600; }
+    .drawer-head .title .sub { font-size:12px; font-weight:400; color:var(--cs-text-tertiary); margin-left:8px; }
+    .drawer-head .close { font-size:20px; color:var(--cs-text-tertiary); cursor:pointer; line-height:1; }
+
+    .drawer-search { padding:12px 24px 0; flex-shrink:0; }
+    .drawer-search input { width:100%; box-sizing:border-box; border:1px solid var(--cs-border);
+      border-radius:var(--cs-radius-sm); padding:8px 12px; font-size:13px; outline:none; font-family:inherit; }
+    .drawer-search input:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,.1); }
+
+    .drawer-body { flex:1; overflow-y:auto; padding:12px 24px; }
+    .order-list { display:flex; flex-direction:column; gap:10px; }
+    .order-item { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);
+      padding:12px 14px; cursor:pointer; background:#fff; transition:border-color .15s, box-shadow .15s; position:relative; }
+    .order-item:hover { border-color:var(--cs-primary); }
+    .order-item.selected { border-color:var(--cs-primary); background:var(--cs-primary-bg); box-shadow:0 0 0 2px rgba(22,119,255,.12); }
+    .order-item.selected::after { content:"✓"; position:absolute; top:10px; right:12px;
+      width:18px; height:18px; border-radius:50%; background:var(--cs-primary); color:#fff;
+      font-size:12px; line-height:18px; text-align:center; }
+    .order-item .oi-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+    .order-item .oi-id { font-size:13px; font-weight:600; color:var(--cs-text); }
+    .order-item .oi-state { font-size:12px; color:var(--cs-text-tertiary); }
+    .order-item .oi-goods { font-size:12px; color:var(--cs-text-secondary);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:6px; }
+    .order-item .oi-bottom { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--cs-text-tertiary); }
+    .order-item .oi-amount { font-size:14px; font-weight:600; color:var(--cs-text); }
+    .empty-state { text-align:center; padding:40px 16px; color:var(--cs-text-tertiary); font-size:13px; }
+
+    .drawer-foot { padding:12px 24px; border-top:1px solid var(--cs-border-light);
+      display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+    .drawer-foot .picked { font-size:12px; color:var(--cs-text-tertiary); }
+    .drawer-foot .acts { display:flex; gap:8px; }
+    .drawer-foot .btn-default { padding:7px 16px; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm);
+      background:#fff; font-size:13px; cursor:pointer; color:var(--cs-text-secondary); }
+    .drawer-foot .btn-primary { padding:7px 16px; border:none; border-radius:var(--cs-radius-sm);
+      background:var(--cs-primary); color:#fff; font-size:13px; cursor:pointer; }
+    .drawer-foot .btn-primary:disabled { background:var(--cs-border); cursor:not-allowed; }
+  </style>
+</head>
+<body>
+<div class="dw-body">
+  <div class="drawer-head">
+    <div class="title">关联订单<span class="sub">查询并选择一或多个订单</span></div>
+    <div class="close" onclick="window.csModalBridge.close()">×</div>
+  </div>
+  <div class="drawer-search">
+    <input id="kw" placeholder="搜索 订单号 / 商品 / 手机号" autocomplete="off" />
+  </div>
+  <div class="drawer-body">
+    <div class="order-list" id="orderList"></div>
+  </div>
+  <div class="drawer-foot">
+    <span class="picked" id="pickedTag">未选择</span>
+    <div class="acts">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="confirmBtn" disabled>确认关联</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/cs-modal.js"></script>
+<script>
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+
+  /* mock 订单池(正式:后端按客户 / 关键词查询;1 期仅记录关联,不操作 OMS) */
+  var POOL = [
+    { id:'#DD20260710003', goods:'无线蓝牙耳机(黑色)', amount:'¥299', state:'已签收', time:'2026-07-10', phone:'138****2891' },
+    { id:'#DD20260708001', goods:'不锈钢保温杯 500ml', amount:'¥89',  state:'已完成', time:'2026-07-08', phone:'138****2891' },
+    { id:'#DD20260712001', goods:'男士跑步鞋 42码',   amount:'¥459', state:'待发货', time:'2026-07-12', phone:'139****5678' },
+    { id:'#DD20260711001', goods:'羽绒被 1.8m',        amount:'¥699', state:'已签收', time:'2026-07-11', phone:'135****8821' },
+    { id:'#DD20260709001', goods:'玻璃水杯',           amount:'¥39',  state:'运输中', time:'2026-07-09', phone:'137****1024' },
+    { id:'#DD20260710002', goods:'测试产品',           amount:'¥0.01',state:'已取消', time:'2026-07-10', phone:'136****4477' },
+    { id:'#DD20260708002', goods:'蓝牙音箱',           amount:'¥199', state:'已签收', time:'2026-07-08', phone:'135****8821' }
+  ];
+
+  var selected = {}; /* id -> order(多选) */
+  var listEl = document.getElementById('orderList');
+  var confirmBtn = document.getElementById('confirmBtn');
+  var pickedTag = document.getElementById('pickedTag');
+
+  function render(kw) {
+    kw = (kw || '').trim().toLowerCase();
+    var arr = POOL.filter(function (o) {
+      if (!kw) return true;
+      return (o.id || '').toLowerCase().indexOf(kw) >= 0 || (o.goods || '').toLowerCase().indexOf(kw) >= 0 || (o.phone || '').indexOf(kw) >= 0;
+    });
+    if (!arr.length) { listEl.innerHTML = '<div class="empty-state">未找到匹配订单</div>'; return; }
+    listEl.innerHTML = arr.map(function (o) {
+      var sel = selected[o.id] ? ' selected' : '';
+      return '<div class="order-item' + sel + '" data-id="' + esc(o.id) + '">'
+        + '<div class="oi-top"><span class="oi-id">' + esc(o.id) + '</span><span class="oi-state">' + esc(o.state) + '</span></div>'
+        + '<div class="oi-goods">' + esc(o.goods) + '</div>'
+        + '<div class="oi-bottom"><span>' + esc(o.time) + ' · ' + esc(o.phone) + '</span><span class="oi-amount">' + esc(o.amount) + '</span></div>'
+        + '</div>';
+    }).join('');
+  }
+  function syncFoot() {
+    var ids = Object.keys(selected);
+    confirmBtn.disabled = ids.length === 0;
+    confirmBtn.textContent = ids.length ? ('确认关联(' + ids.length + ')') : '确认关联';
+    pickedTag.textContent = ids.length ? ('已选 ' + ids.length + ' 单') : '未选择';
+  }
+
+  document.getElementById('kw').addEventListener('input', function () { render(this.value); });
+  listEl.addEventListener('click', function (e) {
+    var it = e.target.closest('.order-item'); if (!it) return;
+    var id = it.getAttribute('data-id');
+    var o = POOL.filter(function (x) { return x.id === id; })[0];
+    if (!o) return;
+    if (selected[id]) { delete selected[id]; it.classList.remove('selected'); }
+    else { selected[id] = o; it.classList.add('selected'); }
+    syncFoot();
+  });
+  confirmBtn.addEventListener('click', function () {
+    var orders = Object.keys(selected).map(function (k) { return selected[k]; });
+    window.csModalBridge.confirm({ orders: orders });
+  });
+
+  render('');
+  syncFoot();
+</script>
+</body>
+</html>

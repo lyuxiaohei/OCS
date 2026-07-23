@@ -53,6 +53,18 @@
     .collapsible.open { display:block; }
 
     .fm-actions { max-width:920px; display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+
+    /* 关联订单(独立卡) */
+    .ord-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
+    .ord-card-item { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-sm); padding:10px 12px; margin-bottom:8px; }
+    .ord-card-item:last-child { margin-bottom:0; }
+    .ord-card-item .oci-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .ord-card-item .oci-id { font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); font-size:var(--cs-font-size-sm); }
+    .ord-card-item .oci-state { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
+    .ord-card-item .oci-goods { font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); margin-bottom:6px; }
+    .ord-card-item .oci-foot { display:flex; align-items:center; justify-content:space-between; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
+    .ord-card-item .oci-del { color:var(--cs-text-tertiary); cursor:pointer; }
+    .ord-card-item .oci-del:hover { color:var(--cs-danger); }
   </style>
 </head>
 <body>
@@ -136,9 +148,9 @@
         </div>
       </div>
 
-      <!-- 客户与订单 -->
+      <!-- 客户 -->
       <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
-        <div class="section-head"><h3>客户与订单</h3></div>
+        <div class="section-head"><h3>客户</h3></div>
         <div class="fm-row">
           <div class="fm-field flex2">
             <label class="fm-label">客户<span class="req">*</span></label>
@@ -150,19 +162,16 @@
             </div>
           </div>
         </div>
-        <div class="fm-row">
-          <div class="fm-field flex2">
-            <label class="fm-label">关联订单<span class="opt">(可选,可多选,1 对多)</span></label>
-            <input class="fm-input readonly-field" id="fOrderRO" style="display:none;" readonly />
-            <div class="inline-pick" id="fOrderPick" style="display:none;">
-              <div class="ip-input" id="orderBox" style="cursor:default;color:var(--cs-text-placeholder);">请先选择客户</div>
-              <div class="inline-list" id="orderList" style="display:none;"></div>
-              <div style="margin-top:8px;display:flex;gap:6px;align-items:center;">
-                <input class="fm-input" id="manualOrder" placeholder="手动输入订单号追加(UC-CT-11,老订单/无手机号)" style="flex:1;font-size:var(--cs-font-size-xs);" />
-                <button class="btn-default" type="button" onclick="addManualOrder()" style="font-size:var(--cs-font-size-xs);padding:5px 10px;flex-shrink:0;">追加</button>
-              </div>
-            </div>
-          </div>
+      </div>
+
+      <!-- 关联订单(独立卡,查询关联一或多个;工单-订单 1 对多) -->
+      <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
+        <div class="section-head"><h3>关联订单 <span class="ord-count" id="ordCountTag"></span></h3></div>
+        <div id="orderCardList" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="btn-default" type="button" onclick="openOrderPicker()" style="font-size:var(--cs-font-size-xs);padding:6px 12px;">+ 添加订单(查询关联)</button>
+          <input class="fm-input" id="manualOrder" placeholder="或手动输入订单号追加(老订单/无手机号)" style="flex:1;min-width:200px;font-size:var(--cs-font-size-xs);" />
+          <button class="btn-default" type="button" onclick="addManualOrder()" style="font-size:var(--cs-font-size-xs);padding:6px 10px;flex-shrink:0;">追加</button>
         </div>
       </div>
 
@@ -290,7 +299,7 @@
     { user_id:'U20260710004', order_id:'#DD20260711001', goods:'羽绒被 1.8m', amount:'¥699', time:'2026-07-11', state:'已签收' }
   ];
 
-  var state = { user_id:'', user_name:'', order_ids:[], session_id:'' };
+  var state = { user_id:'', user_name:'', orders: [], session_id:'' };
   var mode = new URLSearchParams(location.search).get('mode') || 'session';
   var standalone = mode === 'standalone';
   var orderMode = mode === 'order';
@@ -299,8 +308,8 @@
   if (standalone) {
     document.getElementById('ctxBox').style.display = 'none';
     document.getElementById('fCustomerPick').style.display = '';
-    document.getElementById('fOrderPick').style.display = '';
     document.getElementById('sourceRow').style.display = '';
+    state.orders = []; renderCreateOrders();
   } else if (orderMode) {
     var p = new URLSearchParams(location.search);
     var oid = p.get('oid') || '', goods = p.get('goods') || '', phone = p.get('phone') || '', amount = p.get('amount') || '', ostate = p.get('state') || '';
@@ -312,9 +321,9 @@
       + '<div class="ctx-row">客户:<b>' + esc(phone) + '</b> · 收货人:<b>' + esc(receiver) + '</b> · ' + esc(raddr) + '</div>'
       + '<div class="ctx-row">项目:<b>' + esc(project) + '</b> · 订单状态:' + esc(ostate) + '</div>';
     document.getElementById('fCustomerRO').style.display = '';
-    document.getElementById('fOrderRO').style.display = '';
     document.getElementById('fCustomerRO').value = receiver ? (receiver + '(' + phone + ')') : (phone || '(订单未关联客户)');
-    document.getElementById('fOrderRO').value = oid + (goods ? ' · ' + goods : '') + (amount ? ' (' + amount + ')' : '');
+    state.orders = oid ? [{ id: oid, goods: goods, amount: amount, state: ostate }] : [];
+    renderCreateOrders();
     document.getElementById('fTitle').value = goods ? ('订单售后 - ' + goods) : '';
     document.getElementById('fContactName').value = receiver;
     document.getElementById('fContactPhone').value = phone;
@@ -332,18 +341,18 @@
       + '<div class="ctx-row">关联订单:<b>' + esc(boids.join(' · ')) + '</b></div>'
       + '<div class="ctx-row">请在下方补充分类 / 描述后提交;多单关联为工单-订单 1 对多</div>';
     document.getElementById('fCustomerRO').style.display = '';
-    document.getElementById('fOrderRO').style.display = '';
     document.getElementById('fCustomerRO').value = '(' + boids.length + ' 个订单批量创建,提交时绑定客户)';
-    document.getElementById('fOrderRO').value = boids.join(' · ') + ' (' + boids.length + ' 单)';
+    state.orders = boids.map(function (id) { return { id: id }; });
+    renderCreateOrders();
     document.getElementById('fTitle').value = '批量售后 - ' + boids.length + ' 个订单';
     document.getElementById('sourceRow').style.display = '';
     state.order_ids = boids.slice();
   } else {
     /* 转工单(session)默认带入 */
     document.getElementById('fCustomerRO').style.display = '';
-    document.getElementById('fOrderRO').style.display = '';
     document.getElementById('fCustomerRO').value = '陈芳(138****2891)';
-    document.getElementById('fOrderRO').value = '#DD20260710003 · 无线蓝牙耳机(黑色) (¥299)';
+    state.orders = [{ id: '#DD20260710003', goods: '无线蓝牙耳机(黑色)', amount: '¥299', state: '已签收' }];
+    renderCreateOrders();
     document.getElementById('fTitle').value = '订单退款两天未到账';
     document.getElementById('fDesc').value = '客户反馈订单 #DD20260710003 的退款申请于 7/14 提交,两天未到账,情绪激动。';
     document.getElementById('fContactName').value = '陈芳';
@@ -378,57 +387,49 @@
     state.user_id = c.user_id; state.user_name = c.name + '(' + c.phone + ')';
     custSearch.value = state.user_name; custSearch.classList.add('filled'); custList.style.display = 'none';
     custHint.innerHTML = '已选:' + esc(c.name) + ' · ' + esc(c.user_id) + ' <span class="ip-clear" onclick="clearCust()">清除重选</span>';
-    state.order_ids = []; renderOrders(c.user_id);
   });
   function clearCust() {
     state.user_id = ''; state.user_name = '';
     custSearch.value = ''; custSearch.classList.remove('filled');
     custHint.textContent = '输入关键词搜索客户'; custList.style.display = 'none';
-    var orderBox = document.getElementById('orderBox');
-    orderBox.textContent = '请先选择客户'; orderBox.style.color = 'var(--cs-text-placeholder)';
-    document.getElementById('orderList').style.display = 'none'; state.order_ids = [];
   }
   window.clearCust = clearCust;
 
-  /* 订单多选 + 手动追加 */
-  function renderOrders(uid) {
-    var orderBox = document.getElementById('orderBox');
-    var orderList = document.getElementById('orderList');
-    var list = ORDERS.filter(function (o) { return o.user_id === uid; });
-    if (!list.length) {
-      orderBox.textContent = '该客户暂无订单(可留空或手动输入订单号)'; orderBox.style.color = 'var(--cs-text-tertiary)'; orderList.style.display = 'none'; return;
-    }
-    orderList._data = list; renderOrderSummary();
-    orderList.innerHTML = list.map(function (o, i) {
-      var checked = state.order_ids.indexOf(o.order_id) >= 0 ? ' selected' : '';
-      return '<div class="inline-item' + checked + '" data-i="' + i + '"><div class="ii-main"><input class="pick-chk" type="checkbox" ' + (checked ? 'checked' : '') + ' />' + esc(o.order_id) + ' · ' + esc(o.amount) + ' · ' + esc(o.state) + '</div><div class="ii-sub">' + esc(o.goods) + ' · ' + esc(o.time) + '</div></div>';
+  /* 关联订单(独立卡):抽屉查询关联一或多个 + 手动追加(工单-订单 1 对多) */
+  function renderCreateOrders() {
+    var box = document.getElementById('orderCardList');
+    var tag = document.getElementById('ordCountTag');
+    if (tag) tag.textContent = state.orders.length ? (state.orders.length + ' 单') : '';
+    if (!state.orders.length) { box.innerHTML = '<div style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);">暂未关联订单(可选)</div>'; return; }
+    box.innerHTML = state.orders.map(function (o, i) {
+      return '<div class="ord-card-item">'
+        + '<div class="oci-top"><span class="oci-id">' + esc(o.id) + '</span><span class="oci-state">' + esc(o.state || '') + '</span></div>'
+        + (o.goods ? '<div class="oci-goods">' + esc(o.goods) + (o.amount ? ' · ' + esc(o.amount) : '') + '</div>' : '')
+        + '<div class="oci-foot"><span>关联订单</span><a class="oci-del" onclick="removeCreateOrder(' + i + ')">移除</a></div>'
+        + '</div>';
     }).join('');
-    orderList.style.display = '';
   }
-  function renderOrderSummary() {
-    var orderBox = document.getElementById('orderBox');
-    var ids = state.order_ids;
-    if (!ids.length) { orderBox.textContent = '点击下方订单勾选(可多选,1 对多)'; orderBox.style.color = 'var(--cs-text-tertiary)'; }
-    else { orderBox.textContent = '已选 ' + ids.length + ' 单:' + ids.join(', '); orderBox.style.color = 'var(--cs-text)'; orderBox.style.fontWeight = '500'; }
+  function removeCreateOrder(i) { state.orders.splice(i, 1); renderCreateOrders(); }
+  function openOrderPicker() {
+    csModal.open('modals/drawer-ticket-order.html', { variant: 'drawer-right', width: 520,
+      onConfirm: function (d) {
+        var arr = (d && d.orders) ? d.orders : []; var added = 0;
+        arr.forEach(function (o) { if (!state.orders.some(function (r) { return r.id === o.id; })) { state.orders.push(o); added++; } });
+        renderCreateOrders();
+        toast(added ? ('已关联 ' + added + ' 个订单') : '未新增(已存在)');
+      }
+    });
   }
-  document.getElementById('orderList').addEventListener('click', function (e) {
-    var item = e.target.closest('.inline-item'); if (!item) return;
-    var ol = document.getElementById('orderList');
-    var o = ol._data[parseInt(item.getAttribute('data-i'), 10)]; if (!o) return;
-    var idx = state.order_ids.indexOf(o.order_id);
-    if (idx >= 0) state.order_ids.splice(idx, 1); else state.order_ids.push(o.order_id);
-    var chk = item.querySelector('.pick-chk'); if (chk) chk.checked = idx < 0;
-    item.classList.toggle('selected', idx < 0);
-    renderOrderSummary();
-  });
   function addManualOrder() {
     var inp = document.getElementById('manualOrder');
     var v = inp.value.trim();
     if (!v) { toast('请输入订单号'); return; }
-    if (state.order_ids.indexOf(v) < 0) state.order_ids.push(v);
-    inp.value = ''; renderOrderSummary();
+    if (!state.orders.some(function (r) { return r.id === v; })) state.orders.push({ id: v });
+    inp.value = ''; renderCreateOrders();
   }
   window.addManualOrder = addManualOrder;
+  window.removeCreateOrder = removeCreateOrder;
+  window.openOrderPicker = openOrderPicker;
 
   function submit() {
     var title = document.getElementById('fTitle').value.trim();
