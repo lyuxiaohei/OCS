@@ -8,8 +8,6 @@
   <link rel="stylesheet" href="css/settings.css" />
   <script src="js/cs-modal.js"></script>
   <style>
-    /* 收窄:配置卡片不铺满 */
-    .card.setting-section { max-width: 920px; }
     /* 行式配置(责任承担方 / 优先级 / 完成期限值) */
     .cfg-list { display:flex; flex-direction:column; gap:8px; }
     .cfg-row { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); }
@@ -34,8 +32,12 @@
     .cat-l2-head .cat-l2-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; }
     .cat-l2-head .l2-del { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); cursor:pointer; }
     .cat-l2-head .l2-del:hover { color:var(--cs-danger); }
+    .cat-l2-head .l2-edit { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); cursor:pointer; }
+    .cat-l2-head .l2-edit:hover { color:var(--cs-primary); }
+    .l2-name-input, .chip-name-input { border:1px solid var(--cs-primary); border-radius:4px; padding:2px 6px; font-size:var(--cs-font-size-xs); outline:none; width:120px; }
     .cat-l3 { display:flex; flex-wrap:wrap; gap:6px; margin-left:16px; margin-bottom:6px; }
-    .cat-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; background:var(--cs-bg-header); border:1px solid var(--cs-border-light); border-radius:12px; font-size:var(--cs-font-size-xs); color:var(--cs-text-secondary); }
+    .cat-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; background:var(--cs-bg-header); border:1px solid var(--cs-border-light); border-radius:12px; font-size:var(--cs-font-size-xs); color:var(--cs-text-secondary); cursor:pointer; }
+    .cat-chip:hover { border-color:var(--cs-primary); }
     .cat-chip a { color:var(--cs-text-tertiary); cursor:pointer; font-size:12px; line-height:1; }
     .cat-chip a:hover { color:var(--cs-danger); }
     .cat-add { margin-left:16px; }
@@ -59,20 +61,20 @@
 
     <main class="admin-content">
 
-      <div class="flex-between mb-16" style="max-width:920px;">
-        <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单三级分类、责任承担方、优先级、完成期限值(均可增删改)。右侧显示该配置当前的工单数量。保存后全局生效。</p></div>
+      <div class="flex-between mb-16">
+        <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单三级分类、责任承担方、优先级、完成期限值,均可增删改;各项右侧为当前工单数量。保存后全局生效。</p></div>
       </div>
 
       <!-- V0.5:工单分类(三级) -->
       <div class="card setting-section" id="category">
         <div class="section-head">
-          <h3>工单分类(三级) <span class="head-desc">受理业务类型 → 咨询/投诉类别 → 具体类型</span></h3>
+          <h3>工单分类(三级) <span class="head-desc">受理业务类型 → 咨询/投诉类别 → 具体类型;点击类别 / 类型名可改名,计数为当前工单数量</span></h3>
         </div>
 
         <div class="cat-group">
           <div class="cat-l1">咨询业务 <span class="cat-hint">一级(枚举,一般不改)</span></div>
           <div class="cat-l2-block">
-            <div class="cat-l2-head">产品咨询 <span class="cat-l2-count">9 个类型</span></div>
+            <div class="cat-l2-head">产品咨询 <span class="cat-l2-count">76 个工单</span><span class="l2-edit" onclick="renameL2(this)">改名</span><span class="l2-del" onclick="delL2(this)">删除类别</span></div>
             <div class="cat-l3">
               <span class="cat-chip">产品信息<a onclick="delChip(this)">×</a></span>
               <span class="cat-chip">操作使用<a onclick="delChip(this)">×</a></span>
@@ -87,7 +89,7 @@
             <div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>
           </div>
           <div class="cat-l2-block">
-            <div class="cat-l2-head">物流咨询 <span class="cat-l2-count">8 个类型</span></div>
+            <div class="cat-l2-head">物流咨询 <span class="cat-l2-count">58 个工单</span><span class="l2-edit" onclick="renameL2(this)">改名</span><span class="l2-del" onclick="delL2(this)">删除类别</span></div>
             <div class="cat-l3">
               <span class="cat-chip">配送情况<a onclick="delChip(this)">×</a></span>
               <span class="cat-chip">更改配送地址<a onclick="delChip(this)">×</a></span>
@@ -106,7 +108,7 @@
         <div class="cat-group">
           <div class="cat-l1">投诉业务 <span class="cat-hint">一级(枚举,一般不改;投诉类必填责任承担方)</span></div>
           <div class="cat-l2-block">
-            <div class="cat-l2-head">产品投诉 <span class="cat-l2-count">7 个类型</span></div>
+            <div class="cat-l2-head">产品投诉 <span class="cat-l2-count">64 个工单</span><span class="l2-edit" onclick="renameL2(this)">改名</span><span class="l2-del" onclick="delL2(this)">删除类别</span></div>
             <div class="cat-l3">
               <span class="cat-chip">产品原因更换<a onclick="delChip(this)">×</a></span>
               <span class="cat-chip">产品原因退货<a onclick="delChip(this)">×</a></span>
@@ -119,7 +121,7 @@
             <div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>
           </div>
           <div class="cat-l2-block">
-            <div class="cat-l2-head">物流投诉 <span class="cat-l2-count">8 个类型</span></div>
+            <div class="cat-l2-head">物流投诉 <span class="cat-l2-count">49 个工单</span><span class="l2-edit" onclick="renameL2(this)">改名</span><span class="l2-del" onclick="delL2(this)">删除类别</span></div>
             <div class="cat-l3">
               <span class="cat-chip">超时未收到<a onclick="delChip(this)">×</a></span>
               <span class="cat-chip">否认签收<a onclick="delChip(this)">×</a></span>
@@ -180,7 +182,7 @@
       <div class="settings-footer">
         <div style="display:flex; align-items:center; gap:16px;">
           <div class="footer-tip">修改后请点击「保存设置」生效</div>
-          <span class="save-hint" id="saveHint" style="display:none;">⚠️ 有 <span id="dirtyCount">0</span> 个模块已修改</span>
+          <span class="save-hint" id="saveHint" style="display:none;">有 <span id="dirtyCount">0</span> 个模块已修改</span>
         </div>
         <div class="footer-actions">
           <button class="btn-default" id="btnReset">重置默认</button>
@@ -246,20 +248,58 @@ function addL2(btn, l1) {
   var block = document.createElement('div');
   block.className = 'cat-l2-block';
   block.innerHTML =
-    '<div class="cat-l2-head">新类别 <span class="cat-l2-count">0 个类型</span><span class="l2-del" onclick="delL2(this)">删除类别</span></div>' +
+    '<div class="cat-l2-head">新类别 <span class="cat-l2-count">0 个工单</span><span class="l2-edit" onclick="renameL2(this)">改名</span><span class="l2-del" onclick="delL2(this)">删除类别</span></div>' +
     '<div class="cat-l3"></div>' +
     '<div class="cat-add"><input placeholder="+ 添加三级类型(回车)" onkeydown="addChip(event,this)" /></div>';
   group.insertBefore(block, btn);
-  /* 进入改名 */
-  var head = block.querySelector('.cat-l2-head');
-  head.firstChild.textContent = '新类别';
-  head.style.cursor = 'text';
   markDirty(document.getElementById('category'));
 }
 function delL2(span) {
   span.closest('.cat-l2-block').remove();
   markDirty(document.getElementById('category'));
 }
+/* V0.5 十.2:二级类别改名(行内编辑,Enter/失焦保存,Esc 取消) */
+function renameL2(span) {
+  var head = span.parentElement;
+  var nameNode = head.firstChild;
+  if (!nameNode || nameNode.nodeType !== 3) return;
+  var old = nameNode.textContent.trim();
+  var input = document.createElement('input');
+  input.className = 'l2-name-input'; input.value = old;
+  head.replaceChild(input, nameNode);
+  input.focus(); input.select();
+  var finished = false;
+  function done(save) {
+    if (finished) return; finished = true;
+    var v = (save && input.value.trim()) || old;
+    head.replaceChild(document.createTextNode(v + ' '), input);
+    if (save && v !== old) markDirty(document.getElementById('category'));
+  }
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') done(true); else if (e.key === 'Escape') done(false); });
+  input.addEventListener('blur', function () { done(true); });
+}
+/* V0.5 十.2:三级类型 chip 点击改名(事件委派,存量/新增 chip 均生效;× 仍为删除) */
+document.addEventListener('click', function (e) {
+  var chip = (e.target.classList && e.target.classList.contains('cat-chip')) ? e.target : null;
+  if (!chip) return;
+  var nameNode = chip.firstChild;
+  if (!nameNode || nameNode.nodeType !== 3) return;
+  var old = nameNode.textContent;
+  var input = document.createElement('input');
+  input.className = 'chip-name-input'; input.value = old;
+  chip.replaceChild(input, nameNode);
+  input.focus(); input.select();
+  var finished = false;
+  function done(save) {
+    if (finished) return; finished = true;
+    var v = (save && input.value.trim()) || old;
+    chip.replaceChild(document.createTextNode(v), input);
+    if (save && v !== old) markDirty(document.getElementById('category'));
+  }
+  input.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Enter') done(true); else if (e.key === 'Escape') done(false); });
+  input.addEventListener('click', function (e) { e.stopPropagation(); });
+  input.addEventListener('blur', function () { done(true); });
+});
 
 document.querySelectorAll('.card.setting-section').forEach(function (section) {
   section.addEventListener('input', function () { markDirty(section); });

@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="../styles.css" />
   <style>
     body { background:#fff; margin:0; }
-    .dw-body { display:flex; flex-direction:column; min-height:100vh; }
+    .dw-body { display:flex; flex-direction:column; height:100vh; }
     .drawer-head { padding:16px 24px; border-bottom:1px solid var(--cs-border-light);
       display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
     .drawer-head .title { font-size:16px; font-weight:600; }
@@ -18,7 +18,7 @@
       border-radius:var(--cs-radius-sm); padding:8px 12px; font-size:13px; outline:none; font-family:inherit; }
     .drawer-search input:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,.1); }
 
-    .drawer-body { flex:1; overflow-y:auto; padding:12px 24px; }
+    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:12px 24px; }
     .order-list { display:flex; flex-direction:column; gap:10px; }
     .order-item { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);
       padding:12px 14px; cursor:pointer; background:#fff; transition:border-color .15s, box-shadow .15s; position:relative; }
@@ -31,6 +31,8 @@
     .order-item .oi-id { font-size:13px; font-weight:600; color:var(--cs-text); }
     .order-item .oi-state { font-size:12px; color:var(--cs-text-tertiary); }
     .order-item .oi-goods { font-size:12px; color:var(--cs-text-secondary);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:6px; }
+    .order-item .oi-meta { font-size:11px; color:var(--cs-text-tertiary);
       overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:6px; }
     .order-item .oi-bottom { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--cs-text-tertiary); }
     .order-item .oi-amount { font-size:14px; font-weight:600; color:var(--cs-text); }
@@ -54,7 +56,7 @@
     <div class="close" onclick="window.csModalBridge.close()">×</div>
   </div>
   <div class="drawer-search">
-    <input id="kw" placeholder="搜索 订单号 / 商品 / 手机号" autocomplete="off" />
+    <input id="kw" placeholder="搜索 订单号 / 商品 / 编码 / 供应商 / 手机号" autocomplete="off" />
   </div>
   <div class="drawer-body">
     <div class="order-list" id="orderList"></div>
@@ -72,15 +74,15 @@
 <script>
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
 
-  /* mock 订单池(正式:后端按客户 / 关键词查询;1 期仅记录关联,不操作 OMS) */
+  /* mock 订单池(正式:后端按客户 / 关键词查询;1 期仅记录关联,不操作 OMS);字段对齐 BR-136 展示列 */
   var POOL = [
-    { id:'#DD20260710003', goods:'无线蓝牙耳机(黑色)', amount:'¥299', state:'已签收', time:'2026-07-10', phone:'138****2891' },
-    { id:'#DD20260708001', goods:'不锈钢保温杯 500ml', amount:'¥89',  state:'已完成', time:'2026-07-08', phone:'138****2891' },
-    { id:'#DD20260712001', goods:'男士跑步鞋 42码',   amount:'¥459', state:'待发货', time:'2026-07-12', phone:'139****5678' },
-    { id:'#DD20260711001', goods:'羽绒被 1.8m',        amount:'¥699', state:'已签收', time:'2026-07-11', phone:'135****8821' },
-    { id:'#DD20260709001', goods:'玻璃水杯',           amount:'¥39',  state:'运输中', time:'2026-07-09', phone:'137****1024' },
-    { id:'#DD20260710002', goods:'测试产品',           amount:'¥0.01',state:'已取消', time:'2026-07-10', phone:'136****4477' },
-    { id:'#DD20260708002', goods:'蓝牙音箱',           amount:'¥199', state:'已签收', time:'2026-07-08', phone:'135****8821' }
+    { id:'#DD20260710003', sub_id:'#DD20260710003-1', sku:'HZDF3100216', goods:'无线蓝牙耳机(黑色)', qty:1, supplier:'深圳声科电子', amount:'¥299', state:'已签收', time:'2026-07-10', phone:'138****2891' },
+    { id:'#DD20260708001', sub_id:'#DD20260708001-1', sku:'HZDF2088771', goods:'不锈钢保温杯 500ml', qty:1, supplier:'永康精工杯业', amount:'¥89',  state:'已完成', time:'2026-07-08', phone:'138****2891' },
+    { id:'#DD20260712001', sub_id:'#DD20260712001-1', sku:'HZDF3155220', goods:'男士跑步鞋 42码',   qty:1, supplier:'晋江运动鞋服', amount:'¥459', state:'待发货', time:'2026-07-12', phone:'139****5678' },
+    { id:'#DD20260711001', sub_id:'#DD20260711001-1', sku:'HZDF2099334', goods:'羽绒被 1.8m',        qty:1, supplier:'南通家纺厂',   amount:'¥699', state:'已签收', time:'2026-07-11', phone:'135****8821' },
+    { id:'#DD20260709001', sub_id:'#DD20260709001-1', sku:'HZDF2120668', goods:'玻璃水杯',           qty:2, supplier:'德力玻璃',     amount:'¥39',  state:'运输中', time:'2026-07-09', phone:'137****1024' },
+    { id:'#DD20260710002', sub_id:'#DD20260710002-1', sku:'HZ-A68140001-DF', goods:'测试产品',       qty:1, supplier:'宏兆自营',     amount:'¥0.01',state:'已取消', time:'2026-07-10', phone:'136****4477' },
+    { id:'#DD20260708002', sub_id:'#DD20260708002-1', sku:'HZDF2077552', goods:'蓝牙音箱',           qty:1, supplier:'深圳声科电子', amount:'¥199', state:'已签收', time:'2026-07-08', phone:'135****8821' }
   ];
 
   var selected = {}; /* id -> order(多选) */
@@ -92,7 +94,9 @@
     kw = (kw || '').trim().toLowerCase();
     var arr = POOL.filter(function (o) {
       if (!kw) return true;
-      return (o.id || '').toLowerCase().indexOf(kw) >= 0 || (o.goods || '').toLowerCase().indexOf(kw) >= 0 || (o.phone || '').indexOf(kw) >= 0;
+      return (o.id || '').toLowerCase().indexOf(kw) >= 0 || (o.sub_id || '').toLowerCase().indexOf(kw) >= 0
+        || (o.goods || '').toLowerCase().indexOf(kw) >= 0 || (o.sku || '').toLowerCase().indexOf(kw) >= 0
+        || (o.supplier || '').toLowerCase().indexOf(kw) >= 0 || (o.phone || '').indexOf(kw) >= 0;
     });
     if (!arr.length) { listEl.innerHTML = '<div class="empty-state">未找到匹配订单</div>'; return; }
     listEl.innerHTML = arr.map(function (o) {
@@ -100,6 +104,7 @@
       return '<div class="order-item' + sel + '" data-id="' + esc(o.id) + '">'
         + '<div class="oi-top"><span class="oi-id">' + esc(o.id) + '</span><span class="oi-state">' + esc(o.state) + '</span></div>'
         + '<div class="oi-goods">' + esc(o.goods) + '</div>'
+        + '<div class="oi-meta">子单 ' + esc(o.sub_id || '-') + ' · 编码 ' + esc(o.sku || '-') + ' · ×' + esc(o.qty != null ? o.qty : '-') + ' · ' + esc(o.supplier || '-') + '</div>'
         + '<div class="oi-bottom"><span>' + esc(o.time) + ' · ' + esc(o.phone) + '</span><span class="oi-amount">' + esc(o.amount) + '</span></div>'
         + '</div>';
     }).join('');

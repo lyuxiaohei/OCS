@@ -613,8 +613,14 @@
     var project = mall ? (mall + '项目') : '';
     var receiver = phone.trim();
     var raddr = '详见 OMS 收货地址(字段待对接)';
+    /* BR-136 展示列:子订单号 / 商品编码(SKU) / 数量 / 供应商名称 随行透传建单页 */
+    var sub = (cells[2] ? cells[2].textContent : '').trim();
+    var sku = (cells[4] ? cells[4].textContent : '').trim();
+    var supplier = (cells[6] ? cells[6].textContent : '').trim();
+    var qty = (cells[10] ? cells[10].textContent : '').trim();
     oid = oid.trim(); goods = goods.trim(); phone = phone.trim(); amount = amount.trim(); ostate = ostate.trim();
-    var qs = '?mode=order&oid=' + encodeURIComponent(oid) + '&goods=' + encodeURIComponent(goods) + '&phone=' + encodeURIComponent(phone) + '&amount=' + encodeURIComponent(amount) + '&state=' + encodeURIComponent(ostate) + '&project=' + encodeURIComponent(project) + '&receiver=' + encodeURIComponent(receiver) + '&raddr=' + encodeURIComponent(raddr);
+    var qs = '?mode=order&oid=' + encodeURIComponent(oid) + '&goods=' + encodeURIComponent(goods) + '&phone=' + encodeURIComponent(phone) + '&amount=' + encodeURIComponent(amount) + '&state=' + encodeURIComponent(ostate) + '&project=' + encodeURIComponent(project) + '&receiver=' + encodeURIComponent(receiver) + '&raddr=' + encodeURIComponent(raddr)
+      + '&sub=' + encodeURIComponent(sub) + '&sku=' + encodeURIComponent(sku) + '&qty=' + encodeURIComponent(qty) + '&supplier=' + encodeURIComponent(supplier === '-' ? '' : supplier);
     location.href = 'admin-ticket-create.html' + qs;
   });
 </script>

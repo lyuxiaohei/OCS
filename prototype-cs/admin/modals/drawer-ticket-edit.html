@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>编辑工单 · 抽屉</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="../js/ticket-dict.js"></script>
+  <style>
+    body { background:#fff; margin:0; }
+    .dw-body { display:flex; flex-direction:column; height:100vh; }
+    .drawer-head { padding:16px 24px; border-bottom:1px solid var(--cs-border-light); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .drawer-head .title { font-size:16px; font-weight:600; }
+    .drawer-head .close { font-size:20px; color:var(--cs-text-tertiary); cursor:pointer; line-height:1; }
+    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:20px 24px; }
+    .drawer-foot { padding:12px 24px; border-top:1px solid var(--cs-border-light); display:flex; justify-content:flex-end; gap:8px; flex-shrink:0; }
+
+    /* 分区标题(与工单详情一致的蓝条样式) */
+    .fm-sec { font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text-secondary); margin:18px 0 12px; display:flex; align-items:center; gap:6px; }
+    .fm-sec:first-child { margin-top:0; }
+    .fm-sec::before { content:""; width:3px; height:13px; background:var(--cs-primary); border-radius:2px; }
+    .fm-sec .sec-tip { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
+
+    .fm-row { display:flex; gap:14px; margin-bottom:12px; }
+    .fm-row:last-child { margin-bottom:0; }
+    .fm-field { display:flex; align-items:center; gap:8px; flex:1 1 240px; min-width:0; }
+    .fm-label { width:92px; flex-shrink:0; font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); white-space:nowrap; }
+    .fm-label .req { color:var(--cs-danger); margin-left:2px; }
+    .fm-label .opt { color:var(--cs-text-placeholder); font-weight:normal; margin-left:2px; }
+    .fm-input, .fm-select { flex:1; min-width:0; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); padding:7px 10px; font-size:var(--cs-font-size-sm); font-family:inherit; background:#fff; outline:none; transition:border-color .2s; }
+    .fm-input:focus, .fm-select:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,0.1); }
+    .fm-static { flex:1; min-width:0; font-size:var(--cs-font-size-sm); color:var(--cs-text); }
+    .conditional { display:none; }
+    .conditional.show { display:flex; }
+    .collapse-toggle { display:inline-block; font-size:var(--cs-font-size-xs); color:var(--cs-primary); cursor:pointer; }
+    .collapse-toggle:hover { text-decoration:underline; }
+    .collapsible { display:none; margin-top:10px; }
+    .collapsible.open { display:block; }
+  </style>
+</head>
+<body>
+  <div class="dw-body">
+    <div class="drawer-head">
+      <div class="title">编辑工单</div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="drawer-body">
+
+      <div class="fm-sec">基本信息</div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">客户</label><span class="fm-static" id="fCustomer">—</span></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">标题<span class="req">*</span></label><input class="fm-input" id="fTitle" placeholder="简述问题" /></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">受理业务类型<span class="req">*</span></label><select class="fm-select" id="fCategory"><option value="">请选择</option></select></div>
+        <div class="fm-field"><label class="fm-label">咨询/投诉类别<span class="req">*</span></label><select class="fm-select" id="fSubCategory"><option value="">请先选一级</option></select></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">具体类型<span class="req">*</span></label><select class="fm-select" id="fType"><option value="">请先选二级</option></select></div>
+        <div class="fm-field conditional" id="responsibleWrap"><label class="fm-label">责任承担方<span class="req">*</span></label><select class="fm-select" id="fResponsible"><option value="">请选择</option></select></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">优先级</label><select class="fm-select" id="fPriority"><option value="">请选择</option><option>一般</option><option>紧急</option><option>特急</option></select></div>
+        <div class="fm-field"><label class="fm-label">完成期限</label><select class="fm-select" id="fDeadline"><option value="">请选择</option><option value="1天">1天</option><option value="7天">7天</option><option value="15天">15天</option></select></div>
+      </div>
+
+      <div class="fm-sec">联系方式<span class="sec-tip">改动不影响订单收货信息</span></div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">联系人</label><input class="fm-input" id="fContactName" placeholder="联系人姓名" /></div>
+        <div class="fm-field"><label class="fm-label">移动电话</label><input class="fm-input" id="fContactPhone" placeholder="移动电话" /></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">座机电话</label><input class="fm-input" id="fContactTel" placeholder="座机电话" /></div>
+        <div class="fm-field"><label class="fm-label">来电电话</label><input class="fm-input" id="fIncomingCall" placeholder="来电电话" /></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">联系地址</label><input class="fm-input" id="fContactAddr" placeholder="联系地址" /></div>
+      </div>
+      <a class="collapse-toggle" id="newContactToggle">+ 新联系人信息(收货人以外的实际联系人)</a>
+      <div class="collapsible" id="newContactBox">
+        <div class="fm-row" style="margin-top:8px;">
+          <div class="fm-field"><label class="fm-label">新联系人</label><input class="fm-input" id="fNewName" placeholder="新联系人" /></div>
+          <div class="fm-field"><label class="fm-label">新移动电话</label><input class="fm-input" id="fNewPhone" placeholder="新移动电话" /></div>
+        </div>
+        <div class="fm-row">
+          <div class="fm-field"><label class="fm-label">新座机</label><input class="fm-input" id="fNewTel" placeholder="新座机电话" /></div>
+          <div class="fm-field"><label class="fm-label">新地址</label><input class="fm-input" id="fNewAddr" placeholder="新联系地址" /></div>
+        </div>
+      </div>
+
+      <div class="fm-sec">业务字段</div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">项目名称<span class="req">*</span></label><input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" /></div>
+        <div class="fm-field"><label class="fm-label">反馈方式<span class="req">*</span></label><select class="fm-select" id="fFeedback"><option value="">请选择</option><option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option></select></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">提交部门<span class="req">*</span></label><select class="fm-select" id="fDept"><option value="">请选择</option><option>客服部</option><option>商品部</option><option>商务部</option></select></div>
+        <div class="fm-field"><label class="fm-label">二次投诉</label><select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select></div>
+      </div>
+
+    </div>
+    <div class="drawer-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="saveBtn">保存</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    var P = new URLSearchParams(location.search);
+    function gv(k) { return P.get(k) || ''; }
+
+    var CATEGORY_TREE = window.TICKET_DICT.CATEGORY_TREE;
+    var RESPONSIBLE_PARTIES = window.TICKET_DICT.RESPONSIBLE_PARTIES;
+    function fillSelect(sel, arr, placeholder, keep) {
+      var cur = keep ? sel.value : '';
+      sel.innerHTML = '<option value="">' + placeholder + '</option>' + arr.map(function (o) { return '<option>' + o + '</option>'; }).join('');
+      if (cur && arr.indexOf(cur) >= 0) sel.value = cur;
+    }
+    var fCategory = document.getElementById('fCategory');
+    var fSubCategory = document.getElementById('fSubCategory');
+    var fType = document.getElementById('fType');
+    var fResponsible = document.getElementById('fResponsible');
+
+    fillSelect(fCategory, Object.keys(CATEGORY_TREE), '请选择');
+    fillSelect(fResponsible, RESPONSIBLE_PARTIES, '请选择');
+
+    /* 三级联动 + 投诉类责任承担方必填 */
+    function syncResponsible() {
+      document.getElementById('responsibleWrap').classList.toggle('show', fCategory.value === '投诉业务');
+      if (fCategory.value !== '投诉业务') fResponsible.value = '';
+    }
+    fCategory.addEventListener('change', function () {
+      var subs = Object.keys(CATEGORY_TREE[this.value] || {});
+      fillSelect(fSubCategory, subs, subs.length ? '请选择' : '请先选一级');
+      fillSelect(fType, [], '请先选二级');
+      syncResponsible();
+    });
+    fSubCategory.addEventListener('change', function () {
+      var types = (CATEGORY_TREE[fCategory.value] || {})[this.value] || [];
+      fillSelect(fType, types, types.length ? '请选择' : '请先选二级');
+    });
+
+    /* 回填 */
+    document.getElementById('fCustomer').textContent = gv('customer') || '—';
+    document.getElementById('fTitle').value = gv('title');
+    fCategory.value = gv('category');
+    if (fCategory.value) {
+      var subs0 = Object.keys(CATEGORY_TREE[fCategory.value] || {});
+      fillSelect(fSubCategory, subs0, '请选择');
+      fSubCategory.value = gv('sub');
+      var types0 = (CATEGORY_TREE[fCategory.value] || {})[fSubCategory.value] || [];
+      fillSelect(fType, types0, types0.length ? '请选择' : '请先选二级');
+      fType.value = gv('type');
+    }
+    fResponsible.value = gv('responsible');
+    syncResponsible();
+    document.getElementById('fPriority').value = gv('priority');
+    document.getElementById('fDeadline').value = gv('deadline');
+    document.getElementById('fContactName').value = gv('contact_name');
+    document.getElementById('fContactPhone').value = gv('contact_phone');
+    document.getElementById('fContactTel').value = gv('contact_tel');
+    document.getElementById('fIncomingCall').value = gv('incoming_call');
+    document.getElementById('fContactAddr').value = gv('contact_addr');
+    document.getElementById('fProject').value = gv('project');
+    document.getElementById('fFeedback').value = gv('feedback');
+    document.getElementById('fDept').value = gv('dept');
+    document.getElementById('fSecondary').value = gv('secondary') || '否';
+    document.getElementById('fNewName').value = gv('new_name');
+    document.getElementById('fNewPhone').value = gv('new_phone');
+    document.getElementById('fNewTel').value = gv('new_tel');
+    document.getElementById('fNewAddr').value = gv('new_addr');
+    if (gv('new_name') || gv('new_phone')) document.getElementById('newContactBox').classList.add('open');
+
+    var ncb = document.getElementById('newContactBox');
+    document.getElementById('newContactToggle').addEventListener('click', function () {
+      var open = ncb.classList.toggle('open');
+      this.textContent = (open ? '－ ' : '+ ') + '新联系人信息(收货人以外的实际联系人)';
+    });
+
+    function invalid(el) { el.style.borderColor = 'var(--cs-danger)'; el.focus(); setTimeout(function () { el.style.borderColor = ''; }, 1500); }
+
+    document.getElementById('saveBtn').addEventListener('click', function () {
+      var title = document.getElementById('fTitle');
+      if (!title.value.trim()) { invalid(title); return; }
+      if (!fCategory.value) { invalid(fCategory); return; }
+      if (!fSubCategory.value) { invalid(fSubCategory); return; }
+      if (!fType.value) { invalid(fType); return; }
+      if (fCategory.value === '投诉业务' && !fResponsible.value) { invalid(fResponsible); return; }
+      var project = document.getElementById('fProject');
+      if (!project.value.trim()) { invalid(project); return; }
+      var feedback = document.getElementById('fFeedback');
+      if (!feedback.value) { invalid(feedback); return; }
+      var dept = document.getElementById('fDept');
+      if (!dept.value) { invalid(dept); return; }
+      window.csModalBridge.confirm({
+        title: title.value.trim(),
+        category: fCategory.value,
+        sub: fSubCategory.value,
+        type: fType.value,
+        priority: document.getElementById('fPriority').value || '一般',
+        deadline: document.getElementById('fDeadline').value,
+        responsible: fCategory.value === '投诉业务' ? fResponsible.value : '',
+        project: project.value.trim(),
+        feedback: feedback.value,
+        dept: dept.value,
+        secondary: document.getElementById('fSecondary').value,
+        contactName: document.getElementById('fContactName').value.trim(),
+        contactPhone: document.getElementById('fContactPhone').value.trim(),
+        contactTel: document.getElementById('fContactTel').value.trim(),
+        incomingCall: document.getElementById('fIncomingCall').value.trim(),
+        contactAddr: document.getElementById('fContactAddr').value.trim(),
+        newName: document.getElementById('fNewName').value.trim(),
+        newPhone: document.getElementById('fNewPhone').value.trim(),
+        newTel: document.getElementById('fNewTel').value.trim(),
+        newAddr: document.getElementById('fNewAddr').value.trim()
+      });
+    });
+  </script>
+</body>
+</html>

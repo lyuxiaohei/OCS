@@ -7,13 +7,12 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <style>
-    .detail-wrap { max-width: 1040px; }
     .tk-state-bar { display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:var(--cs-radius-md);
       background:var(--cs-bg-header); border:1px solid var(--cs-border-light); margin-bottom:16px; flex-wrap:wrap; }
     .tk-state-bar .s-tag { font-size:var(--cs-font-size-md); }
     .tk-state-bar .urgency { font-size:var(--cs-font-size-xs); }
     .tk-state-bar .urgency.urgent, .tk-state-bar .urgency.critical { color: var(--cs-danger); }
-    .tk-state-bar .resp-tag { display:inline-block; font-size:var(--cs-font-size-xs); padding:2px 8px; border-radius:3px; background:#fff7e6; color:#d46b08; border:1px solid #ffd591; }
+    .tk-state-bar .resp-tag { display:inline-block; font-size:var(--cs-font-size-xs); padding:2px 8px; border-radius:3px; background:var(--cs-orange-bg); color:var(--cs-orange); border:1px solid #ffd591; }
     .tk-state-bar .countdown { font-size:var(--cs-font-size-sm); }
     .tk-state-bar .countdown.warn { color:var(--cs-orange); font-weight:var(--cs-font-weight-semibold); }
     .tk-state-bar .countdown.overdue { color:var(--cs-danger); font-weight:var(--cs-font-weight-semibold); }
@@ -49,7 +48,7 @@
     .tl-item .tl-head { display:flex; align-items:center; gap:8px; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-bottom:4px; }
     .tl-item .tl-head .who { color:var(--cs-text-secondary); font-weight:var(--cs-font-weight-medium); }
     .tl-item .tl-head .tag-int { font-size:10px; padding:0 5px; border-radius:3px; background:var(--cs-bg-header); color:var(--cs-text-tertiary); border:1px solid var(--cs-border-light); }
-    .tl-item .tl-bubble { display:inline-block; max-width:100%; padding:8px 12px; border-radius:var(--cs-radius-sm); font-size:var(--cs-font-size-sm); color:var(--cs-text); line-height:1.6; background:#f6f8fa; border:1px solid var(--cs-border-light); }
+    .tl-item .tl-bubble { display:inline-block; max-width:100%; padding:8px 12px; border-radius:var(--cs-radius-sm); font-size:var(--cs-font-size-sm); color:var(--cs-text); line-height:1.6; background:var(--cs-bg-header); border:1px solid var(--cs-border-light); }
     .tl-item.internal .tl-bubble { background:var(--cs-bg-header); color:var(--cs-text-secondary); font-style:italic; }
 
     .reply-box { border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); overflow:hidden; }
@@ -68,20 +67,23 @@
 
     .action-bar { display:flex; align-items:center; gap:8px; }
 
+    /* 左主右从两栏:主栏=处理动线(描述/备注/附件/日志),侧栏=元信息+关联订单 */
+    .detail-grid { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start; }
+    .detail-main { grid-column:1; grid-row:1; min-width:0; }
+    .detail-side { grid-column:2; grid-row:1; position:sticky; top:0; }
+    .detail-side .info-grid { grid-template-columns:1fr; }
+    @media (max-width:1100px) { .detail-grid { grid-template-columns:1fr; } .detail-main, .detail-side { grid-column:1; grid-row:auto; } .detail-side { position:static; } }
+
     /* 关联订单(独立卡) */
     .ord-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
-    .ord-card-item { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-sm); padding:10px 12px; margin-bottom:8px; }
-    .ord-card-item:last-child { margin-bottom:0; }
-    .ord-card-item .oci-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
-    .ord-card-item .oci-id { font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); font-size:var(--cs-font-size-sm); }
-    .ord-card-item .oci-state { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
-    .ord-card-item .oci-goods { font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); margin-bottom:6px; }
-    .ord-card-item .oci-foot { display:flex; align-items:center; justify-content:space-between; font-size:var(--cs-font-size-xs); }
-    .ord-card-item .oci-view { color:var(--cs-primary); cursor:pointer; }
-    .ord-card-item .oci-view:hover { text-decoration:underline; }
-    .ord-card-item .oci-del { color:var(--cs-text-tertiary); cursor:pointer; }
-    .ord-card-item .oci-del:hover { color:var(--cs-danger); }
-    .ord-empty { font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); }
+    .ord-table .oci-id { font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); font-size:var(--cs-font-size-sm); }
+    .ord-table .oci-view { color:var(--cs-primary); cursor:pointer; font-size:var(--cs-font-size-xs); }
+    .ord-table .oci-view:hover { text-decoration:underline; }
+    .ord-table .oci-del { color:var(--cs-text-tertiary); cursor:pointer; font-size:var(--cs-font-size-xs); margin-left:8px; }
+    .ord-table .oci-del:hover { color:var(--cs-danger); }
+    /* 数字列对齐:数量居中,金额右对齐 */
+    .ord-table th:nth-child(5), .ord-table td:nth-child(5) { text-align:center; }
+    .ord-table th:nth-child(7), .ord-table td:nth-child(7) { text-align:right; }
   </style>
 </head>
 <body>
@@ -92,7 +94,6 @@
   <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
     <header class="admin-header">
       <div class="breadcrumb">客服工单 / <a href="admin-ticket.html" style="color:var(--cs-primary);">工单列表</a> / <span style="color:var(--cs-text);font-weight:600;">工单详情</span><span id="tkno" style="color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;"></span></div>
-      <div class="action-bar" id="actionBar"></div>
     </header>
 
     <main class="admin-content detail-wrap">
@@ -105,8 +106,13 @@
         <span class="countdown warn" id="countdownTag">剩余 6天0小时(7天期限)</span>
       </div>
 
-      <!-- 基本信息(元信息) -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+      <div class="detail-grid">
+
+        <div class="detail-side">
+
+          <!-- 基本信息(元信息) -->
+          <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div style="display:flex;justify-content:flex-end;"><a class="desc-link" id="editLink" onclick="editTicket()">编辑</a></div>
         <div class="info-grid">
           <div class="info-row"><span class="info-label">标题</span><span class="info-content" id="dTitle">—</span></div>
           <div class="info-row"><span class="info-label">工单类型</span><span class="info-content" id="dType">—</span></div>
@@ -114,6 +120,11 @@
           <div class="info-row"><span class="info-label">完成期限</span><span class="info-content" id="dDeadline">—</span></div>
           <div class="info-row"><span class="info-label">客户</span><span class="info-content" id="dCustomer">—</span></div>
           <div class="info-row"><span class="info-label">联系人</span><span class="info-content" id="dContact">—</span></div>
+          <!-- V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改) -->
+          <div class="info-row"><span class="info-label">移动电话</span><span class="info-content" id="dPhone">—</span></div>
+          <div class="info-row"><span class="info-label">座机电话</span><span class="info-content" id="dTel">—</span></div>
+          <div class="info-row"><span class="info-label">来电电话</span><span class="info-content" id="dIncoming">—</span></div>
+          <div class="info-row"><span class="info-label">联系地址</span><span class="info-content" id="dAddr">—</span></div>
           <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
           <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
           <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content" id="dFeedback">电话</span></div>
@@ -134,11 +145,9 @@
         </div>
       </div>
 
-      <!-- 关联订单(独立卡,可查询关联一或多个) -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title">关联订单 <span class="ord-count" id="ordCountTag"></span><a class="desc-link" style="margin-left:auto;" onclick="openOrderPicker()">+ 添加订单</a></div>
-        <div id="orderCardList"></div>
-      </div>
+        </div>
+
+        <div class="detail-main">
 
       <!-- 工单描述 -->
       <div class="card" style="padding:14px 18px; margin-bottom:16px;">
@@ -157,6 +166,17 @@
         </div>
       </div>
 
+      <!-- 关联订单(主栏宽区展示,窄屏可横滑;与建单页同款表格) -->
+      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+        <div class="section-title">关联订单 <span class="ord-count" id="ordCountTag"></span><a class="desc-link" style="margin-left:auto;" onclick="openOrderPicker()">+ 添加订单</a></div>
+        <div class="table-wrap">
+          <table class="data-table ord-table">
+            <thead><tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:110px;">操作</th></tr></thead>
+            <tbody id="orderCardList"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- 内部备注 -->
       <div class="card" style="padding:14px 18px; margin-bottom:16px;">
         <div class="section-title">内部备注</div>
@@ -169,7 +189,7 @@
         <div class="reply-box" style="margin-top:12px;">
           <textarea id="replyInput" placeholder="添加内部备注(仅客服可见)…"></textarea>
           <div class="reply-foot">
-            <span class="hint">内部备注仅客服可见;回复用户请点顶部「回复用户」</span>
+            <span class="hint">内部备注仅客服可见;处理中可通过底部「回复用户」跳转会话工作台</span>
             <button class="btn-primary" onclick="sendReply()">添加备注</button>
           </div>
         </div>
@@ -191,7 +211,14 @@
           <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-op human">客服</span></div>
           <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待受理)</span><span class="ev-op sys">系统</span></div>
         </div>
+          </div>
+
+        </div>
+
       </div>
+
+      <!-- V0.5 四.2/六.2:状态操作按钮集中详情页底部(完工在此,非行操作) -->
+      <div class="action-bar" id="actionBar" style="justify-content:flex-end; margin-top:16px; padding:12px 16px; background:#fff; border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);"></div>
 
     </main>
   </div>
@@ -217,7 +244,11 @@
     deadlineAt: P.get('deadline_at') || '2026-07-23T16:00:00',
     agent: P.get('agent') || '张小明',
     order: P.get('order') || '#DD20260711001',
+    orderSub: P.get('order_sub') || '#DD20260711001-1',
+    orderSku: P.get('order_sku') || 'HZDF2099334',
     orderGoods: P.get('order_goods') || '羽绒被 1.8m',
+    orderQty: P.get('order_qty') || '1',
+    orderSupplier: P.get('order_supplier') || '南通家纺厂',
     orderAmount: P.get('order_amount') || '¥699',
     orderState: P.get('order_state') || '已签收',
     project: P.get('project') || '昆山吉波项目',
@@ -229,25 +260,37 @@
     dept: P.get('dept') || '客服部',
     secondary: P.get('secondary') || '否',
     created: P.get('created') || '2026-07-16 10:30',
+    /* V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改) */
+    contact: P.get('contact_name') || '',
+    contactPhone: P.get('contact_phone') || '135****8821',
+    contactTel: P.get('contact_tel') || '',
+    incomingCall: P.get('incoming_call') || '',
+    contactAddr: P.get('contact_addr') || '江苏省昆山市花桥镇光明路XX小区3栋502',
     newName: P.get('new_name') || '',
     newPhone: P.get('new_phone') || '',
     newTel: P.get('new_tel') || '',
     newAddr: P.get('new_addr') || ''
   };
 
-  /* 关联订单(独立卡):初始带入 + 抽屉查询关联一或多个(工单-订单 1 对多) */
-  var relatedOrders = DATA.order ? [{ id: DATA.order, goods: DATA.orderGoods, amount: DATA.orderAmount, state: DATA.orderState }] : [];
+  /* 关联订单(独立卡):初始带入 + 抽屉查询关联一或多个(工单-订单 1 对多);展示列与建单页一致(BR-136) */
+  var relatedOrders = DATA.order ? [{ id: DATA.order, sub_id: DATA.orderSub, sku: DATA.orderSku, goods: DATA.orderGoods, qty: DATA.orderQty, supplier: DATA.orderSupplier, amount: DATA.orderAmount, state: DATA.orderState }] : [];
   function renderOrderCards() {
     var box = document.getElementById('orderCardList');
     var tag = document.getElementById('ordCountTag');
     if (tag) tag.textContent = relatedOrders.length ? (relatedOrders.length + ' 单') : '';
-    if (!relatedOrders.length) { box.innerHTML = '<div class="ord-empty">暂无关联订单,点「+ 添加订单」查询关联</div>'; return; }
+    if (!relatedOrders.length) { box.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--cs-text-tertiary);">暂无关联订单,点「+ 添加订单」查询关联</td></tr>'; return; }
     box.innerHTML = relatedOrders.map(function (o, i) {
-      return '<div class="ord-card-item">'
-        + '<div class="oci-top"><span class="oci-id">' + esc(o.id) + '</span><span class="oci-state">' + esc(o.state || '') + '</span></div>'
-        + (o.goods ? '<div class="oci-goods">' + esc(o.goods) + (o.amount ? ' · ' + esc(o.amount) : '') + '</div>' : '')
-        + '<div class="oci-foot"><a class="oci-view" onclick="toast(\'打开订单详情(OMS)\')">查看详情 →</a><a class="oci-del" onclick="removeOrder(' + i + ')">移除</a></div>'
-        + '</div>';
+      return '<tr>'
+        + '<td><span class="oci-id">' + esc(o.id) + '</span></td>'
+        + '<td>' + (o.sub_id ? esc(o.sub_id) : '-') + '</td>'
+        + '<td>' + (o.sku ? esc(o.sku) : '-') + '</td>'
+        + '<td>' + (o.goods ? esc(o.goods) : '-') + '</td>'
+        + '<td>' + (o.qty != null && o.qty !== '' ? esc(o.qty) : '-') + '</td>'
+        + '<td>' + (o.supplier ? esc(o.supplier) : '-') + '</td>'
+        + '<td>' + (o.amount ? esc(o.amount) : '-') + '</td>'
+        + '<td>' + (o.state ? esc(o.state) : '-') + '</td>'
+        + '<td><a class="oci-view" onclick="toast(\'打开订单详情(OMS)\')">查看详情 →</a> <a class="oci-del" onclick="removeOrder(' + i + ')">移除</a></td>'
+        + '</tr>';
     }).join('');
   }
   function removeOrder(i) { relatedOrders.splice(i, 1); renderOrderCards(); toast('已移除关联订单'); }
@@ -284,10 +327,14 @@
   if (DATA.responsible) { setText('dResp', DATA.responsible); setText('respTag', '责任:' + DATA.responsible); }
   else { document.getElementById('dRespRow').style.display = 'none'; document.getElementById('respTag').style.display = 'none'; }
   setText('dCustomer', DATA.customer);
-  setText('dContact', DATA.customer);
+  setText('dContact', DATA.contact || DATA.customer);
+  setText('dPhone', DATA.contactPhone || '—');
+  setText('dTel', DATA.contactTel || '—');
+  setText('dIncoming', DATA.incomingCall || '—');
+  setText('dAddr', DATA.contactAddr || '—');
   renderOrderCards();
   setText('dProject', DATA.project || '-');
-  document.getElementById('dSession').innerHTML = (DATA.session && DATA.session !== '-') ? '<a onclick="toast(\'跳回客服工作台并定位会话(占位)\')">查看 ' + DATA.session + ' →</a>' : '-';
+  document.getElementById('dSession').innerHTML = (DATA.session && DATA.session !== '-') ? '<a onclick="gotoSession()">查看 ' + esc(DATA.session) + ' →</a>' : '-';
   setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');
   setText('dAgent', DATA.agent === '未分配' ? '未分配' : DATA.agent);
   setText('dFeedback', DATA.feedback || '—');
@@ -305,7 +352,7 @@
   var urgEl = document.getElementById('urgencyTag');
   if (urgEl) { urgEl.textContent = DATA.priority || ''; urgEl.className = 'urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
 
-  /* 状态机(随行初始状态;操作按钮按状态置顶)
+  /* 状态机(随行初始状态;操作按钮按状态渲染到页面底部 actionBar)
    * V0.5 六.1/四.2:未处理态按是否已指派分流——未分配→「指派」(状态不变);已分配→「受理」(→处理中)。转单=转派仅处理中态。 */
   var STATUS = DATA.status;
   var ASSIGNED = !!DATA.agent && DATA.agent !== '未分配';
@@ -330,10 +377,91 @@
     if (s === '未处理') { st.className = 's-tag untreated'; st.textContent = '未处理'; }
     else if (s === '处理中') { st.className = 's-tag processing'; st.textContent = '处理中'; }
     else { st.className = 's-tag done'; st.textContent = '已完工'; }
+    var el = document.getElementById('editLink'); if (el) el.style.display = (s === '已完工') ? 'none' : '';
     renderDetailCountdown();
     renderActions();
   }
   setState(DATA.status);
+
+  /* UC-TL-06 编辑工单信息:抽屉回填 → 确认后更新视图 + 操作日志(已完工终态不可改) */
+  function editTicket() {
+    if (STATUS === '已完工') { toast('已完工为终态,如需继续请新建工单'); return; }
+    var q = [
+      'title=' + encodeURIComponent(DATA.title || ''),
+      'customer=' + encodeURIComponent(DATA.customer || ''),
+      'category=' + encodeURIComponent(DATA.category || ''),
+      'sub=' + encodeURIComponent(DATA.sub || ''),
+      'type=' + encodeURIComponent(DATA.type || ''),
+      'priority=' + encodeURIComponent(DATA.priority || ''),
+      'deadline=' + encodeURIComponent(DATA.deadline || ''),
+      'responsible=' + encodeURIComponent(DATA.responsible || ''),
+      'project=' + encodeURIComponent(DATA.project || ''),
+      'feedback=' + encodeURIComponent(DATA.feedback || ''),
+      'dept=' + encodeURIComponent(DATA.dept || ''),
+      'secondary=' + encodeURIComponent(DATA.secondary || '否'),
+      'contact_name=' + encodeURIComponent(DATA.contact || DATA.customer || ''),
+      'contact_phone=' + encodeURIComponent(DATA.contactPhone || ''),
+      'contact_tel=' + encodeURIComponent(DATA.contactTel || ''),
+      'incoming_call=' + encodeURIComponent(DATA.incomingCall || ''),
+      'contact_addr=' + encodeURIComponent(DATA.contactAddr || ''),
+      'new_name=' + encodeURIComponent(DATA.newName || ''),
+      'new_phone=' + encodeURIComponent(DATA.newPhone || ''),
+      'new_tel=' + encodeURIComponent(DATA.newTel || ''),
+      'new_addr=' + encodeURIComponent(DATA.newAddr || '')
+    ].join('&');
+    csModal.open('modals/drawer-ticket-edit.html?' + q, { variant: 'drawer-right', width: 640,
+      onConfirm: function (d) {
+        if (!d) return;
+        DATA.title = d.title; DATA.category = d.category; DATA.sub = d.sub; DATA.type = d.type;
+        DATA.priority = d.priority; DATA.deadline = d.deadline; DATA.responsible = d.responsible;
+        DATA.project = d.project; DATA.feedback = d.feedback; DATA.dept = d.dept; DATA.secondary = d.secondary;
+        if (d.contactName) DATA.contact = d.contactName;
+        DATA.contactPhone = d.contactPhone || ''; DATA.contactTel = d.contactTel || '';
+        DATA.incomingCall = d.incomingCall || ''; DATA.contactAddr = d.contactAddr || '';
+        DATA.newName = d.newName; DATA.newPhone = d.newPhone; DATA.newTel = d.newTel; DATA.newAddr = d.newAddr;
+        if (d.deadline) {
+          var days = parseInt(d.deadline, 10) || 0;
+          var t = new Date(MOCK_NOW.getTime() + days * 86400000);
+          var p2 = function (n) { return ('0' + n).slice(-2); };
+          DATA.deadlineAt = t.getFullYear() + '-' + p2(t.getMonth() + 1) + '-' + p2(t.getDate()) + 'T' + p2(t.getHours()) + ':' + p2(t.getMinutes()) + ':00';
+        }
+        applyEditToView();
+        addEvent('编辑工单信息', 'human');
+        toast('工单已保存');
+      }
+    });
+  }
+  function applyEditToView() {
+    setText('dTitle', DATA.title);
+    document.getElementById('dType').innerHTML = esc(DATA.type) + ' <span class="type-three">(' + esc(DATA.category) + ' · ' + esc(DATA.sub) + ')</span>';
+    if (DATA.responsible) {
+      document.getElementById('dRespRow').style.display = '';
+      setText('dResp', DATA.responsible);
+      var rt = document.getElementById('respTag'); rt.style.display = ''; rt.textContent = '责任:' + DATA.responsible;
+    } else {
+      document.getElementById('dRespRow').style.display = 'none';
+      document.getElementById('respTag').style.display = 'none';
+    }
+    setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');
+    if (DATA.contact) setText('dContact', DATA.contact);
+    setText('dPhone', DATA.contactPhone || '—');
+    setText('dTel', DATA.contactTel || '—');
+    setText('dIncoming', DATA.incomingCall || '—');
+    setText('dAddr', DATA.contactAddr || '—');
+    setText('dProject', DATA.project || '-');
+    setText('dFeedback', DATA.feedback || '—');
+    setText('dDept', DATA.dept || '—');
+    setText('dSecondary', DATA.secondary || '—');
+    if (DATA.newName) {
+      setText('dNewName', DATA.newName); setText('dNewPhone', DATA.newPhone || '—'); setText('dNewTel', DATA.newTel || '—'); setText('dNewAddr', DATA.newAddr || '—');
+      document.getElementById('dNewContactGroup').style.display = '';
+    } else {
+      document.getElementById('dNewContactGroup').style.display = 'none';
+    }
+    var urgEl = document.getElementById('urgencyTag');
+    if (urgEl) { urgEl.textContent = DATA.priority || ''; urgEl.className = 'urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
+    renderDetailCountdown();
+  }
 
   function acceptTicket() { setState('处理中'); toast('已受理,开始处理(状态:处理中)'); addEvent('受理(客服确认承接)→ 处理中', 'human'); }
   function assignTicket() {
@@ -370,12 +498,14 @@
     toast('内部备注已添加'); addEvent('添加内部备注', 'human');
   }
   function gotoWorkbench() { toast('跳转到会话工作台回复用户'); setTimeout(function () { location.href = 'admin-workbench.html'; }, 400); }
+  /* UC-TD:查看来源会话 → 跳工作台并定位会话 */
+  function gotoSession() { toast('跳回客服工作台,定位会话 ' + DATA.session); setTimeout(function () { location.href = 'admin-workbench.html?session=' + encodeURIComponent(DATA.session); }, 400); }
   function transferTicket() {
     try {
       csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
-        onConfirm: function (d) { toast('工单已转派' + (d && d.assignee ? '给 ' + d.assignee : '')); addEvent('转派工单', 'human'); }
+        onConfirm: function (d) { toast('工单已转单' + (d && d.assignee ? '给 ' + d.assignee : '')); addEvent('转单(换处理人)', 'human'); }
       });
-    } catch (e) { toast('转派工单(原型演示)'); }
+    } catch (e) { toast('转单(原型演示)'); }
   }
   function addEvent(text, op) {
     var flow = document.getElementById('eventFlow');

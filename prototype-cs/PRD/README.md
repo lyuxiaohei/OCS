@@ -12,9 +12,8 @@ PRD/
 │   ├── archive/                       # 历史版本
 │   └── research/                      # 竞品分析等输入文档
 ├── 客服工单/
-│   ├── PRD-客服工单-V0.2.md           # 当前版本
-│   ├── CHANGES.md                     # 对存量系统的改动清单（开发向）
-│   ├── archive/
+│   ├── PRD-客服工单-V0.5.md           # 当前版本
+│   ├── archive/                       # 历史版本(含 CHANGES-V0.2.md 旧改动清单)
 │   └── research/
 └── 客服工作台/
     └── PRD-客服工作台.md               # 待建
