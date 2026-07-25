@@ -94,28 +94,13 @@
       <!-- 上下文(转工单 / 订单受理带入) -->
       <div class="ctx-box" id="ctxBox">
         <div class="ctx-title">已从会话自动带入</div>
-        <div class="ctx-row">来源会话:<b>#CS20260716088</b> · 客户:<b>陈芳(138****2891)</b></div>
+        <div class="ctx-row">来源会话:<b>#CS20260716088</b> · 客户:<b>陈芳(13856782891)</b></div>
         <div class="ctx-row">关联订单:<b>#DD20260710003</b> · 会话摘要:退款未到账,客户催促</div>
       </div>
 
-      <!-- 基本信息 -->
+      <!-- 基本信息(2026-07-24 三轮:标题系统自动生成,客户由会话/订单上下文绑定,均不再手填) -->
       <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
         <div class="fm-sec">基本信息</div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">标题<span class="req">*</span></label>
-            <input class="fm-input" id="fTitle" placeholder="简述问题" />
-          </div>
-          <div class="fm-field flex1">
-            <label class="fm-label">客户<span class="req">*</span></label>
-            <input class="fm-input readonly-field" id="fCustomerRO" style="display:none;" readonly />
-            <div class="inline-pick" id="fCustomerPick" style="display:none;">
-              <input class="ip-input" id="custSearch" placeholder="搜索 手机号 / 昵称 / 用户ID" autocomplete="off" />
-              <div class="ip-hint" id="custHint">输入关键词搜索客户</div>
-              <div class="inline-list" id="custList" style="display:none;"></div>
-            </div>
-          </div>
-        </div>
         <div class="fm-row">
           <div class="fm-field flex1">
             <label class="fm-label">受理业务类型<span class="req">*</span></label>
@@ -150,6 +135,32 @@
               <option value="">请选择</option>
               <option value="1天">1天</option><option value="7天">7天</option><option value="15天">15天</option>
             </select>
+          </div>
+        </div>
+        <div class="fm-row">
+          <div class="fm-field flex1">
+            <label class="fm-label">项目名称<span class="req">*</span></label>
+            <input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" />
+          </div>
+          <div class="fm-field flex1">
+            <label class="fm-label">反馈方式<span class="req">*</span></label>
+            <select class="fm-select" id="fFeedback">
+              <option value="">请选择</option>
+              <option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option>
+            </select>
+          </div>
+        </div>
+        <div class="fm-row">
+          <div class="fm-field flex1">
+            <label class="fm-label">提交部门<span class="req">*</span></label>
+            <select class="fm-select" id="fDept">
+              <option value="">请选择</option>
+              <option>客服部</option><option>商品部</option><option>商务部</option>
+            </select>
+          </div>
+          <div class="fm-field flex1">
+            <label class="fm-label">二次投诉</label>
+            <select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select>
           </div>
         </div>
         <div class="fm-row" id="sourceRow" style="display:none;">
@@ -189,10 +200,7 @@
           <div class="fm-field flex1"><label class="fm-label">移动电话</label><input class="fm-input" id="fContactPhone" placeholder="移动电话" /></div>
         </div>
         <div class="fm-row">
-          <div class="fm-field flex1"><label class="fm-label">座机电话</label><input class="fm-input" id="fContactTel" placeholder="座机电话" /></div>
           <div class="fm-field flex1"><label class="fm-label">来电电话</label><input class="fm-input" id="fIncomingCall" placeholder="来电电话" /></div>
-        </div>
-        <div class="fm-row">
           <div class="fm-field flex1"><label class="fm-label">联系地址</label><input class="fm-input" id="fContactAddr" placeholder="联系地址" /></div>
         </div>
         <a class="collapse-toggle" id="newContactToggle">+ 新联系人信息(收货人以外的实际联系人)</a>
@@ -208,36 +216,7 @@
         </div>
       </div>
 
-      <!-- 业务字段 -->
-      <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
-        <div class="fm-sec">业务字段</div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">项目名称<span class="req">*</span></label>
-            <input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" />
-          </div>
-          <div class="fm-field flex1">
-            <label class="fm-label">反馈方式<span class="req">*</span></label>
-            <select class="fm-select" id="fFeedback">
-              <option value="">请选择</option>
-              <option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option>
-            </select>
-          </div>
-        </div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">提交部门<span class="req">*</span></label>
-            <select class="fm-select" id="fDept">
-              <option value="">请选择</option>
-              <option>客服部</option><option>商品部</option><option>商务部</option>
-            </select>
-          </div>
-          <div class="fm-field flex1">
-            <label class="fm-label">二次投诉</label>
-            <select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select>
-          </div>
-        </div>
-      </div>
+      <!-- 业务字段已并入「基本信息」(2026-07-24 四轮:项目名称/反馈方式/提交部门/二次投诉) -->
 
       <!-- 工单描述 -->
       <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
@@ -291,14 +270,7 @@
     this.textContent = (open ? '－ ' : '+ ') + '新联系人信息(收货人以外的实际联系人)';
   });
 
-  /* mock 数据(1 期;正式:客户搜索 customer/search + 按客户查订单 customer/orders) */
-  var CUSTOMERS = [
-    { user_id:'U20260710001', name:'陈芳',   phone:'138****2891', level:'黄金会员' },
-    { user_id:'U20260710002', name:'刘洋',   phone:'139****5678', level:'普通会员' },
-    { user_id:'U20260710003', name:'周婷婷', phone:'137****1024', level:'白银会员' },
-    { user_id:'U20260710004', name:'赵磊',   phone:'135****8821', level:'黄金会员' },
-    { user_id:'U20260710006', name:'陈思雨', phone:'186****0452', level:'VIP' }
-  ];
+  /* mock 订单数据(1 期;正式:按客户查订单 customer/orders) */
   var ORDERS = [
     { user_id:'U20260710001', order_id:'#DD20260710003', sub_id:'#DD20260710003-1', sku:'HZDF3100216', goods:'无线蓝牙耳机(黑色)', qty:1, supplier:'深圳声科电子', amount:'¥299', time:'2026-07-10', state:'已签收' },
     { user_id:'U20260710001', order_id:'#DD20260708001', sub_id:'#DD20260708001-1', sku:'HZDF2088771', goods:'不锈钢保温杯 500ml', qty:1, supplier:'永康精工杯业', amount:'¥89', time:'2026-07-08', state:'已完成' },
@@ -306,7 +278,7 @@
     { user_id:'U20260710004', order_id:'#DD20260711001', sub_id:'#DD20260711001-1', sku:'HZDF2099334', goods:'羽绒被 1.8m', qty:1, supplier:'南通家纺厂', amount:'¥699', time:'2026-07-11', state:'已签收' }
   ];
 
-  var state = { user_id:'', user_name:'', orders: [], session_id:'' };
+  var state = { orders: [], session_id:'' };
   var mode = new URLSearchParams(location.search).get('mode') || 'session';
   var standalone = mode === 'standalone';
   var orderMode = mode === 'order';
@@ -314,7 +286,6 @@
 
   if (standalone) {
     document.getElementById('ctxBox').style.display = 'none';
-    document.getElementById('fCustomerPick').style.display = '';
     document.getElementById('sourceRow').style.display = '';
     state.orders = []; renderCreateOrders();
   } else if (orderMode) {
@@ -328,16 +299,12 @@
       + '<div class="ctx-row">关联订单:<b>' + esc(oid) + '</b> · 商品:<b>' + esc(goods) + '</b> · ' + esc(amount) + '</div>'
       + '<div class="ctx-row">客户:<b>' + esc(phone) + '</b> · 收货人:<b>' + esc(receiver) + '</b> · ' + esc(raddr) + '</div>'
       + '<div class="ctx-row">项目:<b>' + esc(project) + '</b> · 订单状态:' + esc(ostate) + '</div>';
-    document.getElementById('fCustomerRO').style.display = '';
-    document.getElementById('fCustomerRO').value = receiver ? (receiver + '(' + phone + ')') : (phone || '(订单未关联客户)');
     state.orders = oid ? [{ id: oid, sub_id: subId, sku: sku, goods: goods, qty: qty, supplier: supplier, amount: amount, state: ostate }] : [];
     renderCreateOrders();
-    document.getElementById('fTitle').value = goods ? ('订单售后 - ' + goods) : '';
     document.getElementById('fContactName').value = receiver;
     document.getElementById('fContactPhone').value = phone;
     document.getElementById('fContactAddr').value = raddr;
     document.getElementById('fProject').value = project;
-    state.user_name = receiver ? (receiver + '(' + phone + ')') : (phone || '(订单未关联客户)');
     state.order_ids = oid ? [oid] : [];
   } else if (batchMode) {
     /* 批量创建工单:所选订单合并为一张(工单-订单 1 对多),不限制客户 */
@@ -348,60 +315,21 @@
     bctx.innerHTML = '<div class="ctx-title">已批量带入 ' + boids.length + ' 个订单 · 合并为一张工单(不限制客户)</div>'
       + '<div class="ctx-row">关联订单:<b>' + esc(boids.join(' · ')) + '</b></div>'
       + '<div class="ctx-row">请在下方补充分类 / 描述后提交;多单关联为工单-订单 1 对多</div>';
-    document.getElementById('fCustomerRO').style.display = '';
-    document.getElementById('fCustomerRO').value = '(' + boids.length + ' 个订单批量创建,提交时绑定客户)';
     state.orders = boids.map(function (id) { return { id: id }; });
     renderCreateOrders();
-    document.getElementById('fTitle').value = '批量售后 - ' + boids.length + ' 个订单';
     document.getElementById('sourceRow').style.display = '';
     state.order_ids = boids.slice();
   } else {
     /* 转工单(session)默认带入 */
-    document.getElementById('fCustomerRO').style.display = '';
-    document.getElementById('fCustomerRO').value = '陈芳(138****2891)';
     state.orders = [{ id: '#DD20260710003', sub_id: '#DD20260710003-1', sku: 'HZDF3100216', goods: '无线蓝牙耳机(黑色)', qty: 1, supplier: '深圳声科电子', amount: '¥299', state: '已签收' }];
     renderCreateOrders();
-    document.getElementById('fTitle').value = '订单退款两天未到账';
     document.getElementById('fDesc').value = '客户反馈订单 #DD20260710003 的退款申请于 7/14 提交,两天未到账,情绪激动。';
     document.getElementById('fContactName').value = '陈芳';
-    document.getElementById('fContactPhone').value = '138****2891';
+    document.getElementById('fContactPhone').value = '13856782891';
     document.getElementById('fContactAddr').value = '南京市玄武区苏宁大道1号';
     document.getElementById('fProject').value = '(兆点)苏宁邮政项目';
-    state.user_id = 'U20260710001'; state.user_name = '陈芳(138****2891)';
     state.order_ids = ['#DD20260710003']; state.session_id = '#CS20260716088';
   }
-
-  /* 客户内联搜索 */
-  var custSearch = document.getElementById('custSearch');
-  var custList = document.getElementById('custList');
-  var custHint = document.getElementById('custHint');
-  function renderCust(kw) {
-    kw = (kw || '').trim().toLowerCase();
-    var filtered = CUSTOMERS.filter(function (c) {
-      if (!kw) return false;
-      return (c.name || '').toLowerCase().indexOf(kw) >= 0 || (c.phone || '').indexOf(kw) >= 0 || (c.user_id || '').toLowerCase().indexOf(kw) >= 0;
-    });
-    if (!filtered.length) { custList.innerHTML = '<div class="inline-empty">未找到匹配客户</div>'; custList.style.display = ''; return; }
-    custList.innerHTML = filtered.map(function (c, i) {
-      return '<div class="inline-item" data-i="' + i + '"><div class="ii-main">' + esc(c.name) + ' · ' + esc(c.phone) + '</div><div class="ii-sub">' + esc(c.user_id) + ' · ' + esc(c.level) + '</div></div>';
-    }).join('');
-    custList.style.display = '';
-    custList._data = filtered;
-  }
-  custSearch.addEventListener('input', function () { renderCust(custSearch.value); });
-  custList.addEventListener('click', function (e) {
-    var item = e.target.closest('.inline-item'); if (!item) return;
-    var c = custList._data[parseInt(item.getAttribute('data-i'), 10)]; if (!c) return;
-    state.user_id = c.user_id; state.user_name = c.name + '(' + c.phone + ')';
-    custSearch.value = state.user_name; custSearch.classList.add('filled'); custList.style.display = 'none';
-    custHint.innerHTML = '已选:' + esc(c.name) + ' · ' + esc(c.user_id) + ' <span class="ip-clear" onclick="clearCust()">清除重选</span>';
-  });
-  function clearCust() {
-    state.user_id = ''; state.user_name = '';
-    custSearch.value = ''; custSearch.classList.remove('filled');
-    custHint.textContent = '输入关键词搜索客户'; custList.style.display = 'none';
-  }
-  window.clearCust = clearCust;
 
   /* 关联订单(列表):抽屉查询关联一或多个 + 手动追加(工单-订单 1 对多) */
   function renderCreateOrders() {
@@ -438,18 +366,15 @@
   window.openOrderPicker = openOrderPicker;
 
   function submit() {
-    var title = document.getElementById('fTitle').value.trim();
-    if (!title) { toast('请填写标题'); return; }
     if (!fCategory.value) { toast('请选择受理业务类型'); return; }
     if (!fSubCategory.value) { toast('请选择咨询/投诉类别'); return; }
     if (!fType.value) { toast('请选择具体类型'); return; }
     if (fCategory.value === '投诉业务' && !fResponsible.value) { toast('投诉类请选择责任承担方'); return; }
-    if (standalone && !state.user_id) { toast('请选择客户'); return; }
     if (!document.getElementById('fProject').value.trim()) { toast('请填写项目名称'); return; }
     if (!document.getElementById('fFeedback').value) { toast('请选择反馈方式'); return; }
     if (!document.getElementById('fDept').value) { toast('请选择提交部门'); return; }
-    /* 提交(原型:提示后回列表) */
-    toast('工单已创建:' + title);
+    /* 提交(原型:提示后回列表;标题由系统按「类型+工单号」生成) */
+    toast('工单已创建');
     setTimeout(function () { location.href = 'admin-ticket.html'; }, 500);
   }
 </script>

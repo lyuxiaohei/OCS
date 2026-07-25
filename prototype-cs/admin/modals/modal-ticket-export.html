@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>导出工单</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    html, body { background: #fff; margin: 0; }
+    body { font-family: inherit; color: var(--cs-text); }
+    .ex-wrap { width: 400px; }
+    .ex-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--cs-border-light);
+    }
+    .ex-head .title { font-size: 16px; font-weight: 600; }
+    .ex-head .close {
+      font-size: 22px; color: var(--cs-text-tertiary); cursor: pointer; line-height: 1;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background .15s;
+    }
+    .ex-head .close:hover { background: var(--cs-bg-hover); }
+    .ex-body { padding: 16px 20px; }
+    .ex-opt {
+      display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+      border: 1px solid var(--cs-border-light); border-radius: var(--cs-radius-sm);
+      margin-bottom: 10px; cursor: pointer; transition: border-color .15s;
+    }
+    .ex-opt:hover { border-color: var(--cs-primary); }
+    .ex-opt.checked { border-color: var(--cs-primary); background: var(--cs-primary-bg, #e6f0ff); }
+    .ex-opt.disabled { opacity: .5; cursor: not-allowed; }
+    .ex-opt.disabled:hover { border-color: var(--cs-border-light); }
+    .ex-opt input { margin-top: 3px; }
+    .ex-opt .ex-name { font-size: var(--cs-font-size-base); color: var(--cs-text); font-weight: var(--cs-font-weight-medium); }
+    .ex-opt .ex-desc { font-size: var(--cs-font-size-xs); color: var(--cs-text-tertiary); margin-top: 3px; }
+    .ex-opt .ex-desc b { color: var(--cs-primary); }
+    .ex-tip { font-size: var(--cs-font-size-xs); color: var(--cs-text-placeholder); padding: 2px 2px 0; }
+    .ex-foot {
+      display: flex; gap: 10px; padding: 12px 20px;
+      border-top: 1px solid var(--cs-border-light); background: #fff;
+    }
+    .ex-btn {
+      flex: 1; padding: 10px 0; border-radius: 6px; font-size: 14px;
+      cursor: pointer; border: 1px solid var(--cs-border); background: #fff;
+      color: var(--cs-text-secondary); transition: all .15s;
+    }
+    .ex-btn:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+    .ex-btn.primary { background: var(--cs-primary); border-color: var(--cs-primary); color: #fff; }
+    .ex-btn.primary:hover { background: #1a6dff; }
+  </style>
+</head>
+<body>
+  <div class="ex-wrap">
+    <div class="ex-head">
+      <div class="title">导出工单</div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="ex-body">
+      <label class="ex-opt" id="optSelected">
+        <input type="radio" name="scope" value="selected" />
+        <span>
+          <div class="ex-name">导出勾选数据</div>
+          <div class="ex-desc">已勾选 <b id="selCount">0</b> 条工单</div>
+        </span>
+      </label>
+      <label class="ex-opt" id="optFiltered">
+        <input type="radio" name="scope" value="filtered" checked />
+        <span>
+          <div class="ex-name">导出查询结果数据</div>
+          <div class="ex-desc">当前筛选结果共 <b id="fltCount">0</b> 条工单</div>
+        </span>
+      </label>
+      <div class="ex-tip">导出为 Excel(.xlsx),字段与列表列一致;仅主管可导出。</div>
+    </div>
+    <div class="ex-foot">
+      <button class="ex-btn" onclick="window.csModalBridge.close()">取消</button>
+      <button class="ex-btn primary" id="btnOk">确认导出</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var qs = new URLSearchParams(location.search);
+      var selected = parseInt(qs.get('selected') || '0', 10) || 0;
+      var filtered = parseInt(qs.get('filtered') || '0', 10) || 0;
+      document.getElementById('selCount').textContent = selected;
+      document.getElementById('fltCount').textContent = filtered;
+
+      var optSelected = document.getElementById('optSelected');
+      var optFiltered = document.getElementById('optFiltered');
+      var radioSel = optSelected.querySelector('input');
+      var radioFlt = optFiltered.querySelector('input');
+
+      /* 无勾选时禁用「导出勾选数据」 */
+      if (selected === 0) {
+        optSelected.classList.add('disabled');
+        radioSel.disabled = true;
+      } else {
+        radioSel.checked = true;
+        radioFlt.checked = false;
+      }
+      function sync() {
+        optSelected.classList.toggle('checked', radioSel.checked);
+        optFiltered.classList.toggle('checked', radioFlt.checked);
+      }
+      radioSel.addEventListener('change', sync);
+      radioFlt.addEventListener('change', sync);
+      sync();
+
+      document.getElementById('btnOk').addEventListener('click', function () {
+        var scope = radioSel.checked ? 'selected' : 'filtered';
+        var count = radioSel.checked ? selected : filtered;
+        window.csModalBridge.confirm({ scope: scope, count: count });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -112,17 +112,14 @@
 
           <!-- 基本信息(元信息) -->
           <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div style="display:flex;justify-content:flex-end;"><a class="desc-link" id="editLink" onclick="editTicket()">编辑</a></div>
+        <div class="section-title" style="margin-bottom:10px;">基本信息 <a class="desc-link" id="editLink" style="margin-left:auto;" onclick="editTicket()">编辑</a></div>
         <div class="info-grid">
-          <div class="info-row"><span class="info-label">标题</span><span class="info-content" id="dTitle">—</span></div>
           <div class="info-row"><span class="info-label">工单类型</span><span class="info-content" id="dType">—</span></div>
           <div class="info-row" id="dRespRow"><span class="info-label">责任承担方</span><span class="info-content" id="dResp">—</span></div>
           <div class="info-row"><span class="info-label">完成期限</span><span class="info-content" id="dDeadline">—</span></div>
-          <div class="info-row"><span class="info-label">客户</span><span class="info-content" id="dCustomer">—</span></div>
           <div class="info-row"><span class="info-label">联系人</span><span class="info-content" id="dContact">—</span></div>
-          <!-- V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改) -->
+          <!-- V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改;2026-07-24 三轮:标题/客户/座机电话已移除) -->
           <div class="info-row"><span class="info-label">移动电话</span><span class="info-content" id="dPhone">—</span></div>
-          <div class="info-row"><span class="info-label">座机电话</span><span class="info-content" id="dTel">—</span></div>
           <div class="info-row"><span class="info-label">来电电话</span><span class="info-content" id="dIncoming">—</span></div>
           <div class="info-row"><span class="info-label">联系地址</span><span class="info-content" id="dAddr">—</span></div>
           <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
@@ -253,17 +250,16 @@
     orderState: P.get('order_state') || '已签收',
     project: P.get('project') || '昆山吉波项目',
     title: P.get('title') || '退货退款,等客户提供物流单号',
-    customer: P.get('customer') || '赵磊(135****8821)',
+    customer: P.get('customer') || '赵磊(13567898821)',
     session: P.get('session') || '#CS20260715088',
     /* V0.5 三.2.6:受理字段 + 新联系人(收货人以外的实际联系人) */
     feedback: P.get('feedback') || '电话',
     dept: P.get('dept') || '客服部',
     secondary: P.get('secondary') || '否',
-    created: P.get('created') || '2026-07-16 10:30',
-    /* V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改) */
-    contact: P.get('contact_name') || '',
-    contactPhone: P.get('contact_phone') || '135****8821',
-    contactTel: P.get('contact_tel') || '',
+    created: (P.get('created') || '2026-07-16 10:30').replace('T', ' ').slice(0, 16),
+    /* V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改);联系人示例=收货人姓名 */
+    contact: P.get('contact_name') || (P.get('customer') || '赵磊').split(/[ (]/)[0],
+    contactPhone: P.get('contact_phone') || '13567898821',
     incomingCall: P.get('incoming_call') || '',
     contactAddr: P.get('contact_addr') || '江苏省昆山市花桥镇光明路XX小区3栋502',
     newName: P.get('new_name') || '',
@@ -322,14 +318,11 @@
 
   /* 填充元信息 */
   setText('tkno', DATA.id);
-  setText('dTitle', DATA.title);
   document.getElementById('dType').innerHTML = DATA.type + ' <span class="type-three">(' + DATA.category + ' · ' + DATA.sub + ')</span>';
   if (DATA.responsible) { setText('dResp', DATA.responsible); setText('respTag', '责任:' + DATA.responsible); }
   else { document.getElementById('dRespRow').style.display = 'none'; document.getElementById('respTag').style.display = 'none'; }
-  setText('dCustomer', DATA.customer);
-  setText('dContact', DATA.contact || DATA.customer);
+  setText('dContact', DATA.contact || '—');
   setText('dPhone', DATA.contactPhone || '—');
-  setText('dTel', DATA.contactTel || '—');
   setText('dIncoming', DATA.incomingCall || '—');
   setText('dAddr', DATA.contactAddr || '—');
   renderOrderCards();
@@ -387,8 +380,6 @@
   function editTicket() {
     if (STATUS === '已完工') { toast('已完工为终态,如需继续请新建工单'); return; }
     var q = [
-      'title=' + encodeURIComponent(DATA.title || ''),
-      'customer=' + encodeURIComponent(DATA.customer || ''),
       'category=' + encodeURIComponent(DATA.category || ''),
       'sub=' + encodeURIComponent(DATA.sub || ''),
       'type=' + encodeURIComponent(DATA.type || ''),
@@ -399,9 +390,8 @@
       'feedback=' + encodeURIComponent(DATA.feedback || ''),
       'dept=' + encodeURIComponent(DATA.dept || ''),
       'secondary=' + encodeURIComponent(DATA.secondary || '否'),
-      'contact_name=' + encodeURIComponent(DATA.contact || DATA.customer || ''),
+      'contact_name=' + encodeURIComponent(DATA.contact || ''),
       'contact_phone=' + encodeURIComponent(DATA.contactPhone || ''),
-      'contact_tel=' + encodeURIComponent(DATA.contactTel || ''),
       'incoming_call=' + encodeURIComponent(DATA.incomingCall || ''),
       'contact_addr=' + encodeURIComponent(DATA.contactAddr || ''),
       'new_name=' + encodeURIComponent(DATA.newName || ''),
@@ -412,11 +402,11 @@
     csModal.open('modals/drawer-ticket-edit.html?' + q, { variant: 'drawer-right', width: 640,
       onConfirm: function (d) {
         if (!d) return;
-        DATA.title = d.title; DATA.category = d.category; DATA.sub = d.sub; DATA.type = d.type;
+        DATA.category = d.category; DATA.sub = d.sub; DATA.type = d.type;
         DATA.priority = d.priority; DATA.deadline = d.deadline; DATA.responsible = d.responsible;
         DATA.project = d.project; DATA.feedback = d.feedback; DATA.dept = d.dept; DATA.secondary = d.secondary;
         if (d.contactName) DATA.contact = d.contactName;
-        DATA.contactPhone = d.contactPhone || ''; DATA.contactTel = d.contactTel || '';
+        DATA.contactPhone = d.contactPhone || '';
         DATA.incomingCall = d.incomingCall || ''; DATA.contactAddr = d.contactAddr || '';
         DATA.newName = d.newName; DATA.newPhone = d.newPhone; DATA.newTel = d.newTel; DATA.newAddr = d.newAddr;
         if (d.deadline) {
@@ -432,7 +422,6 @@
     });
   }
   function applyEditToView() {
-    setText('dTitle', DATA.title);
     document.getElementById('dType').innerHTML = esc(DATA.type) + ' <span class="type-three">(' + esc(DATA.category) + ' · ' + esc(DATA.sub) + ')</span>';
     if (DATA.responsible) {
       document.getElementById('dRespRow').style.display = '';
@@ -445,7 +434,6 @@
     setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');
     if (DATA.contact) setText('dContact', DATA.contact);
     setText('dPhone', DATA.contactPhone || '—');
-    setText('dTel', DATA.contactTel || '—');
     setText('dIncoming', DATA.incomingCall || '—');
     setText('dAddr', DATA.contactAddr || '—');
     setText('dProject', DATA.project || '-');

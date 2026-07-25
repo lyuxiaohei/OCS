@@ -47,12 +47,6 @@
 
       <div class="fm-sec">基本信息</div>
       <div class="fm-row">
-        <div class="fm-field"><label class="fm-label">客户</label><span class="fm-static" id="fCustomer">—</span></div>
-      </div>
-      <div class="fm-row">
-        <div class="fm-field"><label class="fm-label">标题<span class="req">*</span></label><input class="fm-input" id="fTitle" placeholder="简述问题" /></div>
-      </div>
-      <div class="fm-row">
         <div class="fm-field"><label class="fm-label">受理业务类型<span class="req">*</span></label><select class="fm-select" id="fCategory"><option value="">请选择</option></select></div>
         <div class="fm-field"><label class="fm-label">咨询/投诉类别<span class="req">*</span></label><select class="fm-select" id="fSubCategory"><option value="">请先选一级</option></select></div>
       </div>
@@ -64,6 +58,14 @@
         <div class="fm-field"><label class="fm-label">优先级</label><select class="fm-select" id="fPriority"><option value="">请选择</option><option>一般</option><option>紧急</option><option>特急</option></select></div>
         <div class="fm-field"><label class="fm-label">完成期限</label><select class="fm-select" id="fDeadline"><option value="">请选择</option><option value="1天">1天</option><option value="7天">7天</option><option value="15天">15天</option></select></div>
       </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">项目名称<span class="req">*</span></label><input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" /></div>
+        <div class="fm-field"><label class="fm-label">反馈方式<span class="req">*</span></label><select class="fm-select" id="fFeedback"><option value="">请选择</option><option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option></select></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">提交部门<span class="req">*</span></label><select class="fm-select" id="fDept"><option value="">请选择</option><option>客服部</option><option>商品部</option><option>商务部</option></select></div>
+        <div class="fm-field"><label class="fm-label">二次投诉</label><select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select></div>
+      </div>
 
       <div class="fm-sec">联系方式<span class="sec-tip">改动不影响订单收货信息</span></div>
       <div class="fm-row">
@@ -71,10 +73,7 @@
         <div class="fm-field"><label class="fm-label">移动电话</label><input class="fm-input" id="fContactPhone" placeholder="移动电话" /></div>
       </div>
       <div class="fm-row">
-        <div class="fm-field"><label class="fm-label">座机电话</label><input class="fm-input" id="fContactTel" placeholder="座机电话" /></div>
         <div class="fm-field"><label class="fm-label">来电电话</label><input class="fm-input" id="fIncomingCall" placeholder="来电电话" /></div>
-      </div>
-      <div class="fm-row">
         <div class="fm-field"><label class="fm-label">联系地址</label><input class="fm-input" id="fContactAddr" placeholder="联系地址" /></div>
       </div>
       <a class="collapse-toggle" id="newContactToggle">+ 新联系人信息(收货人以外的实际联系人)</a>
@@ -87,16 +86,6 @@
           <div class="fm-field"><label class="fm-label">新座机</label><input class="fm-input" id="fNewTel" placeholder="新座机电话" /></div>
           <div class="fm-field"><label class="fm-label">新地址</label><input class="fm-input" id="fNewAddr" placeholder="新联系地址" /></div>
         </div>
-      </div>
-
-      <div class="fm-sec">业务字段</div>
-      <div class="fm-row">
-        <div class="fm-field"><label class="fm-label">项目名称<span class="req">*</span></label><input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" /></div>
-        <div class="fm-field"><label class="fm-label">反馈方式<span class="req">*</span></label><select class="fm-select" id="fFeedback"><option value="">请选择</option><option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option></select></div>
-      </div>
-      <div class="fm-row">
-        <div class="fm-field"><label class="fm-label">提交部门<span class="req">*</span></label><select class="fm-select" id="fDept"><option value="">请选择</option><option>客服部</option><option>商品部</option><option>商务部</option></select></div>
-        <div class="fm-field"><label class="fm-label">二次投诉</label><select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select></div>
       </div>
 
     </div>
@@ -142,9 +131,7 @@
       fillSelect(fType, types, types.length ? '请选择' : '请先选二级');
     });
 
-    /* 回填 */
-    document.getElementById('fCustomer').textContent = gv('customer') || '—';
-    document.getElementById('fTitle').value = gv('title');
+    /* 回填(2026-07-24 三轮:标题/客户/座机电话字段已移除) */
     fCategory.value = gv('category');
     if (fCategory.value) {
       var subs0 = Object.keys(CATEGORY_TREE[fCategory.value] || {});
@@ -160,7 +147,6 @@
     document.getElementById('fDeadline').value = gv('deadline');
     document.getElementById('fContactName').value = gv('contact_name');
     document.getElementById('fContactPhone').value = gv('contact_phone');
-    document.getElementById('fContactTel').value = gv('contact_tel');
     document.getElementById('fIncomingCall').value = gv('incoming_call');
     document.getElementById('fContactAddr').value = gv('contact_addr');
     document.getElementById('fProject').value = gv('project');
@@ -182,8 +168,6 @@
     function invalid(el) { el.style.borderColor = 'var(--cs-danger)'; el.focus(); setTimeout(function () { el.style.borderColor = ''; }, 1500); }
 
     document.getElementById('saveBtn').addEventListener('click', function () {
-      var title = document.getElementById('fTitle');
-      if (!title.value.trim()) { invalid(title); return; }
       if (!fCategory.value) { invalid(fCategory); return; }
       if (!fSubCategory.value) { invalid(fSubCategory); return; }
       if (!fType.value) { invalid(fType); return; }
@@ -195,7 +179,6 @@
       var dept = document.getElementById('fDept');
       if (!dept.value) { invalid(dept); return; }
       window.csModalBridge.confirm({
-        title: title.value.trim(),
         category: fCategory.value,
         sub: fSubCategory.value,
         type: fType.value,
@@ -208,7 +191,6 @@
         secondary: document.getElementById('fSecondary').value,
         contactName: document.getElementById('fContactName').value.trim(),
         contactPhone: document.getElementById('fContactPhone').value.trim(),
-        contactTel: document.getElementById('fContactTel').value.trim(),
         incomingCall: document.getElementById('fIncomingCall').value.trim(),
         contactAddr: document.getElementById('fContactAddr').value.trim(),
         newName: document.getElementById('fNewName').value.trim(),
