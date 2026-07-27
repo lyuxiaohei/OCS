@@ -3,22 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>新建工单 — 客服模块</title>
+  <title>新建工单 — 商城运营后台</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <script src="js/ticket-dict.js"></script>
   <style>
+    /* ===== 商城运营后台骨架(2026-07-27 八轮:顶栏/侧栏/页签与工单列表完全同源,原深色顶栏+简版菜单弃用) ===== */
+    body { margin:0; background:var(--cs-bg-page); font-family:var(--cs-font-family); }
+    .mo-app { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+    /* 顶栏(白底,同工单列表) */
+    .mo-topbar { height:48px; background:#fff; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:center; justify-content:space-between; padding:0 16px; flex-shrink:0; }
+    .mo-topbar .logo { font-size:15px; font-weight:600; color:var(--cs-primary); display:flex; align-items:center; gap:6px; }
+    .mo-topbar .logo::before { content:""; width:3px; height:14px; border-radius:2px; background:var(--cs-primary); }
+    .mo-topbar .tb-icons { display:flex; align-items:center; gap:18px; color:var(--cs-text-secondary); }
+    .mo-topbar .tb-icons svg { width:16px; height:16px; cursor:pointer; }
+    .mo-topbar .tb-manual { display:flex; align-items:center; gap:4px; font-size:var(--cs-font-size-base); color:var(--cs-primary); cursor:pointer; }
+
+    .mo-body { flex:1; display:flex; min-height:0; }
+
+    /* 侧边栏(全量菜单,同工单列表) */
+    .mo-sidebar { width:200px; background:#fff; border-right:1px solid var(--cs-border-light);
+      flex-shrink:0; overflow-y:auto; padding:8px 0; }
+    .mo-menu-item { display:flex; align-items:center; gap:8px; padding:10px 20px;
+      font-size:var(--cs-font-size-md); color:var(--cs-text-secondary); cursor:pointer; }
+    .mo-menu-item:hover { color:var(--cs-primary); background:var(--cs-bg-hover); }
+    .mo-menu-item .mi-icon { width:15px; height:15px; flex-shrink:0; }
+    .mo-menu-item .mi-label { flex:1; }
+    .mo-menu-item .mi-chev { width:12px; height:12px; opacity:.4; transition:transform .2s; }
+    .mo-menu-item .mi-chev.up { transform:rotate(180deg); }
+    .mo-sub-item { display:block; padding:9px 20px 9px 43px; font-size:var(--cs-font-size-base);
+      color:var(--cs-text-secondary); cursor:pointer; text-decoration:none; }
+    .mo-sub-item:hover { color:var(--cs-primary); background:var(--cs-bg-hover); }
+    .mo-sub-item.active { color:var(--cs-primary); background:var(--cs-primary-bg); font-weight:500; }
+    .mo-group.collapsed .mo-sub { display:none; }
+    .mo-group.collapsed .mi-chev { transform:rotate(-90deg); }
+
+    .mo-main { flex:1; display:flex; flex-direction:column; min-width:0; }
+
+    /* 页签栏(同工单列表) */
+    .mo-tabs { height:40px; background:#fff; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:flex-end; padding:0 12px; gap:4px; flex-shrink:0; }
+    .mo-tab { display:flex; align-items:center; gap:6px; padding:0 14px; height:32px;
+      font-size:var(--cs-font-size-base); color:var(--cs-text-secondary);
+      border:1px solid transparent; border-bottom:none; border-radius:6px 6px 0 0; cursor:pointer; }
+    .mo-tab.active { color:var(--cs-primary); background:var(--cs-bg-page);
+      border-color:var(--cs-border-light); font-weight:500; }
+    .mo-tab .tab-x { font-size:12px; color:var(--cs-text-tertiary); }
+    .mo-tab .tab-x:hover { color:var(--cs-danger); }
+
+    .mo-content { flex:1; overflow:auto; padding:12px; }
+
+    /* 页头(返回链接已撤,仅标题) */
+    .page-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .page-head .ph-title { font-size:15px; font-weight:600; color:var(--cs-text); }
+
     /* 分区标题(与工单详情一致的蓝条样式) */
     .fm-sec { font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text-secondary); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
     .fm-sec::before { content:""; width:3px; height:13px; background:var(--cs-primary); border-radius:2px; }
     .fm-sec .sec-tip { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
 
-    .fm-row { display:flex; gap:18px; margin-bottom:14px; flex-wrap:wrap; }
+    /* 2026-07-27 八轮:表单行改固定 4 列 grid(原 2 列;minmax(0,1fr) 防内容撑宽列轨);窄屏回落 2 列 */
+    .fm-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px 18px; margin-bottom:14px; }
+    @media (max-width:1100px) { .fm-row { grid-template-columns:1fr 1fr; } }
     .fm-row:last-child { margin-bottom:0; }
-    .fm-field { display:flex; align-items:center; gap:10px; }
-    .fm-field.flex1 { flex:1 1 280px; }
-    .fm-field.flex2 { flex:2 1 320px; }
-    .fm-field.third { flex:0 1 calc((100% - 36px)/3); max-width:calc((100% - 36px)/3); }
+    .fm-field { display:flex; align-items:center; gap:10px; min-width:0; }
     .fm-label { width:86px; flex-shrink:0; font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); white-space:nowrap; }
     .fm-label .req { color:var(--cs-danger); margin-left:2px; }
     .fm-label .opt { color:var(--cs-text-placeholder); font-weight:normal; margin-left:2px; }
@@ -26,12 +76,16 @@
     .fm-input, .fm-select, .fm-textarea { border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); padding:7px 10px; font-size:var(--cs-font-size-sm); font-family:inherit; background:#fff; outline:none; transition:border-color .2s; }
     .fm-input:focus, .fm-select:focus, .fm-textarea:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,0.1); }
     .fm-textarea { resize:vertical; min-height:90px; line-height:1.6; width:100%; }
-    .fm-select { appearance:auto; }
+    /* 2026-07-27 八轮:按钮与详情页统一(13px;原全局 14px + 个别私有小号) */
+    .mo-content .btn-primary, .mo-content .btn-default { font-size:var(--cs-font-size-base); padding:5px 14px; }
+    /* 2026-07-27 七轮:下拉箭头自绘,与列表筛选 .ff 风格统一(原原生箭头) */
+    .fm-select { appearance:none; -webkit-appearance:none; padding-right:26px; cursor:pointer;
+      background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>') no-repeat right 10px center; }
     .readonly-field { background:var(--cs-bg-header); color:var(--cs-text-secondary); }
     .conditional { display:none; }
     .conditional.show { display:flex; }
 
-    .ctx-box { background:var(--cs-primary-bg); border:1px solid #91caff; border-radius:var(--cs-radius-sm); padding:10px 14px; margin-bottom:var(--cs-space-4); font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); }
+    .ctx-box { background:var(--cs-primary-bg); border:1px solid #91caff; border-radius:var(--cs-radius-sm); padding:10px 14px; margin-bottom:12px; font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); }
     .ctx-box .ctx-title { color:var(--cs-primary); font-weight:var(--cs-font-weight-semibold); margin-bottom:6px; }
     .ctx-box .ctx-row { padding:2px 0; }
     .ctx-box .ctx-row b { color:var(--cs-text); font-weight:var(--cs-font-weight-medium); }
@@ -53,16 +107,13 @@
     .ip-clear:hover { color:var(--cs-danger); }
     .pick-chk { width:14px; height:14px; accent-color:var(--cs-primary); }
 
-    .collapse-toggle { display:inline-block; font-size:var(--cs-font-size-xs); color:var(--cs-primary); cursor:pointer; }
-    .collapse-toggle:hover { text-decoration:underline; }
     .collapsible { display:none; margin-top:10px; }
     .collapsible.open { display:block; }
 
-    .fm-actions { position:sticky; bottom:0; display:flex; justify-content:flex-end; gap:8px; background:var(--cs-bg-card); border-top:1px solid var(--cs-border-light); padding:var(--cs-space-3) 24px; margin:16px 0 -24px; box-shadow:0 -2px 8px rgba(0,0,0,0.04); z-index:5; }
-    /* 本项目滚动在 window,main 的 overflow-y:auto 会让 sticky 失效;本页放开使吸底生效 */
-    main.admin-content { overflow-y: visible; }
-    /* 版面收敛:大屏下表单不拉成超长行,密度与详情页/编辑抽屉一致 */
-    .create-inner { max-width:1200px; margin:0 auto; }
+    /* 吸底操作栏(mo-content 为滚动容器,sticky 直接生效) */
+    .fm-actions { position:sticky; bottom:0; display:flex; justify-content:flex-end; gap:8px; background:var(--cs-bg-card); border-top:1px solid var(--cs-border-light); padding:var(--cs-space-3) 24px; margin:16px 0 -12px; box-shadow:0 -2px 8px rgba(0,0,0,0.04); z-index:5; }
+    /* 2026-07-27 八轮:卡片背景铺满内容区(原 max-width:1200px 居中留白) */
+    .create-inner { width:100%; }
 
     /* 关联订单(表格) */
     .ord-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
@@ -75,167 +126,250 @@
   </style>
 </head>
 <body>
-<div class="admin-layout">
+<div class="mo-app">
 
-  <aside class="admin-sidebar" id="sidebar-nav" data-active="ticket"></aside>
+  <!-- ===== 顶栏(白底,与工单列表同源) ===== -->
+  <header class="mo-topbar">
+    <div class="logo">商城运营后台</div>
+    <div class="tb-icons">
+      <!-- 角色切换演示(与工单列表一致;建单页暂不挂权限门控) -->
+      <span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">当前角色</span>
+      <select class="select" id="roleSwitch" style="width:auto;min-width:0;padding:2px 8px;">
+        <option value="agent" selected>客服</option>
+        <option value="supervisor">主管</option>
+      </select>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="刷新"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="通知"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="下载"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="tb-manual">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        操作手册
+      </span>
+    </div>
+  </header>
 
-  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
-    <header class="admin-header">
-      <div class="breadcrumb">客服工单 / <a href="admin-ticket.html" style="color:var(--cs-primary);">工单列表</a> / <span style="color:var(--cs-text);font-weight:600;">新建工单</span></div>
-      <div class="user-info">
-        <span class="status-badge online">客服A 在线</span>
-        <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
+  <div class="mo-body">
+
+    <!-- ===== 侧边栏(全量菜单,与工单列表同源;订单与售后展开,客服工单高亮) ===== -->
+    <aside class="mo-sidebar">
+      <div class="mo-menu-item">
+        <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="mi-label">首页</span>
       </div>
-    </header>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <span class="mi-label">选品管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M4.22 4.22l2.83 2.83m9.9 9.9 2.83 2.83M1 12h4m14 0h4M4.22 19.78l2.83-2.83m9.9-9.9 2.83-2.83"/></svg>
+          <span class="mi-label">运营配置</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span class="mi-label">商城装修</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+          <span class="mi-label">活动卡券</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span class="mi-label">积分管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group">
+        <div class="mo-menu-item" style="color:var(--cs-text);" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="mi-label">订单与售后</span>
+          <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="mo-sub">
+          <a class="mo-sub-item" href="admin-order-list.html">订单列表</a>
+          <a class="mo-sub-item active">客服工单</a>
+          <a class="mo-sub-item">售后监控</a>
+          <a class="mo-sub-item">售后配置</a>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="mi-label">渠道管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.65 1.65 0 0 0-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l.06-.06a2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1z"/></svg>
+          <span class="mi-label">系统设置</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </aside>
 
-    <main class="admin-content">
+    <div class="mo-main">
+
+      <!-- 页签(新建工单作为新页签) -->
+      <div class="mo-tabs">
+        <div class="mo-tab">首页 <span class="tab-x">×</span></div>
+        <div class="mo-tab" onclick="location.href='admin-ticket.html'">客服工单 <span class="tab-x">×</span></div>
+        <div class="mo-tab active">新建工单</div>
+      </div>
+
+      <div class="mo-content">
       <div class="create-inner">
 
-      <!-- 上下文(转工单 / 订单受理带入) -->
-      <div class="ctx-box" id="ctxBox">
-        <div class="ctx-title">已从会话自动带入</div>
-        <div class="ctx-row">来源会话:<b>#CS20260716088</b> · 客户:<b>陈芳(13856782891)</b></div>
-        <div class="ctx-row">关联订单:<b>#DD20260710003</b> · 会话摘要:退款未到账,客户催促</div>
-      </div>
+        <!-- 页头(2026-07-27 八轮:返回链接已撤,经页签「客服工单」回列表) -->
+        <div class="page-head">
+          <span class="ph-title">新建工单</span>
+        </div>
 
-      <!-- 基本信息(2026-07-27 五轮:标题字段已删,客户由会话/订单上下文绑定,均不再手填) -->
-      <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
-        <div class="fm-sec">基本信息</div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">受理业务类型<span class="req">*</span></label>
-            <select class="fm-select" id="fCategory"><option value="">请选择</option></select>
-          </div>
-          <div class="fm-field flex1">
-            <label class="fm-label">咨询/投诉类别<span class="req">*</span></label>
-            <select class="fm-select" id="fSubCategory"><option value="">请先选一级</option></select>
-          </div>
+        <!-- 上下文(转工单 / 订单受理带入) -->
+        <div class="ctx-box" id="ctxBox">
+          <div class="ctx-title">已从会话自动带入</div>
+          <div class="ctx-row">来源会话:<b>#CS20260716088</b> · 客户:<b>陈芳(13856782891)</b></div>
+          <div class="ctx-row">关联订单:<b>#DD20260710003</b> · 会话摘要:退款未到账,客户催促</div>
         </div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">具体类型<span class="req">*</span></label>
-            <select class="fm-select" id="fType"><option value="">请先选二级</option></select>
-          </div>
-          <div class="fm-field flex1 conditional" id="responsibleWrap">
-            <label class="fm-label">责任承担方<span class="req">*</span><span class="opt">(投诉类必填)</span></label>
-            <select class="fm-select" id="fResponsible"><option value="">请选择</option></select>
-          </div>
-        </div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">优先级</label>
-            <select class="fm-select" id="fPriority">
-              <option value="">请选择</option>
-              <option>一般</option><option>紧急</option><option>特急</option>
-            </select>
-          </div>
-          <div class="fm-field flex1">
-            <label class="fm-label">完成期限</label>
-            <select class="fm-select" id="fDeadline">
-              <option value="">请选择</option>
-              <option value="1天">1天</option><option value="7天">7天</option><option value="15天">15天</option>
-            </select>
-          </div>
-        </div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">项目名称<span class="req">*</span></label>
-            <input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" />
-          </div>
-          <div class="fm-field flex1">
-            <label class="fm-label">反馈方式<span class="req">*</span></label>
-            <select class="fm-select" id="fFeedback">
-              <option value="">请选择</option>
-              <option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option>
-            </select>
-          </div>
-        </div>
-        <div class="fm-row">
-          <div class="fm-field flex1">
-            <label class="fm-label">提交部门<span class="req">*</span></label>
-            <select class="fm-select" id="fDept">
-              <option value="">请选择</option>
-              <option>客服部</option><option>商品部</option><option>商务部</option>
-            </select>
-          </div>
-          <div class="fm-field flex1">
-            <label class="fm-label">二次投诉</label>
-            <select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select>
-          </div>
-        </div>
-        <div class="fm-row" id="sourceRow" style="display:none;">
-          <div class="fm-field third">
-            <label class="fm-label">来源<span class="opt">(选填)</span></label>
-            <select class="fm-select" id="fSource">
-              <option value="客服创建">客服创建</option>
-              <option value="电话">电话</option>
-              <option value="邮件">邮件</option>
-              <option value="线下/其他">线下/其他</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
-      <!-- 关联订单(独立卡,查询关联一或多个;工单-订单 1 对多) -->
-      <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
-        <div class="fm-sec">关联订单 <span class="ord-count sec-tip" id="ordCountTag"></span></div>
-        <div class="table-wrap" style="margin-bottom:10px;">
-        <table class="data-table ord-table">
-          <thead>
-            <tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:70px;">操作</th></tr>
-          </thead>
-          <tbody id="orderCardList"></tbody>
-        </table>
-        </div>
-        <div>
-          <button class="btn-default" type="button" onclick="openOrderPicker()" style="font-size:var(--cs-font-size-xs);padding:6px 12px;">+ 添加订单(查询关联)</button>
-        </div>
-      </div>
-
-      <!-- 联系方式 -->
-      <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
-        <div class="fm-sec">联系方式<span class="sec-tip">默认取订单收货,可改</span></div>
-        <div class="fm-row">
-          <div class="fm-field flex1"><label class="fm-label">联系人</label><input class="fm-input" id="fContactName" placeholder="联系人姓名" /></div>
-          <div class="fm-field flex1"><label class="fm-label">移动电话</label><input class="fm-input" id="fContactPhone" placeholder="移动电话" /></div>
-        </div>
-        <div class="fm-row">
-          <div class="fm-field flex1"><label class="fm-label">来电电话</label><input class="fm-input" id="fIncomingCall" placeholder="来电电话" /></div>
-          <div class="fm-field flex1"><label class="fm-label">联系地址</label><input class="fm-input" id="fContactAddr" placeholder="联系地址" /></div>
-        </div>
-        <a class="collapse-toggle" id="newContactToggle">+ 新联系人信息(收货人以外的实际联系人)</a>
-        <div class="collapsible" id="newContactBox">
-          <div class="fm-row" style="margin-top:8px;">
-            <div class="fm-field flex1"><label class="fm-label">新联系人</label><input class="fm-input" id="fNewName" placeholder="新联系人" /></div>
-            <div class="fm-field flex1"><label class="fm-label">新移动电话</label><input class="fm-input" id="fNewPhone" placeholder="新移动电话" /></div>
+        <!-- 基本信息(2026-07-27 五轮:标题字段已删,客户由会话/订单上下文绑定,均不再手填) -->
+        <div class="card fm-card" style="padding:16px 18px; margin-bottom:12px;">
+          <div class="fm-sec">基本信息</div>
+          <div class="fm-row">
+            <div class="fm-field">
+              <label class="fm-label">受理业务类型<span class="req">*</span></label>
+              <select class="fm-select" id="fCategory"><option value="">请选择</option></select>
+            </div>
+            <div class="fm-field">
+              <label class="fm-label">咨询/投诉类别<span class="req">*</span></label>
+              <select class="fm-select" id="fSubCategory"><option value="">请先选一级</option></select>
+            </div>
+            <div class="fm-field">
+              <label class="fm-label">具体类型<span class="req">*</span></label>
+              <select class="fm-select" id="fType"><option value="">请先选二级</option></select>
+            </div>
+            <div class="fm-field conditional" id="responsibleWrap">
+              <label class="fm-label">责任承担方<span class="req">*</span><span class="opt">(投诉类必填)</span></label>
+              <select class="fm-select" id="fResponsible"><option value="">请选择</option></select>
+            </div>
           </div>
           <div class="fm-row">
-            <div class="fm-field flex1"><label class="fm-label">新座机</label><input class="fm-input" id="fNewTel" placeholder="新座机电话" /></div>
-            <div class="fm-field flex1"><label class="fm-label">新地址</label><input class="fm-input" id="fNewAddr" placeholder="新联系地址" /></div>
+            <div class="fm-field">
+              <label class="fm-label">优先级</label>
+              <select class="fm-select" id="fPriority">
+                <option value="">请选择</option>
+                <option>一般</option><option>紧急</option><option>特急</option>
+              </select>
+            </div>
+            <div class="fm-field">
+              <label class="fm-label">完成期限</label>
+              <select class="fm-select" id="fDeadline">
+                <option value="">请选择</option>
+                <option value="1天">1天</option><option value="7天">7天</option><option value="15天">15天</option>
+              </select>
+            </div>
+            <div class="fm-field">
+              <label class="fm-label">项目名称<span class="req">*</span></label>
+              <input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" />
+            </div>
+            <div class="fm-field">
+              <label class="fm-label">反馈方式<span class="req">*</span></label>
+              <select class="fm-select" id="fFeedback">
+                <option value="">请选择</option>
+                <option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option>
+              </select>
+            </div>
+          </div>
+          <div class="fm-row">
+            <div class="fm-field">
+              <label class="fm-label">提交部门<span class="req">*</span></label>
+              <select class="fm-select" id="fDept">
+                <option value="">请选择</option>
+                <option>客服部</option><option>商品部</option><option>商务部</option>
+              </select>
+            </div>
+            <div class="fm-field">
+              <label class="fm-label">二次投诉</label>
+              <select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select>
+            </div>
+            <!-- 来源(standalone/batch 模式显示;八轮:从独占行并入 4 列网格) -->
+            <div class="fm-field" id="sourceRow" style="display:none;">
+              <label class="fm-label">来源<span class="opt">(选填)</span></label>
+              <select class="fm-select" id="fSource">
+                <option value="客服创建">客服创建</option>
+                <option value="电话">电话</option>
+                <option value="邮件">邮件</option>
+                <option value="线下/其他">线下/其他</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 业务字段已并入「基本信息」(2026-07-24 四轮:项目名称/反馈方式/提交部门/二次投诉) -->
+        <!-- 关联订单(独立卡,查询关联一或多个;工单-订单 1 对多;按钮位置/文本与详情页一致) -->
+        <div class="card fm-card" style="padding:16px 18px; margin-bottom:12px;">
+          <div class="fm-sec">关联订单 <span class="ord-count sec-tip" id="ordCountTag"></span><button class="btn-default" type="button" onclick="openOrderPicker()" style="margin-left:auto;">添加订单</button></div>
+          <div class="table-wrap">
+          <table class="data-table ord-table">
+            <thead>
+              <tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:70px;">操作</th></tr>
+            </thead>
+            <tbody id="orderCardList"></tbody>
+          </table>
+          </div>
+        </div>
 
-      <!-- 工单描述 -->
-      <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
-        <div class="fm-sec">工单描述</div>
-        <textarea class="fm-textarea" id="fDesc" placeholder="详细描述问题"></textarea>
-      </div>
+        <!-- 联系方式 -->
+        <div class="card fm-card" style="padding:16px 18px; margin-bottom:12px;">
+          <div class="fm-sec">联系方式<span class="sec-tip">默认取订单收货,可改</span></div>
+          <div class="fm-row">
+            <div class="fm-field"><label class="fm-label">联系人</label><input class="fm-input" id="fContactName" placeholder="联系人姓名" /></div>
+            <div class="fm-field"><label class="fm-label">移动电话</label><input class="fm-input" id="fContactPhone" placeholder="移动电话" /></div>
+            <div class="fm-field"><label class="fm-label">来电电话</label><input class="fm-input" id="fIncomingCall" placeholder="来电电话" /></div>
+            <div class="fm-field"><label class="fm-label">联系地址</label><input class="fm-input" id="fContactAddr" placeholder="联系地址" /></div>
+          </div>
+          <button class="btn-default" type="button" id="newContactToggle" style="margin-top:2px;" title="收货人以外的实际联系人">添加新联系人</button>
+          <div class="collapsible" id="newContactBox">
+            <div class="fm-row" style="margin-top:8px;">
+              <div class="fm-field"><label class="fm-label">新联系人</label><input class="fm-input" id="fNewName" placeholder="新联系人" /></div>
+              <div class="fm-field"><label class="fm-label">新移动电话</label><input class="fm-input" id="fNewPhone" placeholder="新移动电话" /></div>
+              <div class="fm-field"><label class="fm-label">新座机</label><input class="fm-input" id="fNewTel" placeholder="新座机电话" /></div>
+              <div class="fm-field"><label class="fm-label">新地址</label><input class="fm-input" id="fNewAddr" placeholder="新联系地址" /></div>
+            </div>
+          </div>
+        </div>
 
-      <div class="fm-actions">
-        <button class="btn-default" onclick="location.href='admin-ticket.html'">取消</button>
-        <button class="btn-primary" onclick="submit()">创建工单</button>
-      </div>
+        <!-- 业务字段已并入「基本信息」(2026-07-24 四轮:项目名称/反馈方式/提交部门/二次投诉) -->
+
+        <!-- 工单描述 -->
+        <div class="card fm-card" style="padding:16px 18px; margin-bottom:12px;">
+          <div class="fm-sec">工单描述</div>
+          <textarea class="fm-textarea" id="fDesc" placeholder="详细描述问题"></textarea>
+        </div>
+
+        <div class="fm-actions">
+          <button class="btn-default" onclick="location.href='admin-ticket.html'">取消</button>
+          <button class="btn-primary" onclick="submit()">创建工单</button>
+        </div>
 
       </div>
-    </main>
+      </div>
+    </div>
   </div>
 </div>
 
 <script src="js/cs-icons.js"></script>
-<script src="nav.js"></script>
 <script>
   function toast(t) { try { if (window.csModal && csModal.toast) csModal.toast(t); else alert(t); } catch (e) { alert(t); } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
@@ -266,8 +400,7 @@
 
   var ncb = document.getElementById('newContactBox');
   document.getElementById('newContactToggle').addEventListener('click', function () {
-    var open = ncb.classList.toggle('open');
-    this.textContent = (open ? '－ ' : '+ ') + '新联系人信息(收货人以外的实际联系人)';
+    ncb.classList.toggle('open');
   });
 
   /* mock 订单数据(1 期;正式:按客户查订单 customer/orders) */

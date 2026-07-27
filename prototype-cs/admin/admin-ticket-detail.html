@@ -3,24 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>工单详情 — 客服模块</title>
+  <title>工单详情 — 商城运营后台</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <style>
+    /* ===== 商城运营后台骨架(2026-07-27 八轮:顶栏/侧栏/页签与工单列表完全同源,原深色顶栏+简版菜单弃用) ===== */
+    body { margin:0; background:var(--cs-bg-page); font-family:var(--cs-font-family); }
+    .mo-app { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+    /* 顶栏(白底,同工单列表) */
+    .mo-topbar { height:48px; background:#fff; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:center; justify-content:space-between; padding:0 16px; flex-shrink:0; }
+    .mo-topbar .logo { font-size:15px; font-weight:600; color:var(--cs-primary); display:flex; align-items:center; gap:6px; }
+    .mo-topbar .logo::before { content:""; width:3px; height:14px; border-radius:2px; background:var(--cs-primary); }
+    .mo-topbar .tb-icons { display:flex; align-items:center; gap:18px; color:var(--cs-text-secondary); }
+    .mo-topbar .tb-icons svg { width:16px; height:16px; cursor:pointer; }
+    .mo-topbar .tb-manual { display:flex; align-items:center; gap:4px; font-size:var(--cs-font-size-base); color:var(--cs-primary); cursor:pointer; }
+
+    .mo-body { flex:1; display:flex; min-height:0; }
+
+    /* 侧边栏(全量菜单,同工单列表) */
+    .mo-sidebar { width:200px; background:#fff; border-right:1px solid var(--cs-border-light);
+      flex-shrink:0; overflow-y:auto; padding:8px 0; }
+    .mo-menu-item { display:flex; align-items:center; gap:8px; padding:10px 20px;
+      font-size:var(--cs-font-size-md); color:var(--cs-text-secondary); cursor:pointer; }
+    .mo-menu-item:hover { color:var(--cs-primary); background:var(--cs-bg-hover); }
+    .mo-menu-item .mi-icon { width:15px; height:15px; flex-shrink:0; }
+    .mo-menu-item .mi-label { flex:1; }
+    .mo-menu-item .mi-chev { width:12px; height:12px; opacity:.4; transition:transform .2s; }
+    .mo-menu-item .mi-chev.up { transform:rotate(180deg); }
+    .mo-sub-item { display:block; padding:9px 20px 9px 43px; font-size:var(--cs-font-size-base);
+      color:var(--cs-text-secondary); cursor:pointer; text-decoration:none; }
+    .mo-sub-item:hover { color:var(--cs-primary); background:var(--cs-bg-hover); }
+    .mo-sub-item.active { color:var(--cs-primary); background:var(--cs-primary-bg); font-weight:500; }
+    .mo-group.collapsed .mo-sub { display:none; }
+    .mo-group.collapsed .mi-chev { transform:rotate(-90deg); }
+
+    .mo-main { flex:1; display:flex; flex-direction:column; min-width:0; }
+
+    /* 页签栏(同工单列表) */
+    .mo-tabs { height:40px; background:#fff; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:flex-end; padding:0 12px; gap:4px; flex-shrink:0; }
+    .mo-tab { display:flex; align-items:center; gap:6px; padding:0 14px; height:32px;
+      font-size:var(--cs-font-size-base); color:var(--cs-text-secondary);
+      border:1px solid transparent; border-bottom:none; border-radius:6px 6px 0 0; cursor:pointer; }
+    .mo-tab.active { color:var(--cs-primary); background:var(--cs-bg-page);
+      border-color:var(--cs-border-light); font-weight:500; }
+    .mo-tab .tab-x { font-size:12px; color:var(--cs-text-tertiary); }
+    .mo-tab .tab-x:hover { color:var(--cs-danger); }
+
+    .mo-content { flex:1; overflow:auto; padding:12px; }
+
+    /* 页头与状态栏合并(2026-07-27 八轮):标题+工单号+状态+倒计时 一栏(返回链接已撤),四项字体统一 13px */
+    .tk-state-bar .ph-title { font-size:var(--cs-font-size-base); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); }
+    .tk-state-bar .ph-no { color:var(--cs-text-tertiary); font-size:var(--cs-font-size-base); }
+
     .tk-state-bar { display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:var(--cs-radius-md);
-      background:var(--cs-bg-header); border:1px solid var(--cs-border-light); margin-bottom:16px; flex-wrap:wrap; }
-    .tk-state-bar .s-tag { font-size:var(--cs-font-size-md); }
-    .tk-state-bar .urgency { font-size:var(--cs-font-size-xs); }
-    .tk-state-bar .urgency.urgent, .tk-state-bar .urgency.critical { color: var(--cs-danger); }
-    .tk-state-bar .resp-tag { display:inline-block; font-size:var(--cs-font-size-xs); padding:2px 8px; border-radius:3px; background:var(--cs-orange-bg); color:var(--cs-orange); border:1px solid #ffd591; }
-    .tk-state-bar .countdown { font-size:var(--cs-font-size-sm); }
+      background:#fff; border:1px solid var(--cs-border-light); margin-bottom:12px; flex-wrap:wrap; box-shadow:var(--cs-shadow-card); }
+    /* 状态标签补列表同款圆点样式(detail 原只有字号覆盖,无 .s-tag 基样式) */
+    .s-tag { display: inline-flex; align-items: center; gap: 5px; font-size: var(--cs-font-size-base); line-height: 1.5; color: var(--cs-text); white-space: nowrap; }
+    .s-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .s-tag.untreated::before  { background: var(--cs-primary); }
+    .s-tag.processing::before { background: var(--cs-primary); }
+    .s-tag.done::before       { background: var(--cs-text-placeholder); }
+    .urgency { font-size:var(--cs-font-size-xs); }
+    /* 优先级在基本信息网格内,.info-content 同优先级后写会盖掉红字,需更高特异性 */
+    .info-grid .info-content.urgency.urgent, .info-grid .info-content.urgency.critical { color: var(--cs-danger); }
+    .tk-state-bar .countdown { font-size:var(--cs-font-size-base); }
     .tk-state-bar .countdown.warn { color:var(--cs-orange); font-weight:var(--cs-font-weight-semibold); }
     .tk-state-bar .countdown.overdue { color:var(--cs-danger); font-weight:var(--cs-font-weight-semibold); }
+
+    /* 详情页按钮统一小一号(2026-07-27 八轮:全局 btn 14px 偏大,收敛 13px) */
+    .mo-content .btn-primary, .mo-content .btn-default { font-size:var(--cs-font-size-base); padding:5px 14px; }
 
     .info-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:4px 24px; }
     .info-grid .info-row { display:flex; font-size:var(--cs-font-size-sm); padding:5px 0; }
     .info-grid .info-label { color:var(--cs-text-tertiary); width:88px; flex-shrink:0; }
-    .info-grid .info-content { color:var(--cs-text); }
+    .info-grid .info-content { color:var(--cs-text); min-width:0; }
     .info-grid .info-content a { color:var(--cs-primary); text-decoration:none; cursor:pointer; }
     .info-grid .info-content a:hover { text-decoration:underline; }
     .info-grid .type-three { color:var(--cs-text-secondary); font-size:var(--cs-font-size-xs); margin-left:4px; }
@@ -40,42 +99,50 @@
     .att-item .att-name { color:var(--cs-text); }
     .att-item .att-meta { color:var(--cs-text-tertiary); font-size:var(--cs-font-size-xs); margin-left:auto; }
 
-    .timeline { position:relative; padding-left:18px; }
-    .timeline::before { content:""; position:absolute; left:5px; top:4px; bottom:4px; width:2px; background:var(--cs-border-light); }
-    .tl-item { position:relative; margin-bottom:14px; }
-    .tl-item::before { content:""; position:absolute; left:-16px; top:5px; width:10px; height:10px; border-radius:50%; background:var(--cs-primary); border:2px solid #fff; box-shadow:0 0 0 1px var(--cs-border); }
-    .tl-item.internal::before { background:var(--cs-text-tertiary); }
-    .tl-item .tl-head { display:flex; align-items:center; gap:8px; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-bottom:4px; }
-    .tl-item .tl-head .who { color:var(--cs-text-secondary); font-weight:var(--cs-font-weight-medium); }
-    .tl-item .tl-head .tag-int { font-size:10px; padding:0 5px; border-radius:3px; background:var(--cs-bg-header); color:var(--cs-text-tertiary); border:1px solid var(--cs-border-light); }
-    .tl-item .tl-bubble { display:inline-block; max-width:100%; padding:8px 12px; border-radius:var(--cs-radius-sm); font-size:var(--cs-font-size-sm); color:var(--cs-text); line-height:1.6; background:var(--cs-bg-header); border:1px solid var(--cs-border-light); }
-    .tl-item.internal .tl-bubble { background:var(--cs-bg-header); color:var(--cs-text-secondary); font-style:italic; }
-
     .reply-box { border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); overflow:hidden; }
     .reply-box textarea { width:100%; border:none; padding:10px 12px; font-size:var(--cs-font-size-sm); font-family:inherit; resize:vertical; min-height:72px; outline:none; line-height:1.6; }
     .reply-foot { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--cs-bg-header); border-top:1px solid var(--cs-border-light); }
     .reply-foot .hint { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
+    /* 2026-07-27 八轮:备注输入框默认收起,点卡片右上角「添加备注」才展开 */
+    .note-add-trigger { flex-shrink:0; }
 
     .event-flow { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-sm); }
     .ev-item { display:flex; padding:8px 12px; font-size:var(--cs-font-size-xs); border-bottom:1px solid var(--cs-border-lighter); }
     .ev-item:last-child { border-bottom:none; }
-    .ev-item .ev-time { width:120px; color:var(--cs-text-tertiary); flex-shrink:0; }
-    .ev-item .ev-text { color:var(--cs-text-secondary); flex:1; }
-    /* 2026-07-27 五轮:操作日志改「操作账号 + 角色」(原仅标 人/系统) */
+    .ev-item .ev-time { width:74px; color:var(--cs-text-tertiary); flex-shrink:0; }
+    .ev-item .ev-text { color:var(--cs-text-secondary); flex:1; min-width:0; }
+    /* 操作账号(不显示角色;系统操作=系统) */
     .ev-item .ev-who { margin-left:8px; color:var(--cs-text); font-weight:var(--cs-font-weight-medium); flex-shrink:0; }
-    .ev-item .ev-op { margin-left:8px; font-size:10px; padding:0 5px; border-radius:3px; flex-shrink:0; }
-    .ev-item .ev-op.sys { background:var(--cs-bg-header); color:var(--cs-text-tertiary); }
-    .ev-item .ev-op.human { background:var(--cs-primary-bg); color:var(--cs-primary); }
-    .ev-item .ev-op.mgr { background:var(--cs-orange-bg); color:var(--cs-orange); }
 
     .action-bar { display:flex; align-items:center; gap:8px; }
 
-    /* 左主右从两栏:主栏=处理动线(描述/备注/附件/日志),侧栏=元信息+关联订单 */
-    .detail-grid { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start; }
-    .detail-main { grid-column:1; grid-row:1; min-width:0; }
-    .detail-side { grid-column:2; grid-row:1; position:sticky; top:0; }
-    .detail-side .info-grid { grid-template-columns:1fr; }
-    @media (max-width:1100px) { .detail-grid { grid-template-columns:1fr; } .detail-main, .detail-side { grid-column:1; grid-row:auto; } .detail-side { position:static; } }
+    /* 已完工=终态只读(对齐列表侧仅「详情」):隐藏变更入口(基本信息编辑在 setState 单独处理) */
+    .tk-done #ordAddBtn, .tk-done #uploadBtn, .tk-done #descEditBtn,
+    .tk-done #noteAddTrigger, .tk-done #noteEditor, .tk-done .oci-del { display:none !important; }
+
+    /* 2026-07-27 七轮:左右栏内容互换——主栏=信息面(基本信息2列/关联订单宽表/描述/附件),右栏=处理动线(备注/日志) */
+    /* 独立滚动双栏:主栏内部滚动,右栏两卡片始终充满屏幕(数据少留白,数据多各自区域滚动),无需 sticky */
+    .mo-content { display:flex; flex-direction:column; }
+    .mo-content .tk-state-bar, .mo-content .action-bar { flex-shrink:0; }
+    .detail-grid { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 360px; grid-template-rows:minmax(0,1fr); gap:12px; }
+    .detail-main { min-width:0; min-height:0; overflow-y:auto; padding-right:2px; }
+    /* 2026-07-27 八轮:三条滚动条(主栏+备注流+日志流)改白色 */
+    .detail-main::-webkit-scrollbar, .detail-side .side-scroll::-webkit-scrollbar { width:8px; }
+    .detail-main::-webkit-scrollbar-thumb, .detail-side .side-scroll::-webkit-scrollbar-thumb { background:#fff; border:1px solid var(--cs-border-light); border-radius:4px; }
+    .detail-main::-webkit-scrollbar-track, .detail-side .side-scroll::-webkit-scrollbar-track { background:transparent; }
+    .detail-main, .detail-side .side-scroll { scrollbar-width:thin; scrollbar-color:#fff transparent; }
+    .detail-side { height:100%; display:flex; flex-direction:column; gap:12px; }
+    .detail-side .card { flex:1; min-height:0; display:flex; flex-direction:column; }
+    .detail-side .card .section-title { flex-shrink:0; }
+    .detail-side .card .side-scroll { flex:1; min-height:0; overflow-y:auto; }
+    .detail-side .card .reply-box { flex-shrink:0; }
+    @media (max-width:1100px) {
+      .mo-content { display:block; }
+      .detail-grid { display:block; }
+      .detail-main { overflow:visible; }
+      .detail-side { height:auto; margin-top:12px; }
+      .detail-side .card { margin-bottom:12px; }
+    }
 
     /* 关联订单(独立卡) */
     .ord-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
@@ -90,142 +157,236 @@
   </style>
 </head>
 <body>
-<div class="admin-layout">
+<div class="mo-app">
 
-  <aside class="admin-sidebar" id="sidebar-nav" data-active="ticket"></aside>
+  <!-- ===== 顶栏(白底,与工单列表同源) ===== -->
+  <header class="mo-topbar">
+    <div class="logo">商城运营后台</div>
+    <div class="tb-icons">
+      <!-- 角色切换演示(与工单列表一致;详情页暂不挂权限门控) -->
+      <span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">当前角色</span>
+      <select class="select" id="roleSwitch" style="width:auto;min-width:0;padding:2px 8px;">
+        <option value="agent" selected>客服</option>
+        <option value="supervisor">主管</option>
+      </select>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="刷新"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="通知"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="下载"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="tb-manual">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        操作手册
+      </span>
+    </div>
+  </header>
 
-  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
-    <header class="admin-header">
-      <div class="breadcrumb">客服工单 / <a href="admin-ticket.html" style="color:var(--cs-primary);">工单列表</a> / <span style="color:var(--cs-text);font-weight:600;">工单详情</span><span id="tkno" style="color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;"></span></div>
-    </header>
+  <div class="mo-body">
 
-    <main class="admin-content detail-wrap">
+    <!-- ===== 侧边栏(全量菜单,与工单列表同源;订单与售后展开,客服工单高亮) ===== -->
+    <aside class="mo-sidebar">
+      <div class="mo-menu-item">
+        <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="mi-label">首页</span>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <span class="mi-label">选品管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M4.22 4.22l2.83 2.83m9.9 9.9 2.83 2.83M1 12h4m14 0h4M4.22 19.78l2.83-2.83m9.9-9.9 2.83-2.83"/></svg>
+          <span class="mi-label">运营配置</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span class="mi-label">商城装修</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+          <span class="mi-label">活动卡券</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span class="mi-label">积分管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group">
+        <div class="mo-menu-item" style="color:var(--cs-text);" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="mi-label">订单与售后</span>
+          <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="mo-sub">
+          <a class="mo-sub-item" href="admin-order-list.html">订单列表</a>
+          <a class="mo-sub-item active">客服工单</a>
+          <a class="mo-sub-item">售后监控</a>
+          <a class="mo-sub-item">售后配置</a>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="mi-label">渠道管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.65 1.65 0 0 0-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l.06-.06a2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83l.06-.06a2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1z"/></svg>
+          <span class="mi-label">系统设置</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </aside>
 
-      <!-- 状态摘要 -->
-      <div class="tk-state-bar">
-        <span class="s-tag untreated" id="stateTag">未处理</span>
-        <span class="urgency" id="urgencyTag">紧急</span>
-        <span class="resp-tag" id="respTag">责任:供应商</span>
-        <span class="countdown warn" id="countdownTag">剩余 6天0小时(7天期限)</span>
+    <div class="mo-main">
+
+      <!-- 页签(工单详情作为新页签) -->
+      <div class="mo-tabs">
+        <div class="mo-tab">首页 <span class="tab-x">×</span></div>
+        <div class="mo-tab" onclick="location.href='admin-ticket.html'">客服工单 <span class="tab-x">×</span></div>
+        <div class="mo-tab active">工单详情</div>
       </div>
 
-      <div class="detail-grid">
+      <div class="mo-content">
 
-        <div class="detail-side">
-
-          <!-- 基本信息(元信息) -->
-          <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title" style="margin-bottom:10px;">基本信息 <a class="desc-link" id="editLink" style="margin-left:auto;" onclick="editTicket()">编辑</a></div>
-        <div class="info-grid">
-          <div class="info-row"><span class="info-label">工单类型</span><span class="info-content" id="dType">—</span></div>
-          <div class="info-row" id="dRespRow"><span class="info-label">责任承担方</span><span class="info-content" id="dResp">—</span></div>
-          <div class="info-row"><span class="info-label">完成期限</span><span class="info-content" id="dDeadline">—</span></div>
-          <div class="info-row"><span class="info-label">联系人</span><span class="info-content" id="dContact">—</span></div>
-          <!-- V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改;2026-07-24 三轮:标题/客户/座机电话已移除) -->
-          <div class="info-row"><span class="info-label">移动电话</span><span class="info-content" id="dPhone">—</span></div>
-          <div class="info-row"><span class="info-label">来电电话</span><span class="info-content" id="dIncoming">—</span></div>
-          <div class="info-row"><span class="info-label">联系地址</span><span class="info-content" id="dAddr">—</span></div>
-          <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
-          <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
-          <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content" id="dFeedback">电话</span></div>
-          <div class="info-row"><span class="info-label">提交部门</span><span class="info-content" id="dDept">客服部</span></div>
-          <div class="info-row"><span class="info-label">二次投诉</span><span class="info-content" id="dSecondary">否</span></div>
-          <div class="info-row"><span class="info-label">处理人</span><span class="info-content" id="dAgent">—</span></div>
-          <div class="info-row"><span class="info-label">创建时间</span><span class="info-content" id="dCreated">2026-07-16 10:30</span></div>
+        <!-- 页头+状态栏(2026-07-27 八轮:标题与状态一栏;责任方/优先级移入基本信息,期限倒计时保留;返回链接已撤,经页签「客服工单」回列表) -->
+        <div class="tk-state-bar">
+          <span class="ph-title">工单详情</span><span id="tkno" class="ph-no"></span>
+          <span class="s-tag untreated" id="stateTag">未处理</span>
+          <span class="countdown warn" id="countdownTag">剩余 6天0小时(7天期限)</span>
         </div>
-        <!-- V0.5 三.2.6:新联系人信息(收货人以外的实际联系人,有则展示) -->
-        <div id="dNewContactGroup" style="display:none; margin-top:14px; padding-top:12px; border-top:1px dashed var(--cs-border-light);">
-          <div class="section-title" style="margin-bottom:8px;">新联系人信息 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">收货人以外的实际联系人</span></div>
-          <div class="info-grid">
-            <div class="info-row"><span class="info-label">新联系人</span><span class="info-content" id="dNewName">—</span></div>
-            <div class="info-row"><span class="info-label">新移动电话</span><span class="info-content" id="dNewPhone">—</span></div>
-            <div class="info-row"><span class="info-label">新座机</span><span class="info-content" id="dNewTel">—</span></div>
-            <div class="info-row"><span class="info-label">新地址</span><span class="info-content" id="dNewAddr">—</span></div>
+
+        <div class="detail-grid">
+
+          <div class="detail-main">
+
+            <!-- 基本信息(元信息;2 列网格,新联系人并入) -->
+            <div class="card" style="padding:14px 18px; margin-bottom:12px;">
+              <div class="section-title" style="margin-bottom:10px;">基本信息 <button class="btn-default" id="editLink" style="margin-left:auto;" onclick="editTicket()">编辑</button></div>
+              <div class="info-grid">
+                <div class="info-row"><span class="info-label">工单类型</span><span class="info-content" id="dType">—</span></div>
+                <div class="info-row" id="dRespRow"><span class="info-label">责任承担方</span><span class="info-content" id="dResp">—</span></div>
+                <div class="info-row"><span class="info-label">优先级</span><span class="info-content urgency" id="dPriority">—</span></div>
+                <div class="info-row"><span class="info-label">完成期限</span><span class="info-content" id="dDeadline">—</span></div>
+                <div class="info-row"><span class="info-label">联系人</span><span class="info-content" id="dContact">—</span></div>
+                <!-- V0.5 三.2.6:基础联系方式(默认取订单收货信息,可改;2026-07-24 三轮:标题/客户/座机电话已移除) -->
+                <div class="info-row"><span class="info-label">移动电话</span><span class="info-content" id="dPhone">—</span></div>
+                <div class="info-row"><span class="info-label">来电电话</span><span class="info-content" id="dIncoming">—</span></div>
+                <div class="info-row"><span class="info-label">联系地址</span><span class="info-content" id="dAddr">—</span></div>
+                <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
+                <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
+                <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content" id="dFeedback">电话</span></div>
+                <div class="info-row"><span class="info-label">提交部门</span><span class="info-content" id="dDept">客服部</span></div>
+                <div class="info-row"><span class="info-label">二次投诉</span><span class="info-content" id="dSecondary">否</span></div>
+                <div class="info-row"><span class="info-label">处理人</span><span class="info-content" id="dAgent">—</span></div>
+                <div class="info-row"><span class="info-label">创建时间</span><span class="info-content" id="dCreated">2026-07-16 10:30</span></div>
+              </div>
+              <!-- V0.5 三.2.6:新联系人信息(收货人以外的实际联系人,有则展示) -->
+              <div id="dNewContactGroup" style="display:none; margin-top:14px; padding-top:12px; border-top:1px dashed var(--cs-border-light);">
+                <div class="section-title" style="margin-bottom:8px;">新联系人信息 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">收货人以外的实际联系人</span></div>
+                <div class="info-grid">
+                  <div class="info-row"><span class="info-label">新联系人</span><span class="info-content" id="dNewName">—</span></div>
+                  <div class="info-row"><span class="info-label">新移动电话</span><span class="info-content" id="dNewPhone">—</span></div>
+                  <div class="info-row"><span class="info-label">新座机</span><span class="info-content" id="dNewTel">—</span></div>
+                  <div class="info-row"><span class="info-label">新地址</span><span class="info-content" id="dNewAddr">—</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 关联订单(主栏宽区展示,不再横滑;与建单页同款表格) -->
+            <div class="card" style="padding:14px 18px; margin-bottom:12px;">
+              <div class="section-title">关联订单 <span class="ord-count" id="ordCountTag"></span><button class="btn-default" id="ordAddBtn" style="margin-left:auto;" onclick="openOrderPicker()">添加订单</button></div>
+              <div class="table-wrap">
+                <table class="data-table ord-table">
+                  <thead><tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:110px;">操作</th></tr></thead>
+                  <tbody id="orderCardList"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 工单描述 -->
+            <div class="card" style="padding:14px 18px; margin-bottom:12px;">
+              <div class="section-title">工单描述 <button class="btn-default" id="descEditBtn" style="margin-left:auto;" onclick="editDesc()">编辑</button><button class="btn-default" onclick="toggleHistory()">历史版本(2)</button></div>
+              <div class="desc-text" id="descText">客户申请退货退款,等客户提供物流单号后录入。从会话转入,附带完整聊天记录。</div>
+              <div class="desc-editor" id="descEditor" style="display:none;margin-top:8px;">
+                <textarea id="descInput" class="desc-input" rows="3"></textarea>
+                <div style="margin-top:6px;display:flex;gap:8px;">
+                  <button class="btn-primary" onclick="saveDesc()">保存为新版本</button>
+                  <button class="btn-default" onclick="cancelDesc()">取消</button>
+                </div>
+              </div>
+              <div id="descHistory" style="display:none;margin-top:10px;border-top:1px dashed var(--cs-border-light);padding-top:10px;">
+                <div class="desc-ver"><span class="ver-tag">v1</span><span class="ver-meta">07-16 10:30 · 张小明(创建)</span><div class="ver-text">客户申请退货退款。</div></div>
+                <div class="desc-ver"><span class="ver-tag">v2</span><span class="ver-meta">07-16 11:00 · 张小明</span><div class="ver-text">已寄回,等客户物流单号。</div></div>
+              </div>
+            </div>
+
+            <!-- 附件(按钮统一卡片右上角) -->
+            <div class="card" style="padding:14px 18px; margin-bottom:12px;">
+              <div class="section-title">附件 / 追加材料 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">处理记录不可改,附件只增</span><button class="btn-default" id="uploadBtn" onclick="uploadAttach()" style="margin-left:auto;">上传附件 / 追加材料</button></div>
+              <div id="attachList">
+                <div class="att-item"><span>📎</span><span class="att-name">退货物流凭证.jpg</span><span class="att-meta">张小明 · 07-16 11:05</span></div>
+              </div>
+            </div>
+
           </div>
-        </div>
-      </div>
 
-        </div>
+          <div class="detail-side">
 
-        <div class="detail-main">
+            <!-- 内部备注(右栏动线;样式与操作日志一致=时间+内容+操作账号;「添加备注」在卡片右上角,点击后输入框出现在底部) -->
+            <div class="card" style="padding:14px 18px;">
+              <div class="section-title">内部备注 <button class="btn-default note-add-trigger" id="noteAddTrigger" style="margin-left:auto;" onclick="openNoteEditor()">添加备注</button></div>
+              <div class="event-flow side-scroll" id="noteFlow">
+                <div class="ev-item"><span class="ev-time">07-16 10:35</span><span class="ev-text">已联系确认,等客户寄出后录单号。(仅客服可见)</span><span class="ev-who">张小明</span></div>
+              </div>
+              <div class="reply-box" id="noteEditor" style="display:none; margin-top:12px;">
+                <textarea id="replyInput" placeholder="添加内部备注(仅客服可见)…"></textarea>
+                <div class="reply-foot">
+                  <span class="hint">仅客服可见</span>
+                  <span style="display:flex; align-items:center; gap:10px;">
+                    <a style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); cursor:pointer;" onclick="closeNoteEditor()">取消</a>
+                    <button class="btn-primary" onclick="sendReply()">添加备注</button>
+                  </span>
+                </div>
+              </div>
+            </div>
 
-      <!-- 工单描述 -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title">工单描述 <a class="desc-link" onclick="editDesc()">编辑</a><a class="desc-link" onclick="toggleHistory()">历史版本(2)</a></div>
-        <div class="desc-text" id="descText">客户申请退货退款,等客户提供物流单号后录入。从会话转入,附带完整聊天记录。</div>
-        <div class="desc-editor" id="descEditor" style="display:none;margin-top:8px;">
-          <textarea id="descInput" class="desc-input" rows="3"></textarea>
-          <div style="margin-top:6px;display:flex;gap:8px;">
-            <button class="btn-primary" onclick="saveDesc()">保存为新版本</button>
-            <button class="btn-default" onclick="cancelDesc()">取消</button>
-          </div>
-        </div>
-        <div id="descHistory" style="display:none;margin-top:10px;border-top:1px dashed var(--cs-border-light);padding-top:10px;">
-          <div class="desc-ver"><span class="ver-tag">v1</span><span class="ver-meta">07-16 10:30 · 张小明(创建)</span><div class="ver-text">客户申请退货退款。</div></div>
-          <div class="desc-ver"><span class="ver-tag">v2</span><span class="ver-meta">07-16 11:00 · 张小明</span><div class="ver-text">已寄回,等客户物流单号。</div></div>
-        </div>
-      </div>
+            <!-- 操作日志(右栏动线;列表区滚动) -->
+            <div class="card" style="padding:14px 18px;">
+              <div class="section-title">操作日志</div>
+              <div class="event-flow side-scroll" id="eventFlow">
+                <!-- 时间降序:最新在上;不显示角色,系统操作账号名=系统 -->
+                <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待受理)</span><span class="ev-who">系统</span></div>
+                <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-who">张小明</span></div>
+              </div>
+            </div>
 
-      <!-- 关联订单(主栏宽区展示,窄屏可横滑;与建单页同款表格) -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title">关联订单 <span class="ord-count" id="ordCountTag"></span><a class="desc-link" style="margin-left:auto;" onclick="openOrderPicker()">+ 添加订单</a></div>
-        <div class="table-wrap">
-          <table class="data-table ord-table">
-            <thead><tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:110px;">操作</th></tr></thead>
-            <tbody id="orderCardList"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 内部备注 -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title">内部备注</div>
-        <div class="timeline" id="noteTimeline">
-          <div class="tl-item internal">
-            <div class="tl-head"><span class="who">张小明</span><span class="tag-int">内部</span><span>07-16 10:35</span></div>
-            <div class="tl-bubble">已联系确认,等客户寄出后录单号。</div>
-          </div>
-        </div>
-        <div class="reply-box" style="margin-top:12px;">
-          <textarea id="replyInput" placeholder="添加内部备注(仅客服可见)…"></textarea>
-          <div class="reply-foot">
-            <span class="hint">内部备注仅客服可见;处理中可通过底部「回复用户」跳转会话工作台</span>
-            <button class="btn-primary" onclick="sendReply()">添加备注</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 附件 -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title">附件 / 追加材料 <span style="font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);font-weight:normal;margin-left:6px;">处理记录不可改,附件只增</span></div>
-        <div id="attachList">
-          <div class="att-item"><span>📎</span><span class="att-name">退货物流凭证.jpg</span><span class="att-meta">张小明 · 07-16 11:05</span></div>
-        </div>
-        <button class="btn-default" onclick="uploadAttach()" style="margin-top:6px;">+ 上传附件 / 追加材料</button>
-      </div>
-
-      <!-- 操作日志 -->
-      <div class="card" style="padding:14px 18px; margin-bottom:16px;">
-        <div class="section-title">操作日志</div>
-        <div class="event-flow" id="eventFlow">
-          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-who">张小明</span><span class="ev-op human">客服</span></div>
-          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待受理)</span><span class="ev-who">—</span><span class="ev-op sys">系统</span></div>
-        </div>
           </div>
 
         </div>
 
+        <!-- V0.5 四.2/六.2:状态操作按钮集中详情页底部(完工在此,非行操作) -->
+        <div class="action-bar" id="actionBar" style="justify-content:center; margin-top:4px; padding:12px 16px; background:#fff; border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);"></div>
+
       </div>
-
-      <!-- V0.5 四.2/六.2:状态操作按钮集中详情页底部(完工在此,非行操作) -->
-      <div class="action-bar" id="actionBar" style="justify-content:center; margin-top:16px; padding:12px 16px; background:#fff; border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);"></div>
-
-    </main>
+    </div>
   </div>
 </div>
 
 <script src="js/cs-icons.js"></script>
-<script src="nav.js"></script>
 <script>
   function toast(t) { try { if (window.csModal && csModal.toast) csModal.toast(t); else alert(t); } catch (e) { alert(t); } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
@@ -270,8 +431,14 @@
     newAddr: P.get('new_addr') || ''
   };
 
-  /* 关联订单(独立卡):初始带入 + 抽屉查询关联一或多个(工单-订单 1 对多);展示列与建单页一致(BR-136) */
-  var relatedOrders = DATA.order ? [{ id: DATA.order, sub_id: DATA.orderSub, sku: DATA.orderSku, goods: DATA.orderGoods, qty: DATA.orderQty, supplier: DATA.orderSupplier, amount: DATA.orderAmount, state: DATA.orderState }] : [];
+  /* 关联订单(独立卡):初始带入 + 抽屉查询关联一或多个(工单-订单 1 对多);展示列与建单页一致(BR-136)
+   * 2026-07-27 八轮:多单按行拆分——列表多单工单 data-order 为逗号串(#DD1,#DD2,#DD3),
+   * 原整体当一个订单渲染致多单挤同一行;现逐单一行,首单带完整字段,其余单仅单号(明细 mock 未带,显示 -) */
+  var relatedOrders = (DATA.order || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean)
+    .map(function (id, i) {
+      if (i === 0) return { id: id, sub_id: DATA.orderSub, sku: DATA.orderSku, goods: DATA.orderGoods, qty: DATA.orderQty, supplier: DATA.orderSupplier, amount: DATA.orderAmount, state: DATA.orderState };
+      return { id: id };
+    });
   function renderOrderCards() {
     var box = document.getElementById('orderCardList');
     var tag = document.getElementById('ordCountTag');
@@ -321,8 +488,8 @@
   /* 填充元信息 */
   setText('tkno', DATA.id);
   document.getElementById('dType').innerHTML = DATA.type + ' <span class="type-three">(' + DATA.category + ' · ' + DATA.sub + ')</span>';
-  if (DATA.responsible) { setText('dResp', DATA.responsible); setText('respTag', '责任:' + DATA.responsible); }
-  else { document.getElementById('dRespRow').style.display = 'none'; document.getElementById('respTag').style.display = 'none'; }
+  if (DATA.responsible) { setText('dResp', DATA.responsible); }
+  else { document.getElementById('dRespRow').style.display = 'none'; }
   setText('dContact', DATA.contact || '—');
   setText('dPhone', DATA.contactPhone || '—');
   setText('dIncoming', DATA.incomingCall || '—');
@@ -344,8 +511,9 @@
     setText('dNewAddr', DATA.newAddr || '—');
     var ncg = document.getElementById('dNewContactGroup'); if (ncg) ncg.style.display = '';
   }
-  var urgEl = document.getElementById('urgencyTag');
-  if (urgEl) { urgEl.textContent = DATA.priority || ''; urgEl.className = 'urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
+  /* 优先级入基本信息(八轮:原状态栏 urgencyTag 已撤),紧急/特急保红字 */
+  var priEl = document.getElementById('dPriority');
+  if (priEl) { priEl.textContent = DATA.priority || '—'; priEl.className = 'info-content urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
 
   /* 状态机(随行初始状态;操作按钮按状态渲染到页面底部 actionBar)
    * V0.5 六.1/四.2:未处理态按是否已指派分流——未分配→「指派」(状态不变);已分配→「受理」(→处理中)。转单=转派仅处理中态。 */
@@ -361,7 +529,7 @@
         bar.innerHTML = back + '<button class="btn-primary" onclick="assignTicket()">指派</button>';
       }
     } else if (STATUS === '处理中') {
-      bar.innerHTML = back + '<button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-primary" style="color:var(--cs-success);border-color:var(--cs-success);" onclick="finishTicket()">完工</button>';
+      bar.innerHTML = back + '<button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-primary" onclick="finishTicket()">完工</button>';
     } else {
       bar.innerHTML = back;
     }
@@ -373,6 +541,8 @@
     else if (s === '处理中') { st.className = 's-tag processing'; st.textContent = '处理中'; }
     else { st.className = 's-tag done'; st.textContent = '已完工'; }
     var el = document.getElementById('editLink'); if (el) el.style.display = (s === '已完工') ? 'none' : '';
+    /* 已完工=终态只读(对齐列表侧仅「详情」):隐藏一切变更入口 */
+    document.body.classList.toggle('tk-done', s === '已完工');
     renderDetailCountdown();
     renderActions();
   }
@@ -428,10 +598,8 @@
     if (DATA.responsible) {
       document.getElementById('dRespRow').style.display = '';
       setText('dResp', DATA.responsible);
-      var rt = document.getElementById('respTag'); rt.style.display = ''; rt.textContent = '责任:' + DATA.responsible;
     } else {
       document.getElementById('dRespRow').style.display = 'none';
-      document.getElementById('respTag').style.display = 'none';
     }
     setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');
     if (DATA.contact) setText('dContact', DATA.contact);
@@ -448,8 +616,8 @@
     } else {
       document.getElementById('dNewContactGroup').style.display = 'none';
     }
-    var urgEl = document.getElementById('urgencyTag');
-    if (urgEl) { urgEl.textContent = DATA.priority || ''; urgEl.className = 'urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
+    var priEl2 = document.getElementById('dPriority');
+    if (priEl2) { priEl2.textContent = DATA.priority || '—'; priEl2.className = 'info-content urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
     renderDetailCountdown();
   }
 
@@ -476,15 +644,28 @@
     item.innerHTML = '<span>📎</span><span class="att-name">追加材料-' + ts + '.png</span><span class="att-meta">张小明 · ' + ts + '</span>';
     list.appendChild(item); toast('附件已上传(追加材料,不可改)'); addEvent('上传附件 / 追加材料');
   }
+  /* 2026-07-27 八轮:备注输入框点击「+ 添加备注」才出现;条目样式与操作日志一致(时间+内容+操作账号+角色) */
+  function openNoteEditor() {
+    document.getElementById('noteAddTrigger').style.display = 'none';
+    document.getElementById('noteEditor').style.display = '';
+    document.getElementById('replyInput').focus();
+  }
+  function closeNoteEditor() {
+    document.getElementById('noteEditor').style.display = 'none';
+    document.getElementById('noteAddTrigger').style.display = '';
+  }
   function sendReply() {
     var v = document.getElementById('replyInput').value.trim();
     if (!v) { toast('请输入内部备注'); return; }
-    var tl = document.getElementById('noteTimeline');
-    var item = document.createElement('div'); item.className = 'tl-item internal';
+    var flow = document.getElementById('noteFlow');
+    var it = document.createElement('div'); it.className = 'ev-item';
     var now = new Date();
     var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
-    item.innerHTML = '<div class="tl-head"><span class="who">张小明</span><span class="tag-int">内部</span><span>' + ts + '</span></div><div class="tl-bubble">' + v.replace(/</g, '&lt;') + '</div>';
-    tl.appendChild(item); document.getElementById('replyInput').value = '';
+    it.innerHTML = '<span class="ev-time">' + ts + '</span><span class="ev-text">' + v.replace(/</g, '&lt;') + '(仅客服可见)</span><span class="ev-who">张小明</span>';
+    flow.insertBefore(it, flow.firstChild); /* 时间降序:最新在上 */
+    flow.scrollTop = 0;
+    document.getElementById('replyInput').value = '';
+    closeNoteEditor();
     toast('内部备注已添加'); addEvent('添加内部备注');
   }
   function gotoWorkbench() { toast('跳转到会话工作台回复用户'); setTimeout(function () { location.href = 'admin-workbench.html'; }, 400); }
@@ -497,16 +678,15 @@
       });
     } catch (e) { toast('转单(原型演示)'); }
   }
-  /* 操作日志:每条 = 时间 + 内容 + 操作账号 + 角色(客服/主管/系统) */
+  /* 操作日志:每条 = 时间 + 内容 + 操作账号(不显示角色;系统操作账号名=系统);时间降序,最新插到顶部 */
   function addEvent(text, who, role) {
-    who = who || '张小明'; role = role || '客服';
+    who = (role === '系统') ? '系统' : (who || '张小明');
     var flow = document.getElementById('eventFlow');
     var it = document.createElement('div'); it.className = 'ev-item';
     var now = new Date();
     var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
-    var cls = role === '系统' ? 'sys' : (role === '主管' ? 'mgr' : 'human');
-    it.innerHTML = '<span class="ev-time">' + ts + '</span><span class="ev-text">' + text + '</span><span class="ev-who">' + who + '</span><span class="ev-op ' + cls + '">' + role + '</span>';
-    flow.appendChild(it);
+    it.innerHTML = '<span class="ev-time">' + ts + '</span><span class="ev-text">' + text + '</span><span class="ev-who">' + who + '</span>';
+    flow.insertBefore(it, flow.firstChild);
   }
   function editDesc() { document.getElementById('descInput').value = document.getElementById('descText').textContent; document.getElementById('descEditor').style.display = ''; document.getElementById('descText').style.display = 'none'; }
   function cancelDesc() { document.getElementById('descEditor').style.display = 'none'; document.getElementById('descText').style.display = ''; }

@@ -1100,9 +1100,9 @@
     td.innerHTML = v ? '<span class="src-val" onclick="editSource(this)">' + v + '</span>' : '<span class="src-val empty" onclick="editSource(this)">-</span>';
     toast(v ? '已关联会话 ' + v : '已清除会话关联');
   };
+  /* 查看订单:跳订单列表并按主订单号搜索(2026-07-27:替代原 modal-order-detail 弹窗) */
   window.viewOrder = function (orderId) {
-    csModal.open('modals/modal-order-detail.html', { variant: 'center', width: 540 });
-    toast('查看订单 ' + orderId);
+    location.href = 'admin-order-list.html?oid=' + encodeURIComponent(orderId);
   };
   /* V0.5 四.2:多单「+N」展开全部关联订单(1 对多) */
   window.viewOrders = function (el) {

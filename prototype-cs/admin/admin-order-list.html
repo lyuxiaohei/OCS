@@ -299,7 +299,7 @@
         <!-- 筛选区 -->
         <div class="filter-card" id="filterCard">
           <div class="filter-grid">
-            <div class="ff"><span class="ff-label">主订单号：</span><input placeholder="请输入主订单号" /></div>
+            <div class="ff"><span class="ff-label">主订单号：</span><input id="fMainOid" placeholder="请输入主订单号" /></div>
             <div class="ff"><span class="ff-label">子订单号：</span><input placeholder="请输入子订单号" /></div>
             <div class="ff"><span class="ff-label">SKU物流编码：</span><input placeholder="请输入SKU物流编码" /></div>
             <div class="ff"><span class="ff-label">商品名称：</span><input placeholder="请输入商品名称" /></div>
@@ -625,6 +625,36 @@
       + '&sub=' + encodeURIComponent(sub) + '&sku=' + encodeURIComponent(sku) + '&qty=' + encodeURIComponent(qty) + '&supplier=' + encodeURIComponent(supplier === '-' ? '' : supplier);
     location.href = 'admin-ticket-create.html' + qs;
   });
+
+  /* 从工单列表跳入(2026-07-27):?oid=主订单号 → 预填筛选框 + 只显示该订单;
+   * mock 单号未全量打通(工单侧 #DD… / 本页 15 位),查不到时合成一行演示结果 */
+  (function () {
+    var oid = new URLSearchParams(location.search).get('oid');
+    if (!oid) return;
+    document.getElementById('fMainOid').value = oid;
+    var tbody = document.getElementById('orderTbody');
+    var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+    var hit = rows.filter(function (r) { return r.children[1] && r.children[1].textContent.trim() === oid; });
+    if (hit.length) {
+      rows.forEach(function (r) { r.style.display = hit.indexOf(r) >= 0 ? '' : 'none'; });
+    } else {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><input type="checkbox" class="row-check" /></td>'
+        + '<td><span class="order-id-link">' + oid + '</span></td>'
+        + '<td>' + oid + '-1</td>'
+        + '<td><div class="goods-cell"><span class="goods-thumb">📦</span><span class="goods-name">工单关联订单(演示数据,OMS 待对接)</span></div></td>'
+        + '<td>-</td><td>兆点福利</td><td>-</td><td>-</td>'
+        + '<td><div class="cust-cell"><div class="c1">-</div><div class="c2">-</div></div></td>'
+        + '<td><span class="price-unit">-</span></td><td>-</td><td><span class="price-total">-</span></td><td>-</td>'
+        + '<td><span class="st-tag st-ship">已签收</span></td><td>-</td>'
+        + '<td><span class="st-tag st-as-none">无售后</span></td><td class="remark-cell">-</td>'
+        + '<td class="col-op"><span class="op-link">详情</span></td>';
+      rows.forEach(function (r) { r.style.display = 'none'; });
+      tbody.appendChild(tr);
+    }
+    var pager = document.querySelector('.table-pager span');
+    if (pager) pager.textContent = '第1条/总共1条';
+  })();
 </script>
 </body>
 </html>
