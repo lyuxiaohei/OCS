@@ -174,6 +174,17 @@ a { color: var(--cs-primary); text-decoration: none; }
   font-weight: var(--cs-font-weight-medium);
   vertical-align: middle;
 }
+/* mo 商城运营后台侧栏版本角标(同款;2026-07-27 十轮:订单列表/客服工单/工单配置 标 V1.5) */
+.mo-sub-item .menu-ver {
+  margin-left: 6px;
+  font-size: 10px;
+  color: var(--cs-text-tertiary);
+  background: var(--cs-border-light);
+  padding: 0 5px;
+  border-radius: 8px;
+  font-weight: var(--cs-font-weight-medium);
+  vertical-align: middle;
+}
 
 .admin-header {
   height: 56px;
@@ -272,6 +283,10 @@ a { color: var(--cs-primary); text-decoration: none; }
   transition: var(--cs-transition-normal);
 }
 .btn-default:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+
+/* mo 商城运营后台内容区按钮统一收敛(2026-07-27 十一轮:工单列表/订单列表/详情/建单 全局一致;
+   原为详情/建单页内覆盖,十一轮上移全局,两列表页同步生效) */
+.mo-content .btn-primary, .mo-content .btn-default { font-size: var(--cs-font-size-base); padding: 5px 14px; }
 
 .btn-sm {
   padding: 3px 10px;

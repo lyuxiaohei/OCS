@@ -76,8 +76,7 @@
     .fm-input, .fm-select, .fm-textarea { border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); padding:7px 10px; font-size:var(--cs-font-size-sm); font-family:inherit; background:#fff; outline:none; transition:border-color .2s; }
     .fm-input:focus, .fm-select:focus, .fm-textarea:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,0.1); }
     .fm-textarea { resize:vertical; min-height:90px; line-height:1.6; width:100%; }
-    /* 2026-07-27 八轮:按钮与详情页统一(13px;原全局 14px + 个别私有小号) */
-    .mo-content .btn-primary, .mo-content .btn-default { font-size:var(--cs-font-size-base); padding:5px 14px; }
+    /* 2026-07-27 八轮:按钮与详情页统一(13px;原全局 14px + 个别私有小号);十一轮已上移 styles.css 全局生效,本页不再重复覆盖 */
     /* 2026-07-27 七轮:下拉箭头自绘,与列表筛选 .ff 风格统一(原原生箭头) */
     .fm-select { appearance:none; -webkit-appearance:none; padding-right:26px; cursor:pointer;
       background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>') no-repeat right 10px center; }
@@ -111,7 +110,7 @@
     .collapsible.open { display:block; }
 
     /* 吸底操作栏(mo-content 为滚动容器,sticky 直接生效) */
-    .fm-actions { position:sticky; bottom:0; display:flex; justify-content:flex-end; gap:8px; background:var(--cs-bg-card); border-top:1px solid var(--cs-border-light); padding:var(--cs-space-3) 24px; margin:16px 0 -12px; box-shadow:0 -2px 8px rgba(0,0,0,0.04); z-index:5; }
+    .fm-actions { position:sticky; bottom:0; display:flex; justify-content:center; gap:8px; background:var(--cs-bg-card); border-top:1px solid var(--cs-border-light); padding:var(--cs-space-3) 24px; margin:16px 0 -12px; box-shadow:0 -2px 8px rgba(0,0,0,0.04); z-index:5; }
     /* 2026-07-27 八轮:卡片背景铺满内容区(原 max-width:1200px 居中留白) */
     .create-inner { width:100%; }
 
@@ -198,10 +197,10 @@
           <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="mo-sub">
-          <a class="mo-sub-item" href="admin-order-list.html">订单列表</a>
-          <a class="mo-sub-item active">客服工单</a>
+          <a class="mo-sub-item" href="admin-order-list.html">订单列表<span class="menu-ver">V1.5</span></a>
+          <a class="mo-sub-item active">客服工单<span class="menu-ver">V1.5</span></a>
           <a class="mo-sub-item">售后监控</a>
-          <a class="mo-sub-item">售后配置</a>
+          <!-- 2026-07-27 十轮:「售后配置」菜单撤除 -->
         </div>
       </div>
       <div class="mo-group collapsed">
@@ -216,6 +215,10 @@
           <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.65 1.65 0 0 0-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l.06-.06a2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1z"/></svg>
           <span class="mi-label">系统设置</span>
           <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="mo-sub">
+          <!-- 2026-07-27 十轮:工单配置由客服模块「客服设置」移入本组(页面仍为客服模块骨架,跨系统新开页签) -->
+          <a class="mo-sub-item" href="admin-ticket-settings.html" target="_blank">工单配置<span class="menu-ver">V1.5</span></a>
         </div>
       </div>
     </aside>
@@ -486,7 +489,7 @@
   }
   function removeCreateOrder(i) { state.orders.splice(i, 1); renderCreateOrders(); }
   function openOrderPicker() {
-    csModal.open('modals/drawer-ticket-order.html', { variant: 'drawer-right', width: 520,
+    csModal.open('modals/drawer-ticket-order.html', { variant: 'center', width: 960,
       onConfirm: function (d) {
         var arr = (d && d.orders) ? d.orders : []; var added = 0;
         arr.forEach(function (o) { if (!state.orders.some(function (r) { return r.id === o.id; })) { state.orders.push(o); added++; } });

@@ -2,79 +2,108 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>关联订单 · 抽屉</title>
+  <title>关联订单</title>
   <link rel="stylesheet" href="../styles.css" />
   <style>
     body { background:#fff; margin:0; }
-    .dw-body { display:flex; flex-direction:column; height:100vh; }
-    .drawer-head { padding:16px 24px; border-bottom:1px solid var(--cs-border-light);
-      display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-    .drawer-head .title { font-size:16px; font-weight:600; }
-    .drawer-head .title .sub { font-size:12px; font-weight:400; color:var(--cs-text-tertiary); margin-left:8px; }
-    .drawer-head .close { font-size:20px; color:var(--cs-text-tertiary); cursor:pointer; line-height:1; }
+    /* 居中弹窗:自然高度(cs-modal autoHeight 量 body),表格区固定高内部滚动 */
+    .md-head { padding:14px 20px; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:center; justify-content:space-between; }
+    .md-head .title { font-size:15px; font-weight:600; }
+    .md-head .title .sub { font-size:12px; font-weight:400; color:var(--cs-text-tertiary); margin-left:8px; }
+    .md-head .close { font-size:20px; color:var(--cs-text-tertiary); cursor:pointer; line-height:1; }
 
-    .drawer-search { padding:12px 24px 0; flex-shrink:0; }
-    .drawer-search input { width:100%; box-sizing:border-box; border:1px solid var(--cs-border);
-      border-radius:var(--cs-radius-sm); padding:8px 12px; font-size:13px; outline:none; font-family:inherit; }
-    .drawer-search input:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,.1); }
-
-    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:12px 24px; }
-    .order-list { display:flex; flex-direction:column; gap:10px; }
-    .order-item { border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);
-      padding:12px 14px; cursor:pointer; background:#fff; transition:border-color .15s, box-shadow .15s; position:relative; }
-    .order-item:hover { border-color:var(--cs-primary); }
-    .order-item.selected { border-color:var(--cs-primary); background:var(--cs-primary-bg); box-shadow:0 0 0 2px rgba(22,119,255,.12); }
-    .order-item.selected::after { content:"✓"; position:absolute; top:10px; right:12px;
-      width:18px; height:18px; border-radius:50%; background:var(--cs-primary); color:#fff;
-      font-size:12px; line-height:18px; text-align:center; }
-    .order-item .oi-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
-    .order-item .oi-id { font-size:13px; font-weight:600; color:var(--cs-text); }
-    .order-item .oi-state { font-size:12px; color:var(--cs-text-tertiary); }
-    .order-item .oi-goods { font-size:12px; color:var(--cs-text-secondary);
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:6px; }
-    .order-item .oi-meta { font-size:11px; color:var(--cs-text-tertiary);
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:6px; }
-    .order-item .oi-bottom { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--cs-text-tertiary); }
-    .order-item .oi-amount { font-size:14px; font-weight:600; color:var(--cs-text); }
-    .empty-state { text-align:center; padding:40px 16px; color:var(--cs-text-tertiary); font-size:13px; }
-
-    .drawer-foot { padding:12px 24px; border-top:1px solid var(--cs-border-light);
-      display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
-    .drawer-foot .picked { font-size:12px; color:var(--cs-text-tertiary); }
-    .drawer-foot .acts { display:flex; gap:8px; }
-    .drawer-foot .btn-default { padding:7px 16px; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm);
+    .md-filter { padding:12px 20px 0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px 12px; }
+    .mf-item label { display:block; font-size:12px; color:var(--cs-text-tertiary); margin-bottom:4px; }
+    .mf-item input, .mf-item select { width:100%; box-sizing:border-box; border:1px solid var(--cs-border);
+      border-radius:var(--cs-radius-sm); padding:6px 10px; font-size:13px; outline:none; font-family:inherit; background:#fff; }
+    .mf-item input:focus, .mf-item select:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,.1); }
+    .mf-acts { display:flex; gap:8px; align-items:flex-end; }
+    .mf-acts .btn-default { padding:6px 16px; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm);
       background:#fff; font-size:13px; cursor:pointer; color:var(--cs-text-secondary); }
-    .drawer-foot .btn-primary { padding:7px 16px; border:none; border-radius:var(--cs-radius-sm);
+    .mf-acts .btn-primary { padding:6px 16px; border:none; border-radius:var(--cs-radius-sm);
       background:var(--cs-primary); color:#fff; font-size:13px; cursor:pointer; }
-    .drawer-foot .btn-primary:disabled { background:var(--cs-border); cursor:not-allowed; }
+
+    /* 列表区:固定高度 + 内部滚动,表头吸顶 */
+    .md-table-wrap { margin:12px 20px 0; border:1px solid var(--cs-border-light);
+      border-radius:var(--cs-radius-md); height:320px; overflow:auto; }
+    .md-table-wrap .data-table thead th { position:sticky; top:0; z-index:1; padding:9px 12px; }
+    .md-table-wrap .data-table tbody td { padding:9px 12px; font-size:13px; }
+    .md-table-wrap .data-table th:nth-child(1), .md-table-wrap .data-table td:nth-child(1) { width:36px; text-align:center; }
+    .md-table-wrap .data-table th:nth-child(6), .md-table-wrap .data-table td:nth-child(6) { text-align:center; }
+    .md-table-wrap .data-table th:nth-child(8), .md-table-wrap .data-table td:nth-child(8) { text-align:right; }
+    .pick-table tbody tr { cursor:pointer; }
+    .pick-table tbody tr.selected { background:var(--cs-primary-bg); }
+    .pick-table tbody tr.selected:hover { background:var(--cs-primary-bg); }
+    .pick-table .pk-id { font-weight:var(--cs-font-weight-semibold); white-space:nowrap; }
+    .pick-table .pk-goods { max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .pick-table input[type="checkbox"] { accent-color:var(--cs-primary); cursor:pointer; }
+    .empty-row { text-align:center; color:var(--cs-text-tertiary); padding:40px 0 !important; cursor:default !important; }
+
+    /* 分页条(5 条/页;全选=当前页,已选跨页保留) */
+    .md-page { margin:10px 20px 0; display:flex; justify-content:flex-end; align-items:center; gap:6px;
+      font-size:12px; color:var(--cs-text-tertiary); }
+    .md-page .pg-total { margin-right:6px; }
+    .md-page .pg-btn { min-width:26px; height:26px; padding:0 6px; border:1px solid var(--cs-border);
+      border-radius:var(--cs-radius-sm); background:#fff; font-size:12px; color:var(--cs-text-secondary);
+      cursor:pointer; font-family:inherit; }
+    .md-page .pg-btn.cur { border-color:var(--cs-primary); color:var(--cs-primary); font-weight:500; }
+    .md-page .pg-btn:disabled { opacity:.45; cursor:not-allowed; }
+
+    .md-foot { margin-top:12px; padding:12px 20px; border-top:1px solid var(--cs-border-light);
+      display:flex; justify-content:space-between; align-items:center; }
+    .md-foot .picked { font-size:12px; color:var(--cs-text-tertiary); }
+    .md-foot .acts { display:flex; gap:8px; }
+    .md-foot .btn-default { padding:7px 16px; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm);
+      background:#fff; font-size:13px; cursor:pointer; color:var(--cs-text-secondary); }
+    .md-foot .btn-primary { padding:7px 16px; border:none; border-radius:var(--cs-radius-sm);
+      background:var(--cs-primary); color:#fff; font-size:13px; cursor:pointer; }
+    .md-foot .btn-primary:disabled { background:var(--cs-border); cursor:not-allowed; }
   </style>
 </head>
 <body>
-<div class="dw-body">
-  <div class="drawer-head">
-    <div class="title">关联订单<span class="sub">查询并选择一或多个订单</span></div>
+  <div class="md-head">
+    <div class="title">关联订单<span class="sub">查询并勾选一或多个订单</span></div>
     <div class="close" onclick="window.csModalBridge.close()">×</div>
   </div>
-  <div class="drawer-search">
-    <input id="kw" placeholder="搜索 订单号 / 商品 / 编码 / 供应商 / 手机号" autocomplete="off" />
+  <div class="md-filter">
+    <div class="mf-item"><label>主订单号</label><input id="fOid" placeholder="主 / 子订单号" autocomplete="off" /></div>
+    <div class="mf-item"><label>商品编码</label><input id="fSku" placeholder="SKU / 物流编码" autocomplete="off" /></div>
+    <div class="mf-item"><label>商品名称</label><input id="fGoods" placeholder="商品名称关键词" autocomplete="off" /></div>
+    <div class="mf-item"><label>供应商名称</label><input id="fSupplier" placeholder="供应商名称" autocomplete="off" /></div>
+    <div class="mf-item"><label>收货手机号</label><input id="fPhone" placeholder="收货手机号" autocomplete="off" /></div>
+    <div class="mf-item"><label>订单状态</label><select id="fState">
+      <option value="">全部</option><option>待发货</option><option>运输中</option><option>已签收</option><option>已完成</option><option>已取消</option>
+    </select></div>
+    <div class="mf-acts">
+      <button class="btn-primary" id="searchBtn" type="button">查询</button>
+      <button class="btn-default" id="resetBtn" type="button">重置</button>
+    </div>
   </div>
-  <div class="drawer-body">
-    <div class="order-list" id="orderList"></div>
+  <div class="md-table-wrap">
+    <table class="data-table pick-table">
+      <thead><tr>
+        <th><input type="checkbox" id="checkAll" title="全选当前页" /></th>
+        <th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th>
+        <th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th>
+      </tr></thead>
+      <tbody id="orderList"></tbody>
+    </table>
   </div>
-  <div class="drawer-foot">
+  <div class="md-page" id="pageBar"></div>
+  <div class="md-foot">
     <span class="picked" id="pickedTag">未选择</span>
     <div class="acts">
       <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
       <button class="btn-primary" id="confirmBtn" disabled>确认关联</button>
     </div>
   </div>
-</div>
 
 <script src="../js/cs-modal.js"></script>
 <script>
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
 
-  /* mock 订单池(正式:后端按客户 / 关键词查询;1 期仅记录关联,不操作 OMS);字段对齐 BR-136 展示列 */
+  /* mock 订单池(正式:后端按客户 / 关键词查询;1 期仅记录关联,不操作 OMS);展示列与详情/建单页关联订单卡片一致(BR-136) */
   var POOL = [
     { id:'#DD20260710003', sub_id:'#DD20260710003-1', sku:'HZDF3100216', goods:'无线蓝牙耳机(黑色)', qty:1, supplier:'深圳声科电子', amount:'¥299', state:'已签收', time:'2026-07-10', phone:'13856782891' },
     { id:'#DD20260708001', sub_id:'#DD20260708001-1', sku:'HZDF2088771', goods:'不锈钢保温杯 500ml', qty:1, supplier:'永康精工杯业', amount:'¥89',  state:'已完成', time:'2026-07-08', phone:'13856782891' },
@@ -82,56 +111,140 @@
     { id:'#DD20260711001', sub_id:'#DD20260711001-1', sku:'HZDF2099334', goods:'羽绒被 1.8m',        qty:1, supplier:'南通家纺厂',   amount:'¥699', state:'已签收', time:'2026-07-11', phone:'13567898821' },
     { id:'#DD20260709001', sub_id:'#DD20260709001-1', sku:'HZDF2120668', goods:'玻璃水杯',           qty:2, supplier:'德力玻璃',     amount:'¥39',  state:'运输中', time:'2026-07-09', phone:'13790121024' },
     { id:'#DD20260710002', sub_id:'#DD20260710002-1', sku:'HZ-A68140001-DF', goods:'测试产品',       qty:1, supplier:'宏兆自营',     amount:'¥0.01',state:'已取消', time:'2026-07-10', phone:'13677884477' },
-    { id:'#DD20260708002', sub_id:'#DD20260708002-1', sku:'HZDF2077552', goods:'蓝牙音箱',           qty:1, supplier:'深圳声科电子', amount:'¥199', state:'已签收', time:'2026-07-08', phone:'13567898821' }
+    { id:'#DD20260708002', sub_id:'#DD20260708002-1', sku:'HZDF2077552', goods:'蓝牙音箱',           qty:1, supplier:'深圳声科电子', amount:'¥199', state:'已签收', time:'2026-07-08', phone:'13567898821' },
+    /* 2026-07-27 十一轮:补 5 单演示分页(共 12 单,5 条/页 3 页) */
+    { id:'#DD20260713001', sub_id:'#DD20260713001-1', sku:'HZDF3166880', goods:'智能手环 8',         qty:1, supplier:'深圳声科电子', amount:'¥169', state:'待发货', time:'2026-07-13', phone:'13856782891' },
+    { id:'#DD20260706001', sub_id:'#DD20260706001-1', sku:'HZDF2066112', goods:'机械键盘 87键',      qty:1, supplier:'东莞键鼠外设', amount:'¥259', state:'已完成', time:'2026-07-06', phone:'13967855678' },
+    { id:'#DD20260705001', sub_id:'#DD20260705001-1', sku:'HZDF2055339', goods:'儿童书包 蓝色',      qty:1, supplier:'泉州箱包厂',   amount:'¥129', state:'已签收', time:'2026-07-05', phone:'13567898821' },
+    { id:'#DD20260704001', sub_id:'#DD20260704001-1', sku:'HZDF2044007', goods:'陶瓷餐具 12件套',    qty:1, supplier:'景德镇陶瓷',   amount:'¥199', state:'运输中', time:'2026-07-04', phone:'13790121024' },
+    { id:'#DD20260703001', sub_id:'#DD20260703001-1', sku:'HZDF2033115', goods:'电动牙刷 替换头×4',  qty:2, supplier:'宁波个护电器', amount:'¥79',  state:'已完成', time:'2026-07-03', phone:'13677884477' }
   ];
 
-  var selected = {}; /* id -> order(多选) */
+  var selected = {}; /* id -> order(多选,跨查询保留) */
   var listEl = document.getElementById('orderList');
   var confirmBtn = document.getElementById('confirmBtn');
   var pickedTag = document.getElementById('pickedTag');
+  var checkAll = document.getElementById('checkAll');
+  var curArr = []; /* 当前查询结果 */
 
-  function render(kw) {
-    kw = (kw || '').trim().toLowerCase();
-    var arr = POOL.filter(function (o) {
-      if (!kw) return true;
-      return (o.id || '').toLowerCase().indexOf(kw) >= 0 || (o.sub_id || '').toLowerCase().indexOf(kw) >= 0
-        || (o.goods || '').toLowerCase().indexOf(kw) >= 0 || (o.sku || '').toLowerCase().indexOf(kw) >= 0
-        || (o.supplier || '').toLowerCase().indexOf(kw) >= 0 || (o.phone || '').indexOf(kw) >= 0;
+  var F_IDS = ['fOid', 'fSku', 'fGoods', 'fSupplier', 'fPhone', 'fState'];
+  function fv(id) { return (document.getElementById(id).value || '').trim(); }
+
+  /* 多字段组合筛选(AND):主/子订单号·商品编码·商品名称·供应商·手机号 模糊,状态精确 */
+  function filterPool() {
+    var id = fv('fOid').toLowerCase(), sku = fv('fSku').toLowerCase(), goods = fv('fGoods').toLowerCase(),
+        sup = fv('fSupplier').toLowerCase(), phone = fv('fPhone'), st = fv('fState');
+    return POOL.filter(function (o) {
+      return (!id || (o.id || '').toLowerCase().indexOf(id) >= 0 || (o.sub_id || '').toLowerCase().indexOf(id) >= 0)
+        && (!sku || (o.sku || '').toLowerCase().indexOf(sku) >= 0)
+        && (!goods || (o.goods || '').toLowerCase().indexOf(goods) >= 0)
+        && (!sup || (o.supplier || '').toLowerCase().indexOf(sup) >= 0)
+        && (!phone || (o.phone || '').indexOf(phone) >= 0)
+        && (!st || o.state === st);
     });
-    if (!arr.length) { listEl.innerHTML = '<div class="empty-state">未找到匹配订单</div>'; return; }
-    listEl.innerHTML = arr.map(function (o) {
-      var sel = selected[o.id] ? ' selected' : '';
-      return '<div class="order-item' + sel + '" data-id="' + esc(o.id) + '">'
-        + '<div class="oi-top"><span class="oi-id">' + esc(o.id) + '</span><span class="oi-state">' + esc(o.state) + '</span></div>'
-        + '<div class="oi-goods">' + esc(o.goods) + '</div>'
-        + '<div class="oi-meta">子单 ' + esc(o.sub_id || '-') + ' · 编码 ' + esc(o.sku || '-') + ' · ×' + esc(o.qty != null ? o.qty : '-') + ' · ' + esc(o.supplier || '-') + '</div>'
-        + '<div class="oi-bottom"><span>' + esc(o.time) + ' · ' + esc(o.phone) + '</span><span class="oi-amount">' + esc(o.amount) + '</span></div>'
-        + '</div>';
-    }).join('');
   }
+
+  var PAGE_SIZE = 5;
+  var page = 1;
+  function pageCount() { return Math.max(1, Math.ceil(curArr.length / PAGE_SIZE)); }
+  function pageSlice() { return curArr.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE); }
+
+  function render() {
+    curArr = filterPool();
+    if (page > pageCount()) page = pageCount();
+    var slice = pageSlice();
+    if (!slice.length) {
+      listEl.innerHTML = '<tr><td class="empty-row" colspan="9">未找到匹配订单</td></tr>';
+    } else {
+      listEl.innerHTML = slice.map(function (o) {
+        var sel = selected[o.id] ? ' class="selected"' : '';
+        return '<tr' + sel + ' data-id="' + esc(o.id) + '">'
+          + '<td><input type="checkbox"' + (selected[o.id] ? ' checked' : '') + ' /></td>'
+          + '<td><span class="pk-id">' + esc(o.id) + '</span></td>'
+          + '<td>' + esc(o.sub_id || '-') + '</td>'
+          + '<td>' + esc(o.sku || '-') + '</td>'
+          + '<td><span class="pk-goods" title="' + esc(o.goods || '') + '">' + esc(o.goods || '-') + '</span></td>'
+          + '<td>' + esc(o.qty != null ? o.qty : '-') + '</td>'
+          + '<td>' + esc(o.supplier || '-') + '</td>'
+          + '<td>' + esc(o.amount || '-') + '</td>'
+          + '<td>' + esc(o.state || '-') + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+    renderPageBar();
+    syncCheckAll();
+  }
+
+  function renderPageBar() {
+    var pages = pageCount(), nums = '';
+    for (var i = 1; i <= pages; i++) {
+      nums += '<button type="button" class="pg-btn' + (i === page ? ' cur' : '') + '" data-p="' + i + '">' + i + '</button>';
+    }
+    document.getElementById('pageBar').innerHTML = '<span class="pg-total">共 ' + curArr.length + ' 条</span>'
+      + '<button type="button" class="pg-btn" data-p="prev"' + (page <= 1 ? ' disabled' : '') + '>‹</button>'
+      + nums
+      + '<button type="button" class="pg-btn" data-p="next"' + (page >= pages ? ' disabled' : '') + '>›</button>';
+  }
+
   function syncFoot() {
     var ids = Object.keys(selected);
     confirmBtn.disabled = ids.length === 0;
     confirmBtn.textContent = ids.length ? ('确认关联(' + ids.length + ')') : '确认关联';
     pickedTag.textContent = ids.length ? ('已选 ' + ids.length + ' 单') : '未选择';
   }
+  function syncCheckAll() {
+    var slice = pageSlice();
+    checkAll.disabled = slice.length === 0;
+    checkAll.checked = slice.length > 0 && slice.every(function (o) { return !!selected[o.id]; });
+  }
 
-  document.getElementById('kw').addEventListener('input', function () { render(this.value); });
+  /* 行点击 / 勾选框点击都切换选中(勾选框原生 toggle 后以 selected 为准重置) */
   listEl.addEventListener('click', function (e) {
-    var it = e.target.closest('.order-item'); if (!it) return;
-    var id = it.getAttribute('data-id');
+    var tr = e.target.closest('tr[data-id]'); if (!tr) return;
+    var id = tr.getAttribute('data-id');
     var o = POOL.filter(function (x) { return x.id === id; })[0];
     if (!o) return;
-    if (selected[id]) { delete selected[id]; it.classList.remove('selected'); }
-    else { selected[id] = o; it.classList.add('selected'); }
+    if (selected[id]) delete selected[id]; else selected[id] = o;
+    tr.classList.toggle('selected', !!selected[id]);
+    var cb = tr.querySelector('input[type="checkbox"]');
+    if (cb) cb.checked = !!selected[id];
+    syncFoot(); syncCheckAll();
+  });
+
+  /* 全选 / 全不选当前页(已选跨页保留,与工单列表口径一致) */
+  checkAll.addEventListener('change', function () {
+    var on = checkAll.checked;
+    pageSlice().forEach(function (o) { if (on) selected[o.id] = o; else delete selected[o.id]; });
+    render();
     syncFoot();
   });
+
+  /* 分页条(页码 / 上一页 / 下一页) */
+  document.getElementById('pageBar').addEventListener('click', function (e) {
+    var b = e.target.closest('.pg-btn'); if (!b || b.disabled) return;
+    var p = b.getAttribute('data-p');
+    if (p === 'prev') page = Math.max(1, page - 1);
+    else if (p === 'next') page = Math.min(pageCount(), page + 1);
+    else page = parseInt(p, 10);
+    render();
+  });
+
+  /* 查询 / 重置 / 回车查询(条件变化回第 1 页) */
+  document.getElementById('searchBtn').addEventListener('click', function () { page = 1; render(); });
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    F_IDS.forEach(function (id) { document.getElementById(id).value = ''; });
+    page = 1; render();
+  });
+  F_IDS.forEach(function (id) {
+    document.getElementById(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') { page = 1; render(); } });
+  });
+
   confirmBtn.addEventListener('click', function () {
     var orders = Object.keys(selected).map(function (k) { return selected[k]; });
     window.csModalBridge.confirm({ orders: orders });
   });
 
-  render('');
+  render();
   syncFoot();
 </script>
 </body>
