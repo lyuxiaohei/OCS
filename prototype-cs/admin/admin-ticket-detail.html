@@ -61,9 +61,12 @@
     .ev-item:last-child { border-bottom:none; }
     .ev-item .ev-time { width:120px; color:var(--cs-text-tertiary); flex-shrink:0; }
     .ev-item .ev-text { color:var(--cs-text-secondary); flex:1; }
-    .ev-item .ev-op { margin-left:8px; font-size:10px; padding:0 5px; border-radius:3px; }
+    /* 2026-07-27 五轮:操作日志改「操作账号 + 角色」(原仅标 人/系统) */
+    .ev-item .ev-who { margin-left:8px; color:var(--cs-text); font-weight:var(--cs-font-weight-medium); flex-shrink:0; }
+    .ev-item .ev-op { margin-left:8px; font-size:10px; padding:0 5px; border-radius:3px; flex-shrink:0; }
     .ev-item .ev-op.sys { background:var(--cs-bg-header); color:var(--cs-text-tertiary); }
     .ev-item .ev-op.human { background:var(--cs-primary-bg); color:var(--cs-primary); }
+    .ev-item .ev-op.mgr { background:var(--cs-orange-bg); color:var(--cs-orange); }
 
     .action-bar { display:flex; align-items:center; gap:8px; }
 
@@ -205,8 +208,8 @@
       <div class="card" style="padding:14px 18px; margin-bottom:16px;">
         <div class="section-title">操作日志</div>
         <div class="event-flow" id="eventFlow">
-          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-op human">客服</span></div>
-          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待受理)</span><span class="ev-op sys">系统</span></div>
+          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-who">张小明</span><span class="ev-op human">客服</span></div>
+          <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待受理)</span><span class="ev-who">—</span><span class="ev-op sys">系统</span></div>
         </div>
           </div>
 
@@ -215,7 +218,7 @@
       </div>
 
       <!-- V0.5 四.2/六.2:状态操作按钮集中详情页底部(完工在此,非行操作) -->
-      <div class="action-bar" id="actionBar" style="justify-content:flex-end; margin-top:16px; padding:12px 16px; background:#fff; border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);"></div>
+      <div class="action-bar" id="actionBar" style="justify-content:center; margin-top:16px; padding:12px 16px; background:#fff; border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-md);"></div>
 
     </main>
   </div>
@@ -249,7 +252,6 @@
     orderAmount: P.get('order_amount') || '¥699',
     orderState: P.get('order_state') || '已签收',
     project: P.get('project') || '昆山吉波项目',
-    title: P.get('title') || '退货退款,等客户提供物流单号',
     customer: P.get('customer') || '赵磊(13567898821)',
     session: P.get('session') || '#CS20260715088',
     /* V0.5 三.2.6:受理字段 + 新联系人(收货人以外的实际联系人) */
@@ -416,7 +418,7 @@
           DATA.deadlineAt = t.getFullYear() + '-' + p2(t.getMonth() + 1) + '-' + p2(t.getDate()) + 'T' + p2(t.getHours()) + ':' + p2(t.getMinutes()) + ':00';
         }
         applyEditToView();
-        addEvent('编辑工单信息', 'human');
+        addEvent('编辑工单信息');
         toast('工单已保存');
       }
     });
@@ -451,7 +453,7 @@
     renderDetailCountdown();
   }
 
-  function acceptTicket() { setState('处理中'); toast('已受理,开始处理(状态:处理中)'); addEvent('受理(客服确认承接)→ 处理中', 'human'); }
+  function acceptTicket() { setState('处理中'); toast('已受理,开始处理(状态:处理中)'); addEvent('受理(客服确认承接)→ 处理中'); }
   function assignTicket() {
     try {
       csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
@@ -459,20 +461,20 @@
           var who = (d && d.assignee) ? d.assignee : '处理人';
           ASSIGNED = true; DATA.agent = who; setText('dAgent', who);
           toast('已指派给 ' + who + '(状态保持未处理,待对方受理)');
-          addEvent('指派给 ' + who + '(状态保持未处理,待受理)', 'sys');
+          addEvent('指派给 ' + who + '(状态保持未处理,待受理)', '—', '系统');
           renderActions();
         }
       });
     } catch (e) { toast('指派处理人(原型演示)'); }
   }
-  function remindTicket() { toast('已催办,已通知处理人'); addEvent('催办', 'human'); }
+  function remindTicket() { toast('已催办,已通知处理人'); addEvent('催办'); }
   function uploadAttach() {
     var list = document.getElementById('attachList');
     var now = new Date();
     var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
     var item = document.createElement('div'); item.className = 'att-item';
     item.innerHTML = '<span>📎</span><span class="att-name">追加材料-' + ts + '.png</span><span class="att-meta">张小明 · ' + ts + '</span>';
-    list.appendChild(item); toast('附件已上传(追加材料,不可改)'); addEvent('上传附件 / 追加材料', 'human');
+    list.appendChild(item); toast('附件已上传(追加材料,不可改)'); addEvent('上传附件 / 追加材料');
   }
   function sendReply() {
     var v = document.getElementById('replyInput').value.trim();
@@ -483,7 +485,7 @@
     var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
     item.innerHTML = '<div class="tl-head"><span class="who">张小明</span><span class="tag-int">内部</span><span>' + ts + '</span></div><div class="tl-bubble">' + v.replace(/</g, '&lt;') + '</div>';
     tl.appendChild(item); document.getElementById('replyInput').value = '';
-    toast('内部备注已添加'); addEvent('添加内部备注', 'human');
+    toast('内部备注已添加'); addEvent('添加内部备注');
   }
   function gotoWorkbench() { toast('跳转到会话工作台回复用户'); setTimeout(function () { location.href = 'admin-workbench.html'; }, 400); }
   /* UC-TD:查看来源会话 → 跳工作台并定位会话 */
@@ -491,23 +493,26 @@
   function transferTicket() {
     try {
       csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
-        onConfirm: function (d) { toast('工单已转单' + (d && d.assignee ? '给 ' + d.assignee : '')); addEvent('转单(换处理人)', 'human'); }
+        onConfirm: function (d) { toast('工单已转单' + (d && d.assignee ? '给 ' + d.assignee : '')); addEvent('转单(换处理人)'); }
       });
     } catch (e) { toast('转单(原型演示)'); }
   }
-  function addEvent(text, op) {
+  /* 操作日志:每条 = 时间 + 内容 + 操作账号 + 角色(客服/主管/系统) */
+  function addEvent(text, who, role) {
+    who = who || '张小明'; role = role || '客服';
     var flow = document.getElementById('eventFlow');
     var it = document.createElement('div'); it.className = 'ev-item';
     var now = new Date();
     var ts = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) + ' ' + ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
-    it.innerHTML = '<span class="ev-time">' + ts + '</span><span class="ev-text">' + text + '</span><span class="ev-op ' + op + '">' + (op === 'sys' ? '系统' : '客服') + '</span>';
+    var cls = role === '系统' ? 'sys' : (role === '主管' ? 'mgr' : 'human');
+    it.innerHTML = '<span class="ev-time">' + ts + '</span><span class="ev-text">' + text + '</span><span class="ev-who">' + who + '</span><span class="ev-op ' + cls + '">' + role + '</span>';
     flow.appendChild(it);
   }
   function editDesc() { document.getElementById('descInput').value = document.getElementById('descText').textContent; document.getElementById('descEditor').style.display = ''; document.getElementById('descText').style.display = 'none'; }
   function cancelDesc() { document.getElementById('descEditor').style.display = 'none'; document.getElementById('descText').style.display = ''; }
-  function saveDesc() { var v = document.getElementById('descInput').value.trim(); if (!v) { toast('请输入工单描述'); return; } document.getElementById('descText').textContent = v; cancelDesc(); toast('描述已更新为新版本(旧版本已保留)'); addEvent('更新工单描述(保留历史版本)', 'human'); }
+  function saveDesc() { var v = document.getElementById('descInput').value.trim(); if (!v) { toast('请输入工单描述'); return; } document.getElementById('descText').textContent = v; cancelDesc(); toast('描述已更新为新版本(旧版本已保留)'); addEvent('更新工单描述(保留历史版本)'); }
   function toggleHistory() { var h = document.getElementById('descHistory'); h.style.display = h.style.display === 'none' ? '' : 'none'; }
-  function finishTicket() { setState('已完工'); toast('工单已完工(终态,如需继续请新建工单)'); addEvent('完工 → 已完工', 'human'); }
+  function finishTicket() { setState('已完工'); toast('工单已完工(终态,如需继续请新建工单)'); addEvent('完工 → 已完工'); }
 </script>
 </body>
 </html>

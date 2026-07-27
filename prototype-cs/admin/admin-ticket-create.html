@@ -98,7 +98,7 @@
         <div class="ctx-row">关联订单:<b>#DD20260710003</b> · 会话摘要:退款未到账,客户催促</div>
       </div>
 
-      <!-- 基本信息(2026-07-24 三轮:标题系统自动生成,客户由会话/订单上下文绑定,均不再手填) -->
+      <!-- 基本信息(2026-07-27 五轮:标题字段已删,客户由会话/订单上下文绑定,均不再手填) -->
       <div class="card fm-card" style="padding:16px 18px; margin-bottom:16px;">
         <div class="fm-sec">基本信息</div>
         <div class="fm-row">
@@ -373,7 +373,7 @@
     if (!document.getElementById('fProject').value.trim()) { toast('请填写项目名称'); return; }
     if (!document.getElementById('fFeedback').value) { toast('请选择反馈方式'); return; }
     if (!document.getElementById('fDept').value) { toast('请选择提交部门'); return; }
-    /* 提交(原型:提示后回列表;标题由系统按「类型+工单号」生成) */
+    /* 提交(原型:提示后回列表) */
     toast('工单已创建');
     setTimeout(function () { location.href = 'admin-ticket.html'; }, 500);
   }
