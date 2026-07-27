@@ -24,9 +24,15 @@ const MENU_DATA = [
       { id: 'rating',         label: '评价管理',   href: 'admin-rating-mgmt.html', version: 'V1.0' },
     ]
   },
-  { type: 'item', id: 'ticket', label: '客服工单', href: 'admin-ticket.html', version: 'V1.5', icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/>' },
-  /* 订单列表为「商城运营后台」复刻页(自带侧栏、无返回入口)，跨系统跳转，始终新开页签 */
-  { type: 'item', id: 'order-list', label: '订单列表', href: 'admin-order-list.html', version: 'V0.5', blank: true, icon: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>' },
+  {
+    type: 'group', label: '订单与售后', icon: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
+    items: [
+      /* 订单列表为「商城运营后台」复刻页(自带侧栏、无返回入口),跨系统跳转,始终新开页签 */
+      { id: 'order-list', label: '订单列表', href: 'admin-order-list.html', version: 'V0.5', blank: true },
+      /* 客服工单属订单与售后模块(2026-07-27:迁入本分组+骨架换商城运营后台,同订单列表跨系统新开页签) */
+      { id: 'ticket',     label: '客服工单', href: 'admin-ticket.html', version: 'V1.5', blank: true },
+    ]
+  },
   {
     type: 'group', label: '知识库', icon: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
     items: [
@@ -66,9 +72,9 @@ function renderSidebar() {
       html += '<div class="nav-group-body">';
       entry.items.forEach(it => {
         const isActive = it.id === activeId ? ' active' : '';
-        // 跨「工作台边界」才新开页签：点的菜单与当前页分处工作台/非工作台两侧 → target="_blank"（异或）
+        // 跨「工作台边界」才新开页签：点的菜单与当前页分处工作台/非工作台两侧 → target="_blank"（异或）;blank 项(跨系统)始终新开
         const openNew = (it.id === 'workbench') !== (activeId === 'workbench');
-        const t = openNew ? ' target="_blank"' : '';
+        const t = (openNew || it.blank) ? ' target="_blank"' : '';
         html += '<a href="' + it.href + '" class="menu-item nav-sub' + isActive + '"' + t + '>' + it.label + (it.version ? '<span class="menu-ver">' + it.version + '</span>' : '') + '</a>';
       });
       html += '</div></div>';

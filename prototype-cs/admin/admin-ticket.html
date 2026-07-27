@@ -3,34 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>工单列表 — 客服模块</title>
+  <title>客服工单 — 商城运营后台</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <script src="js/notify.js"></script>
   <script src="js/ticket-dict.js"></script>
   <style>
-    /* ===== admin-ticket.html 页面特有样式(对齐 admin-session-record) ===== */
+    /* ===== admin-ticket.html(2026-07-27:骨架对齐 admin-order-list 商城运营后台) ===== */
+    body { margin:0; background:var(--cs-bg-page); font-family:var(--cs-font-family); }
+    .mo-app { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
 
-    .stat-summary {
-      display: flex; align-items: center; gap: 24px;
-      padding: 12px 16px; background: var(--cs-bg-header);
-      border-radius: var(--cs-radius-sm); margin-bottom: var(--cs-space-4);
-      font-size: var(--cs-font-size-base); color: var(--cs-text-secondary);
+    /* 顶栏 */
+    .mo-topbar { height:48px; background:#fff; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:center; justify-content:space-between; padding:0 16px; flex-shrink:0; }
+    .mo-topbar .logo { font-size:15px; font-weight:600; color:var(--cs-primary); display:flex; align-items:center; gap:6px; }
+    .mo-topbar .logo::before { content:""; width:3px; height:14px; border-radius:2px; background:var(--cs-primary); }
+    .mo-topbar .tb-icons { display:flex; align-items:center; gap:18px; color:var(--cs-text-secondary); }
+    .mo-topbar .tb-icons svg { width:16px; height:16px; cursor:pointer; }
+    .mo-topbar .tb-manual { display:flex; align-items:center; gap:4px; font-size:var(--cs-font-size-base); color:var(--cs-primary); cursor:pointer; }
+
+    .mo-body { flex:1; display:flex; min-height:0; }
+
+    /* 侧边栏(商城运营后台自有菜单,非客服模块 nav.js) */
+    .mo-sidebar { width:200px; background:#fff; border-right:1px solid var(--cs-border-light);
+      flex-shrink:0; overflow-y:auto; padding:8px 0; }
+    .mo-menu-item { display:flex; align-items:center; gap:8px; padding:10px 20px;
+      font-size:var(--cs-font-size-md); color:var(--cs-text-secondary); cursor:pointer; }
+    .mo-menu-item:hover { color:var(--cs-primary); background:var(--cs-bg-hover); }
+    .mo-menu-item .mi-icon { width:15px; height:15px; flex-shrink:0; }
+    .mo-menu-item .mi-label { flex:1; }
+    .mo-menu-item .mi-chev { width:12px; height:12px; opacity:.4; transition:transform .2s; }
+    .mo-menu-item .mi-chev.up { transform:rotate(180deg); }
+    .mo-sub-item { display:block; padding:9px 20px 9px 43px; font-size:var(--cs-font-size-base);
+      color:var(--cs-text-secondary); cursor:pointer; text-decoration:none; }
+    .mo-sub-item:hover { color:var(--cs-primary); background:var(--cs-bg-hover); }
+    .mo-sub-item.active { color:var(--cs-primary); background:var(--cs-primary-bg); font-weight:500; }
+    .mo-group.collapsed .mo-sub { display:none; }
+    .mo-group.collapsed .mi-chev { transform:rotate(-90deg); }
+
+    .mo-main { flex:1; display:flex; flex-direction:column; min-width:0; }
+
+    /* 页签栏 */
+    .mo-tabs { height:40px; background:#fff; border-bottom:1px solid var(--cs-border-light);
+      display:flex; align-items:flex-end; padding:0 12px; gap:4px; flex-shrink:0; }
+    .mo-tab { display:flex; align-items:center; gap:6px; padding:0 14px; height:32px;
+      font-size:var(--cs-font-size-base); color:var(--cs-text-secondary);
+      border:1px solid transparent; border-bottom:none; border-radius:6px 6px 0 0; cursor:pointer; }
+    .mo-tab.active { color:var(--cs-primary); background:var(--cs-bg-page);
+      border-color:var(--cs-border-light); font-weight:500; }
+    .mo-tab .tab-x { font-size:12px; color:var(--cs-text-tertiary); }
+    .mo-tab .tab-x:hover { color:var(--cs-danger); }
+
+    /* 内容区 */
+    .mo-content { flex:1; overflow-y:auto; padding:12px 16px 20px; }
+
+    /* 统计(2026-07-27:改订单列表同款 4 卡片) */
+    .stat-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:12px; }
+    .stat-card { background:#fff; border-radius:var(--cs-radius-md); padding:16px 18px;
+      display:flex; align-items:center; gap:14px; box-shadow:var(--cs-shadow-card); }
+    .stat-card .sc-icon { width:40px; height:40px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; }
+    .stat-card .sc-icon svg { width:20px; height:20px; }
+    .stat-card .sc-num { font-size:20px; font-weight:600; color:var(--cs-text); line-height:1.2; }
+    .stat-card .sc-label { font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); margin-top:2px; }
+    .sc-blue   { background:var(--cs-primary-bg); color:var(--cs-primary); }
+    .sc-green  { background:var(--cs-success-bg); color:var(--cs-success); }
+    .sc-orange { background:var(--cs-orange-bg);  color:var(--cs-orange); }
+    .sc-red    { background:var(--cs-danger-bg);  color:var(--cs-danger); }
+
+    /* 筛选区(订单列表样式:内嵌标签 + 收起/展开) */
+    .filter-card { background:#fff; border-radius:var(--cs-radius-md); padding:16px 18px;
+      margin-bottom:12px; box-shadow:var(--cs-shadow-card); }
+    /* minmax(0,1fr):防止内容(日期双输入)撑宽列轨,保证 4 列等宽 */
+    .filter-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .ff { display:flex; align-items:center; border:1px solid var(--cs-border);
+      border-radius:var(--cs-radius-sm); padding:0 10px; height:32px; background:#fff; }
+    .ff:hover { border-color:var(--cs-primary-hover); }
+    .ff .ff-label { flex-shrink:0; font-size:var(--cs-font-size-base); color:var(--cs-text); margin-right:6px; white-space:nowrap; }
+    .ff input, .ff select { flex:1; min-width:0; border:none; outline:none; height:100%;
+      font-size:var(--cs-font-size-base); color:var(--cs-text); background:transparent; font-family:inherit; }
+    .ff input::placeholder { color:var(--cs-text-placeholder); }
+    .ff select { appearance:none; color:var(--cs-text-tertiary); cursor:pointer; }
+    .ff select.has-val { color:var(--cs-text); }
+    .ff .ff-chev { width:12px; height:12px; color:var(--cs-text-tertiary); flex-shrink:0; }
+    .ff .ff-cal { width:14px; height:14px; color:var(--cs-text-tertiary); flex-shrink:0; }
+    .ff .ff-sep { margin:0 6px; color:var(--cs-text-tertiary); flex-shrink:0; }
+    .filter-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:12px; }
+    .link-collapse { display:flex; align-items:center; gap:4px; font-size:var(--cs-font-size-base);
+      color:var(--cs-primary); cursor:pointer; background:none; border:none; }
+    .link-collapse svg { width:12px; height:12px; transition:transform .2s; }
+    .filter-card.collapsed .filter-grid .ff-row-extra { display:none; }
+    .filter-card.collapsed .link-collapse svg { transform:rotate(180deg); }
+
+    /* 表格卡片 + 工具栏(订单列表样式) */
+    .table-card { background:#fff; border-radius:var(--cs-radius-md); box-shadow:var(--cs-shadow-card); }
+    .table-toolbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px;
+      border-top:1px solid var(--cs-border-lighter); }
+    .table-toolbar .gear { width:16px; height:16px; color:var(--cs-text-secondary); cursor:pointer; }
+    .table-toolbar .tb-actions { display:flex; gap:10px; align-items:center; }
+
+    /* 导出权限门控:客服角色置灰(常显,点击仅提示) */
+    .btn-default.btn-disabled { opacity:.5; cursor:not-allowed; }
+
+    .table-wrap { overflow-x: auto; }
+    .table-wrap .data-table { min-width: 1380px; }
+
+    /* 勾选行高亮(订单列表样式) */
+    .data-table tbody tr.checked { background: var(--cs-primary-bg); }
+    .data-table tbody tr.checked:hover { background: #d6e9ff; }
+    .data-table tbody tr.is-new { background: #fff7e6; }
+    .data-table tbody tr.is-new:hover { background: #fff1d6; }
+
+    /* 操作列冻结(吸附右侧,横滑时保持可见) */
+    .table-wrap .data-table th:last-child, .table-wrap .data-table td:last-child {
+      position: sticky; right: 0; background: #fff; white-space: nowrap;
+      box-shadow: -6px 0 8px -6px rgba(0,0,0,.18);
     }
-    .stat-summary .stat-item .num { font-size: 18px; font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); margin-right: 4px; }
-    .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
-    .stat-summary .stat-item.warn   .num { color: var(--cs-orange); }
-    .stat-summary .stat-item.danger .num { color: var(--cs-danger); }
-    .stat-summary .stat-item.ok     .num { color: var(--cs-success); }
+    .table-wrap .data-table thead th:last-child { background: var(--cs-bg-header); }
+    .table-wrap .data-table tbody tr:hover td:last-child { background: var(--cs-bg-hover); }
+    .table-wrap .data-table tbody tr.checked td:last-child { background: var(--cs-primary-bg); }
+    .table-wrap .data-table tbody tr.checked:hover td:last-child { background: #d6e9ff; }
+    .table-wrap .data-table tbody tr.is-new td:last-child { background: #fff7e6; }
+    .table-wrap .data-table tbody tr.is-new:hover td:last-child { background: #fff1d6; }
 
     .s-tag { display: inline-flex; align-items: center; gap: 5px; font-size: var(--cs-font-size-sm); line-height: 1.5; color: var(--cs-text); white-space: nowrap; }
     .s-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .s-tag.untreated::before  { background: var(--cs-primary); }
     .s-tag.processing::before { background: var(--cs-primary); }
     .s-tag.done::before       { background: var(--cs-text-placeholder); }
-
-    .data-table tbody tr.is-new { background: #fff7e6; }
-    .data-table tbody tr.is-new:hover { background: #fff1d6; }
 
     .pri { font-weight: var(--cs-font-weight-medium); color: var(--cs-text); }
     .pri.urgent, .pri.critical { color: var(--cs-danger); }
@@ -39,15 +139,12 @@
     .data-table .row-actions a { white-space: nowrap; }
     .data-table .row-actions a.op-accept { color: var(--cs-success); }
 
-    .table-wrap { overflow-x: auto; }
-    .table-wrap .data-table { min-width: 1380px; }
-    /* V0.5 四.2(2026-07-27 五轮):标题字段整体删除,列表不再展示 */
     /* V0.5 四.2(2026-07-24 四轮):类型一列三行 → 拆 3 列(对齐旧系统分列习惯) */
     .type-col { font-size: var(--cs-font-size-sm); color: var(--cs-text); white-space: nowrap; }
-    /* 受理时间列:表头点击排序 */
+    /* 受理时间列:默认降序,点击表头切升序(▲/▼) */
     .th-sort { cursor: pointer; user-select: none; white-space: nowrap; }
     .th-sort:hover { color: var(--cs-primary); }
-    .th-sort .sort-ico { font-size: var(--cs-font-size-xs); color: var(--cs-text-placeholder); margin-left: 2px; }
+    .th-sort .sort-ico { font-size: var(--cs-font-size-xs); color: var(--cs-primary); margin-left: 2px; }
     .resp-tag { color: var(--cs-text); font-size: var(--cs-font-size-sm); white-space:nowrap; }
     .countdown-cell { white-space:nowrap; }
     .countdown-cell .dl-val { color: var(--cs-text-tertiary); font-size: var(--cs-font-size-xs); margin-top:1px; }
@@ -72,306 +169,524 @@
     .agent-cell { white-space:nowrap; }
     .agent-cell .agent-time { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
 
-    .filter-bar .field { min-width: 120px; }
-
-    /* 导出权限门控:客服角色置灰(常显,点击仅提示) */
-    .btn-default.btn-disabled { opacity:.5; cursor:not-allowed; }
-
-    /* 操作列冻结(吸附右侧,横滑时保持可见;2026-07-27) */
-    .table-wrap .data-table th:last-child, .table-wrap .data-table td:last-child {
-      position: sticky; right: 0; background: #fff; white-space: nowrap;
-      box-shadow: -6px 0 8px -6px rgba(0,0,0,.18);
-    }
-    .table-wrap .data-table thead th:last-child { background: var(--cs-bg-header); }
-    .table-wrap .data-table tbody tr:hover td:last-child { background: var(--cs-bg-hover); }
-    .table-wrap .data-table tbody tr.is-new td:last-child { background: #fff7e6; }
-    .table-wrap .data-table tbody tr.is-new:hover td:last-child { background: #fff1d6; }
+    /* 分页(订单列表样式:右对齐 + 条数/页) */
+    .table-pager { display:flex; align-items:center; justify-content:flex-end; gap:10px;
+      padding:12px 16px; font-size:var(--cs-font-size-base); color:var(--cs-text-secondary); }
+    .table-pager .pg-btn { min-width:28px; height:28px; padding:0 6px; border:1px solid var(--cs-border);
+      border-radius:var(--cs-radius-sm); background:#fff; color:var(--cs-text-secondary);
+      font-size:var(--cs-font-size-base); cursor:pointer; }
+    .table-pager .pg-btn.active { background:var(--cs-primary); border-color:var(--cs-primary); color:#fff; }
+    .table-pager .pg-btn:disabled { color:var(--cs-text-placeholder); cursor:not-allowed; background:var(--cs-bg-header); }
+    .pg-size { display:flex; align-items:center; gap:4px; border:1px solid var(--cs-border);
+      border-radius:var(--cs-radius-sm); padding:0 10px; height:28px; cursor:pointer; }
+    .pg-size svg { width:10px; height:10px; color:var(--cs-text-tertiary); }
   </style>
 </head>
 <body>
 
-<div class="admin-layout">
+<div class="mo-app">
 
-  <aside class="admin-sidebar" id="sidebar-nav" data-active="ticket"></aside>
+  <!-- ===== 顶栏 ===== -->
+  <header class="mo-topbar">
+    <div class="logo">商城运营后台</div>
+    <div class="tb-icons">
+      <!-- V0.5 UC-TL-04:导出仅主管(R-S)可用;原型用角色切换演示权限门控 -->
+      <span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">当前角色</span>
+      <select class="select" id="roleSwitch" style="width:auto;min-width:0;padding:2px 8px;">
+        <option value="agent" selected>客服</option>
+        <option value="supervisor">主管</option>
+      </select>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="刷新"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="通知"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" title="下载"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="tb-manual">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        操作手册
+      </span>
+    </div>
+  </header>
 
-  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+  <div class="mo-body">
 
-    <header class="admin-header">
-      <div class="breadcrumb">客服工单 / <span style="color:var(--cs-text);font-weight:600;">工单列表</span></div>
-      <div class="user-info">
-        <!-- V0.5 UC-TL-04:导出仅主管(R-S)可用;原型用角色切换演示权限门控 -->
-        <span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">当前角色</span>
-        <select class="select" id="roleSwitch" style="width:auto;min-width:0;padding:2px 8px;">
-          <option value="agent" selected>客服</option>
-          <option value="supervisor">主管</option>
-        </select>
-        <span class="status-badge online">客服A 在线</span>
-        <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
+    <!-- ===== 侧边栏(订单与售后模块;与订单列表互跳) ===== -->
+    <aside class="mo-sidebar">
+      <div class="mo-menu-item">
+        <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="mi-label">首页</span>
       </div>
-    </header>
-
-    <main class="admin-content">
-
-      <div class="flex-between mb-16">
-        <div>
-           <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">客服解决不了的售后问题(退款/退货/换货/投诉等)转为工单持续跟进,处理进度同步通知用户。</p>
-        </div>
-        <div class="flex gap-8">
-          <button class="btn-default" id="btnExport" title="仅主管可导出">导出</button>
-          <button class="btn-primary" id="btnCreate">+ 创建工单</button>
-        </div>
-      </div>
-
-      <div class="stat-summary">
-        <div class="stat-item">工单总数 <span class="num">326</span></div>
-        <div class="stat-item accent">未处理 <span class="num">15</span></div>
-        <div class="stat-item">处理中 <span class="num">43</span></div>
-        <div class="stat-item ok">今日完工 <span class="num">23</span></div>
-      </div>
-
-      <div class="card" style="padding:16px;">
-        <div class="filter-bar">
-          <div class="field">
-            <span class="field-label">关联订单号</span>
-            <input class="select" id="fOrder" placeholder="订单号" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">联系人</span>
-            <input class="select" id="fCustomer" placeholder="联系人姓名" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">联系人手机号</span>
-            <input class="select" id="fCPhone" placeholder="联系人手机号" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">来电手机号</span>
-            <input class="select" id="fIncoming" placeholder="来电手机号" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">受理业务类型</span>
-            <select class="select" id="fCategory"><option value="">全部</option></select>
-          </div>
-          <div class="field">
-            <span class="field-label">咨询/投诉类别</span>
-            <select class="select" id="fSubCategory"><option value="">全部</option></select>
-          </div>
-          <div class="field">
-            <span class="field-label">具体类型</span>
-            <select class="select" id="fType"><option value="">全部</option></select>
-          </div>
-          <div class="field">
-            <span class="field-label">优先级</span>
-            <select class="select" id="fPriority">
-              <option value="">全部</option>
-              <option>一般</option><option>紧急</option><option>特急</option>
-            </select>
-          </div>
-          <div class="field">
-            <span class="field-label">完成期限</span>
-            <select class="select" id="fDeadline">
-              <option value="">全部</option>
-              <option>1天</option><option>7天</option><option>15天</option><option>已超时</option>
-            </select>
-          </div>
-          <div class="field">
-            <span class="field-label">状态</span>
-            <select class="select" id="fStatus">
-              <option value="">全部状态</option>
-              <option>未处理</option><option>处理中</option><option>已完工</option>
-            </select>
-          </div>
-          <div class="field">
-            <span class="field-label">处理人</span>
-            <input class="select" id="fHandler" placeholder="搜索处理人" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">受理客服</span>
-            <input class="select" id="fCreator" placeholder="受理客服" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">商品名称</span>
-            <input class="select" id="fGoods" placeholder="商品名称" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">项目名称</span>
-            <input class="select" id="fProject" placeholder="项目名称" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">SKU物流编码</span>
-            <input class="select" id="fSku" placeholder="SKU物流编码" style="appearance:auto;">
-          </div>
-          <div class="field">
-            <span class="field-label">创建日期</span>
-            <span class="ipt">2026-07-01</span>
-            <span style="color:var(--cs-text-placeholder);">~</span>
-            <span class="ipt">2026-07-17</span>
-          </div>
-          <div style="margin-left:auto;" class="flex gap-8">
-            <button class="btn-default" id="btnReset">重置</button>
-            <button class="btn-primary" id="btnQuery">查询</button>
-          </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <span class="mi-label">选品管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
-
-      <div class="card mt-16" style="padding:0;">
-
-        <div class="status-tabs" style="padding:0 16px;">
-          <div class="status-tab active" data-filter="">全部 <span class="tab-count">326</span></div>
-          <div class="status-tab" data-filter="未处理">未处理 <span class="tab-count">15</span></div>
-          <div class="status-tab" data-filter="处理中">处理中 <span class="tab-count">43</span></div>
-          <div class="status-tab" data-filter="已完工">已完工 <span class="tab-count">268</span></div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M4.22 4.22l2.83 2.83m9.9 9.9 2.83 2.83M1 12h4m14 0h4M4.22 19.78l2.83-2.83m9.9-9.9 2.83-2.83"/></svg>
+          <span class="mi-label">运营配置</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width:36px;"><input type="checkbox" id="checkAll" title="全选" /></th>
-                <th>工单号</th>
-                <th>受理业务类型</th>
-                <th>咨询/投诉类别</th>
-                <th>具体类型</th>
-                <th>优先级</th>
-                <th>责任承担方</th>
-                <th>剩余时间 / 完成期限</th>
-                <th>状态</th>
-                <th>来源类型</th>
-                <th>关联订单</th>
-                <th>联系人/手机号</th>
-                <th>处理人 / 更新时间</th>
-                <th class="th-sort" id="thCreated">受理时间 <span class="sort-ico" id="sortIco">▼</span></th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="ticketBody">
-              <tr data-status="处理中" data-priority="紧急" data-agent="张小明" data-category="投诉业务" data-sub="物流投诉" data-type="物流破损退货" data-deadline="7天" data-deadline-at="2026-07-19T12:00:00" data-responsible="供应商" data-order="#DD20260710003,#DD20260710011,#DD20260710012" data-sku="HZDF3100216" data-incoming="13955666620" data-created="2026-07-16T08:55:00" data-cname="陈芳" data-cphone="13856782891" data-goods="无线蓝牙耳机" data-project="(兆点)苏宁邮政项目">
-                <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716001</td>
-                <td class="type-col">投诉业务</td><td class="type-col">物流投诉</td><td class="type-col">物流破损退货</td>
-                <td><span class="pri urgent">紧急</span></td>
-                <td><span class="resp-tag">供应商</span></td>
-                <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
-                <td><span class="s-tag processing">处理中</span></td>
-                <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260716088</span></div></td>
-                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260710003')">#DD20260710003</a><span class="order-more" title="#DD20260710011、#DD20260710012" onclick="viewOrders(this)" data-orders="#DD20260710003,#DD20260710011,#DD20260710012">+2</span></td>
-                <td><div class="col-user"><div><div>陈芳</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13856782891</div></div></div></td>
-                <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-16 09:24</span></td>
-                <td class="created-cell">2026-07-16 08:55</td>
-                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
-              </tr>
-              <tr data-status="处理中" data-priority="特急" data-agent="李静" data-category="投诉业务" data-sub="物流投诉" data-type="超时未收到" data-deadline="1天" data-deadline-at="2026-07-16T09:00:00" data-responsible="东莞邮政" data-order="" data-sku="" data-incoming="13677882210" data-created="2026-07-16T07:40:00" data-cname="刘洋" data-cphone="13967855678" data-goods="" data-project="东莞邮政项目">
-                <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716002</td>
-                <td class="type-col">投诉业务</td><td class="type-col">物流投诉</td><td class="type-col">超时未收到</td>
-                <td><span class="pri critical">特急</span></td>
-                <td><span class="resp-tag">东莞邮政</span></td>
-                <td class="countdown-cell"><div class="cd"></div><div class="dl-val">1天</div></td>
-                <td><span class="s-tag processing">处理中</span></td>
-                <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260716090</span></div></td>
-                <td class="order-cell"><span class="order-empty">-</span></td>
-                <td><div class="col-user"><div><div>刘洋</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13967855678</div></div></div></td>
-                <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-16 08:10</span></td>
-                <td class="created-cell">2026-07-16 07:40</td>
-                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
-              </tr>
-              <tr data-status="未处理" data-priority="紧急" data-agent="未分配" data-category="投诉业务" data-sub="产品投诉" data-type="补配件" data-deadline="15天" data-deadline-at="2026-07-30T10:00:00" data-responsible="宏兆" data-order="#DD20260709001" data-sku="HZDF2044556" data-incoming="" data-created="2026-07-16T10:02:00" data-cname="周婷婷" data-cphone="13790121024" data-goods="玻璃水杯" data-project="东莞邮政项目" data-is-new="1">
-                <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716003</td>
-                <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">补配件</td>
-                <td><span class="pri urgent">紧急</span></td>
-                <td><span class="resp-tag">宏兆</span></td>
-                <td class="countdown-cell"><div class="cd"></div><div class="dl-val">15天</div></td>
-                <td><span class="s-tag untreated">未处理</span></td>
-                <td class="src-cell"><div class="src-type">订单</div><div class="src-id"><a class="order-link" onclick="viewOrder('#DD20260709001')">#DD20260709001</a></div></td>
-                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260709001')">#DD20260709001</a></td>
-                <td><div class="col-user"><div><div>周婷婷</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13790121024</div></div></div></td>
-                <td class="agent-cell"><span class="agent-name unassigned">未分配</span><br/><span class="agent-time">2026-07-16 10:02</span></td>
-                <td class="created-cell">2026-07-16 10:02</td>
-                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-assign">指派</a></td>
-              </tr>
-              <tr data-status="未处理" data-priority="紧急" data-agent="张小明" data-category="投诉业务" data-sub="产品投诉" data-type="产品原因退货" data-deadline="7天" data-deadline-at="2026-07-23T16:00:00" data-responsible="供应商" data-order="#DD20260711001" data-sku="HZDF2099334" data-incoming="13567898821" data-created="2026-07-16T10:30:00" data-cname="赵磊" data-cphone="13567898821" data-goods="羽绒被" data-project="昆山吉波项目">
-                <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716004</td>
-                <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">产品原因退货</td>
-                <td><span class="pri urgent">紧急</span></td>
-                <td><span class="resp-tag">供应商</span></td>
-                <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
-                <td><span class="s-tag untreated">未处理</span></td>
-                <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260715088</span></div></td>
-                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260711001')">#DD20260711001</a></td>
-                <td><div class="col-user"><div><div>赵磊</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13567898821</div></div></div></td>
-                <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-16 10:30</span></td>
-                <td class="created-cell">2026-07-16 10:30</td>
-                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="op-accept tk-accept">受理</a></td>
-              </tr>
-              <tr data-status="处理中" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="物流咨询" data-type="更改配送地址" data-deadline="7天" data-deadline-at="2026-07-21T11:00:00" data-responsible="" data-order="#DD20260710002" data-sku="HZDF1000001" data-incoming="" data-created="2026-07-15T11:20:00" data-cname="孙莉" data-cphone="13677884477" data-goods="测试产品" data-project="宏兆自营">
-                <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260715006</td>
-                <td class="type-col">咨询业务</td><td class="type-col">物流咨询</td><td class="type-col">更改配送地址</td>
-                <td><span class="pri">一般</span></td>
-                <td><span class="order-empty">-</span></td>
-                <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
-                <td><span class="s-tag processing">处理中</span></td>
-                <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260715086</span></div></td>
-                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260710002')">#DD20260710002</a></td>
-                <td><div class="col-user"><div><div>孙莉</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13677884477</div></div></div></td>
-                <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-15 11:20</span></td>
-                <td class="created-cell">2026-07-15 11:20</td>
-                <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
-              </tr>
-              <tr data-status="已完工" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="产品咨询" data-type="其他" data-deadline="" data-deadline-at="" data-responsible="" data-order="" data-sku="" data-incoming="13366776290" data-created="2026-07-14T14:08:00" data-cname="吴强" data-cphone="13366776290" data-goods="" data-project="宏兆自营">
-                <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260714005</td>
-                <td class="type-col">咨询业务</td><td class="type-col">产品咨询</td><td class="type-col">其他</td>
-                <td><span class="pri">一般</span></td>
-                <td><span class="order-empty">-</span></td>
-                <td class="countdown-cell"><div class="cd"><span class="order-empty">—</span></div><div class="dl-val">-</div></td>
-                <td><span class="s-tag done">已完工</span></td>
-                <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
-                <td class="order-cell"><span class="order-empty">-</span></td>
-                <td><div class="col-user"><div><div>吴强</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13366776290</div></div></div></td>
-                <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-14 14:08</span></td>
-                <td class="created-cell">2026-07-14 14:08</td>
-                <td class="row-actions"><a class="tk-detail">详情</a></td>
-              </tr>
-              <tr data-status="已完工" data-priority="一般" data-agent="李静" data-category="投诉业务" data-sub="产品投诉" data-type="补偿" data-deadline="" data-deadline-at="" data-responsible="宏兆" data-order="#DD20260708001" data-sku="" data-incoming="" data-created="2026-07-13T09:55:00" data-cname="郑敏" data-cphone="13288993315" data-goods="" data-project="宏兆自营">
-                <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260713002</td>
-                <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">补偿</td>
-                <td><span class="pri">一般</span></td>
-                <td><span class="resp-tag">宏兆</span></td>
-                <td class="countdown-cell"><div class="cd"><span class="order-empty">—</span></div><div class="dl-val">-</div></td>
-                <td><span class="s-tag done">已完工</span></td>
-                <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
-                <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260708001')">#DD20260708001</a></td>
-                <td><div class="col-user"><div><div>郑敏</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13288993315</div></div></div></td>
-                <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-13 09:55</span></td>
-                <td class="created-cell">2026-07-13 09:55</td>
-                <td class="row-actions"><a class="tk-detail">详情</a></td>
-              </tr>
-            </tbody>
-          </table>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span class="mi-label">商城装修</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-
-        <div class="pagination" style="padding:16px;">
-          <span class="pg-info">共 326 条</span>
-          <span class="pg-btn disabled">&lt;</span>
-          <span class="pg-num active">1</span>
-          <span class="pg-num">2</span>
-          <span class="pg-num">3</span>
-          <span class="pg-num">4</span>
-          <span style="color:var(--cs-text-placeholder);">...</span>
-          <span class="pg-num">33</span>
-          <span class="pg-btn">&gt;</span>
-          <span class="pg-jump">跳至<input value="1" />页</span>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+          <span class="mi-label">活动卡券</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span class="mi-label">积分管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group">
+        <div class="mo-menu-item" style="color:var(--cs-text);" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="mi-label">订单与售后</span>
+          <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="mo-sub">
+          <a class="mo-sub-item" href="admin-order-list.html">订单列表</a>
+          <a class="mo-sub-item active">客服工单</a>
+          <a class="mo-sub-item">售后监控</a>
+          <a class="mo-sub-item">售后配置</a>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="mi-label">渠道管理</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="mo-group collapsed">
+        <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
+          <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.65 1.65 0 0 0-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82.33l.06.06a1.65 1.65 0 0 0 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1z"/></svg>
+          <span class="mi-label">系统设置</span>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </aside>
 
+    <!-- ===== 主区域 ===== -->
+    <div class="mo-main">
+
+      <!-- 页签 -->
+      <div class="mo-tabs">
+        <div class="mo-tab">首页 <span class="tab-x">×</span></div>
+        <div class="mo-tab active">客服工单 <span class="tab-x">×</span></div>
       </div>
 
-      <p style="margin-top:16px; font-size:var(--cs-font-size-sm); color:var(--cs-text-placeholder);">
-        工单处理流程:未处理 →(指派 → 受理)→ 处理中 → 已完工(终态)。完成期限到期自动标记超时,并通知处理人与主管。
-      </p>
+      <!-- 内容 -->
+      <main class="mo-content">
 
-    </main>
+        <!-- 统计卡片(订单列表同款 4 卡片;指标按工单) -->
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="sc-icon sc-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+            </div>
+            <div><div class="sc-num">326</div><div class="sc-label">工单总数</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-icon sc-red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div><div class="sc-num">15</div><div class="sc-label">未处理</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-icon sc-orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </div>
+            <div><div class="sc-num">43</div><div class="sc-label">处理中</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-icon sc-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div><div class="sc-num">23</div><div class="sc-label">今日完工</div></div>
+          </div>
+        </div>
+
+        <!-- 筛选区(订单列表样式;2026-07-27:默认收起,前 4 项常显,展开显示其余 12 项) -->
+        <div class="filter-card collapsed" id="filterCard">
+          <div class="filter-grid">
+            <div class="ff"><span class="ff-label">关联订单号：</span><input id="fOrder" placeholder="请输入关联订单号" /></div>
+            <div class="ff"><span class="ff-label">联系人：</span><input id="fCustomer" placeholder="请输入联系人姓名" /></div>
+            <div class="ff"><span class="ff-label">联系人手机号：</span><input id="fCPhone" placeholder="请输入联系人手机号" /></div>
+            <div class="ff"><span class="ff-label">来电手机号：</span><input id="fIncoming" placeholder="请输入来电手机号" /></div>
+            <div class="ff ff-row-extra"><span class="ff-label">受理业务类型：</span>
+              <select id="fCategory"><option value="">全部</option></select>
+              <svg class="ff-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="ff ff-row-extra"><span class="ff-label">咨询/投诉类别：</span>
+              <select id="fSubCategory"><option value="">全部</option></select>
+              <svg class="ff-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="ff ff-row-extra"><span class="ff-label">具体类型：</span>
+              <select id="fType"><option value="">全部</option></select>
+              <svg class="ff-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="ff ff-row-extra"><span class="ff-label">优先级：</span>
+              <select id="fPriority">
+                <option value="">全部</option>
+                <option>一般</option><option>紧急</option><option>特急</option>
+              </select>
+              <svg class="ff-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="ff ff-row-extra"><span class="ff-label">完成期限：</span>
+              <select id="fDeadline">
+                <option value="">全部</option>
+                <option>1天</option><option>7天</option><option>15天</option><option>已超时</option>
+              </select>
+              <svg class="ff-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="ff ff-row-extra"><span class="ff-label">状态：</span>
+              <select id="fStatus">
+                <option value="">全部状态</option>
+                <option>未处理</option><option>处理中</option><option>已完工</option>
+              </select>
+              <svg class="ff-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="ff ff-row-extra"><span class="ff-label">处理人：</span><input id="fHandler" placeholder="请输入处理人" /></div>
+            <div class="ff ff-row-extra"><span class="ff-label">受理客服：</span><input id="fCreator" placeholder="请输入受理客服" /></div>
+            <div class="ff ff-row-extra"><span class="ff-label">商品名称：</span><input id="fGoods" placeholder="请输入商品名称" /></div>
+            <div class="ff ff-row-extra"><span class="ff-label">项目名称：</span><input id="fProject" placeholder="请输入项目名称" /></div>
+            <div class="ff ff-row-extra"><span class="ff-label">SKU物流编码：</span><input id="fSku" placeholder="请输入SKU物流编码" /></div>
+            <!-- 创建日期:单格区间,框内显字段名(2026-07-27 PM 拍板;静态展示不变) -->
+            <div class="ff ff-row-extra">
+              <span class="ff-label">创建日期：</span>
+              <input value="2026-07-01" readonly placeholder="开始日期" /><span class="ff-sep">→</span><input value="2026-07-17" readonly placeholder="结束日期" />
+              <svg class="ff-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="link-collapse" id="btnCollapse">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+              <span id="collapseText">展开</span>
+            </button>
+            <button class="btn-default" id="btnReset">重 置</button>
+            <button class="btn-primary" id="btnQuery">查 询</button>
+          </div>
+        </div>
+
+        <!-- 表格卡片 -->
+        <div class="table-card">
+
+          <div class="status-tabs" style="padding:0 16px;">
+            <div class="status-tab active" data-filter="">全部 <span class="tab-count">326</span></div>
+            <div class="status-tab" data-filter="未处理">未处理 <span class="tab-count">15</span></div>
+            <div class="status-tab" data-filter="处理中">处理中 <span class="tab-count">43</span></div>
+            <div class="status-tab" data-filter="已完工">已完工 <span class="tab-count">268</span></div>
+          </div>
+
+          <div class="table-toolbar">
+            <div class="tb-actions">
+              <button class="btn-default" id="btnExport" title="仅主管可导出">导出</button>
+              <button class="btn-primary" id="btnCreate">+ 创建工单</button>
+            </div>
+            <svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" title="列设置"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82.33l.06.06a1.65 1.65 0 0 0 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1z"/></svg>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;"><input type="checkbox" id="checkAll" title="全选" /></th>
+                  <th>工单号</th>
+                  <th>受理业务类型</th>
+                  <th>咨询/投诉类别</th>
+                  <th>具体类型</th>
+                  <th>优先级</th>
+                  <th>责任承担方</th>
+                  <th>剩余时间 / 完成期限</th>
+                  <th>状态</th>
+                  <th class="th-sort" id="thCreated">受理时间 <span class="sort-ico" id="sortIco">▼</span></th>
+                  <th>关联订单</th>
+                  <th>联系人/手机号</th>
+                  <th>处理人 / 更新时间</th>
+                  <th>来源类型</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="ticketBody">
+                <!-- 2026-07-27 数据口径:列表手机号脱敏展示,详情不脱敏;data-cphone 保留全号供筛选 -->
+                <tr data-status="处理中" data-priority="紧急" data-agent="张小明" data-category="投诉业务" data-sub="物流投诉" data-type="物流破损退货" data-deadline="7天" data-deadline-at="2026-07-19T12:00:00" data-responsible="供应商" data-order="#DD20260710003,#DD20260710011,#DD20260710012" data-sku="HZDF3100216" data-incoming="13955666620" data-created="2026-07-16T08:55:00" data-cname="陈芳" data-cphone="13856782891" data-goods="无线蓝牙耳机" data-project="(兆点)苏宁邮政项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716001</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">物流投诉</td><td class="type-col">物流破损退货</td>
+                  <td><span class="pri urgent">紧急</span></td>
+                  <td><span class="resp-tag">供应商</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
+                  <td><span class="s-tag processing">处理中</span></td>
+                  <td class="created-cell">2026-07-16 08:55</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260710003')">#DD20260710003</a><span class="order-more" title="#DD20260710011、#DD20260710012" onclick="viewOrders(this)" data-orders="#DD20260710003,#DD20260710011,#DD20260710012">+2</span></td>
+                  <td><div class="col-user"><div><div>陈芳</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">138****2891</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-16 09:24</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260716088</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+                </tr>
+                <tr data-status="处理中" data-priority="特急" data-agent="李静" data-category="投诉业务" data-sub="物流投诉" data-type="超时未收到" data-deadline="1天" data-deadline-at="2026-07-16T09:00:00" data-responsible="东莞邮政" data-order="" data-sku="" data-incoming="13677882210" data-created="2026-07-16T07:40:00" data-cname="刘洋" data-cphone="13967855678" data-goods="" data-project="东莞邮政项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716002</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">物流投诉</td><td class="type-col">超时未收到</td>
+                  <td><span class="pri critical">特急</span></td>
+                  <td><span class="resp-tag">东莞邮政</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">1天</div></td>
+                  <td><span class="s-tag processing">处理中</span></td>
+                  <td class="created-cell">2026-07-16 07:40</td>
+                  <td class="order-cell"><span class="order-empty">-</span></td>
+                  <td><div class="col-user"><div><div>刘洋</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">139****5678</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-16 08:10</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260716090</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+                </tr>
+                <tr data-status="未处理" data-priority="紧急" data-agent="未分配" data-category="投诉业务" data-sub="产品投诉" data-type="补配件" data-deadline="15天" data-deadline-at="2026-07-30T10:00:00" data-responsible="宏兆" data-order="#DD20260709001" data-sku="HZDF2044556" data-incoming="" data-created="2026-07-16T10:02:00" data-cname="周婷婷" data-cphone="13790121024" data-goods="玻璃水杯" data-project="东莞邮政项目" data-is-new="1">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716003</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">补配件</td>
+                  <td><span class="pri urgent">紧急</span></td>
+                  <td><span class="resp-tag">宏兆</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">15天</div></td>
+                  <td><span class="s-tag untreated">未处理</span></td>
+                  <td class="created-cell">2026-07-16 10:02</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260709001')">#DD20260709001</a></td>
+                  <td><div class="col-user"><div><div>周婷婷</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">137****1024</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name unassigned">未分配</span><br/><span class="agent-time">2026-07-16 10:02</span></td>
+                  <td class="src-cell"><div class="src-type">订单</div><div class="src-id"><a class="order-link" onclick="viewOrder('#DD20260709001')">#DD20260709001</a></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-assign">指派</a></td>
+                </tr>
+                <tr data-status="未处理" data-priority="紧急" data-agent="张小明" data-category="投诉业务" data-sub="产品投诉" data-type="产品原因退货" data-deadline="7天" data-deadline-at="2026-07-23T16:00:00" data-responsible="供应商" data-order="#DD20260711001" data-sku="HZDF2099334" data-incoming="13567898821" data-created="2026-07-16T10:30:00" data-cname="赵磊" data-cphone="13567898821" data-goods="羽绒被" data-project="昆山吉波项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716004</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">产品原因退货</td>
+                  <td><span class="pri urgent">紧急</span></td>
+                  <td><span class="resp-tag">供应商</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
+                  <td><span class="s-tag untreated">未处理</span></td>
+                  <td class="created-cell">2026-07-16 10:30</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260711001')">#DD20260711001</a></td>
+                  <td><div class="col-user"><div><div>赵磊</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">135****8821</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-16 10:30</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260715088</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="op-accept tk-accept">受理</a></td>
+                </tr>
+                <tr data-status="处理中" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="物流咨询" data-type="更改配送地址" data-deadline="7天" data-deadline-at="2026-07-21T11:00:00" data-responsible="" data-order="#DD20260710002" data-sku="HZDF1000001" data-incoming="" data-created="2026-07-15T11:20:00" data-cname="孙莉" data-cphone="13677884477" data-goods="测试产品" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260715006</td>
+                  <td class="type-col">咨询业务</td><td class="type-col">物流咨询</td><td class="type-col">更改配送地址</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="order-empty">-</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
+                  <td><span class="s-tag processing">处理中</span></td>
+                  <td class="created-cell">2026-07-15 11:20</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260710002')">#DD20260710002</a></td>
+                  <td><div class="col-user"><div><div>孙莉</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">136****4477</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-15 11:20</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260715086</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+                </tr>
+                <tr data-status="已完工" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="产品咨询" data-type="其他" data-deadline="" data-deadline-at="" data-responsible="" data-order="" data-sku="" data-incoming="13366776290" data-created="2026-07-14T14:08:00" data-cname="吴强" data-cphone="13366776290" data-goods="" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260714005</td>
+                  <td class="type-col">咨询业务</td><td class="type-col">产品咨询</td><td class="type-col">其他</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="order-empty">-</span></td>
+                  <td class="countdown-cell"><div class="cd"><span class="order-empty">—</span></div><div class="dl-val">-</div></td>
+                  <td><span class="s-tag done">已完工</span></td>
+                  <td class="created-cell">2026-07-14 14:08</td>
+                  <td class="order-cell"><span class="order-empty">-</span></td>
+                  <td><div class="col-user"><div><div>吴强</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">133****6290</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-14 14:08</span></td>
+                  <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a></td>
+                </tr>
+                <tr data-status="已完工" data-priority="一般" data-agent="李静" data-category="投诉业务" data-sub="产品投诉" data-type="补偿" data-deadline="" data-deadline-at="" data-responsible="宏兆" data-order="#DD20260708001" data-sku="" data-incoming="" data-created="2026-07-13T09:55:00" data-cname="郑敏" data-cphone="13288993315" data-goods="" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260713002</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">补偿</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="resp-tag">宏兆</span></td>
+                  <td class="countdown-cell"><div class="cd"><span class="order-empty">—</span></div><div class="dl-val">-</div></td>
+                  <td><span class="s-tag done">已完工</span></td>
+                  <td class="created-cell">2026-07-13 09:55</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260708001')">#DD20260708001</a></td>
+                  <td><div class="col-user"><div><div>郑敏</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">132****3315</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-13 09:55</span></td>
+                  <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a></td>
+                </tr>
+                <!-- ===== 以下 10 条占位数据(2026-07-27:演示翻页用;受理时间早于示例数据,默认降序自然排在示例之后) ===== -->
+                <!-- 占位 P1:补「临期」倒计时(≤24h 橙色) + 责任方「昆山吉波」首次亮相 -->
+                <tr data-status="处理中" data-priority="紧急" data-agent="张小明" data-category="投诉业务" data-sub="物流投诉" data-type="丢失" data-deadline="7天" data-deadline-at="2026-07-18T08:00:00" data-responsible="昆山吉波" data-order="#DD20260705001" data-sku="HZDF3108899" data-incoming="13166786789" data-created="2026-07-12T09:10:00" data-cname="王秀英" data-cphone="13166786789" data-goods="电饭煲" data-project="昆山吉波项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260712001</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">物流投诉</td><td class="type-col">丢失</td>
+                  <td><span class="pri urgent">紧急</span></td>
+                  <td><span class="resp-tag">昆山吉波</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
+                  <td><span class="s-tag processing">处理中</span></td>
+                  <td class="created-cell">2026-07-12 09:10</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260705001')">#DD20260705001</a></td>
+                  <td><div class="col-user"><div><div>王秀英</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">131****6789</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-12 09:10</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260712030</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+                </tr>
+                <tr data-status="未处理" data-priority="一般" data-agent="未分配" data-category="咨询业务" data-sub="产品咨询" data-type="产品信息" data-deadline="15天" data-deadline-at="2026-07-27T12:00:00" data-responsible="" data-order="" data-sku="" data-incoming="" data-created="2026-07-12T08:30:00" data-cname="陈国栋" data-cphone="15088992233" data-goods="" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260712002</td>
+                  <td class="type-col">咨询业务</td><td class="type-col">产品咨询</td><td class="type-col">产品信息</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="order-empty">-</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">15天</div></td>
+                  <td><span class="s-tag untreated">未处理</span></td>
+                  <td class="created-cell">2026-07-12 08:30</td>
+                  <td class="order-cell"><span class="order-empty">-</span></td>
+                  <td><div class="col-user"><div><div>陈国栋</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">150****2233</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name unassigned">未分配</span><br/><span class="agent-time">2026-07-12 08:30</span></td>
+                  <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-assign">指派</a></td>
+                </tr>
+                <tr data-status="处理中" data-priority="一般" data-agent="李静" data-category="咨询业务" data-sub="物流咨询" data-type="配送情况" data-deadline="7天" data-deadline-at="2026-07-19T12:00:00" data-responsible="" data-order="#DD20260706002" data-sku="" data-incoming="18766335566" data-created="2026-07-11T16:40:00" data-cname="林晓梅" data-cphone="18766335566" data-goods="保温杯" data-project="东莞邮政项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260711003</td>
+                  <td class="type-col">咨询业务</td><td class="type-col">物流咨询</td><td class="type-col">配送情况</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="order-empty">-</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
+                  <td><span class="s-tag processing">处理中</span></td>
+                  <td class="created-cell">2026-07-11 16:40</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260706002')">#DD20260706002</a></td>
+                  <td><div class="col-user"><div><div>林晓梅</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">187****5566</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-11 16:40</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260712021</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+                </tr>
+                <tr data-status="已完工" data-priority="一般" data-agent="张小明" data-category="投诉业务" data-sub="产品投诉" data-type="返修" data-deadline="" data-deadline-at="" data-responsible="宏兆" data-order="#DD20260703001" data-sku="" data-incoming="" data-created="2026-07-11T15:20:00" data-cname="何建军" data-cphone="15899889012" data-goods="" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260711002</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">返修</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="resp-tag">宏兆</span></td>
+                  <td class="countdown-cell"><div class="cd"><span class="order-empty">—</span></div><div class="dl-val">-</div></td>
+                  <td><span class="s-tag done">已完工</span></td>
+                  <td class="created-cell">2026-07-11 15:20</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260703001')">#DD20260703001</a></td>
+                  <td><div class="col-user"><div><div>何建军</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">158****9012</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-11 15:20</span></td>
+                  <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a></td>
+                </tr>
+                <tr data-status="未处理" data-priority="紧急" data-agent="张小明" data-category="投诉业务" data-sub="物流投诉" data-type="少货" data-deadline="1天" data-deadline-at="2026-07-13T10:00:00" data-responsible="供应商" data-order="#DD20260707001" data-sku="HZDF2077112" data-incoming="" data-created="2026-07-11T10:05:00" data-cname="许文静" data-cphone="18677553344" data-goods="纸巾组合" data-project="东莞邮政项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260711001</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">物流投诉</td><td class="type-col">少货</td>
+                  <td><span class="pri urgent">紧急</span></td>
+                  <td><span class="resp-tag">供应商</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">1天</div></td>
+                  <td><span class="s-tag untreated">未处理</span></td>
+                  <td class="created-cell">2026-07-11 10:05</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260707001')">#DD20260707001</a></td>
+                  <td><div class="col-user"><div><div>许文静</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">186****3344</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-11 10:05</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260711019</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="op-accept tk-accept">受理</a></td>
+                </tr>
+                <tr data-status="处理中" data-priority="特急" data-agent="李静" data-category="投诉业务" data-sub="产品投诉" data-type="缺货超时未收到" data-deadline="1天" data-deadline-at="2026-07-13T12:00:00" data-responsible="东莞邮政" data-order="#DD20260707005,#DD20260707006,#DD20260707007" data-sku="HZDF2055661" data-incoming="13911227788" data-created="2026-07-10T17:30:00" data-cname="高志远" data-cphone="13911227788" data-goods="牛奶礼盒" data-project="昆山吉波项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260710004</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">缺货超时未收到</td>
+                  <td><span class="pri critical">特急</span></td>
+                  <td><span class="resp-tag">东莞邮政</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">1天</div></td>
+                  <td><span class="s-tag processing">处理中</span></td>
+                  <td class="created-cell">2026-07-10 17:30</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260707005')">#DD20260707005</a><span class="order-more" title="#DD20260707006、#DD20260707007" onclick="viewOrders(this)" data-orders="#DD20260707005,#DD20260707006,#DD20260707007">+2</span></td>
+                  <td><div class="col-user"><div><div>高志远</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">139****7788</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-10 17:30</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260711025</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+                </tr>
+                <tr data-status="已完工" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="产品咨询" data-type="开具发票" data-deadline="" data-deadline-at="" data-responsible="" data-order="" data-sku="" data-incoming="" data-created="2026-07-10T14:15:00" data-cname="冯雅琴" data-cphone="13355559900" data-goods="" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260710003</td>
+                  <td class="type-col">咨询业务</td><td class="type-col">产品咨询</td><td class="type-col">开具发票</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="order-empty">-</span></td>
+                  <td class="countdown-cell"><div class="cd"><span class="order-empty">—</span></div><div class="dl-val">-</div></td>
+                  <td><span class="s-tag done">已完工</span></td>
+                  <td class="created-cell">2026-07-10 14:15</td>
+                  <td class="order-cell"><span class="order-empty">-</span></td>
+                  <td><div class="col-user"><div><div>冯雅琴</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">133****9900</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-10 14:15</span></td>
+                  <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a></td>
+                </tr>
+                <tr data-status="处理中" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="物流咨询" data-type="客户原因重新配送" data-deadline="7天" data-deadline-at="2026-07-20T12:00:00" data-responsible="" data-order="#DD20260704001" data-sku="HZDF1000002" data-incoming="" data-created="2026-07-10T11:00:00" data-cname="董文博" data-cphone="15566661122" data-goods="洗衣液" data-project="东莞邮政项目">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260710002</td>
+                  <td class="type-col">咨询业务</td><td class="type-col">物流咨询</td><td class="type-col">客户原因重新配送</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="order-empty">-</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
+                  <td><span class="s-tag processing">处理中</span></td>
+                  <td class="created-cell">2026-07-10 11:00</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260704001')">#DD20260704001</a></td>
+                  <td><div class="col-user"><div><div>董文博</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">155****1122</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-10 11:00</span></td>
+                  <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260710033</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-reply">回复</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-transfer">转单</a></td>
+                </tr>
+                <tr data-status="未处理" data-priority="一般" data-agent="未分配" data-category="投诉业务" data-sub="产品投诉" data-type="其他" data-deadline="7天" data-deadline-at="2026-07-19T12:00:00" data-responsible="昆山吉波" data-order="#DD20260708001" data-sku="" data-incoming="13788884455" data-created="2026-07-09T16:45:00" data-cname="沈丽华" data-cphone="13788884455" data-goods="" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260709003</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">产品投诉</td><td class="type-col">其他</td>
+                  <td><span class="pri">一般</span></td>
+                  <td><span class="resp-tag">昆山吉波</span></td>
+                  <td class="countdown-cell"><div class="cd"></div><div class="dl-val">7天</div></td>
+                  <td><span class="s-tag untreated">未处理</span></td>
+                  <td class="created-cell">2026-07-09 16:45</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260708001')">#DD20260708001</a></td>
+                  <td><div class="col-user"><div><div>沈丽华</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">137****4455</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name unassigned">未分配</span><br/><span class="agent-time">2026-07-09 16:45</span></td>
+                  <td class="src-cell"><div class="src-type">订单</div><div class="src-id"><a class="order-link" onclick="viewOrder('#DD20260708001')">#DD20260708001</a></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-edit">编辑</a><span class="divider">|</span><a class="tk-assign">指派</a></td>
+                </tr>
+                <tr data-status="已完工" data-priority="紧急" data-agent="李静" data-category="投诉业务" data-sub="物流投诉" data-type="错货" data-deadline="" data-deadline-at="" data-responsible="供应商" data-order="#DD20260702001" data-sku="" data-incoming="" data-created="2026-07-08T10:20:00" data-cname="曹志明" data-cphone="13899996677" data-goods="" data-project="宏兆自营">
+                  <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260708003</td>
+                  <td class="type-col">投诉业务</td><td class="type-col">物流投诉</td><td class="type-col">错货</td>
+                  <td><span class="pri urgent">紧急</span></td>
+                  <td><span class="resp-tag">供应商</span></td>
+                  <td class="countdown-cell"><div class="cd"><span class="order-empty">—</span></div><div class="dl-val">-</div></td>
+                  <td><span class="s-tag done">已完工</span></td>
+                  <td class="created-cell">2026-07-08 10:20</td>
+                  <td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260702001')">#DD20260702001</a></td>
+                  <td><div class="col-user"><div><div>曹志明</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">138****6677</div></div></div></td>
+                  <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-08 10:20</span></td>
+                  <td class="src-cell"><div class="src-type">客服工单</div><div class="src-id"><span class="order-empty">-</span></div></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 分页(订单列表样式:右对齐 + 条数/页;2026-07-27 改真翻页,10条/页) -->
+          <div class="table-pager">
+            <span id="pgInfo">第1-10条/总共17条</span>
+            <button class="pg-btn" id="pgPrev" disabled>&lt;</button>
+            <span id="pgNums"></span>
+            <button class="pg-btn" id="pgNext">&gt;</button>
+            <span class="pg-size">10 条/页
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </div>
+
+        </div>
+
+        <p style="margin-top:16px; font-size:var(--cs-font-size-sm); color:var(--cs-text-placeholder);">
+          工单处理流程:未处理 →(指派 → 受理)→ 处理中 → 已完工(终态)。完成期限到期自动标记超时,并通知处理人与主管。
+        </p>
+
+      </main>
+    </div>
   </div>
-
 </div>
 
-<script src="js/cs-icons.js"></script>
-<script src="nav.js"></script>
 <script>
 (function () {
   'use strict';
@@ -379,7 +694,8 @@
   var rows = Array.prototype.slice.call(document.querySelectorAll('#ticketBody tr'));
 
   /* V0.5 UC-TL-02:受理客服(创建人)mock 映射 */
-  var CREATOR = { '#TK20260716001':'张小明', '#TK20260716002':'李静', '#TK20260716003':'张小明', '#TK20260716004':'张小明', '#TK20260715006':'张小明', '#TK20260714005':'张小明', '#TK20260713002':'李静' };
+  var CREATOR = { '#TK20260716001':'张小明', '#TK20260716002':'李静', '#TK20260716003':'张小明', '#TK20260716004':'张小明', '#TK20260715006':'张小明', '#TK20260714005':'张小明', '#TK20260713002':'李静',
+    '#TK20260712001':'张小明', '#TK20260712002':'李静', '#TK20260711003':'李静', '#TK20260711002':'张小明', '#TK20260711001':'张小明', '#TK20260710004':'李静', '#TK20260710003':'张小明', '#TK20260710002':'李静', '#TK20260709003':'张小明', '#TK20260708003':'李静' };
 
   /* V0.5 三.2.6:受理字段(反馈方式/提交部门/二次投诉)+ 新联系人(收货人以外)mock;详情经 detailQuery 带入。正式从后端取。 */
   var META = {
@@ -389,7 +705,18 @@
     '#TK20260716004': { feedback:'电话', dept:'客服部', secondary:'否' },
     '#TK20260715006': { feedback:'电话', dept:'客服部', secondary:'否' },
     '#TK20260714005': { feedback:'合作商平台', dept:'商务部', secondary:'否' },
-    '#TK20260713002': { feedback:'电话', dept:'客服部', secondary:'是' }
+    '#TK20260713002': { feedback:'电话', dept:'客服部', secondary:'是' },
+    /* 占位数据(P1-P10):反馈方式补齐 短信/合作商邮件 两选项 */
+    '#TK20260712001': { feedback:'电话', dept:'客服部', secondary:'否' },
+    '#TK20260712002': { feedback:'短信', dept:'客服部', secondary:'否' },
+    '#TK20260711003': { feedback:'合作商平台', dept:'商务部', secondary:'否' },
+    '#TK20260711002': { feedback:'电话', dept:'客服部', secondary:'否' },
+    '#TK20260711001': { feedback:'业务口', dept:'商品部', secondary:'否' },
+    '#TK20260710004': { feedback:'电话', dept:'客服部', secondary:'是' },
+    '#TK20260710003': { feedback:'合作商邮件', dept:'商务部', secondary:'否' },
+    '#TK20260710002': { feedback:'电话', dept:'客服部', secondary:'否' },
+    '#TK20260709003': { feedback:'业务口', dept:'商品部', secondary:'否' },
+    '#TK20260708003': { feedback:'合作商邮件', dept:'商务部', secondary:'否' }
   };
 
   /* V0.5 字典统一引用 js/ticket-dict.js */
@@ -495,8 +822,38 @@
             && (!sku || rSku.indexOf(sku) >= 0)
             && (!inc || rInc.indexOf(inc) >= 0)
             && (!od || order.indexOf(od) >= 0);
-      r.style.display = ok ? '' : 'none';
+      r._match = ok;
     });
+    curPage = 1;
+    renderPage();
+  }
+
+  /* 分页(2026-07-27:真翻页,10条/页;筛选变化重置回第1页) */
+  var pageSize = 10, curPage = 1;
+  function matchedRows() { return rows.filter(function (r) { return r._match !== false; }); }
+  function renderPage() {
+    var vis = matchedRows();
+    var total = vis.length;
+    var pages = Math.max(1, Math.ceil(total / pageSize));
+    if (curPage > pages) curPage = pages;
+    var start = (curPage - 1) * pageSize;
+    rows.forEach(function (r) { r.style.display = 'none'; });
+    vis.slice(start, start + pageSize).forEach(function (r) { r.style.display = ''; });
+    document.getElementById('pgInfo').textContent = total === 0
+      ? '第0条/总共0条'
+      : '第' + (start + 1) + '-' + Math.min(start + pageSize, total) + '条/总共' + total + '条';
+    document.getElementById('pgPrev').disabled = curPage <= 1;
+    document.getElementById('pgNext').disabled = curPage >= pages;
+    var nums = document.getElementById('pgNums');
+    nums.innerHTML = '';
+    for (var p = 1; p <= pages; p++) {
+      var b = document.createElement('button');
+      b.className = 'pg-btn' + (p === curPage ? ' active' : '');
+      b.textContent = p;
+      (function (pp) { b.addEventListener('click', function () { curPage = pp; renderPage(); }); })(p);
+      nums.appendChild(b);
+    }
+    syncCheckAll();
   }
   document.getElementById('btnQuery').addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
   ['fStatus', 'fPriority', 'fCategory', 'fSubCategory', 'fType', 'fDeadline'].forEach(function (id) {
@@ -512,25 +869,45 @@
     fillSelect(fType, []);
     document.getElementById('fDeadline').value = '';
     tabs.forEach(function (t, i) { t.classList.toggle('active', i === 0); });
-    rows.forEach(function (r) { r.style.display = ''; });
+    rows.forEach(function (r) { r._match = true; });
+    curPage = 1;
+    renderPage();
     toast('已重置筛选');
   });
 
-  /* 顶部按钮 */
-  document.getElementById('btnCreate').addEventListener('click', function () {
-    location.href = 'admin-ticket-create.html?mode=standalone';
+  /* 筛选区 收起/展开(订单列表同款) */
+  var filterCard = document.getElementById('filterCard');
+  document.getElementById('btnCollapse').addEventListener('click', function () {
+    filterCard.classList.toggle('collapsed');
+    document.getElementById('collapseText').textContent =
+      filterCard.classList.contains('collapsed') ? '展开' : '收起';
   });
-  /* UC-TL-04 导出(仅主管):弹窗选范围——勾选数据 / 查询结果数据 */
+
+  /* 勾选:全选(可见行)+ 行高亮(订单列表同款 .checked) */
   function visibleRows() { return rows.filter(function (r) { return r.style.display !== 'none'; }); }
   function checkedRows() { return rows.filter(function (r) { var c = r.querySelector('.row-check'); return c && c.checked; }); }
+  function syncRowChecked(tr) { var c = tr.querySelector('.row-check'); if (c) tr.classList.toggle('checked', c.checked); }
+  function syncCheckAll() {
+    var vis = visibleRows();
+    var n = vis.filter(function (r) { var c = r.querySelector('.row-check'); return c && c.checked; }).length;
+    document.getElementById('checkAll').checked = vis.length > 0 && n === vis.length;
+  }
   document.getElementById('checkAll').addEventListener('change', function () {
     var on = this.checked;
-    visibleRows().forEach(function (r) { var c = r.querySelector('.row-check'); if (c) c.checked = on; });
+    visibleRows().forEach(function (r) { var c = r.querySelector('.row-check'); if (c) { c.checked = on; syncRowChecked(r); } });
   });
+  document.addEventListener('change', function (e) {
+    if (!e.target.classList || !e.target.classList.contains('row-check')) return;
+    syncRowChecked(e.target.closest('tr'));
+    syncCheckAll();
+  });
+
+  /* UC-TL-04 导出(仅主管):弹窗选范围——勾选数据 / 查询结果数据 */
   document.getElementById('btnExport').addEventListener('click', function () {
     /* 权限门控:客服点击仅提示,主管才弹导出窗 */
     if (document.getElementById('roleSwitch').value !== 'supervisor') { toast('导出仅主管(R-S)可用,请切换角色演示'); return; }
-    var sel = checkedRows().length, flt = visibleRows().length;
+    /* 查询结果数据 = 全部筛选命中行(跨页),非仅当前页 */
+    var sel = checkedRows().length, flt = matchedRows().length;
     csModal.open('modals/modal-ticket-export.html?selected=' + sel + '&filtered=' + flt, { variant: 'center', width: 400,
       onConfirm: function (d) {
         if (!d || !d.scope) return;
@@ -547,7 +924,16 @@
   });
   document.getElementById('btnExport').classList.add('btn-disabled');
 
-  /* 从行提取数据,构造详情抽屉 query(详情随行渲染,任务 8 配套) */
+  /* 顶部按钮 */
+  document.getElementById('btnCreate').addEventListener('click', function () {
+    location.href = 'admin-ticket-create.html?mode=standalone';
+  });
+
+  /* 翻页 */
+  document.getElementById('pgPrev').addEventListener('click', function () { if (curPage > 1) { curPage--; renderPage(); } });
+  document.getElementById('pgNext').addEventListener('click', function () { curPage++; renderPage(); });
+
+  /* 从行提取数据,构造详情 query(详情随行渲染) */
   function detailQuery(tr) {
     var id = (tr.querySelector('.col-id') || {}).textContent || '';
     var cust = (tr.querySelector('.col-user') || {}).textContent || '';
@@ -569,6 +955,9 @@
       'project=' + encodeURIComponent(tr.getAttribute('data-project') || ''),
       'customer=' + encodeURIComponent(cust.replace(/\s+/g, ' ').trim()),
       'session=' + encodeURIComponent(src.trim()),
+      /* 详情不脱敏:带全号联系人/手机号 */
+      'contact_name=' + encodeURIComponent(tr.getAttribute('data-cname') || ''),
+      'contact_phone=' + encodeURIComponent(tr.getAttribute('data-cphone') || ''),
       'feedback=' + encodeURIComponent((meta.feedback || '')),
       'dept=' + encodeURIComponent((meta.dept || '')),
       'secondary=' + encodeURIComponent((meta.secondary || '')),
@@ -586,9 +975,9 @@
   function openTicketEdit(tr) {
     var id = (tr.querySelector('.col-id') || {}).textContent.trim();
     var meta = META[id] || {};
-    var custEl = tr.querySelector('.col-user div div');
     var q = [
-      'customer=' + encodeURIComponent(custEl ? custEl.textContent.trim() : ''),
+      'contact_name=' + encodeURIComponent(tr.getAttribute('data-cname') || ''),
+      'contact_phone=' + encodeURIComponent(tr.getAttribute('data-cphone') || ''),
       'category=' + encodeURIComponent(tr.getAttribute('data-category') || ''),
       'sub=' + encodeURIComponent(tr.getAttribute('data-sub') || ''),
       'type=' + encodeURIComponent(tr.getAttribute('data-type') || ''),
@@ -677,34 +1066,11 @@
     }
   });
 
-  /* 分页 */
-  document.querySelectorAll('.pg-num').forEach(function (n) {
-    n.addEventListener('click', function () {
-      document.querySelectorAll('.pg-num').forEach(function (x) { x.classList.remove('active'); });
-      n.classList.add('active');
-    });
-  });
-  var pgNums = Array.prototype.slice.call(document.querySelectorAll('.pg-num'));
-  document.querySelectorAll('.pg-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      if (btn.classList.contains('disabled')) return;
-      var i = -1; pgNums.forEach(function (n, idx) { if (n.classList.contains('active')) i = idx; });
-      var ni = btn.textContent.indexOf('<') >= 0 ? i - 1 : i + 1;
-      ni = Math.max(0, Math.min(pgNums.length - 1, ni));
-      if (ni === i) return;
-      pgNums.forEach(function (n) { n.classList.remove('active'); });
-      if (pgNums[ni]) pgNums[ni].classList.add('active');
-      document.querySelector('.pg-btn:first-child').classList.toggle('disabled', ni === 0);
-      toast('第 ' + (ni + 1) + ' 页');
-    });
-  });
-
   /* 受理时间列排序:默认降序(新→旧),点击表头切升序,再切回降序 */
   var sortState = 2; /* 1=升序 2=降序 */
   function applyCreatedSort() {
     var ico = document.getElementById('sortIco');
     ico.textContent = sortState === 1 ? '▲' : '▼';
-    ico.style.color = 'var(--cs-primary)';
     var tbody = document.getElementById('ticketBody');
     var sorted = rows.slice().sort(function (a, b) {
       var ta = new Date(a.getAttribute('data-created') || 0).getTime();
@@ -712,6 +1078,8 @@
       return sortState === 1 ? ta - tb : tb - ta;
     });
     sorted.forEach(function (r) { tbody.appendChild(r); });
+    rows = sorted; /* 分页切片按排序后顺序 */
+    renderPage();
   }
   document.getElementById('thCreated').addEventListener('click', function () {
     sortState = sortState === 2 ? 1 : 2;
