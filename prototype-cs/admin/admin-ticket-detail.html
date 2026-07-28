@@ -81,7 +81,7 @@
     .info-grid .info-content { color:var(--cs-text); min-width:0; }
     .info-grid .info-content a { color:var(--cs-primary); text-decoration:none; cursor:pointer; }
     .info-grid .info-content a:hover { text-decoration:underline; }
-    .info-grid .type-three { color:var(--cs-text-secondary); font-size:var(--cs-font-size-xs); margin-left:4px; }
+    /* 2026-07-28:工单业务类型改 一级>二级>三级 纯文本,.type-three 样式废弃删除 */
 
     .section-title { font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text-secondary); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
     .section-title::before { content:""; width:3px; height:13px; background:var(--cs-primary); border-radius:2px; }
@@ -146,9 +146,10 @@
     /* 关联订单(独立卡) */
     .ord-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
     .ord-table .oci-id { font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); font-size:var(--cs-font-size-sm); }
+    /* 2026-07-28:子订单号为主键可点击(跳订单列表按子单号搜索),原「查看详情」按钮移除 */
     .ord-table .oci-view { color:var(--cs-primary); cursor:pointer; font-size:var(--cs-font-size-xs); }
     .ord-table .oci-view:hover { text-decoration:underline; }
-    .ord-table .oci-del { color:var(--cs-text-tertiary); cursor:pointer; font-size:var(--cs-font-size-xs); margin-left:8px; }
+    .ord-table .oci-del { color:var(--cs-text-tertiary); cursor:pointer; font-size:var(--cs-font-size-xs); }
     .ord-table .oci-del:hover { color:var(--cs-danger); }
     /* 数字列对齐:数量居中,金额右对齐 */
     .ord-table th:nth-child(5), .ord-table td:nth-child(5) { text-align:center; }
@@ -240,16 +241,21 @@
           <span class="mi-label">渠道管理</span>
           <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
+        <!-- 2026-07-28:补「品牌商城列表」子项,与订单列表/工单配置页侧栏一致 -->
+        <div class="mo-sub">
+          <a class="mo-sub-item">品牌商城列表</a>
+        </div>
       </div>
-      <div class="mo-group collapsed">
+      <!-- 2026-07-28:本版菜单所在组(订单与售后/系统设置)默认展开,其他组收起 -->
+      <div class="mo-group">
         <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
           <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.65 1.65 0 0 0-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l.06-.06a2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83l.06-.06a2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1z"/></svg>
           <span class="mi-label">系统设置</span>
-          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="mo-sub">
-          <!-- 2026-07-27 十轮:工单配置由客服模块「客服设置」移入本组(页面仍为客服模块骨架,跨系统新开页签) -->
-          <a class="mo-sub-item" href="admin-ticket-settings.html" target="_blank">工单配置<span class="menu-ver">V1.5</span></a>
+          <!-- 2026-07-28:工单配置已迁移商城运营后台骨架,同系统页内跳转;菜单常显(页面内容仅主管可配) -->
+          <a class="mo-sub-item" href="admin-ticket-settings.html" id="ticketCfgMenu">工单配置<span class="menu-ver">V1.5</span></a>
         </div>
       </div>
     </aside>
@@ -280,7 +286,7 @@
             <div class="card" style="padding:14px 18px; margin-bottom:12px;">
               <div class="section-title" style="margin-bottom:10px;">基本信息 <button class="btn-default" id="editLink" style="margin-left:auto;" onclick="editTicket()">编辑</button></div>
               <div class="info-grid">
-                <div class="info-row"><span class="info-label">工单类型</span><span class="info-content" id="dType">—</span></div>
+                <div class="info-row"><span class="info-label">工单业务类型</span><span class="info-content" id="dType">—</span></div>
                 <div class="info-row" id="dRespRow"><span class="info-label">责任承担方</span><span class="info-content" id="dResp">—</span></div>
                 <div class="info-row"><span class="info-label">优先级</span><span class="info-content urgency" id="dPriority">—</span></div>
                 <div class="info-row"><span class="info-label">完成期限</span><span class="info-content" id="dDeadline">—</span></div>
@@ -289,7 +295,9 @@
                 <div class="info-row"><span class="info-label">移动电话</span><span class="info-content" id="dPhone">—</span></div>
                 <div class="info-row"><span class="info-label">来电电话</span><span class="info-content" id="dIncoming">—</span></div>
                 <div class="info-row"><span class="info-label">联系地址</span><span class="info-content" id="dAddr">—</span></div>
-                <div class="info-row"><span class="info-label">项目名称</span><span class="info-content" id="dProject">—</span></div>
+                <!-- 2026-07-28 十三轮:项目名称 → 企业名称+品牌商城 -->
+                <div class="info-row"><span class="info-label">企业名称</span><span class="info-content" id="dEnterprise">—</span></div>
+                <div class="info-row"><span class="info-label">品牌商城</span><span class="info-content" id="dMall">—</span></div>
                 <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
                 <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content" id="dFeedback">电话</span></div>
                 <div class="info-row"><span class="info-label">提交部门</span><span class="info-content" id="dDept">客服部</span></div>
@@ -314,7 +322,7 @@
               <div class="section-title">关联订单 <span class="ord-count" id="ordCountTag"></span><button class="btn-default" id="ordAddBtn" style="margin-left:auto;" onclick="openOrderPicker()">添加订单</button></div>
               <div class="table-wrap">
                 <table class="data-table ord-table">
-                  <thead><tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:110px;">操作</th></tr></thead>
+                  <thead><tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:60px;">操作</th></tr></thead>
                   <tbody id="orderCardList"></tbody>
                 </table>
               </div>
@@ -415,7 +423,8 @@
     orderSupplier: P.get('order_supplier') || '南通家纺厂',
     orderAmount: P.get('order_amount') || '¥699',
     orderState: P.get('order_state') || '已签收',
-    project: P.get('project') || '昆山吉波项目',
+    enterprise: P.get('enterprise') || '昆山吉波',
+    mall: P.get('mall') || '兆点福利',
     customer: P.get('customer') || '赵磊(13567898821)',
     session: P.get('session') || '#CS20260715088',
     /* V0.5 三.2.6:受理字段 + 新联系人(收货人以外的实际联系人) */
@@ -436,7 +445,9 @@
 
   /* 关联订单(独立卡):初始带入 + 居中弹窗查询关联一或多个(工单-订单 1 对多);展示列与建单页一致(BR-136)
    * 2026-07-27 八轮:多单按行拆分——列表多单工单 data-order 为逗号串(#DD1,#DD2,#DD3),
-   * 原整体当一个订单渲染致多单挤同一行;现逐单一行,首单带完整字段,其余单仅单号(明细 mock 未带,显示 -) */
+   * 原整体当一个订单渲染致多单挤同一行;现逐单一行,首单带完整字段,其余单仅单号(明细 mock 未带,显示 -)
+   * 2026-07-28:去「查看详情」按钮,子订单号为主键可点击 → 跳订单列表按子单号搜索(与工单列表口径一致) */
+  function viewOrder(subId) { location.href = 'admin-order-list.html?oid=' + encodeURIComponent(subId); }
   var relatedOrders = (DATA.order || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean)
     .map(function (id, i) {
       if (i === 0) return { id: id, sub_id: DATA.orderSub, sku: DATA.orderSku, goods: DATA.orderGoods, qty: DATA.orderQty, supplier: DATA.orderSupplier, amount: DATA.orderAmount, state: DATA.orderState };
@@ -450,14 +461,14 @@
     box.innerHTML = relatedOrders.map(function (o, i) {
       return '<tr>'
         + '<td><span class="oci-id">' + esc(o.id) + '</span></td>'
-        + '<td>' + (o.sub_id ? esc(o.sub_id) : '-') + '</td>'
+        + '<td>' + (o.sub_id ? '<a class="oci-view" onclick="viewOrder(\'' + esc(o.sub_id) + '\')">' + esc(o.sub_id) + '</a>' : '-') + '</td>'
         + '<td>' + (o.sku ? esc(o.sku) : '-') + '</td>'
         + '<td>' + (o.goods ? esc(o.goods) : '-') + '</td>'
         + '<td>' + (o.qty != null && o.qty !== '' ? esc(o.qty) : '-') + '</td>'
         + '<td>' + (o.supplier ? esc(o.supplier) : '-') + '</td>'
         + '<td>' + (o.amount ? esc(o.amount) : '-') + '</td>'
         + '<td>' + (o.state ? esc(o.state) : '-') + '</td>'
-        + '<td><a class="oci-view" onclick="toast(\'打开订单详情(OMS)\')">查看详情 →</a> <a class="oci-del" onclick="removeOrder(' + i + ')">移除</a></td>'
+        + '<td><a class="oci-del" onclick="removeOrder(' + i + ')">移除</a></td>'
         + '</tr>';
     }).join('');
   }
@@ -490,7 +501,8 @@
 
   /* 填充元信息 */
   setText('tkno', DATA.id);
-  document.getElementById('dType').innerHTML = DATA.type + ' <span class="type-three">(' + DATA.category + ' · ' + DATA.sub + ')</span>';
+  /* 2026-07-28:工单业务类型=一级>二级>三级(与列表合并列同口径) */
+  setText('dType', [DATA.category, DATA.sub, DATA.type].filter(Boolean).join('>'));
   if (DATA.responsible) { setText('dResp', DATA.responsible); }
   else { document.getElementById('dRespRow').style.display = 'none'; }
   setText('dContact', DATA.contact || '—');
@@ -498,7 +510,8 @@
   setText('dIncoming', DATA.incomingCall || '—');
   setText('dAddr', DATA.contactAddr || '—');
   renderOrderCards();
-  setText('dProject', DATA.project || '-');
+  setText('dEnterprise', DATA.enterprise || '-');
+  setText('dMall', DATA.mall || '-');
   document.getElementById('dSession').innerHTML = (DATA.session && DATA.session !== '-') ? '<a onclick="gotoSession()">查看 ' + esc(DATA.session) + ' →</a>' : '-';
   setText('dDeadline', DATA.deadline ? DATA.deadline + '(截止 ' + (DATA.deadlineAt ? DATA.deadlineAt.replace('T', ' ').slice(0, 16) : '-') + ')' : '-');
   setText('dAgent', DATA.agent === '未分配' ? '未分配' : DATA.agent);
@@ -561,7 +574,8 @@
       'priority=' + encodeURIComponent(DATA.priority || ''),
       'deadline=' + encodeURIComponent(DATA.deadline || ''),
       'responsible=' + encodeURIComponent(DATA.responsible || ''),
-      'project=' + encodeURIComponent(DATA.project || ''),
+      'enterprise=' + encodeURIComponent(DATA.enterprise || ''),
+      'mall=' + encodeURIComponent(DATA.mall || ''),
       'feedback=' + encodeURIComponent(DATA.feedback || ''),
       'dept=' + encodeURIComponent(DATA.dept || ''),
       'secondary=' + encodeURIComponent(DATA.secondary || '否'),
@@ -579,7 +593,7 @@
         if (!d) return;
         DATA.category = d.category; DATA.sub = d.sub; DATA.type = d.type;
         DATA.priority = d.priority; DATA.deadline = d.deadline; DATA.responsible = d.responsible;
-        DATA.project = d.project; DATA.feedback = d.feedback; DATA.dept = d.dept; DATA.secondary = d.secondary;
+        DATA.enterprise = d.enterprise; DATA.mall = d.mall; DATA.feedback = d.feedback; DATA.dept = d.dept; DATA.secondary = d.secondary;
         if (d.contactName) DATA.contact = d.contactName;
         DATA.contactPhone = d.contactPhone || '';
         DATA.incomingCall = d.incomingCall || ''; DATA.contactAddr = d.contactAddr || '';
@@ -597,7 +611,7 @@
     });
   }
   function applyEditToView() {
-    document.getElementById('dType').innerHTML = esc(DATA.type) + ' <span class="type-three">(' + esc(DATA.category) + ' · ' + esc(DATA.sub) + ')</span>';
+    setText('dType', [DATA.category, DATA.sub, DATA.type].filter(Boolean).join('>'));
     if (DATA.responsible) {
       document.getElementById('dRespRow').style.display = '';
       setText('dResp', DATA.responsible);
@@ -609,7 +623,8 @@
     setText('dPhone', DATA.contactPhone || '—');
     setText('dIncoming', DATA.incomingCall || '—');
     setText('dAddr', DATA.contactAddr || '—');
-    setText('dProject', DATA.project || '-');
+    setText('dEnterprise', DATA.enterprise || '-');
+    setText('dMall', DATA.mall || '-');
     setText('dFeedback', DATA.feedback || '—');
     setText('dDept', DATA.dept || '—');
     setText('dSecondary', DATA.secondary || '—');

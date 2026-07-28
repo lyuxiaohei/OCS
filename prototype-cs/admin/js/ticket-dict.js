@@ -20,9 +20,24 @@
     PRIORITIES: ['一般', '紧急', '特急'],
     /* 完成期限(代替 SLA) */
     DEADLINES: ['1天', '7天', '15天'],
-    /* 反馈方式 */
-    FEEDBACK_METHODS: ['电话', '短信', '业务口', '合作商平台', '合作商邮件'],
+    /* 反馈方式(2026-07-28:「电话」下补「在线客服会话」) */
+    FEEDBACK_METHODS: ['电话', '在线客服会话', '短信', '业务口', '合作商平台', '合作商邮件'],
     /* 工单提交部门 */
-    DEPTS: ['客服部', '商品部', '商务部']
+    DEPTS: ['客服部', '商品部', '商务部'],
+    /* 企业名称(福利客户企业;2026-07-28 十三轮:替代原「项目名称」——订单/会话建单自动带出,手工建单下拉选择) */
+    ENTERPRISES: ['苏宁邮政', '东莞邮政', '昆山吉波', '宏兆自营'],
+    /* 品牌商城(与订单列表「所属商城」同源;同上,自动带出或下拉选择) */
+    MALLS: ['兆点福利']
   };
+  /* 工单业务类型(2026-07-28:三级合并为单字段;值=一级>二级>三级;建单/编辑/筛选下拉用)
+   * 底层仍存 category/sub_category/type 三字段,此处仅作下拉选项;提交/确认时由各页按「>」拆回三段。 */
+  var _t = window.TICKET_DICT;
+  _t.BIZ_TYPE_GROUPS = [];
+  Object.keys(_t.CATEGORY_TREE).forEach(function (l1) {
+    var leaves = [];
+    Object.keys(_t.CATEGORY_TREE[l1]).forEach(function (l2) {
+      _t.CATEGORY_TREE[l1][l2].forEach(function (l3) { leaves.push(l1 + '>' + l2 + '>' + l3); });
+    });
+    _t.BIZ_TYPE_GROUPS.push({ label: l1, leaves: leaves });
+  });
 })();

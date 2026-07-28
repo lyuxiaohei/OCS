@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="js/cs-modal.js"></script>
   <script src="js/ticket-dict.js"></script>
+  <script src="js/cascader.js"></script>
   <style>
     /* ===== 商城运营后台骨架(2026-07-27 八轮:顶栏/侧栏/页签与工单列表完全同源,原深色顶栏+简版菜单弃用) ===== */
     body { margin:0; background:var(--cs-bg-page); font-family:var(--cs-font-family); }
@@ -117,6 +118,9 @@
     /* 关联订单(表格) */
     .ord-count { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
     .ord-table .oci-id { font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); font-size:var(--cs-font-size-sm); }
+    /* 2026-07-28:子订单号为主键可点击(跳订单列表按子单号搜索) */
+    .ord-table .oci-view { color:var(--cs-primary); cursor:pointer; font-size:var(--cs-font-size-xs); }
+    .ord-table .oci-view:hover { text-decoration:underline; }
     .ord-table .oci-del { color:var(--cs-text-tertiary); cursor:pointer; font-size:var(--cs-font-size-xs); }
     .ord-table .oci-del:hover { color:var(--cs-danger); }
     /* 数字列对齐:数量居中,金额右对齐 */
@@ -209,16 +213,21 @@
           <span class="mi-label">渠道管理</span>
           <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
+        <!-- 2026-07-28:补「品牌商城列表」子项,与订单列表/工单配置页侧栏一致 -->
+        <div class="mo-sub">
+          <a class="mo-sub-item">品牌商城列表</a>
+        </div>
       </div>
-      <div class="mo-group collapsed">
+      <!-- 2026-07-28:本版菜单所在组(订单与售后/系统设置)默认展开,其他组收起 -->
+      <div class="mo-group">
         <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
           <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a1.65 1.65 0 0 0-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l.06-.06a2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51.65.65 0 0 1 .33 1.82V9c.26.604.852.997 1.51 1z"/></svg>
           <span class="mi-label">系统设置</span>
-          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="mo-sub">
-          <!-- 2026-07-27 十轮:工单配置由客服模块「客服设置」移入本组(页面仍为客服模块骨架,跨系统新开页签) -->
-          <a class="mo-sub-item" href="admin-ticket-settings.html" target="_blank">工单配置<span class="menu-ver">V1.5</span></a>
+          <!-- 2026-07-28:工单配置已迁移商城运营后台骨架,同系统页内跳转;菜单常显(页面内容仅主管可配) -->
+          <a class="mo-sub-item" href="admin-ticket-settings.html" id="ticketCfgMenu">工单配置<span class="menu-ver">V1.5</span></a>
         </div>
       </div>
     </aside>
@@ -250,25 +259,16 @@
         <!-- 基本信息(2026-07-27 五轮:标题字段已删,客户由会话/订单上下文绑定,均不再手填) -->
         <div class="card fm-card" style="padding:16px 18px; margin-bottom:12px;">
           <div class="fm-sec">基本信息</div>
+          <!-- 2026-07-28:工单业务类型改三级级联组件;首字段不再独占一行,优先级/完成期限移至其右 -->
           <div class="fm-row">
             <div class="fm-field">
-              <label class="fm-label">受理业务类型<span class="req">*</span></label>
-              <select class="fm-select" id="fCategory"><option value="">请选择</option></select>
-            </div>
-            <div class="fm-field">
-              <label class="fm-label">咨询/投诉类别<span class="req">*</span></label>
-              <select class="fm-select" id="fSubCategory"><option value="">请先选一级</option></select>
-            </div>
-            <div class="fm-field">
-              <label class="fm-label">具体类型<span class="req">*</span></label>
-              <select class="fm-select" id="fType"><option value="">请先选二级</option></select>
+              <label class="fm-label">工单业务类型<span class="req">*</span></label>
+              <div id="fBizType" class="cascader"></div>
             </div>
             <div class="fm-field conditional" id="responsibleWrap">
               <label class="fm-label">责任承担方<span class="req">*</span><span class="opt">(投诉类必填)</span></label>
               <select class="fm-select" id="fResponsible"><option value="">请选择</option></select>
             </div>
-          </div>
-          <div class="fm-row">
             <div class="fm-field">
               <label class="fm-label">优先级</label>
               <select class="fm-select" id="fPriority">
@@ -283,19 +283,24 @@
                 <option value="1天">1天</option><option value="7天">7天</option><option value="15天">15天</option>
               </select>
             </div>
+          </div>
+          <div class="fm-row">
+            <!-- 2026-07-28 十三轮:项目名称 → 企业名称+品牌商城(订单/会话建单自动带出,手工建单下拉选择) -->
             <div class="fm-field">
-              <label class="fm-label">项目名称<span class="req">*</span></label>
-              <input class="fm-input" id="fProject" placeholder="如(兆点)苏宁邮政项目" />
+              <label class="fm-label">企业名称<span class="req">*</span></label>
+              <select class="fm-select" id="fEnterprise"><option value="">请选择</option></select>
+            </div>
+            <div class="fm-field">
+              <label class="fm-label">品牌商城<span class="req">*</span></label>
+              <select class="fm-select" id="fMall"><option value="">请选择</option></select>
             </div>
             <div class="fm-field">
               <label class="fm-label">反馈方式<span class="req">*</span></label>
               <select class="fm-select" id="fFeedback">
                 <option value="">请选择</option>
-                <option>电话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option>
+                <option>电话</option><option>在线客服会话</option><option>短信</option><option>业务口</option><option>合作商平台</option><option>合作商邮件</option>
               </select>
             </div>
-          </div>
-          <div class="fm-row">
             <div class="fm-field">
               <label class="fm-label">提交部门<span class="req">*</span></label>
               <select class="fm-select" id="fDept">
@@ -303,6 +308,8 @@
                 <option>客服部</option><option>商品部</option><option>商务部</option>
               </select>
             </div>
+          </div>
+          <div class="fm-row">
             <div class="fm-field">
               <label class="fm-label">二次投诉</label>
               <select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select>
@@ -353,7 +360,7 @@
           </div>
         </div>
 
-        <!-- 业务字段已并入「基本信息」(2026-07-24 四轮:项目名称/反馈方式/提交部门/二次投诉) -->
+        <!-- 业务字段已并入「基本信息」(2026-07-24 四轮:项目名称/反馈方式/提交部门/二次投诉;07-28 十三轮:项目名称→企业名称+品牌商城) -->
 
         <!-- 工单描述 -->
         <div class="card fm-card" style="padding:16px 18px; margin-bottom:12px;">
@@ -378,28 +385,22 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
 
   /* V0.5 字典统一引用 js/ticket-dict.js */
-  var CATEGORY_TREE = window.TICKET_DICT.CATEGORY_TREE;
   var RESPONSIBLE_PARTIES = window.TICKET_DICT.RESPONSIBLE_PARTIES;
   function fillSelect(sel, arr, placeholder) {
     sel.innerHTML = '<option value="">' + placeholder + '</option>' + arr.map(function (o) { return '<option>' + o + '</option>'; }).join('');
   }
-  var fCategory = document.getElementById('fCategory');
-  var fSubCategory = document.getElementById('fSubCategory');
-  var fType = document.getElementById('fType');
+  /* 工单业务类型:三级级联组件(2026-07-28:替换单选下拉);值=一级>二级>三级,isComplain 驱动责任承担方 */
+  function isComplain(biz) { return (biz || '').split('>')[0] === '投诉业务'; }
+  var fBizType = createCascader(document.getElementById('fBizType'), { placeholder: '请选择' });
   var fResponsible = document.getElementById('fResponsible');
-  fillSelect(fCategory, Object.keys(CATEGORY_TREE), '请选择');
   fillSelect(fResponsible, RESPONSIBLE_PARTIES, '请选择');
-  fCategory.addEventListener('change', function () {
-    var subs = Object.keys(CATEGORY_TREE[this.value] || {});
-    fillSelect(fSubCategory, subs, subs.length ? '请选择' : '请先选一级');
-    fillSelect(fType, [], '请先选二级');
-    document.getElementById('responsibleWrap').classList.toggle('show', this.value === '投诉业务');
-    if (this.value !== '投诉业务') fResponsible.value = '';
-  });
-  fSubCategory.addEventListener('change', function () {
-    var types = (CATEGORY_TREE[fCategory.value] || {})[this.value] || [];
-    fillSelect(fType, types, types.length ? '请选择' : '请先选二级');
-  });
+  fillSelect(document.getElementById('fEnterprise'), window.TICKET_DICT.ENTERPRISES, '请选择');
+  fillSelect(document.getElementById('fMall'), window.TICKET_DICT.MALLS, '请选择');
+  function syncResponsible(biz) {
+    document.getElementById('responsibleWrap').classList.toggle('show', isComplain(biz));
+    if (!isComplain(biz)) fResponsible.value = '';
+  }
+  fBizType.onChange(syncResponsible);
 
   var ncb = document.getElementById('newContactBox');
   document.getElementById('newContactToggle').addEventListener('click', function () {
@@ -428,19 +429,21 @@
     var p = new URLSearchParams(location.search);
     var oid = p.get('oid') || '', goods = p.get('goods') || '', phone = p.get('phone') || '', amount = p.get('amount') || '', ostate = p.get('state') || '';
     var subId = p.get('sub') || '', sku = p.get('sku') || '', qty = p.get('qty') || '', supplier = p.get('supplier') || '';
-    var project = p.get('project') || '', receiver = p.get('receiver') || '', raddr = p.get('raddr') || '';
+    /* 十三轮:企业名称/品牌商城 从订单自带信息带入(原 project) */
+    var enterprise = p.get('enterprise') || '', mall = p.get('mall') || '', receiver = p.get('receiver') || '', raddr = p.get('raddr') || '';
     var ctxBox = document.getElementById('ctxBox');
     ctxBox.style.display = '';
     ctxBox.innerHTML = '<div class="ctx-title">已从订单带入(创建工单)</div>'
       + '<div class="ctx-row">关联订单:<b>' + esc(oid) + '</b> · 商品:<b>' + esc(goods) + '</b> · ' + esc(amount) + '</div>'
       + '<div class="ctx-row">客户:<b>' + esc(phone) + '</b> · 收货人:<b>' + esc(receiver) + '</b> · ' + esc(raddr) + '</div>'
-      + '<div class="ctx-row">项目:<b>' + esc(project) + '</b> · 订单状态:' + esc(ostate) + '</div>';
+      + '<div class="ctx-row">企业:<b>' + esc(enterprise) + '</b> · 商城:<b>' + esc(mall) + '</b> · 订单状态:' + esc(ostate) + '</div>';
     state.orders = oid ? [{ id: oid, sub_id: subId, sku: sku, goods: goods, qty: qty, supplier: supplier, amount: amount, state: ostate }] : [];
     renderCreateOrders();
     document.getElementById('fContactName').value = receiver;
     document.getElementById('fContactPhone').value = phone;
     document.getElementById('fContactAddr').value = raddr;
-    document.getElementById('fProject').value = project;
+    document.getElementById('fEnterprise').value = enterprise;
+    document.getElementById('fMall').value = mall;
     state.order_ids = oid ? [oid] : [];
   } else if (batchMode) {
     /* 批量创建工单:所选订单合并为一张(工单-订单 1 对多),不限制客户 */
@@ -454,6 +457,9 @@
     state.orders = boids.map(function (id) { return { id: id }; });
     renderCreateOrders();
     document.getElementById('sourceRow').style.display = '';
+    /* 十三轮:批量建单同属订单列表创建,企业/商城从订单带入(mock 同单一建单) */
+    document.getElementById('fEnterprise').value = '苏宁邮政';
+    document.getElementById('fMall').value = '兆点福利';
     state.order_ids = boids.slice();
   } else {
     /* 转工单(session)默认带入 */
@@ -463,11 +469,15 @@
     document.getElementById('fContactName').value = '陈芳';
     document.getElementById('fContactPhone').value = '13856782891';
     document.getElementById('fContactAddr').value = '南京市玄武区苏宁大道1号';
-    document.getElementById('fProject').value = '(兆点)苏宁邮政项目';
+    /* 十三轮:会话建单,企业名称/品牌商城 从会话自带信息带入(原 project='(兆点)苏宁邮政项目') */
+    document.getElementById('fEnterprise').value = '苏宁邮政';
+    document.getElementById('fMall').value = '兆点福利';
     state.order_ids = ['#DD20260710003']; state.session_id = '#CS20260716088';
   }
 
-  /* 关联订单(列表):抽屉查询关联一或多个 + 手动追加(工单-订单 1 对多) */
+  /* 关联订单(列表):抽屉查询关联一或多个 + 手动追加(工单-订单 1 对多)
+   * 2026-07-28:子订单号为主键可点击 → 跳订单列表按子单号搜索(与详情页/工单列表口径一致) */
+  function viewOrder(subId) { location.href = 'admin-order-list.html?oid=' + encodeURIComponent(subId); }
   function renderCreateOrders() {
     var box = document.getElementById('orderCardList');
     var tag = document.getElementById('ordCountTag');
@@ -476,7 +486,7 @@
     box.innerHTML = state.orders.map(function (o, i) {
       return '<tr>'
         + '<td><span class="oci-id">' + esc(o.id) + '</span></td>'
-        + '<td>' + (o.sub_id ? esc(o.sub_id) : '-') + '</td>'
+        + '<td>' + (o.sub_id ? '<a class="oci-view" onclick="viewOrder(\'' + esc(o.sub_id) + '\')">' + esc(o.sub_id) + '</a>' : '-') + '</td>'
         + '<td>' + (o.sku ? esc(o.sku) : '-') + '</td>'
         + '<td>' + (o.goods ? esc(o.goods) : '-') + '</td>'
         + '<td>' + (o.qty != null && o.qty !== '' ? esc(o.qty) : '-') + '</td>'
@@ -502,11 +512,10 @@
   window.openOrderPicker = openOrderPicker;
 
   function submit() {
-    if (!fCategory.value) { toast('请选择受理业务类型'); return; }
-    if (!fSubCategory.value) { toast('请选择咨询/投诉类别'); return; }
-    if (!fType.value) { toast('请选择具体类型'); return; }
-    if (fCategory.value === '投诉业务' && !fResponsible.value) { toast('投诉类请选择责任承担方'); return; }
-    if (!document.getElementById('fProject').value.trim()) { toast('请填写项目名称'); return; }
+    if (!fBizType.getValue()) { toast('请选择工单业务类型'); fBizType.focus(); return; }
+    if (isComplain(fBizType.getValue()) && !fResponsible.value) { toast('投诉类请选择责任承担方'); return; }
+    if (!document.getElementById('fEnterprise').value) { toast('请选择企业名称'); return; }
+    if (!document.getElementById('fMall').value) { toast('请选择品牌商城'); return; }
     if (!document.getElementById('fFeedback').value) { toast('请选择反馈方式'); return; }
     if (!document.getElementById('fDept').value) { toast('请选择提交部门'); return; }
     /* 提交(原型:提示后回列表) */

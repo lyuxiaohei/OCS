@@ -84,7 +84,8 @@
     .ff .ff-chev { width:12px; height:12px; color:var(--cs-text-tertiary); flex-shrink:0; }
     .ff .ff-cal { width:14px; height:14px; color:var(--cs-text-tertiary); flex-shrink:0; }
     .ff .ff-sep { margin:0 6px; color:var(--cs-text-tertiary); flex-shrink:0; }
-    .filter-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:12px; }
+    /* 收起/展开+重置+查询:占一个组件位置(grid 最后一列右对齐;2026-07-28 同工单列表) */
+    .filter-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; grid-column:-2; height:32px; }
     .link-collapse { display:flex; align-items:center; gap:4px; font-size:var(--cs-font-size-base);
       color:var(--cs-primary); cursor:pointer; background:none; border:none; }
     .link-collapse svg { width:12px; height:12px; transition:transform .2s; }
@@ -111,6 +112,7 @@
     .order-table tbody tr.checked:hover .col-op { background:#d6e9ff; }
     .order-table th.col-op { background:var(--cs-bg-header); }
 
+    /* 2026-07-28:子订单号为主键可点击(原挂主订单号;主子列顺序不变) */
     .order-id-link { color:var(--cs-primary); cursor:pointer; }
     .order-id-link:hover { text-decoration:underline; }
 
@@ -237,25 +239,27 @@
           <!-- 2026-07-27 十轮:「售后配置」菜单撤除 -->
         </div>
       </div>
-      <div class="mo-group">
+      <!-- 2026-07-28:渠道管理组默认收起(每页仅展开当前页所在组,与客服工单/工单配置页一致) -->
+      <div class="mo-group collapsed">
         <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
           <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span class="mi-label">渠道管理</span>
-          <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="mo-sub">
           <a class="mo-sub-item">品牌商城列表</a>
         </div>
       </div>
-      <div class="mo-group collapsed">
+      <!-- 2026-07-28:本版菜单所在组(订单与售后/系统设置)默认展开,其他组收起 -->
+      <div class="mo-group">
         <div class="mo-menu-item" onclick="this.parentElement.classList.toggle('collapsed')">
           <svg class="mi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-1.82.33A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/></svg>
           <span class="mi-label">系统设置</span>
-          <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="mi-chev up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="mo-sub">
-          <!-- 2026-07-27 十轮:工单配置由客服模块「客服设置」移入本组(页面仍为客服模块骨架,跨系统新开页签) -->
-          <a class="mo-sub-item" href="admin-ticket-settings.html" target="_blank">工单配置<span class="menu-ver">V1.5</span></a>
+          <!-- 2026-07-28:工单配置已迁移商城运营后台骨架,同系统页内跳转;菜单常显(页面内容仅主管可配) -->
+          <a class="mo-sub-item" href="admin-ticket-settings.html" id="ticketCfgMenu">工单配置<span class="menu-ver">V1.5</span></a>
         </div>
       </div>
     </aside>
@@ -304,9 +308,10 @@
         <div class="filter-card" id="filterCard">
           <div class="filter-grid">
             <div class="ff"><span class="ff-label">主订单号：</span><input id="fMainOid" placeholder="请输入主订单号" /></div>
-            <div class="ff"><span class="ff-label">子订单号：</span><input placeholder="请输入子订单号" /></div>
+            <div class="ff"><span class="ff-label">子订单号：</span><input id="fSubOid" placeholder="请输入子订单号" /></div>
             <div class="ff"><span class="ff-label">SKU物流编码：</span><input placeholder="请输入SKU物流编码" /></div>
-            <div class="ff"><span class="ff-label">商品名称：</span><input placeholder="请输入商品名称" /></div>
+            <!-- 2026-07-28:常显 4 项改 3 项(商品名称转入收起项),第 4 格=操作组,同工单列表 -->
+            <div class="ff ff-row-extra"><span class="ff-label">商品名称：</span><input placeholder="请输入商品名称" /></div>
             <div class="ff ff-row-extra"><span class="ff-label">客户信息：</span><input placeholder="请输入客户姓名或手机号" /></div>
             <div class="ff ff-row-extra"><span class="ff-label">订单状态：</span>
               <select><option>请选择订单状态</option><option>待付款</option><option>待发货</option><option>已发货</option><option>已完成</option><option>已取消</option><option>已关闭</option></select>
@@ -328,14 +333,15 @@
               <input placeholder="开始时间" /><span class="ff-sep">→</span><input placeholder="结束时间" />
               <svg class="ff-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
-          </div>
-          <div class="filter-actions">
-            <button class="link-collapse" id="btnCollapse">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
-              <span id="collapseText">收起</span>
-            </button>
-            <button class="btn-default">重 置</button>
-            <button class="btn-primary">查 询</button>
+            <!-- 操作组:占一个组件位置(收起时第 1 行第 4 格,展开时末行末列) -->
+            <div class="filter-actions">
+              <button class="link-collapse" id="btnCollapse">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+                <span id="collapseText">收起</span>
+              </button>
+              <button class="btn-default">重 置</button>
+              <button class="btn-primary">查 询</button>
+            </div>
           </div>
         </div>
 
@@ -375,8 +381,8 @@
               <tbody id="orderTbody">
                 <tr class="checked">
                   <td><input type="checkbox" class="row-check" checked /></td>
-                  <td><span class="order-id-link">260717081900001</span></td>
                   <td>260717081900001</td>
+                  <td><span class="order-id-link">260717081900001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🧴</span><span class="goods-name">劳工牌 强效去油洗手液 500ml×2</span></div></td>
                   <td>HZDF2130894</td>
                   <td>兆点福利</td>
@@ -395,8 +401,8 @@
                 </tr>
                 <tr>
                   <td><input type="checkbox" class="row-check" /></td>
-                  <td><span class="order-id-link">260717080500001</span></td>
                   <td>260717080500001</td>
+                  <td><span class="order-id-link">260717080500001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🥜</span><span class="goods-name">鲜记 多彩花生258克 罐装</span></div></td>
                   <td>HZDF2009410</td>
                   <td>兆点福利</td>
@@ -415,8 +421,8 @@
                 </tr>
                 <tr>
                   <td><input type="checkbox" class="row-check" /></td>
-                  <td><span class="order-id-link">260716184700001</span></td>
                   <td>260716184700001</td>
+                  <td><span class="order-id-link">260716184700001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🌐</span><span class="goods-name">测试产品</span></div></td>
                   <td>HZ-A68140001-DF</td>
                   <td>兆点福利</td>
@@ -435,8 +441,8 @@
                 </tr>
                 <tr>
                   <td><input type="checkbox" class="row-check" /></td>
-                  <td><span class="order-id-link">260716180200001</span></td>
                   <td>260716180200001</td>
+                  <td><span class="order-id-link">260716180200001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🌐</span><span class="goods-name">测试产品</span></div></td>
                   <td>HZ-A68140001-DF</td>
                   <td>兆点福利</td>
@@ -455,8 +461,8 @@
                 </tr>
                 <tr>
                   <td><input type="checkbox" class="row-check" /></td>
-                  <td><span class="order-id-link">260716140900001</span></td>
                   <td>260716140900001</td>
+                  <td><span class="order-id-link">260716140900001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🌐</span><span class="goods-name">测试产品</span></div></td>
                   <td>HZ-A68140001-DF</td>
                   <td>兆点福利</td>
@@ -475,8 +481,8 @@
                 </tr>
                 <tr>
                   <td><input type="checkbox" class="row-check" /></td>
-                  <td><span class="order-id-link">260713162500001</span></td>
                   <td>260713162500001</td>
+                  <td><span class="order-id-link">260713162500001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🧴</span><span class="goods-name">劳工牌 强效去油洗手液 500ml×2</span></div></td>
                   <td>HZDF2130894</td>
                   <td>兆点福利</td>
@@ -495,8 +501,8 @@
                 </tr>
                 <tr>
                   <td><input type="checkbox" class="row-check" /></td>
-                  <td><span class="order-id-link">260711180400001</span></td>
                   <td>260711180400001</td>
+                  <td><span class="order-id-link">260711180400001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🌾</span><span class="goods-name">鑫稻田 五常尊品香米 5kg</span></div></td>
                   <td>HZDF2135268</td>
                   <td>兆点福利</td>
@@ -515,8 +521,8 @@
                 </tr>
                 <tr>
                   <td><input type="checkbox" class="row-check" /></td>
-                  <td><span class="order-id-link">260710183000001</span></td>
                   <td>260710183000001</td>
+                  <td><span class="order-id-link">260710183000001</span></td>
                   <td><div class="goods-cell"><span class="goods-thumb">🌾</span><span class="goods-name">鑫稻田 五常尊品香米 5kg</span></div></td>
                   <td>HZDF2135268</td>
                   <td>兆点福利</td>
@@ -589,7 +595,7 @@
   btnBatch.addEventListener('click', function () {
     var picked = [];
     rowChecks.forEach(function (c) {
-      if (c.checked) { var tr = c.closest('tr'); var oid = (tr.querySelector('.order-id-link') || {}).textContent || ''; if (oid.trim()) picked.push(oid.trim()); }
+      if (c.checked) { var tr = c.closest('tr'); var oid = (tr.children[1] || {}).textContent || ''; if (oid.trim()) picked.push(oid.trim()); }
     });
     if (!picked.length) { if (window.csModal && csModal.toast) csModal.toast('请先勾选订单'); return; }
     /* 不限制客户:所选订单合并为一张工单(工单-订单 1 对多),进建单页补充分类后提交 */
@@ -607,16 +613,17 @@
     var btn = e.target.closest('.op-create');
     if (!btn) return;
     var tr = btn.closest('tr');
-    var oid = (tr.querySelector('.order-id-link') || {}).textContent || '';
+    /* 2026-07-28:order-id-link 已移到子订单号(展示主键);建单 oid 仍取主订单号(cells[1]) */
+    var oid = (tr.children[1] || {}).textContent || '';
     var goods = (tr.querySelector('.goods-name') || {}).textContent || '';
     var phone = (tr.querySelector('.cust-cell .c1') || {}).textContent || '';
     var amount = (tr.querySelector('.price-total') || {}).textContent || '';
     var stEl = tr.querySelector('.st-tag');
     var ostate = stEl ? stEl.textContent : '';
-    /* V0.5 五.2:受理带出 收货人/项目名/收货地址(OMS 字段未就绪,原型 mock:项目取所属商城,收货人取客户手机,地址待对接) */
+    /* V0.5 五.2:受理带出 收货人/企业名称/品牌商城/收货地址(OMS 字段未就绪,原型 mock:商城取所属商城,企业 mock 苏宁邮政,收货人取客户手机,地址待对接) */
     var cells = tr.children;
     var mall = (cells[5] ? cells[5].textContent : '').trim();
-    var project = mall ? (mall + '项目') : '';
+    var enterprise = '苏宁邮政';
     var receiver = phone.trim();
     var raddr = '详见 OMS 收货地址(字段待对接)';
     /* BR-136 展示列:子订单号 / 商品编码(SKU) / 数量 / 供应商名称 随行透传建单页 */
@@ -625,27 +632,27 @@
     var supplier = (cells[6] ? cells[6].textContent : '').trim();
     var qty = (cells[10] ? cells[10].textContent : '').trim();
     oid = oid.trim(); goods = goods.trim(); phone = phone.trim(); amount = amount.trim(); ostate = ostate.trim();
-    var qs = '?mode=order&oid=' + encodeURIComponent(oid) + '&goods=' + encodeURIComponent(goods) + '&phone=' + encodeURIComponent(phone) + '&amount=' + encodeURIComponent(amount) + '&state=' + encodeURIComponent(ostate) + '&project=' + encodeURIComponent(project) + '&receiver=' + encodeURIComponent(receiver) + '&raddr=' + encodeURIComponent(raddr)
+    var qs = '?mode=order&oid=' + encodeURIComponent(oid) + '&goods=' + encodeURIComponent(goods) + '&phone=' + encodeURIComponent(phone) + '&amount=' + encodeURIComponent(amount) + '&state=' + encodeURIComponent(ostate) + '&enterprise=' + encodeURIComponent(enterprise) + '&mall=' + encodeURIComponent(mall) + '&receiver=' + encodeURIComponent(receiver) + '&raddr=' + encodeURIComponent(raddr)
       + '&sub=' + encodeURIComponent(sub) + '&sku=' + encodeURIComponent(sku) + '&qty=' + encodeURIComponent(qty) + '&supplier=' + encodeURIComponent(supplier === '-' ? '' : supplier);
     location.href = 'admin-ticket-create.html' + qs;
   });
 
-  /* 从工单列表跳入(2026-07-27):?oid=主订单号 → 预填筛选框 + 只显示该订单;
+  /* 从工单侧跳入(2026-07-27 跳入;2026-07-28 改按子订单号):?oid=子订单号 → 预填筛选框 + 只显示该订单;
    * mock 单号未全量打通(工单侧 #DD… / 本页 15 位),查不到时合成一行演示结果 */
   (function () {
     var oid = new URLSearchParams(location.search).get('oid');
     if (!oid) return;
-    document.getElementById('fMainOid').value = oid;
+    document.getElementById('fSubOid').value = oid;
     var tbody = document.getElementById('orderTbody');
     var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
-    var hit = rows.filter(function (r) { return r.children[1] && r.children[1].textContent.trim() === oid; });
+    var hit = rows.filter(function (r) { return r.children[2] && r.children[2].textContent.trim() === oid; });
     if (hit.length) {
       rows.forEach(function (r) { r.style.display = hit.indexOf(r) >= 0 ? '' : 'none'; });
     } else {
       var tr = document.createElement('tr');
       tr.innerHTML = '<td><input type="checkbox" class="row-check" /></td>'
+        + '<td>' + oid + '</td>'
         + '<td><span class="order-id-link">' + oid + '</span></td>'
-        + '<td>' + oid + '-1</td>'
         + '<td><div class="goods-cell"><span class="goods-thumb">📦</span><span class="goods-name">工单关联订单(演示数据,OMS 待对接)</span></div></td>'
         + '<td>-</td><td>兆点福利</td><td>-</td><td>-</td>'
         + '<td><div class="cust-cell"><div class="c1">-</div><div class="c2">-</div></div></td>'
