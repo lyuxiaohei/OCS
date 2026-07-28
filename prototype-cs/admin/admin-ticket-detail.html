@@ -241,9 +241,9 @@
           <span class="mi-label">渠道管理</span>
           <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <!-- 2026-07-28:补「品牌商城列表」子项,与订单列表/工单配置页侧栏一致 -->
+        <!-- 2026-07-28:补「商城列表」子项,与订单列表/工单配置页侧栏一致 -->
         <div class="mo-sub">
-          <a class="mo-sub-item">品牌商城列表</a>
+          <a class="mo-sub-item">商城列表</a>
         </div>
       </div>
       <!-- 2026-07-28:本版菜单所在组(订单与售后/系统设置)默认展开,其他组收起 -->
@@ -297,13 +297,13 @@
                 <div class="info-row"><span class="info-label">联系地址</span><span class="info-content" id="dAddr">—</span></div>
                 <!-- 2026-07-28 十三轮:项目名称 → 企业名称+品牌商城 -->
                 <div class="info-row"><span class="info-label">企业名称</span><span class="info-content" id="dEnterprise">—</span></div>
-                <div class="info-row"><span class="info-label">品牌商城</span><span class="info-content" id="dMall">—</span></div>
+                <div class="info-row"><span class="info-label">商城名称</span><span class="info-content" id="dMall">—</span></div>
                 <div class="info-row"><span class="info-label">来源会话</span><span class="info-content" id="dSession">—</span></div>
                 <div class="info-row"><span class="info-label">反馈方式</span><span class="info-content" id="dFeedback">电话</span></div>
-                <div class="info-row"><span class="info-label">提交部门</span><span class="info-content" id="dDept">客服部</span></div>
+                <div class="info-row"><span class="info-label">协助部门</span><span class="info-content" id="dDept">客服部</span></div>
                 <div class="info-row"><span class="info-label">二次投诉</span><span class="info-content" id="dSecondary">否</span></div>
-                <div class="info-row"><span class="info-label">处理人</span><span class="info-content" id="dAgent">—</span></div>
-                <div class="info-row"><span class="info-label">创建时间</span><span class="info-content" id="dCreated">2026-07-16 10:30</span></div>
+                <div class="info-row"><span class="info-label">受理客服</span><span class="info-content" id="dAgent">—</span></div>
+                <div class="info-row"><span class="info-label">受理时间</span><span class="info-content" id="dCreated">2026-07-16 10:30</span></div>
               </div>
               <!-- V0.5 三.2.6:新联系人信息(收货人以外的实际联系人,有则展示) -->
               <div id="dNewContactGroup" style="display:none; margin-top:14px; padding-top:12px; border-top:1px dashed var(--cs-border-light);">
@@ -322,7 +322,7 @@
               <div class="section-title">关联订单 <span class="ord-count" id="ordCountTag"></span><button class="btn-default" id="ordAddBtn" style="margin-left:auto;" onclick="openOrderPicker()">添加订单</button></div>
               <div class="table-wrap">
                 <table class="data-table ord-table">
-                  <thead><tr><th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:60px;">操作</th></tr></thead>
+                  <thead><tr><th>主订单号</th><th>子订单号</th><th>供应链SKU</th><th>SKU名称</th><th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th><th style="width:60px;">操作</th></tr></thead>
                   <tbody id="orderCardList"></tbody>
                 </table>
               </div>
@@ -353,18 +353,28 @@
               </div>
             </div>
 
+            <!-- 操作日志(2026-07-28:由右栏移至主栏左下方/附件之后,随主栏滚动;右栏仅留工单跟进延伸满高) -->
+            <div class="card" style="padding:14px 18px; margin-bottom:12px;">
+              <div class="section-title">操作日志</div>
+              <div class="event-flow" id="eventFlow">
+                <!-- 时间降序:最新在上;不显示角色,系统操作账号名=系统 -->
+                <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">受理客服首次跟进,自动受理 → 处理中</span><span class="ev-who">张小明</span></div>
+                <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-who">张小明</span></div>
+              </div>
+            </div>
+
           </div>
 
           <div class="detail-side">
 
-            <!-- 内部备注(右栏动线;样式与操作日志一致=时间+内容+操作账号;「添加备注」在卡片右上角,点击后输入框出现在底部) -->
+            <!-- 工单跟进(原内部备注;右栏动线,延伸满高;样式与操作日志一致=时间+内容+操作账号;「添加备注」在卡片右上角,点击后输入框出现在底部) -->
             <div class="card" style="padding:14px 18px;">
-              <div class="section-title">内部备注 <button class="btn-default note-add-trigger" id="noteAddTrigger" style="margin-left:auto;" onclick="openNoteEditor()">添加备注</button></div>
+              <div class="section-title">工单跟进 <button class="btn-default note-add-trigger" id="noteAddTrigger" style="margin-left:auto;" onclick="openNoteEditor()">添加备注</button></div>
               <div class="event-flow side-scroll" id="noteFlow">
                 <div class="ev-item"><span class="ev-time">07-16 10:35</span><span class="ev-text">已联系确认,等客户寄出后录单号。(仅客服可见)</span><span class="ev-who">张小明</span></div>
               </div>
               <div class="reply-box" id="noteEditor" style="display:none; margin-top:12px;">
-                <textarea id="replyInput" placeholder="添加内部备注(仅客服可见)…"></textarea>
+                <textarea id="replyInput" placeholder="添加跟进内容(仅客服可见)…"></textarea>
                 <div class="reply-foot">
                   <span class="hint">仅客服可见</span>
                   <span style="display:flex; align-items:center; gap:10px;">
@@ -372,16 +382,6 @@
                     <button class="btn-primary" onclick="sendReply()">添加备注</button>
                   </span>
                 </div>
-              </div>
-            </div>
-
-            <!-- 操作日志(右栏动线;列表区滚动) -->
-            <div class="card" style="padding:14px 18px;">
-              <div class="section-title">操作日志</div>
-              <div class="event-flow side-scroll" id="eventFlow">
-                <!-- 时间降序:最新在上;不显示角色,系统操作账号名=系统 -->
-                <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">指派给处理人(状态保持未处理,待受理)</span><span class="ev-who">系统</span></div>
-                <div class="ev-item"><span class="ev-time">07-16 10:30</span><span class="ev-text">工单创建(从会话转入)</span><span class="ev-who">张小明</span></div>
               </div>
             </div>
 
@@ -531,21 +531,16 @@
   var priEl = document.getElementById('dPriority');
   if (priEl) { priEl.textContent = DATA.priority || '—'; priEl.className = 'info-content urgency' + (DATA.priority === '紧急' ? ' urgent' : (DATA.priority === '特急' ? ' critical' : '')); }
 
-  /* 状态机(随行初始状态;操作按钮按状态渲染到页面底部 actionBar)
-   * V0.5 六.1/四.2:未处理态按是否已指派分流——未分配→「指派」(状态不变);已分配→「受理」(→处理中)。转单=转派仅处理中态。 */
+  /* 状态机(2026-07-28 十七轮:取消「指派」「受理」动作;受理客服建单时指定,首次跟进自动转处理中) */
   var STATUS = DATA.status;
-  var ASSIGNED = !!DATA.agent && DATA.agent !== '未分配';
   function renderActions() {
     var bar = document.getElementById('actionBar');
     var back = '<button class="btn-default" onclick="location.href=\'admin-ticket.html\'">返回列表</button>';
     if (STATUS === '未处理') {
-      if (ASSIGNED) {
-        bar.innerHTML = back + '<button class="btn-primary" onclick="acceptTicket()">受理</button>';
-      } else {
-        bar.innerHTML = back + '<button class="btn-primary" onclick="assignTicket()">指派</button>';
-      }
+      /* 未处理:跟进入口在工单跟进卡(首次跟进自动受理→处理中),底部仅返回 */
+      bar.innerHTML = back;
     } else if (STATUS === '处理中') {
-      bar.innerHTML = back + '<button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="transferTicket()">转单</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-primary" onclick="finishTicket()">完工</button>';
+      bar.innerHTML = back + '<button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-default" onclick="startAfterSale()">发起售后</button><button class="btn-default" onclick="startCompensation()">发起补偿</button><button class="btn-primary" onclick="finishTicket()">完工</button>';
     } else {
       bar.innerHTML = back;
     }
@@ -593,7 +588,7 @@
         if (!d) return;
         DATA.category = d.category; DATA.sub = d.sub; DATA.type = d.type;
         DATA.priority = d.priority; DATA.deadline = d.deadline; DATA.responsible = d.responsible;
-        DATA.enterprise = d.enterprise; DATA.mall = d.mall; DATA.feedback = d.feedback; DATA.dept = d.dept; DATA.secondary = d.secondary;
+        DATA.enterprise = d.enterprise; DATA.mall = d.mall; DATA.feedback = d.feedback; DATA.dept = d.dept; DATA.agent = d.agent; DATA.secondary = d.secondary;
         if (d.contactName) DATA.contact = d.contactName;
         DATA.contactPhone = d.contactPhone || '';
         DATA.incomingCall = d.incomingCall || ''; DATA.contactAddr = d.contactAddr || '';
@@ -627,6 +622,7 @@
     setText('dMall', DATA.mall || '-');
     setText('dFeedback', DATA.feedback || '—');
     setText('dDept', DATA.dept || '—');
+    setText('dAgent', DATA.agent || '—');
     setText('dSecondary', DATA.secondary || '—');
     if (DATA.newName) {
       setText('dNewName', DATA.newName); setText('dNewPhone', DATA.newPhone || '—'); setText('dNewTel', DATA.newTel || '—'); setText('dNewAddr', DATA.newAddr || '—');
@@ -639,20 +635,9 @@
     renderDetailCountdown();
   }
 
-  function acceptTicket() { setState('处理中'); toast('已受理,开始处理(状态:处理中)'); addEvent('受理(客服确认承接)→ 处理中'); }
-  function assignTicket() {
-    try {
-      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
-        onConfirm: function (d) {
-          var who = (d && d.assignee) ? d.assignee : '处理人';
-          ASSIGNED = true; DATA.agent = who; setText('dAgent', who);
-          toast('已指派给 ' + who + '(状态保持未处理,待对方受理)');
-          addEvent('指派给 ' + who + '(状态保持未处理,待受理)', '—', '系统');
-          renderActions();
-        }
-      });
-    } catch (e) { toast('指派处理人(原型演示)'); }
-  }
+  /* 2026-07-28 十七轮:发起售后 / 发起补偿 → 跳 OMS 对应页(占位),携带工单号 */
+  function startAfterSale() { toast('跳转发起售后(携带工单 ' + DATA.id + ')'); setTimeout(function () { location.href = 'admin-after-sale.html?ticket_id=' + encodeURIComponent(DATA.id); }, 400); }
+  function startCompensation() { toast('跳转发起补偿(携带工单 ' + DATA.id + ')'); setTimeout(function () { location.href = 'admin-compensation.html?ticket_id=' + encodeURIComponent(DATA.id); }, 400); }
   function remindTicket() { toast('已催办,已通知处理人'); addEvent('催办'); }
   function uploadAttach() {
     var list = document.getElementById('attachList');
@@ -674,7 +659,9 @@
   }
   function sendReply() {
     var v = document.getElementById('replyInput').value.trim();
-    if (!v) { toast('请输入内部备注'); return; }
+    if (!v) { toast('请输入跟进内容'); return; }
+    /* 十七轮:首次跟进自动受理——未处理态提交首条跟进时,状态自动转处理中(取消手动受理) */
+    var wasUntreated = (STATUS === '未处理');
     var flow = document.getElementById('noteFlow');
     var it = document.createElement('div'); it.className = 'ev-item';
     var now = new Date();
@@ -684,18 +671,13 @@
     flow.scrollTop = 0;
     document.getElementById('replyInput').value = '';
     closeNoteEditor();
-    toast('内部备注已添加'); addEvent('添加内部备注');
+    if (wasUntreated) { setState('处理中'); addEvent('首次跟进,自动受理 → 处理中', '—', '系统'); toast('跟进已添加;首条跟进已自动受理,状态变为处理中'); }
+    else { toast('跟进已添加'); }
+    addEvent('添加工单跟进');
   }
   function gotoWorkbench() { toast('跳转到会话工作台回复用户'); setTimeout(function () { location.href = 'admin-workbench.html'; }, 400); }
   /* UC-TD:查看来源会话 → 跳工作台并定位会话 */
   function gotoSession() { toast('跳回客服工作台,定位会话 ' + DATA.session); setTimeout(function () { location.href = 'admin-workbench.html?session=' + encodeURIComponent(DATA.session); }, 400); }
-  function transferTicket() {
-    try {
-      csModal.open('modals/drawer-assign.html', { variant: 'drawer-right', width: 480,
-        onConfirm: function (d) { toast('工单已转单' + (d && d.assignee ? '给 ' + d.assignee : '')); addEvent('转单(换处理人)'); }
-      });
-    } catch (e) { toast('转单(原型演示)'); }
-  }
   /* 操作日志:每条 = 时间 + 内容 + 操作账号(不显示角色;系统操作账号名=系统);时间降序,最新插到顶部 */
   function addEvent(text, who, role) {
     who = (role === '系统') ? '系统' : (who || '张小明');

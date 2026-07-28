@@ -247,7 +247,7 @@
           <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="mo-sub">
-          <a class="mo-sub-item">品牌商城列表</a>
+          <a class="mo-sub-item">商城列表</a>
         </div>
       </div>
       <!-- 2026-07-28:本版菜单所在组(订单与售后/系统设置)默认展开,其他组收起 -->
@@ -310,8 +310,8 @@
             <div class="ff"><span class="ff-label">主订单号：</span><input id="fMainOid" placeholder="请输入主订单号" /></div>
             <div class="ff"><span class="ff-label">子订单号：</span><input id="fSubOid" placeholder="请输入子订单号" /></div>
             <div class="ff"><span class="ff-label">SKU物流编码：</span><input placeholder="请输入SKU物流编码" /></div>
-            <!-- 2026-07-28:常显 4 项改 3 项(商品名称转入收起项),第 4 格=操作组,同工单列表 -->
-            <div class="ff ff-row-extra"><span class="ff-label">商品名称：</span><input placeholder="请输入商品名称" /></div>
+            <!-- 2026-07-28:常显 4 项改 3 项(SKU名称转入收起项),第 4 格=操作组,同工单列表 -->
+            <div class="ff ff-row-extra"><span class="ff-label">SKU名称：</span><input placeholder="请输入SKU名称" /></div>
             <div class="ff ff-row-extra"><span class="ff-label">客户信息：</span><input placeholder="请输入客户姓名或手机号" /></div>
             <div class="ff ff-row-extra"><span class="ff-label">订单状态：</span>
               <select><option>请选择订单状态</option><option>待付款</option><option>待发货</option><option>已发货</option><option>已完成</option><option>已取消</option><option>已关闭</option></select>
@@ -602,40 +602,7 @@
     location.href = 'admin-ticket-create.html?mode=batch&oids=' + encodeURIComponent(picked.join(','));
   });
 
-  /* 纪要③/V0.5 五.1 方式③ 订单→建工单:每行操作列注入「创建工单」,点击带订单/客户上下文打开建单页 */
-  document.querySelectorAll('#orderTbody .col-op').forEach(function (td) {
-    var a = document.createElement('span');
-    a.className = 'op-link op-create';
-    a.textContent = '创建工单';
-    td.insertBefore(a, td.firstChild);
-  });
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.op-create');
-    if (!btn) return;
-    var tr = btn.closest('tr');
-    /* 2026-07-28:order-id-link 已移到子订单号(展示主键);建单 oid 仍取主订单号(cells[1]) */
-    var oid = (tr.children[1] || {}).textContent || '';
-    var goods = (tr.querySelector('.goods-name') || {}).textContent || '';
-    var phone = (tr.querySelector('.cust-cell .c1') || {}).textContent || '';
-    var amount = (tr.querySelector('.price-total') || {}).textContent || '';
-    var stEl = tr.querySelector('.st-tag');
-    var ostate = stEl ? stEl.textContent : '';
-    /* V0.5 五.2:受理带出 收货人/企业名称/品牌商城/收货地址(OMS 字段未就绪,原型 mock:商城取所属商城,企业 mock 苏宁邮政,收货人取客户手机,地址待对接) */
-    var cells = tr.children;
-    var mall = (cells[5] ? cells[5].textContent : '').trim();
-    var enterprise = '苏宁邮政';
-    var receiver = phone.trim();
-    var raddr = '详见 OMS 收货地址(字段待对接)';
-    /* BR-136 展示列:子订单号 / 商品编码(SKU) / 数量 / 供应商名称 随行透传建单页 */
-    var sub = (cells[2] ? cells[2].textContent : '').trim();
-    var sku = (cells[4] ? cells[4].textContent : '').trim();
-    var supplier = (cells[6] ? cells[6].textContent : '').trim();
-    var qty = (cells[10] ? cells[10].textContent : '').trim();
-    oid = oid.trim(); goods = goods.trim(); phone = phone.trim(); amount = amount.trim(); ostate = ostate.trim();
-    var qs = '?mode=order&oid=' + encodeURIComponent(oid) + '&goods=' + encodeURIComponent(goods) + '&phone=' + encodeURIComponent(phone) + '&amount=' + encodeURIComponent(amount) + '&state=' + encodeURIComponent(ostate) + '&enterprise=' + encodeURIComponent(enterprise) + '&mall=' + encodeURIComponent(mall) + '&receiver=' + encodeURIComponent(receiver) + '&raddr=' + encodeURIComponent(raddr)
-      + '&sub=' + encodeURIComponent(sub) + '&sku=' + encodeURIComponent(sku) + '&qty=' + encodeURIComponent(qty) + '&supplier=' + encodeURIComponent(supplier === '-' ? '' : supplier);
-    location.href = 'admin-ticket-create.html' + qs;
-  });
+  /* 2026-07-28:订单列表去掉单行「创建工单」入口,仅保留顶部「批量创建工单」(勾选 ≥1 单 → mode=batch) */
 
   /* 从工单侧跳入(2026-07-27 跳入;2026-07-28 改按子订单号):?oid=子订单号 → 预填筛选框 + 只显示该订单;
    * mock 单号未全量打通(工单侧 #DD… / 本页 15 位),查不到时合成一行演示结果 */

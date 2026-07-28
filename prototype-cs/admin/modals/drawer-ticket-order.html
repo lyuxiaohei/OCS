@@ -68,8 +68,8 @@
   </div>
   <div class="md-filter">
     <div class="mf-item"><label>主订单号</label><input id="fOid" placeholder="主 / 子订单号" autocomplete="off" /></div>
-    <div class="mf-item"><label>商品编码</label><input id="fSku" placeholder="SKU / 物流编码" autocomplete="off" /></div>
-    <div class="mf-item"><label>商品名称</label><input id="fGoods" placeholder="商品名称关键词" autocomplete="off" /></div>
+    <div class="mf-item"><label>供应链SKU</label><input id="fSku" placeholder="SKU / 物流编码" autocomplete="off" /></div>
+    <div class="mf-item"><label>SKU名称</label><input id="fGoods" placeholder="SKU名称关键词" autocomplete="off" /></div>
     <div class="mf-item"><label>供应商名称</label><input id="fSupplier" placeholder="供应商名称" autocomplete="off" /></div>
     <div class="mf-item"><label>收货手机号</label><input id="fPhone" placeholder="收货手机号" autocomplete="off" /></div>
     <div class="mf-item"><label>订单状态</label><select id="fState">
@@ -84,7 +84,7 @@
     <table class="data-table pick-table">
       <thead><tr>
         <th><input type="checkbox" id="checkAll" title="全选当前页" /></th>
-        <th>主订单号</th><th>子订单号</th><th>商品编码</th><th>商品名称</th>
+        <th>主订单号</th><th>子订单号</th><th>供应链SKU</th><th>SKU名称</th>
         <th>数量</th><th>供应商名称</th><th>金额</th><th>状态</th>
       </tr></thead>
       <tbody id="orderList"></tbody>
@@ -130,7 +130,7 @@
   var F_IDS = ['fOid', 'fSku', 'fGoods', 'fSupplier', 'fPhone', 'fState'];
   function fv(id) { return (document.getElementById(id).value || '').trim(); }
 
-  /* 多字段组合筛选(AND):主/子订单号·商品编码·商品名称·供应商·手机号 模糊,状态精确 */
+  /* 多字段组合筛选(AND):主/子订单号·供应链SKU·SKU名称·供应商·手机号 模糊,状态精确 */
   function filterPool() {
     var id = fv('fOid').toLowerCase(), sku = fv('fSku').toLowerCase(), goods = fv('fGoods').toLowerCase(),
         sup = fv('fSupplier').toLowerCase(), phone = fv('fPhone'), st = fv('fState');

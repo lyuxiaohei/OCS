@@ -187,7 +187,7 @@
           <svg class="mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="mo-sub">
-          <a class="mo-sub-item">品牌商城列表</a>
+          <a class="mo-sub-item">商城列表</a>
         </div>
       </div>
       <div class="mo-group">
@@ -216,7 +216,7 @@
 
       <div id="cfgContent">
       <div class="flex-between mb-16">
-        <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单三级分类、责任承担方、优先级、完成期限值,均可增删改;各项右侧为当前工单数量。保存后全局生效。</p></div>
+        <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单三级分类、责任承担方、优先级、完成期限值、反馈方式,均可增删改;各项右侧为当前工单数量。保存后全局生效。</p></div>
       </div>
 
       <!-- 2026-07-28:工单业务类型(原三级分类)——层级列表,一级/二级/三级均带「类型代码」可自定义;名称:一级枚举只读,二级/三级可改 -->
@@ -371,6 +371,22 @@
         <button class="cfg-add" onclick="addRow('deadline')">+ 添加期限值</button>
       </div>
 
+      <!-- V0.5:反馈方式(2026-07-28:新增为可配卡片;"合作商"→"客户",建单/编辑下拉同源) -->
+      <div class="card setting-section" id="feedback">
+        <div class="section-head">
+          <h3>反馈方式 <span class="head-desc">工单受理渠道;建单/编辑下拉同源</span></h3>
+        </div>
+        <div class="cfg-list" id="feedbackList">
+          <div class="cfg-row"><input class="cfg-name" value="电话"><input class="cfg-desc" value="客服热线"><span class="cfg-count"><span class="num">62</span>个工单</span><button class="cfg-del" onclick="delRow(this,'feedback')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="在线客服会话"><input class="cfg-desc" value="在线客服"><span class="cfg-count"><span class="num">48</span>个工单</span><button class="cfg-del" onclick="delRow(this,'feedback')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="短信"><input class="cfg-desc" value="短信反馈"><span class="cfg-count"><span class="num">15</span>个工单</span><button class="cfg-del" onclick="delRow(this,'feedback')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="业务口"><input class="cfg-desc" value="业务部门接口"><span class="cfg-count"><span class="num">12</span>个工单</span><button class="cfg-del" onclick="delRow(this,'feedback')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="客户平台"><input class="cfg-desc" value="客户自助平台"><span class="cfg-count"><span class="num">8</span>个工单</span><button class="cfg-del" onclick="delRow(this,'feedback')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="客户邮件"><input class="cfg-desc" value="客户邮件"><span class="cfg-count"><span class="num">5</span>个工单</span><button class="cfg-del" onclick="delRow(this,'feedback')" title="删除">×</button></div>
+        </div>
+        <button class="cfg-add" onclick="addRow('feedback')">+ 添加反馈方式</button>
+      </div>
+
       <!-- 吸底保存栏 -->
       <div class="settings-footer">
         <div style="display:flex; align-items:center; gap:16px;">
@@ -510,7 +526,7 @@ document.getElementById('btnSave').addEventListener('click', function () {
   dirtySections.clear();
   document.querySelectorAll('.card.setting-section.dirty').forEach(function (s) { s.classList.remove('dirty'); });
   updateDirtyUI();
-  if (window.csModal && csModal.toast) csModal.toast('工单配置已保存(三级分类 / 责任承担方 / 优先级 / 完成期限值)');
+  if (window.csModal && csModal.toast) csModal.toast('工单配置已保存(三级分类 / 责任承担方 / 优先级 / 完成期限值 / 反馈方式)');
 });
 document.getElementById('btnReset').addEventListener('click', function () {
   if (window.csModal && csModal.toast) csModal.toast('已重置为默认值(原型演示)');
