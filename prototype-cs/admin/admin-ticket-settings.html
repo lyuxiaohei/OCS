@@ -99,6 +99,21 @@
     .cat-tree .cat-add input { width:176px; border:1px dashed var(--cs-border); border-radius:4px; padding:4px 8px; font-size:var(--cs-font-size-xs); outline:none; }
     .cat-tree .cat-add input:focus { border-color:var(--cs-primary); border-style:solid; }
     .cat-tree .cfg-add { align-self:flex-start; margin:6px 0 16px; }
+    /* 2026-07-29:类别树列头 + 折叠 chevron + 全部展开/收起 工具条 */
+    .cat-header { display:flex; align-items:center; gap:10px; padding:4px 8px; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); border-bottom:1px solid var(--cs-border-lighter); margin-bottom:6px; }
+    .cat-header .h-chev { width:16px; }
+    .cat-header .h-name { flex:0 0 176px; }
+    .cat-header .h-code { flex:0 0 116px; }
+    .cat-header .h-count { flex:0 0 92px; }
+    .cat-chev { width:16px; flex-shrink:0; cursor:pointer; color:var(--cs-text-tertiary); font-size:11px; line-height:1; transition:transform .2s; user-select:none; }
+    .cat-chev.collapsed { transform:rotate(-90deg); }
+    .cat-l1-body.collapsed, .cat-l2-body.collapsed { display:none; }
+    .cat-toolbar { display:flex; gap:12px; margin:0 0 8px; }
+    .cat-toolbar .link-btn { background:transparent; border:none; color:var(--cs-primary); font-size:var(--cs-font-size-xs); cursor:pointer; padding:0; }
+    .cat-toolbar .link-btn:hover { text-decoration:underline; }
+    /* 2026-07-29:电梯导航(复用 css/settings.css 的 .settings-anchor;适配 mo-content 滚动容器) */
+    .settings-anchor { top: 0; margin-bottom: 12px; }
+    .setting-section { scroll-margin-top: 56px; }
   </style>
 </head>
 <body>
@@ -219,16 +234,30 @@
         <div><p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">配置工单三级分类、责任承担方、优先级、完成期限值、反馈方式,均可增删改;各项右侧为当前工单数量。保存后全局生效。</p></div>
       </div>
 
+      <!-- 电梯导航(锚点快捷跳转 + 吸顶滚动高亮) -->
+      <div class="settings-anchor">
+        <a class="active" href="#category">工单业务类型</a>
+        <a href="#responsible">责任承担方</a>
+        <a href="#priority">优先级</a>
+        <a href="#deadline">完成期限值</a>
+        <a href="#feedback">反馈方式</a>
+      </div>
+
       <!-- 2026-07-28:工单业务类型(原三级分类)——层级列表,一级/二级/三级均带「类型代码」可自定义;名称:一级枚举只读,二级/三级可改 -->
       <div class="card setting-section" id="category">
         <div class="section-head">
           <h3>工单业务类型 <span class="head-desc">受理业务类型 → 咨询/投诉类别 → 具体类型;各级均可配「类型代码」;计数为当前工单数量</span></h3>
         </div>
 
+        <div class="cat-toolbar">
+          <button class="link-btn" id="btnExpandAll">全部展开</button>
+          <button class="link-btn" id="btnCollapseAll">全部收起</button>
+        </div>
         <div class="cat-tree">
+          <div class="cat-header"><span class="h-chev"></span><span class="h-name">名称</span><span class="h-code">类型代码</span><span class="h-count">工单数</span><span class="h-op">操作</span></div>
           <!-- 一级:咨询业务(2026-07-28:名称可改+可删,删除前校验子分类) -->
           <div class="cat-node lv1">
-            <input class="cat-name" value="咨询业务">
+            <span class="cat-chev">▾</span><input class="cat-name" value="咨询业务">
             <input class="cat-code" value="ZX01" title="类型代码">
             <span class="cat-count"><span class="num">134</span>个工单</span>
             <span class="op op-del" onclick="delLv1(this)">删除</span>
@@ -237,7 +266,7 @@
             <!-- 二级:产品咨询 -->
             <div class="cat-l2-wrap">
               <div class="cat-node lv2">
-                <input class="cat-name" value="产品咨询">
+                <span class="cat-chev">▾</span><input class="cat-name" value="产品咨询">
                 <input class="cat-code" value="ZX0101" title="类型代码">
                 <span class="cat-count"><span class="num">76</span>个工单</span>
                 <span class="op op-del" onclick="delLv2(this)">删除</span>
@@ -258,7 +287,7 @@
             <!-- 二级:物流咨询 -->
             <div class="cat-l2-wrap">
               <div class="cat-node lv2">
-                <input class="cat-name" value="物流咨询">
+                <span class="cat-chev">▾</span><input class="cat-name" value="物流咨询">
                 <input class="cat-code" value="ZX0102" title="类型代码">
                 <span class="cat-count"><span class="num">58</span>个工单</span>
                 <span class="op op-del" onclick="delLv2(this)">删除</span>
@@ -280,7 +309,7 @@
 
           <!-- 一级:投诉业务(2026-07-28:名称可改+可删,删除前校验子分类) -->
           <div class="cat-node lv1">
-            <input class="cat-name" value="投诉业务">
+            <span class="cat-chev">▾</span><input class="cat-name" value="投诉业务">
             <input class="cat-code" value="TS01" title="类型代码">
             <span class="cat-count"><span class="num">113</span>个工单</span>
             <span class="op op-del" onclick="delLv1(this)">删除</span>
@@ -289,7 +318,7 @@
             <!-- 二级:产品投诉 -->
             <div class="cat-l2-wrap">
               <div class="cat-node lv2">
-                <input class="cat-name" value="产品投诉">
+                <span class="cat-chev">▾</span><input class="cat-name" value="产品投诉">
                 <input class="cat-code" value="TS0101" title="类型代码">
                 <span class="cat-count"><span class="num">64</span>个工单</span>
                 <span class="op op-del" onclick="delLv2(this)">删除</span>
@@ -308,7 +337,7 @@
             <!-- 二级:物流投诉 -->
             <div class="cat-l2-wrap">
               <div class="cat-node lv2">
-                <input class="cat-name" value="物流投诉">
+                <span class="cat-chev">▾</span><input class="cat-name" value="物流投诉">
                 <input class="cat-code" value="TS0102" title="类型代码">
                 <span class="cat-count"><span class="num">49</span>个工单</span>
                 <span class="op op-del" onclick="delLv2(this)">删除</span>
@@ -449,7 +478,7 @@ function addLv2(btn) {
   wrap.className = 'cat-l2-wrap';
   wrap.innerHTML =
     '<div class="cat-node lv2">'
-      + '<input class="cat-name" value="新类别">'
+      + '<span class="cat-chev">▾</span><input class="cat-name" value="新类别">'
       + '<input class="cat-code" value="" title="类型代码">'
       + '<span class="cat-count"><span class="num">0</span>个工单</span>'
       + '<span class="op op-del" onclick="delLv2(this)">删除</span>'
@@ -490,7 +519,7 @@ function addLv1(btn) {
   var tree = document.getElementById('category').querySelector('.cat-tree');
   var node = document.createElement('div');
   node.className = 'cat-node lv1';
-  node.innerHTML = '<input class="cat-name" value="新一级分类"><input class="cat-code" value="" title="类型代码"><span class="cat-count"><span class="num">0</span>个工单</span><span class="op op-del" onclick="delLv1(this)">删除</span>';
+  node.innerHTML = '<span class="cat-chev">▾</span><input class="cat-name" value="新一级分类"><input class="cat-code" value="" title="类型代码"><span class="cat-count"><span class="num">0</span>个工单</span><span class="op op-del" onclick="delLv1(this)">删除</span>';
   var body = document.createElement('div');
   body.className = 'cat-l1-body';
   body.innerHTML = '<button class="cfg-add" onclick="addLv2(this)">+ 添加二级类别</button>';
@@ -522,14 +551,46 @@ function delLv1(op) {
 document.querySelectorAll('.card.setting-section').forEach(function (section) {
   section.addEventListener('input', function () { markDirty(section); });
 });
+function findDupCode() {
+  var seen = {}; var dup = null;
+  document.querySelectorAll('#category .cat-code').forEach(function (inp) {
+    var v = (inp.value || '').trim();
+    if (!v || dup) return;
+    if (seen[v]) dup = v; else seen[v] = true;
+  });
+  return dup;
+}
 document.getElementById('btnSave').addEventListener('click', function () {
+  var dup = findDupCode();
+  if (dup) { if (window.csModal && csModal.toast) csModal.toast('类型代码重复:「' + dup + '」,请修改后保存'); return; }
   dirtySections.clear();
   document.querySelectorAll('.card.setting-section.dirty').forEach(function (s) { s.classList.remove('dirty'); });
   updateDirtyUI();
   if (window.csModal && csModal.toast) csModal.toast('工单配置已保存(三级分类 / 责任承担方 / 优先级 / 完成期限值 / 反馈方式)');
 });
 document.getElementById('btnReset').addEventListener('click', function () {
-  if (window.csModal && csModal.toast) csModal.toast('已重置为默认值(原型演示)');
+  if (window.csModal && csModal.toast) csModal.toast('已重置为默认值');
+  setTimeout(function () { location.reload(); }, 300);
+});
+
+/* 2026-07-29:类别树折叠 chevron(委派,动态节点也生效)+ 全部展开/收起 */
+document.addEventListener('click', function (e) {
+  var chev = e.target.closest('.cat-chev'); if (!chev) return;
+  var node = chev.closest('.cat-node');
+  var body = node && node.nextElementSibling;
+  if (body && (body.classList.contains('cat-l1-body') || body.classList.contains('cat-l2-body'))) {
+    body.classList.toggle('collapsed');
+    chev.classList.toggle('collapsed');
+  }
+});
+function collapseAllLv3() {
+  document.querySelectorAll('#category .cat-l2-body').forEach(function (b) { b.classList.add('collapsed'); });
+  document.querySelectorAll('#category .cat-node.lv2 > .cat-chev').forEach(function (c) { c.classList.add('collapsed'); });
+}
+document.getElementById('btnCollapseAll').addEventListener('click', collapseAllLv3);
+collapseAllLv3(); /* 2026-07-29:工单业务类型默认收起三级(页面加载即折叠 lv3 叶子) */
+document.getElementById('btnExpandAll').addEventListener('click', function () {
+  document.querySelectorAll('#category .collapsed').forEach(function (el) { el.classList.remove('collapsed'); });
 });
 
 /* 2026-07-28:工单配置菜单常显,页面内容仅主管可配——客服角色显示无权限占位 */
@@ -541,6 +602,40 @@ function syncRoleUI() {
 }
 roleSwitch.addEventListener('change', syncRoleUI);
 syncRoleUI();
+
+/* 2026-07-29:电梯导航——点击快捷跳转 + 吸顶滚动高亮(scroll 容器=.mo-content) */
+(function () {
+  var anchorLinks = Array.prototype.slice.call(document.querySelectorAll('.settings-anchor a'));
+  var anchorSections = Array.prototype.slice.call(document.querySelectorAll('.setting-section[id]'));
+  var scrollRoot = document.querySelector('.mo-content');
+  function setActiveAnchor(id) {
+    anchorLinks.forEach(function (l) { l.classList.toggle('active', l.getAttribute('href') === '#' + id); });
+  }
+  anchorLinks.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var id = (link.getAttribute('href') || '').replace('#', '');
+      var sec = id && document.getElementById(id);
+      if (!sec) return;
+      e.preventDefault();
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveAnchor(id);
+    });
+  });
+  if ('IntersectionObserver' in window && anchorSections.length) {
+    var ratios = {};
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { ratios[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0; });
+      var bestId = null, best = 0;
+      anchorSections.forEach(function (s) {
+        var r = ratios[s.id] || 0;
+        if (r <= 0) { var rect = s.getBoundingClientRect(); if (rect.top < 120) r = 0.1; }
+        if (r > best) { best = r; bestId = s.id; }
+      });
+      if (bestId) setActiveAnchor(bestId);
+    }, { root: scrollRoot, rootMargin: '-52px 0px -55% 0px', threshold: [0, 0.2, 0.5, 1] });
+    anchorSections.forEach(function (s) { spy.observe(s); });
+  }
+})();
 </script>
 </body>
 </html>
