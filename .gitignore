@@ -59,3 +59,9 @@ skills-lock.json
 prototype-cs/业务评审.txt
 prototype-cs/京东.docx
 prototype-cs/自研商城在线客服.pptx
+
+# Claude Code session-continuation export (temp, not tracked)
+*-this-session-is-being-continued-*.txt
+
+# Prototype zip backups (temp, not tracked)
+prototype-cs*.zip
