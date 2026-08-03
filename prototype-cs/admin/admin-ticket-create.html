@@ -388,6 +388,12 @@
   function fillSelect(sel, arr, placeholder) {
     sel.innerHTML = '<option value="">' + placeholder + '</option>' + arr.map(function (o) { return '<option>' + o + '</option>'; }).join('');
   }
+  /* 带入值设置 select:值不在选项内时追加为选项再选中(会话等入口可能带入非字典口径值,保证可见可改) */
+  function applySelectValue(sel, val) {
+    if (!sel || !val) return;
+    for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === val) { sel.value = val; return; } }
+    var o = document.createElement('option'); o.value = val; o.textContent = val; sel.appendChild(o); sel.value = val;
+  }
   /* 工单业务类型:三级级联组件(2026-07-28:替换单选下拉);值=一级>二级>三级,isComplain 驱动责任承担方 */
   function isComplain(biz) { return (biz || '').split('>')[0] === '投诉业务'; }
   var fBizType = createCascader(document.getElementById('fBizType'), { placeholder: '请选择' });
@@ -465,17 +471,33 @@
     document.getElementById('fMall').value = '兆点福利';
     state.order_ids = boids.slice();
   } else {
-    /* 转工单(session)默认带入 */
-    state.orders = [{ id: '#DD20260710003', sub_id: '#DD20260710003-1', sku: 'HZDF3100216', goods: '无线蓝牙耳机(黑色)', qty: 1, supplier: '深圳声科电子', amount: '¥299', state: '已签收' }];
-    renderCreateOrders();
-    document.getElementById('fDesc').value = '客户反馈订单 #DD20260710003 的退款申请于 7/14 提交,两天未到账,情绪激动。';
-    document.getElementById('fContactName').value = '陈芳';
-    document.getElementById('fContactPhone').value = '13856782891';
-    document.getElementById('fContactAddr').value = '南京市玄武区苏宁大道1号';
-    /* 十三轮:会话建单,企业名称/品牌商城 从会话自带信息带入(原 project='(兆点)苏宁邮政项目') */
-    document.getElementById('fEnterprise').value = '苏宁邮政';
-    document.getElementById('fMall').value = '兆点福利';
-    state.order_ids = ['#DD20260710003']; state.session_id = '#CS20260716088';
+    /* 会话转工单(session):从 URL 读真实上下文(会话记录页等入口带入);参数缺失回退演示值 */
+    var sp = new URLSearchParams(location.search);
+    var sid = sp.get('sid') || '#CS20260716088';
+    var nm = sp.get('name') || '陈芳';
+    var ph = sp.get('phone') || '13856782891';
+    var en = sp.get('ent') || '苏宁邮政';
+    var ma = sp.get('mall') || '兆点福利';
+    var ds = sp.get('desc') || '客户反馈订单 #DD20260710003 的退款申请于 7/14 提交,两天未到账,情绪激动。';
+    var ctxBox = document.getElementById('ctxBox');
+    ctxBox.style.display = '';
+    ctxBox.innerHTML = '<div class="ctx-title">已从会话带入(创建工单)</div>'
+      + '<div class="ctx-row">客户:<b>' + esc(nm) + '</b> · 手机:<b>' + esc(ph) + '</b></div>'
+      + '<div class="ctx-row">来源会话:<b>' + esc(sid) + '</b> · 企业:<b>' + esc(en) + '</b> · 商城:<b>' + esc(ma) + '</b></div>'
+      + '<div class="ctx-row">客户原话:<span style="font-weight:normal;color:var(--cs-text-secondary);">「' + esc(ds) + '」</span></div>';
+    /* 会话入口不带订单:关联订单由客服在建单页自行添加(避免带入不匹配的 mock 订单) */
+    state.orders = []; renderCreateOrders();
+    document.getElementById('fDesc').value = ds;
+    document.getElementById('fContactName').value = nm;
+    document.getElementById('fContactPhone').value = ph;
+    /* 企业/商城:带入值若不在下拉选项,追加为选项再选中(保证可见,客服可改选字典规范值) */
+    applySelectValue(document.getElementById('fEnterprise'), en);
+    applySelectValue(document.getElementById('fMall'), ma);
+    /* 会话转默认值(受理客服全局已默认当前客服):反馈方式=在线客服会话,协助部门=客服部,优先级=一般 */
+    document.getElementById('fFeedback').value = '在线客服会话';
+    document.getElementById('fDept').value = '客服部';
+    document.getElementById('fPriority').value = '一般';
+    state.order_ids = []; state.session_id = sid;
   }
 
   /* 关联订单(列表):抽屉查询关联一或多个 + 手动追加(工单-订单 1 对多)

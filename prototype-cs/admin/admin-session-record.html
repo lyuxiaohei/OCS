@@ -420,6 +420,25 @@
 
   var rows = $$('.data-table tbody tr');
 
+  /* 行操作:统一追加「创建工单」入口(补单 → 建单页 session 模式,带会话+客户上下文) */
+  rows.forEach(function (tr) {
+    /* 离线待处理(留言态)未分配客服,走"分配→接起→转工单",不直接加创建工单入口 */
+    if (tr.getAttribute('data-status') === 'offline') return;
+    var act = $('.row-actions', tr);
+    if (!act || tr.querySelector('.sr-create-ticket')) return;
+    var a = document.createElement('a');
+    a.className = 'sr-create-ticket';
+    a.textContent = '创建工单';
+    a.href = '#';
+    if (act.innerHTML.trim()) {
+      var sep = document.createElement('span');
+      sep.className = 'divider';
+      sep.textContent = '|';
+      act.appendChild(sep);
+    }
+    act.appendChild(a);
+  });
+
   /* ---------- 1. 状态 Tab 过滤 ---------- */
   var TABByText = { '全部': 'all', '进行中': 'ongoing', '离线待处理': 'offline', '已结束': 'closed', '已转接': 'transferred' };
   var statusTabs = $$('.status-tab');
@@ -531,6 +550,30 @@
     } else if (txt === '再次联系') {
       toast('正在跳转工作台发起会话…');
       setTimeout(function () { window.open('admin-workbench.html', '_blank'); }, 800);
+    } else if (txt === '创建工单') {
+      /* 补单:读行数据 → 建单页 session 模式,带会话+客户上下文(一页多入口,复用建单页) */
+      var tr3 = a.closest('tr');
+      var csId = $('.col-id', tr3) ? $('.col-id', tr3).textContent.trim() : '';
+      var userCell = $('.col-user', tr3);
+      var custName = '', phoneRaw = '';
+      if (userCell) {
+        var nd = userCell.querySelectorAll('div > div > div');
+        if (nd[0]) custName = nd[0].textContent.trim();
+        if (nd[1]) phoneRaw = nd[1].textContent.trim();
+      }
+      var ent = tr3.getAttribute('data-ent') || '';
+      var mall = tr3.getAttribute('data-brand') || '';
+      var lm = $('.col-summary .leave-msg', tr3);
+      var lastMsg = lm ? lm.textContent.trim() : '';
+      var p = new URLSearchParams();
+      p.set('mode', 'session');
+      if (csId) p.set('sid', csId);
+      if (custName) p.set('name', custName);
+      if (phoneRaw) p.set('phone', phoneRaw);
+      if (ent) p.set('ent', ent);
+      if (mall) p.set('mall', mall);
+      if (lastMsg) p.set('desc', lastMsg);
+      location.href = 'admin-ticket-create.html?' + p.toString();
     }
   });
 
