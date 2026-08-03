@@ -65,3 +65,6 @@ prototype-cs/自研商城在线客服.pptx
 
 # Prototype zip backups (temp, not tracked)
 prototype-cs*.zip
+
+# Prompt capture logs (local only, not tracked)
+.prompts/
