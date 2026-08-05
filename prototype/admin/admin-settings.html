@@ -117,7 +117,7 @@
           <div class="tc-title">首次响应超时 <span class="tc-tag">accept · 服务中首轮</span></div>
           <div class="tc-row">
             <div class="tc-field"><span class="tc-label">阈值</span>
-              <div class="input-with-unit"><input type="text" value="5" /><select class="unit-select"><option value="秒">秒</option><option value="分" selected>分</option></select></div>
+              <div class="input-with-unit"><input type="text" value="5" /><select class="unit-select"><option value="秒" selected>秒</option><option value="分">分</option></select></div>
             </div>
             <div class="tc-field"><span class="tc-label">触发动作</span>
               <div class="select-field" style="min-width:120px;">标记超时</div>
@@ -131,7 +131,7 @@
           <div class="tc-title">轮次响应超时 <span class="tc-tag">accept · 对话中每轮</span></div>
           <div class="tc-row">
             <div class="tc-field"><span class="tc-label">阈值</span>
-              <div class="input-with-unit"><input type="text" value="3" /><select class="unit-select"><option value="秒">秒</option><option value="分" selected>分</option></select></div>
+              <div class="input-with-unit"><input type="text" value="3" /><select class="unit-select"><option value="秒" selected>秒</option><option value="分">分</option></select></div>
             </div>
             <div class="tc-field"><span class="tc-label">触发动作</span>
               <div class="select-field" style="min-width:120px;">提醒客服</div>
@@ -140,36 +140,28 @@
           <p class="tc-hint">对话过程中，客服超过该时长未回复用户某条消息（非首轮），提醒客服</p>
         </div>
 
-        <!-- 子卡片：用户静默超时（accept，含自动关闭；人工/机器人两组阈值，文案共用） -->
+        <!-- 子卡片：用户静默超时（accept，含自动关闭） -->
         <div class="timeout-card">
           <div class="tc-title">用户静默超时 <span class="tc-tag">accept · 用户无回复</span></div>
           <div class="tc-row">
-            <div class="tc-field"><span class="tc-label">人工客服会话超时提醒阈值</span>
-              <div class="input-with-unit"><input type="text" value="15" /><select class="unit-select"><option value="秒">秒</option><option value="分" selected>分</option></select></div>
+            <div class="tc-field"><span class="tc-label">超时提醒阈值</span>
+              <div class="input-with-unit"><input type="text" value="15" /><select class="unit-select"><option value="秒" selected>秒</option><option value="分">分</option></select></div>
             </div>
-            <div class="tc-field"><span class="tc-label">人工客服会话自动关闭时长</span>
-              <div class="input-with-unit"><input type="text" value="30" /><select class="unit-select"><option value="秒">秒</option><option value="分" selected>分</option></select></div>
-            </div>
-          </div>
-          <div class="tc-row" style="margin-top:10px;">
-            <div class="tc-field"><span class="tc-label">机器人客服会话超时提醒阈值</span>
-              <div class="input-with-unit"><input type="text" value="30" /><select class="unit-select"><option value="秒">秒</option><option value="分" selected>分</option></select></div>
-            </div>
-            <div class="tc-field"><span class="tc-label">机器人客服会话自动关闭时长</span>
-              <div class="input-with-unit"><input type="text" value="60" /><select class="unit-select"><option value="秒">秒</option><option value="分" selected>分</option></select></div>
+            <div class="tc-field"><span class="tc-label">自动关闭时长</span>
+              <div class="input-with-unit"><input type="text" value="30" /><select class="unit-select"><option value="秒" selected>秒</option><option value="分">分</option></select></div>
             </div>
           </div>
           <div style="margin-top:10px;">
             <div class="tc-field" style="align-items:flex-start;">
-              <span class="tc-label" style="padding-top:6px;">超时提醒文案<span style="color:#999;font-weight:normal;font-size:12px;margin-left:6px;">（人工/机器人共用）</span></span>
-              <textarea class="textarea-field" rows="2" style="flex:1;">您已长时间未回复，如需继续咨询请回复任意内容；若继续无回复，会话将自动关闭。</textarea>
+              <span class="tc-label" style="padding-top:6px;">超时提醒文案</span>
+              <textarea class="textarea-field" rows="2" style="flex:1;">您已长时间未回复，如需继续咨询请回复任意内容；会话将在 15 分钟后自动关闭。</textarea>
             </div>
             <div class="tc-field" style="align-items:flex-start; margin-top:8px;">
-              <span class="tc-label" style="padding-top:6px;">关闭提醒文案<span style="color:#999;font-weight:normal;font-size:12px;margin-left:6px;">（人工/机器人共用）</span></span>
+              <span class="tc-label" style="padding-top:6px;">关闭提醒文案</span>
               <textarea class="textarea-field" rows="2" style="flex:1;">由于您长时间未回复，本次会话已关闭。如需继续咨询，请重新发起会话，客服将第一时间为您服务。</textarea>
             </div>
           </div>
-          <p class="tc-hint">人工/机器人最后回复后，用户超过各自「提醒阈值」未回复→推共用提醒文案；到达各自「自动关闭时长」仍无回复→关闭会话并推共用关闭文案</p>
+          <p class="tc-hint">客服最后回复后，用户超过「提醒阈值」未回复→推提醒文案；到达「自动关闭时长」仍无回复→关闭会话并推关闭文案</p>
         </div>
 
         <!-- 子卡片：转接超时（transfer） -->
@@ -177,7 +169,7 @@
           <div class="tc-title">转接超时 <span class="tc-tag">transfer · 转接中</span></div>
           <div class="tc-row">
             <div class="tc-field"><span class="tc-label">TTL</span>
-              <div class="input-with-unit"><input type="text" value="5" /><select class="unit-select"><option value="秒">秒</option><option value="分" selected>分</option></select></div>
+              <div class="input-with-unit"><input type="text" value="5" /><select class="unit-select"><option value="秒" selected>秒</option><option value="分">分</option></select></div>
             </div>
             <div class="tc-field"><span class="tc-label">超时回退策略</span>
               <div class="select-field" style="min-width:120px;">回退至原客服</div>
