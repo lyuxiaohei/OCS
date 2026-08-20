@@ -1594,7 +1594,7 @@
     .sidebar-trigger:hover { color: #fff; }
     .sidebar-trigger.is-open { left: 208px; }
 
-    /* ===== 转工单抽屉（复用 .lib-drawer 容器，仅表单字段专属样式） ===== */
+    /* ===== 创建工单抽屉（复用 .lib-drawer 容器，仅表单字段专属样式） ===== */
     #ticketDrawer .tk-body { flex:1; overflow-y:auto; padding:12px 18px 16px; }
     #ticketDrawer .tk-ctx {
       background: var(--cs-primary-bg); border:1px solid #91caff; border-radius:var(--cs-radius-sm);
@@ -1665,7 +1665,7 @@
     .tk-card .tkc-status.done::before { background:var(--cs-success); }
     .tk-card .tkc-row { font-size:12px; color:var(--cs-text-secondary); margin:2px 0; }
     .tk-card .tkc-row .k { color:var(--cs-text-tertiary); margin-right:4px; }
-    /* 会话条「已转工单」标记 + 多工单 +N */
+    /* 会话条「已创建工单」标记 + 多工单 +N */
     .s-tag.ticket { color:var(--cs-purple); cursor:pointer; }
     .s-tag.ticket::before { background:var(--cs-purple); }
     .s-tag.ticket-more {
@@ -2048,9 +2048,9 @@
         <div class="topbar-actions">
           <button class="btn-sm" id="btnSuspend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>挂起</button>
           <button class="btn-sm" id="btnTransfer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>转接</button>
-          <button class="btn-sm" id="btnTicket" title="转工单(售后问题跟进)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M3 7v3a2 2 0 0 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 1 0-4V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/><line x1="14" y1="5" x2="14" y2="19"/></svg>转工单</button>
           <button class="btn-sm" id="btnMore"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>备注</button>
           <button class="btn-sm" id="btnEnd" title="结束会话"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>结束</button>
+          <button class="btn-sm" id="btnTicket" title="创建工单(售后问题跟进)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><path d="M3 7v3a2 2 0 0 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 1 0-4V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/><line x1="14" y1="5" x2="14" y2="19"/></svg>创建工单</button>
           <button class="btn-sm" id="btnPendingTransfer" title="待接受转接"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>待接受转接<span class="tf-badge" id="tfBadge">0</span></button>
 
           <!-- 「更多」下拉面板：客户备注/标签 -->
@@ -2547,13 +2547,13 @@
     </div>
   </aside>
 
-  <!-- ============ 转工单抽屉（工作台内闭环，会话继续，内部仅客服可见） ============ -->
+  <!-- ============ 创建工单抽屉（工作台内闭环，会话继续，内部仅客服可见） ============ -->
   <div class="lib-mask" id="ticketMask"></div>
   <aside class="lib-drawer" id="ticketDrawer" style="width:520px;">
     <div class="lib-head">
       <div class="lh-title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7v3a2 2 0 0 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 1 0-4V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/><line x1="14" y1="5" x2="14" y2="19"/></svg>
-        转工单 · <span id="tkCustName">—</span>
+        创建工单 · <span id="tkCustName">—</span>
       </div>
       <div class="lh-close" id="ticketClose" title="关闭">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2585,7 +2585,7 @@
     </div>
     <div class="lib-foot" style="justify-content:flex-end;gap:8px;">
       <button class="btn-default" id="tkCancel">取消</button>
-      <button class="btn-primary" id="tkSubmit">确认转单</button>
+      <button class="btn-primary" id="tkSubmit">确认创建</button>
     </div>
   </aside>
 
@@ -2681,12 +2681,12 @@
           });
         });
       }
-      // 转工单：打开工作台内抽屉（不再跳转；会话继续）——实现见文件末尾 openTicketDrawer 模块
+      // 创建工单：打开工作台内抽屉（不再跳转；会话继续）——实现见文件末尾 openTicketDrawer 模块
       var btnTicket = document.getElementById('btnTicket');
       if (btnTicket) {
         btnTicket.addEventListener('click', function () {
           if (typeof window.openTicketDrawer === 'function') window.openTicketDrawer();
-          else if (window.csModal && csModal.toast) csModal.toast('转工单模块加载中…');
+          else if (window.csModal && csModal.toast) csModal.toast('创建工单模块加载中…');
         });
       }
       // 结束会话
@@ -4426,7 +4426,7 @@
   })();
   </script>
 
-  <!-- ============ 转工单模块（工作台内闭环：不跳转 / 会话继续 / 工单仅客服可见） ============ -->
+  <!-- ============ 创建工单模块（工作台内闭环：不跳转 / 会话继续 / 工单仅客服可见） ============ -->
   <script>
   (function () {
     var DICT = window.TICKET_DICT || null;
@@ -4540,14 +4540,15 @@
       var active = document.querySelector('.session-list .session-item.active');
       if (!active) { toast('请先选择一个会话'); return; }
       var st = active.getAttribute('data-status') || 'accept';
-      if (st === 'close') { toast('该会话已结束，无法转工单'); return; }
+      if (st === 'close') { toast('该会话已结束，无法创建工单'); return; }
 
       initBizCascader();
       // 重置
       curOrders = [];
       if (bizCas) bizCas.clear();
       respSel.value = ''; priSel.value = ''; dlSel.value = '';
-      fbSel.value = ''; deptSel.value = ''; sec2Sel.value = '否';
+      fbSel.value = '在线客服会话'; /* 工作台建单来自在线会话，默认反馈方式=在线客服会话，可改 */
+      deptSel.value = ''; sec2Sel.value = '否';
       acceptSel.value = '张小明'; /* 默认当前客服，可改 */
       descEl.value = '';
       respWrap.style.display = 'none';
@@ -4625,10 +4626,10 @@
       tagActiveSession(info.name);
       appendTicketNotice(ticket);
       renderCustTickets(info.name);
-      toast('已转工单 ' + tkId + '，会话继续');
+      toast('已创建工单 ' + tkId + '，会话继续');
     });
 
-    // 会话条「已转工单」标记 + 多工单 +N
+    // 会话条「已创建工单」标记 + 多工单 +N
     function tagActiveSession(name) {
       var active = document.querySelector('.session-list .session-item.active');
       if (!active) return;
@@ -4651,7 +4652,7 @@
       var last = list[list.length - 1];
       var tag = document.createElement('span');
       tag.className = 's-tag ticket';
-      tag.textContent = '已转工单 ' + last.id;
+      tag.textContent = '已创建工单 ' + last.id;
       tag.title = '点击查看（仅客服可见）';
       tag.addEventListener('click', function (e) { e.stopPropagation(); openTicketPop(tag, name); });
       row.appendChild(tag);
@@ -4694,7 +4695,7 @@
       var n = document.createElement('div');
       n.className = 'suspend-notice';
       n.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>'
-        + '已转工单 <b style="color:var(--cs-purple);">' + esc(t.id) + '</b>（业务类型：' + esc(t.biz) + ' · 受理：' + esc(t.acceptor) + '）· 会话继续 · <span style="color:var(--cs-text-tertiary);">仅客服可见</span>';
+        + '已创建工单 <b style="color:var(--cs-purple);">' + esc(t.id) + '</b>（业务类型：' + esc(t.biz) + ' · 受理：' + esc(t.acceptor) + '）· 会话继续 · <span style="color:var(--cs-text-tertiary);">仅客服可见</span>';
       thread.appendChild(n);
       thread.scrollTop = thread.scrollHeight;
     }

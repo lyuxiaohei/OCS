@@ -422,7 +422,7 @@
 
   /* 行操作:统一追加「创建工单」入口(补单 → 建单页 session 模式,带会话+客户上下文) */
   rows.forEach(function (tr) {
-    /* 离线待处理(留言态)未分配客服,走"分配→接起→转工单",不直接加创建工单入口 */
+    /* 离线待处理(留言态)未分配客服,走"分配→接起→创建工单",不直接加创建工单入口 */
     if (tr.getAttribute('data-status') === 'offline') return;
     var act = $('.row-actions', tr);
     if (!act || tr.querySelector('.sr-create-ticket')) return;

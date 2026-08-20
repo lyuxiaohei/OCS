@@ -249,7 +249,7 @@
           <span class="ph-title">新建工单</span>
         </div>
 
-        <!-- 上下文(转工单 / 订单受理带入) -->
+        <!-- 上下文(创建工单 / 订单受理带入) -->
         <div class="ctx-box" id="ctxBox">
           <div class="ctx-title">已从会话自动带入</div>
           <div class="ctx-row">来源会话:<b>#CS20260716088</b> · 客户:<b>陈芳(13856782891)</b></div>
@@ -471,7 +471,7 @@
     document.getElementById('fMall').value = '兆点福利';
     state.order_ids = boids.slice();
   } else {
-    /* 会话转工单(session):从 URL 读真实上下文(会话记录页等入口带入);参数缺失回退演示值 */
+    /* 会话创建工单(session):从 URL 读真实上下文(会话记录页等入口带入);参数缺失回退演示值 */
     var sp = new URLSearchParams(location.search);
     var sid = sp.get('sid') || '#CS20260716088';
     var nm = sp.get('name') || '陈芳';
