@@ -349,8 +349,8 @@
         <div class="filter-card collapsed" id="filterCard">
           <div class="filter-grid">
             <div class="ff"><span class="ff-label">关联订单号：</span><input id="fOrder" placeholder="请输入关联订单号" /></div>
-            <div class="ff"><span class="ff-label">联系人：</span><input id="fCustomer" placeholder="请输入联系人姓名" /></div>
-            <div class="ff"><span class="ff-label">联系人手机号：</span><input id="fCPhone" placeholder="请输入联系人手机号" /></div>
+            <div class="ff"><span class="ff-label">联系人：</span><input id="fCustomer" placeholder="收货/新联系人姓名" /></div><!-- 2026-09-01 评审A:联系人筛选取值合并匹配收货信息+新联系人两套字段 -->
+            <div class="ff"><span class="ff-label">联系人手机号：</span><input id="fCPhone" placeholder="收货/新联系人手机号" /></div>
             <div class="ff ff-row-extra"><span class="ff-label">来电手机号：</span><input id="fIncoming" placeholder="请输入来电手机号" /></div>
             <!-- 2026-07-28:工单业务类型改三级级联组件(筛选;placeholder=全部) -->
             <div class="ff ff-row-extra"><span class="ff-label">工单业务类型：</span>
@@ -475,7 +475,7 @@
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260716090</span></div></td>
                   <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
                 </tr>
-                <tr data-status="未处理" data-priority="紧急" data-agent="李静" data-category="投诉业务" data-sub="产品投诉" data-type="补配件" data-deadline="15天" data-deadline-at="2026-07-30T10:00:00" data-responsible="宏兆" data-order="#DD20260709001-1" data-sku="HZDF2044556" data-incoming="" data-created="2026-07-16T10:02:00" data-cname="周婷婷" data-cphone="13790121024" data-goods="玻璃水杯" data-enterprise="东莞邮政" data-mall="兆点福利" data-is-new="1">
+                <tr data-status="未处理" data-priority="紧急" data-agent="李静" data-category="投诉业务" data-sub="产品投诉" data-type="补配件" data-deadline="15天" data-deadline-at="2026-07-30T10:00:00" data-responsible="宏兆" data-order="#DD20260709001-1" data-sku="HZDF2044556" data-incoming="" data-created="2026-07-16T10:02:00" data-cname="王芳" data-cphone="13790121024" data-newname="周婷婷" data-newphone="13790121024" data-goods="玻璃水杯" data-enterprise="东莞邮政" data-mall="兆点福利" data-is-new="1">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716003</td>
                   <td class="type-col">投诉业务&gt;产品投诉&gt;补配件</td>
                   <td><span class="pri urgent">紧急</span></td>
@@ -484,7 +484,7 @@
                   <td><span class="s-tag untreated">未处理</span></td>
                   <td class="created-cell">2026-07-16 10:02</td>
                   <td class="order-cell"><span class="main-order">#DD20260709001</span></td><td class="order-cell"><a class="order-link" onclick="viewOrder('#DD20260709001-1')">#DD20260709001-1</a></td>
-                  <td><div class="col-user"><div><div>周婷婷 <span class="contact-tag">新联系人</span></div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">137****1024</div></div></div></td>
+                  <td><div class="col-user"><div><!-- 2026-09-01 评审A:有新联系人时列表优先显示新联系人+「新」标签(收货人王芳→新联系人周婷婷);筛选合并匹配两套字段 --><div>周婷婷 <span class="contact-tag">新</span></div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">137****1024</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-16 10:02</span></td>
                   <td class="src-cell"><div class="src-type">订单</div><div class="src-id"><a class="order-link" onclick="viewOrder('#DD20260709001-1')">#DD20260709001-1</a></div></td>
                   <td class="row-actions"><a class="tk-detail">详情</a></td>
@@ -812,6 +812,8 @@
     rows.forEach(function (r) {
       var cust = r.getAttribute('data-cname') || '';
       var cphone = r.getAttribute('data-cphone') || '';
+      var rNewName = r.getAttribute('data-newname') || ''; /* 2026-09-01 评审A:合并匹配新联系人 */
+      var rNewPhone = r.getAttribute('data-newphone') || '';
       var handler = r.getAttribute('data-agent') || '';
       var created = r.getAttribute('data-created') || '';
       var order = r.getAttribute('data-order') || '';
@@ -825,8 +827,8 @@
             && (!pr || r.getAttribute('data-priority') === pr)
             && (!biz || (r.getAttribute('data-category') + '>' + r.getAttribute('data-sub') + '>' + r.getAttribute('data-type')) === biz)
             && (!dl || (dl === '已超时' ? r.getAttribute('data-overdue') === '1' : r.getAttribute('data-deadline') === dl))
-            && (!ag || cust.indexOf(ag) >= 0)
-            && (!cph || cphone.indexOf(cph) >= 0)
+            && (!ag || cust.indexOf(ag) >= 0 || rNewName.indexOf(ag) >= 0)
+            && (!cph || cphone.indexOf(cph) >= 0 || rNewPhone.indexOf(cph) >= 0)
             && (!creator || handler.indexOf(creator) >= 0)
             && (!dStart || created.slice(0,10) >= dStart)
             && (!dEnd || created.slice(0,10) <= dEnd)
