@@ -67,6 +67,8 @@
     .cfg-row { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--cs-bg-header); border-radius:var(--cs-radius-sm); }
     .cfg-row .cfg-name { flex:0 0 130px; border:1px solid var(--cs-border); border-radius:4px; padding:5px 8px; font-size:var(--cs-font-size-sm); background:#fff; outline:none; }
     .cfg-row .cfg-name:focus { border-color:var(--cs-primary); }
+    /* 2026-09-01 开发评审:完成期限值固定单位后缀 */
+    .cfg-row .cfg-unit { flex:0 0 auto; margin-right:10px; align-self:center; font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); }
     .cfg-row .cfg-desc { flex:0 1 220px; border:1px solid var(--cs-border); border-radius:4px; padding:5px 8px; font-size:var(--cs-font-size-sm); color:var(--cs-text-secondary); background:#fff; outline:none; }
     .cfg-row .cfg-desc:focus { border-color:var(--cs-primary); }
     .cfg-row .cfg-count { flex-shrink:0; width:96px; text-align:right; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); }
@@ -390,12 +392,12 @@
       <!-- V0.5:完成期限值(代替 SLA,可配) -->
       <div class="card setting-section" id="deadline">
         <div class="section-head">
-          <h3>完成期限值 <span class="head-desc">代替 SLA 时效;到期→超时标记+通知</span></h3>
+          <h3>完成期限值 <span class="head-desc">代替 SLA 时效;到期→超时标记+通知;单位固定为「天」,填写正整数(2026-09-01 开发评审)</span></h3>
         </div>
         <div class="cfg-list" id="deadlineList">
-          <div class="cfg-row"><input class="cfg-name" value="1天"><input class="cfg-desc" value="紧急售后"><span class="cfg-count"><span class="num">35</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="7天"><input class="cfg-desc" value="常规售后"><span class="cfg-count"><span class="num">180</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
-          <div class="cfg-row"><input class="cfg-name" value="15天"><input class="cfg-desc" value="复杂/跨部门"><span class="cfg-count"><span class="num">111</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/^0+/,'')"><span class="cfg-unit">天</span><input class="cfg-desc" value="紧急售后"><span class="cfg-count"><span class="num">35</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="7" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/^0+/,'')"><span class="cfg-unit">天</span><input class="cfg-desc" value="常规售后"><span class="cfg-count"><span class="num">180</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
+          <div class="cfg-row"><input class="cfg-name" value="15" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/^0+/,'')"><span class="cfg-unit">天</span><input class="cfg-desc" value="复杂/跨部门"><span class="cfg-count"><span class="num">111</span>个工单</span><button class="cfg-del" onclick="delRow(this,'deadline')" title="删除">×</button></div>
         </div>
         <button class="cfg-add" onclick="addRow('deadline')">+ 添加期限值</button>
       </div>
@@ -459,7 +461,11 @@ function addRow(group) {
   var list = document.getElementById(group + 'List');
   var row = document.createElement('div');
   row.className = 'cfg-row';
-  row.innerHTML = '<input class="cfg-name" value="新选项"><input class="cfg-desc" value="说明"><span class="cfg-count"><span class="num">0</span>个工单</span><button class="cfg-del" onclick="delRow(this,\'' + group + '\')" title="删除">×</button>';
+  /* 2026-09-01 开发评审:完成期限值 单位固定为「天」,输入限正整数 */
+  var nameInput = group === 'deadline'
+    ? '<input class="cfg-name" value="7" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').replace(/^0+/,\'\')"><span class="cfg-unit">天</span>'
+    : '<input class="cfg-name" value="新选项">';
+  row.innerHTML = nameInput + '<input class="cfg-desc" value="说明"><span class="cfg-count"><span class="num">0</span>个工单</span><button class="cfg-del" onclick="delRow(this,\'' + group + '\')" title="删除">×</button>';
   list.appendChild(row);
   markDirty(document.getElementById(group));
 }
