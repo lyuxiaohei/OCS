@@ -490,6 +490,7 @@
     ctxBox.innerHTML = '<div class="ctx-title">已从会话带入(创建工单)</div>'
       + '<div class="ctx-row">客户:<b>' + esc(nm) + '</b> · 手机:<b>' + esc(ph) + '</b></div>'
       + '<div class="ctx-row">来源会话:<b>' + esc(sid) + '</b> · 企业:<b>' + esc(en) + '</b> · 商城:<b>' + esc(ma) + '</b></div>'
+      + '<div class="ctx-row">来源:<b>会话创建</b>(系统记录) · 表单「来源」为补充渠道,默认客服创建</div>'
       + '<div class="ctx-row">客户原话:<span style="font-weight:normal;color:var(--cs-text-secondary);">「' + esc(ds) + '」</span></div>';
     /* 会话入口不带订单:关联订单由客服在建单页自行添加(避免带入不匹配的 mock 订单) */
     state.orders = []; renderCreateOrders();
@@ -503,6 +504,9 @@
     document.getElementById('fFeedback').value = '在线客服会话';
     document.getElementById('fDept').value = '客服部';
     document.getElementById('fPriority').value = '一般';
+    /* 2026-09-01:session 模式显示「来源」补充渠道字段(默认客服创建,与工作台抽屉同口径;系统来源=会话已记录) */
+    document.getElementById('sourceRow').style.display = '';
+    document.getElementById('fSource').value = '客服创建';
     state.order_ids = []; state.session_id = sid;
   }
 
