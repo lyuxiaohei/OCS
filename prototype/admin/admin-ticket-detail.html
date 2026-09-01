@@ -535,7 +535,7 @@
       /* 未处理:跟进入口在工单跟进卡(首次跟进自动受理→处理中),底部仅返回 */
       bar.innerHTML = back;
     } else if (STATUS === '处理中') {
-      bar.innerHTML = back + '<button class="btn-default" onclick="remindTicket()">催办</button><button class="btn-default" onclick="gotoWorkbench()">回复用户</button><button class="btn-default" onclick="startAfterSale()">发起售后</button><button class="btn-default" onclick="startCompensation()">发起补偿</button><button class="btn-primary" onclick="finishTicket()">完工</button>';
+      bar.innerHTML = back + '<button class="btn-default" onclick="startAfterSale()">发起售后</button><button class="btn-default" onclick="startCompensation()">发起补偿</button><button class="btn-primary" onclick="finishTicket()">完工</button>';
     } else {
       bar.innerHTML = back;
     }
@@ -634,7 +634,6 @@
      发起补偿(积分页)预留了字段,保持携带工单号 */
   function startAfterSale() { toast('新页签打开售后监控,弹「新增售后申请」(不带字段,客服自填)'); setTimeout(function () { window.open('admin-after-sale.html?new=1', '_blank'); }, 400); }
   function startCompensation() { toast('跳转发起补偿(携带工单 ' + DATA.id + ')'); setTimeout(function () { location.href = 'admin-compensation.html?ticket_id=' + encodeURIComponent(DATA.id); }, 400); }
-  function remindTicket() { toast('已催办,已通知处理人'); addEvent('催办'); }
   function uploadAttach() {
     var list = document.getElementById('attachList');
     var now = new Date();
@@ -671,8 +670,6 @@
     else { toast('跟进已添加'); }
     addEvent('添加工单跟进');
   }
-  function gotoWorkbench() { toast('跳转到会话工作台回复用户'); setTimeout(function () { location.href = 'admin-workbench.html'; }, 400); }
-  /* UC-TD:查看来源会话 → 跳工作台并定位会话 */
   function gotoSession() { toast('跳回客服工作台,定位会话 ' + DATA.session); setTimeout(function () { location.href = 'admin-workbench.html?session=' + encodeURIComponent(DATA.session); }, 400); }
   /* 操作日志:每条 = 时间 + 内容 + 操作账号(不显示角色;系统操作账号名=系统);时间降序,最新插到顶部 */
   function addEvent(text, who, role) {

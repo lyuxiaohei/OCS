@@ -31,13 +31,13 @@ const { chromium } = require('playwright');
   log('[A] ★ 列表出现新工单?', cnt > 0 ? 'YES' : 'NO —— 建单即丢失');
   log('[A] localStorage 里有建单数据?', await page.evaluate(() => Object.keys(localStorage).join(',') || '(空)'));
 
-  // ===== C 工作台 → 转工单 =====
+  // ===== C 工作台 → 创建工单 =====
   await page.goto('http://127.0.0.1:8765/admin/admin-workbench.html', { waitUntil: 'networkidle' });
   await page.waitForTimeout(700);
-  const btn = page.locator('text=转工单').first();
+  const btn = page.locator('text=创建工单').first();
   await btn.click();
   await page.waitForTimeout(900);
-  log('[C] 转工单落地 URL:', page.url().slice(0, 140));
+  log('[C] 创建工单落地 URL:', page.url().slice(0, 140));
   if (page.url().includes('ticket-create')) {
     log('[C] 标题预填:', JSON.stringify(await page.locator('#fTitle').inputValue()));
     log('[C] ctx横幅:', await page.locator('#ctxBox').isVisible() ? '显示' : '隐藏');

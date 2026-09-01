@@ -138,14 +138,7 @@
     .pri.urgent, .pri.critical { color: var(--cs-danger); }
 
     .unassigned { color: var(--cs-text-placeholder); font-style: italic; }
-    /* 2026-07-28 十七轮:行操作 >3 项 ⋯ 下拉(仅列表) */
-    .row-actions .row-more { position:relative; display:inline-block; }
-    .row-actions .row-more-btn { cursor:pointer; color:var(--cs-text-secondary); font-size:15px; line-height:1; padding:0 4px; }
-    .row-actions .row-more-menu { position:absolute; right:0; top:100%; display:none; background:#fff; border:1px solid var(--cs-border-light); border-radius:var(--cs-radius-sm); box-shadow:0 6px 16px rgba(0,0,0,.12); padding:4px 0; z-index:30; white-space:nowrap; }
-    .row-actions .row-more-menu a { display:block; padding:6px 14px; color:var(--cs-text); }
-    .row-actions .row-more.menu-open .row-more-menu { display:block; }
-    /* 2026-07-29:菜单展开时抬高本行冻结操作列层级,避免下拉被下一行操作列背景遮挡 */
-    .data-table tbody tr.row-menu-open > td:last-child { z-index: 50; }
+    /* 2026-09-01:催办/回复用户移除后操作仅 3 项,⋯ 下拉拆平为行内链接;已完工行终态只读仅留详情 */
     .data-table .row-actions a { white-space: nowrap; }
     .data-table .row-actions a.op-accept { color: var(--cs-success); }
 
@@ -459,7 +452,7 @@
                   <td><div class="col-user"><div><div>陈芳</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">138****2891</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-16 09:24</span></td>
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260716088</span></div></td>
-                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-aftersale">发起售后</a><span class="divider">|</span><a class="tk-compensate">发起补偿</a></td>
                 </tr>
                 <tr data-status="处理中" data-priority="特急" data-agent="李静" data-category="投诉业务" data-sub="物流投诉" data-type="超时未收到" data-deadline="1天" data-deadline-at="2026-07-16T09:00:00" data-responsible="东莞邮政" data-order="" data-sku="" data-incoming="13677882210" data-created="2026-07-16T07:40:00" data-cname="刘洋" data-cphone="13967855678" data-goods="" data-enterprise="东莞邮政" data-mall="兆点福利">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716002</td>
@@ -473,7 +466,7 @@
                   <td><div class="col-user"><div><div>刘洋</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">139****5678</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-16 08:10</span></td>
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260716090</span></div></td>
-                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-aftersale">发起售后</a><span class="divider">|</span><a class="tk-compensate">发起补偿</a></td>
                 </tr>
                 <tr data-status="未处理" data-priority="紧急" data-agent="李静" data-category="投诉业务" data-sub="产品投诉" data-type="补配件" data-deadline="15天" data-deadline-at="2026-07-30T10:00:00" data-responsible="宏兆" data-order="#DD20260709001-1" data-sku="HZDF2044556" data-incoming="" data-created="2026-07-16T10:02:00" data-cname="王芳" data-cphone="13790121024" data-newname="周婷婷" data-newphone="13790121024" data-goods="玻璃水杯" data-enterprise="东莞邮政" data-mall="兆点福利" data-is-new="1">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260716003</td>
@@ -515,7 +508,7 @@
                   <td><div class="col-user"><div><div>孙莉</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">136****4477</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-15 11:20</span></td>
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260715086</span></div></td>
-                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-aftersale">发起售后</a><span class="divider">|</span><a class="tk-compensate">发起补偿</a></td>
                 </tr>
                 <tr data-status="已完工" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="产品咨询" data-type="其他" data-deadline="" data-deadline-at="" data-responsible="" data-order="" data-sku="" data-incoming="13366776290" data-created="2026-07-14T14:08:00" data-cname="吴强" data-cphone="13366776290" data-goods="" data-enterprise="宏兆自营" data-mall="兆点福利">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260714005</td>
@@ -559,7 +552,7 @@
                   <td><div class="col-user"><div><div>王秀英</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">131****6789</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-12 09:10</span></td>
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260712030</span></div></td>
-                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-aftersale">发起售后</a><span class="divider">|</span><a class="tk-compensate">发起补偿</a></td>
                 </tr>
                 <tr data-status="未处理" data-priority="一般" data-agent="李静" data-category="咨询业务" data-sub="产品咨询" data-type="产品信息" data-deadline="15天" data-deadline-at="2026-07-27T12:00:00" data-responsible="" data-order="" data-sku="" data-incoming="" data-created="2026-07-12T08:30:00" data-cname="陈国栋" data-cphone="15088992233" data-goods="" data-enterprise="宏兆自营" data-mall="兆点福利">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260712002</td>
@@ -587,7 +580,7 @@
                   <td><div class="col-user"><div><div>林晓梅</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">187****5566</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-11 16:40</span></td>
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260712021</span></div></td>
-                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-aftersale">发起售后</a><span class="divider">|</span><a class="tk-compensate">发起补偿</a></td>
                 </tr>
                 <tr data-status="已完工" data-priority="一般" data-agent="张小明" data-category="投诉业务" data-sub="产品投诉" data-type="返修" data-deadline="" data-deadline-at="" data-responsible="宏兆" data-order="#DD20260703001-1" data-sku="" data-incoming="" data-created="2026-07-11T15:20:00" data-cname="何建军" data-cphone="15899889012" data-goods="" data-enterprise="宏兆自营" data-mall="兆点福利">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260711002</td>
@@ -629,7 +622,7 @@
                   <td><div class="col-user"><div><div>高志远</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">139****7788</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">李静</span><br/><span class="agent-time">2026-07-10 17:30</span></td>
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260711025</span></div></td>
-                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-aftersale">发起售后</a><span class="divider">|</span><a class="tk-compensate">发起补偿</a></td>
                 </tr>
                 <tr data-status="已完工" data-priority="一般" data-agent="张小明" data-category="咨询业务" data-sub="产品咨询" data-type="开具发票" data-deadline="" data-deadline-at="" data-responsible="" data-order="" data-sku="" data-incoming="" data-created="2026-07-10T14:15:00" data-cname="冯雅琴" data-cphone="13355559900" data-goods="" data-enterprise="宏兆自营" data-mall="兆点福利">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260710003</td>
@@ -657,7 +650,7 @@
                   <td><div class="col-user"><div><div>董文博</div><div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">155****1122</div></div></div></td>
                   <td class="agent-cell"><span class="agent-name">张小明</span><br/><span class="agent-time">2026-07-10 11:00</span></td>
                   <td class="src-cell"><div class="src-type">会话</div><div class="src-id"><span class="src-val" onclick="editSource(this)">#CS20260710033</span></div></td>
-                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-remind">催办</a><span class="divider">|</span><a class="tk-reply">回复用户</a><span class="row-more"><span class="row-more-btn">⋯</span><div class="row-more-menu"><a class="tk-aftersale">发起售后</a><a class="tk-compensate">发起补偿</a></div></span></td>
+                  <td class="row-actions"><a class="tk-detail">详情</a><span class="divider">|</span><a class="tk-aftersale">发起售后</a><span class="divider">|</span><a class="tk-compensate">发起补偿</a></td>
                 </tr>
                 <tr data-status="未处理" data-priority="一般" data-agent="李静" data-category="投诉业务" data-sub="产品投诉" data-type="其他" data-deadline="7天" data-deadline-at="2026-07-19T12:00:00" data-responsible="昆山吉波" data-order="#DD20260708001-1" data-sku="" data-incoming="13788884455" data-created="2026-07-09T16:45:00" data-cname="沈丽华" data-cphone="13788884455" data-goods="" data-enterprise="宏兆自营" data-mall="兆点福利">
                   <td class="ck-cell"><input type="checkbox" class="row-check" /></td><td class="col-id">#TK20260709003</td>
@@ -1052,11 +1045,6 @@
     var tr = a.closest('tr');
     if (txt === '详情') {
       location.href = 'admin-ticket-detail.html' + detailQuery(tr);
-    } else if (txt === '催办') {
-      toast('已催办,已通知受理客服');
-    } else if (txt === '回复用户') {
-      toast('跳转到会话工作台回复用户');
-      setTimeout(function () { location.href = 'admin-workbench.html'; }, 600);
     } else if (txt === '发起售后' || txt === '发起补偿') {
       var tid = (tr.querySelector('.col-id') || {}).textContent || '';
       tid = tid.trim();
@@ -1065,13 +1053,20 @@
       setTimeout(function () { location.href = dest + '?ticket_id=' + encodeURIComponent(tid); }, 400);
     }
   });
-  /* 2026-07-28 十七轮:行操作 >3 项收进 ⋯ 下拉(仅列表);点 ⋯ 切换,选菜单项/点外部自动关 */
+  /* 2026-09-01:⋯ 下拉已拆平(催办/回复用户移除后操作仅 3 项),本委托仅处理行内链接 */
   document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.row-more-btn');
-    var target = btn ? btn.closest('.row-more') : null;
-    var wasOpen = target && target.classList.contains('menu-open');
-    document.querySelectorAll('.row-more.menu-open').forEach(function (m) { m.classList.remove('menu-open'); var tr0 = m.closest('tr'); if (tr0) tr0.classList.remove('row-menu-open'); });
-    if (btn) { e.preventDefault(); if (!wasOpen) { target.classList.add('menu-open'); var tr1 = target.closest('tr'); if (tr1) tr1.classList.add('row-menu-open'); } }
+    var a = e.target.closest('.row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var tr = a.closest('tr');
+    var txt = (a.textContent || '').trim();
+    if (txt === '发起售后' || txt === '发起补偿') {
+      var tid = (tr.querySelector('.col-id') || {}).textContent || '';
+      tid = tid.trim();
+      var dest = txt === '发起售后' ? 'admin-after-sale.html' : 'admin-compensation.html';
+      toast(txt + '(携带工单 ' + tid + ')');
+      setTimeout(function () { location.href = dest + '?ticket_id=' + encodeURIComponent(tid); }, 400);
+    }
   });
 
   /* 受理时间列排序:默认降序(新→旧),点击表头切升序,再切回降序 */

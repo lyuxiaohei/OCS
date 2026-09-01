@@ -86,11 +86,11 @@ const { chromium } = require('playwright');
   await page.waitForTimeout(400);
   log('[B2] 订单模式直接提交提示:', await page.locator('.cs-toast, [class*=toast]').last().textContent().catch(() => '(无)'));
 
-  // ===== 流程 C:工作台转工单入口 =====
+  // ===== 流程 C:工作台创建工单入口 =====
   await page.goto('http://127.0.0.1:8765/admin/admin-workbench.html', { waitUntil: 'networkidle' });
   await page.waitForTimeout(600);
-  const zg = await page.locator('text=转工单').count();
-  log('[C1] 工作台「转工单」按钮数:', zg);
+  const zg = await page.locator('text=创建工单').count();
+  log('[C1] 工作台「创建工单」按钮数:', zg);
 
   console.log('errors:', errors.length ? errors.join(' | ') : 'none');
   await browser.close();
