@@ -13,6 +13,8 @@ PRD/
 │   └── research/                      # 竞品分析等输入文档
 ├── 客服工单/
 │   ├── PRD-客服工单-V0.7.md           # 当前版本(2026-09-01 开发评审后修订)
+│   ├── PRD-客服工单-V0.7.html         # 可独立发布的阅读版(单文件,内联 mermaid)
+│   ├── md2html.py                     # md → html 转换脚本(python md2html.py 重跑)
 │   ├── PRD-工作台转工单-V0.1.md       # 增量 PRD
 │   ├── PRD-会话记录创建工单-V0.1.md   # 增量 PRD
 │   ├── archive/                       # 历史版本(含 CHANGES-V0.2.md 旧改动清单)
