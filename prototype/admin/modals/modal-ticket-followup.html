@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>工单跟进 · 弹窗</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 520px; max-width: 92vw; }
+    .tf-body { padding: 18px 20px; }
+    .tf-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 13px; }
+    .tf-meta .label { color: var(--cs-text-tertiary); }
+    .tf-meta .val { color: var(--cs-text); font-weight: var(--cs-font-weight-medium); }
+    .tf-tip { font-size: 12px; color: var(--cs-primary); background: var(--cs-primary-bg, #e6f0ff); border-radius: 6px; padding: 8px 12px; line-height: 1.6; margin-bottom: 14px; }
+    /* 跟进记录:样式与详情页工单跟进卡一致(时间+内容+操作账号) */
+    .tf-section-title { font-size: 13px; color: var(--cs-text); font-weight: 500; margin-bottom: 8px; }
+    .event-flow { border: 1px solid var(--cs-border-light); border-radius: var(--cs-radius-sm); margin-bottom: 14px; }
+    .ev-item { display: flex; padding: 8px 12px; font-size: var(--cs-font-size-xs); border-bottom: 1px solid var(--cs-border-lighter); }
+    .ev-item:last-child { border-bottom: none; }
+    .ev-item .ev-time { width: 74px; color: var(--cs-text-tertiary); flex-shrink: 0; }
+    .ev-item .ev-text { color: var(--cs-text-secondary); flex: 1; min-width: 0; }
+    .ev-item .ev-who { margin-left: 8px; color: var(--cs-text); font-weight: var(--cs-font-weight-medium); flex-shrink: 0; }
+    .ev-empty { padding: 14px 12px; font-size: var(--cs-font-size-xs); color: var(--cs-text-placeholder); text-align: center; }
+    .form-label { display: block; font-size: 13px; color: var(--cs-text); margin-bottom: 6px; font-weight: 500; }
+    .tf-textarea {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 6px;
+      padding: 8px 11px; font-size: 13px; font-family: inherit; background: #fff;
+      outline: none; transition: border-color 0.15s; min-height: 88px; resize: vertical;
+    }
+    .tf-textarea:focus { border-color: var(--cs-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span>工单跟进</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="tf-body">
+      <div class="tf-meta"><span class="label">工单号：</span><span class="val" id="tfTicket">-</span></div>
+      <!-- 十七轮状态机:未处理首条跟进自动受理 → 处理中(与详情页口径一致) -->
+      <div class="tf-tip" id="tfTip" style="display:none;">该工单当前为「未处理」，提交首条跟进后将自动受理，状态转为「处理中」。</div>
+      <div class="tf-section-title">跟进记录</div>
+      <div class="event-flow" id="tfFlow"><div class="ev-empty">暂无跟进记录</div></div>
+      <div>
+        <label class="form-label">跟进内容 <span style="color:var(--cs-danger);">*</span></label>
+        <textarea class="tf-textarea" id="tfContent" placeholder="添加跟进内容…"></textarea>
+      </div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="tfConfirmBtn">添加备注</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    (function () {
+      var P = new URLSearchParams(location.search);
+      document.getElementById('tfTicket').textContent = P.get('ticket') || '-';
+      if ((P.get('status') || '') === '未处理') document.getElementById('tfTip').style.display = '';
+
+      document.getElementById('tfConfirmBtn').addEventListener('click', function () {
+        var ta = document.getElementById('tfContent');
+        var v = ta.value.trim();
+        if (!v) {
+          ta.style.borderColor = 'var(--cs-danger)'; ta.focus();
+          setTimeout(function () { ta.style.borderColor = ''; }, 1500);
+          return;
+        }
+        window.csModalBridge.confirm({
+          action: 'ticket-followup',
+          ticket: P.get('ticket') || '',
+          content: v
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
